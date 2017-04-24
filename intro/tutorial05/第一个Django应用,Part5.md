@@ -1,4 +1,4 @@
-　　本教程上接教程[Part4]()。 前面已经建立一个网页投票应用，现在将为它创建一些自动化测试。
+　　本教程上接教程[Part4](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial04/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart4.md)。 前面已经建立一个网页投票应用，现在将为它创建一些自动化测试。
 
 ## 什么是自动化测试
 
