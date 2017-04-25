@@ -1,3 +1,5 @@
+# 开发第一个Django应用,Part2
+
 本教程继续[Part1](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial01/%E5%BC%80%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart1.md)。我们将设置数据库，创建您的第一个模型，并快速介绍Django的自动生成的管理网站。
 
 ## 数据库设置
