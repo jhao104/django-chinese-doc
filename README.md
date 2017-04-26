@@ -10,7 +10,7 @@
 
 * [入门教程](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B.md)一步步详解如何从零开始创建一个Web应用程序。如果您第一次使用Django或Web应用程序开发，那么请从这里开始。也就是下面的“[入门](#first_steps)”部分。
 
-* [主题指南(0%)]()在比较高的层次上讨论某些话题和概念，并提供有用的背景信息和解释。
+* [主题指南](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/%E4%BD%BF%E7%94%A8Django.md)在比较高的层次上讨论某些话题和概念，并提供有用的背景信息和解释。
 
 * [参考指南(0%)]()包含API和Django的机械等方面的技术参考。抓哟描述了它的工作原理以及如何使用它，但是这要求您对关键概念有基本的的了解。
 
