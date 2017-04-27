@@ -12,19 +12,19 @@
 
 * [主题指南](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/%E4%BD%BF%E7%94%A8Django.md)在比较高的层次上讨论某些话题和概念，并提供有用的背景信息和解释。
 
-* [参考指南(0%)]()包含API和Django的机械等方面的技术参考。抓哟描述了它的工作原理以及如何使用它，但是这要求您对关键概念有基本的的了解。
+* [参考指南](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/API%E5%8F%82%E8%80%83.md)包含API和Django的机械等方面的技术参考。抓哟描述了它的工作原理以及如何使用它，但是这要求您对关键概念有基本的的了解。
 
-* [方法指南(0%)]()就像一种秘诀。他们将帮助您完成解决关键问题和用例的步骤。他们比教程更先进，并且还会帮你你了解Django的工作原理。
+* [方法指南](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/%E6%96%B9%E6%B3%95%E6%8C%87%E5%8D%97.md)就像一种秘诀。他们将帮助您完成解决关键问题和用例的步骤。他们比教程更先进，并且还会帮你你了解Django的工作原理。
 
 ## <span id = "first_steps">入门：</span>
 
 　　如果你是刚接触Django或编程，这是一个起点。
 
-* **从零开始**: [概览](https://docs.djangoproject.com/en/1.11/intro/overview/) | [安装](https://docs.djangoproject.com/en/1.11/intro/install/)
+* **从零开始**: [概览](https://docs.djangoproject.com/en/1.11/intro/overview/) | [安装 (0%)](https://docs.djangoproject.com/en/1.11/intro/install/)
 
-* **入门教程**: [Part1:请求与响应](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial01/%E5%BC%80%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart1.md) | [Part2:模型和管理站点](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial02/%E5%BC%80%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart2.md) | [Part3:视图和模板](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial03/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart3.md) | [Part4:表单和通用视图](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial04/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart4.md) | [Part5:测试](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial05/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart5.md) | [Part6:静态文件]() | [Part7:自定义管理站点]()
+* **入门教程**: [Part1:请求与响应](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial01/%E5%BC%80%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart1.md) | [Part2:模型和管理站点](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial02/%E5%BC%80%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart2.md) | [Part3:视图和模板](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial03/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart3.md) | [Part4:表单和通用视图](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial04/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart4.md) | [Part5:测试](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial05/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart5.md) | [Part6:静态文件 (0%)]() | [Part7:自定义管理站点 (0%)]()
 
-* **进阶教程**: [如何开发可重用的应用]() | [开发Django补丁]()
+* **进阶教程**: [如何开发可重用的应用 (0%)]() | [开发Django补丁 (0%)]()
 
 ## 模型层
 
