@@ -20,7 +20,7 @@
 
 　　如果你是刚接触Django或编程，这是一个起点。
 
-* **从零开始**: [概览](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/Django概览.md) | [安装 (0%)](https://docs.djangoproject.com/en/1.11/intro/install/)
+* **从零开始**: [概览](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/Django概览.md) | [安装](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/%E5%BF%AB%E9%80%9F%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97.md)
 
 * **入门教程**: [Part1:请求与响应](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial01/%E5%BC%80%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart1.md) | [Part2:模型和管理站点](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial02/%E5%BC%80%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart2.md) | [Part3:视图和模板](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial03/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart3.md) | [Part4:表单和通用视图](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial04/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart4.md) | [Part5:测试](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial05/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart5.md) | [Part6:静态文件 (0%)]() | [Part7:自定义管理站点 (0%)]()
 
@@ -32,8 +32,12 @@
 
 * **模型**：[模型简介(0%)](https://docs.djangoproject.com/en/1.11/topics/db/models/)|[字段类型(0%)](https://docs.djangoproject.com/en/1.11/ref/models/fields/)|[索引(0%)](https://docs.djangoproject.com/en/1.11/ref/models/indexes/)|[元选项(0%)](https://docs.djangoproject.com/en/1.11/ref/models/options/)|[模型类(0%)](https://docs.djangoproject.com/en/1.11/ref/models/class/)
 
-* **查询集**: [执行查询(0%)](https://docs.djangoproject.com/en/1.11/topics/db/queries/)|[查询集方法参考](https://docs.djangoproject.com/en/1.11/topics/db/queries/)|[查询表达式(0%)](https://docs.djangoproject.com/en/1.11/ref/models/lookups/)
+* **查询集**: [执行查询(0%)](https://docs.djangoproject.com/en/1.11/topics/db/queries/)|[查询集方法参考 (0%)](https://docs.djangoproject.com/en/1.11/topics/db/queries/)|[查询表达式(0%)](https://docs.djangoproject.com/en/1.11/ref/models/lookups/)
 
 * **模型实例**: [实例方法(0%)](https://docs.djangoproject.com/en/1.11/ref/models/instances/)|[访问关联对象(0%)](http://python.usyiyi.cn/documents/django_182/ref/models/relations.html)
  
+* **迁移**: [迁移简介 (0%)](https://docs.djangoproject.com/en/1.10/topics/migrations/)|[操作参考 (0%)](https://docs.djangoproject.com/en/1.10/ref/migration-operations/)|[模式编辑器 (0%)](https://docs.djangoproject.com/en/1.10/ref/schema-editor/)|[编写迁移 (0%)](https://docs.djangoproject.com/en/1.10/howto/writing-migrations/)
 
+* **高级**: [管理器 (0%)](https://docs.djangoproject.com/en/1.10/topics/db/managers/)|[原始SQL (0%)](https://docs.djangoproject.com/en/1.10/topics/db/sql/)|[事务 (0%)](https://docs.djangoproject.com/en/1.10/topics/db/transactions/)|[聚合 (0%)](https://docs.djangoproject.com/en/1.10/topics/db/aggregation/)|[查询 (0%)](https://docs.djangoproject.com/en/1.10/topics/db/search/)|[自定义字段 (0%)](https://docs.djangoproject.com/en/1.10/howto/custom-model-fields/)|[多数据库 (0%)](https://docs.djangoproject.com/en/1.10/topics/db/multi-db/)|[自定义查询 (0%)](https://docs.djangoproject.com/en/1.10/howto/custom-lookups/)|[查询表达式 (0%)](https://docs.djangoproject.com/en/1.10/ref/models/expressions/)|[条件表达式 (0%)](https://docs.djangoproject.com/en/1.10/ref/models/conditional-expressions/)|[数据库函数 (0%)](https://docs.djangoproject.com/en/1.10/ref/models/conditional-expressions/)
+
+* **其他**: [支持的数据库 (0%)](https://docs.djangoproject.com/en/1.10/ref/databases/)|[遗留的数据库 (0%)](https://docs.djangoproject.com/en/1.10/howto/legacy-databases/)|[提供初始数据 (0%)](https://docs.djangoproject.com/en/1.10/howto/initial-data/)|[优化数据库访问 (0%)](https://docs.djangoproject.com/en/1.10/topics/db/optimization/)|[PostgreSQL specific features (0%)](https://docs.djangoproject.com/en/1.10/ref/contrib/postgres/)
