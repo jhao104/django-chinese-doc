@@ -24,3 +24,5 @@ admin.site.register(Question, QuestionAdmin)
 　　你可以参照上面的形式，创建一个模型类，将之作为第二个参数传入`admin.site.register()`。而且这种操作在任何时候都可以进行。
 　　
 　　经过上面修改"Publication date"字段会在"Question"字段前面：
+
+![admin07](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/_images/admin07.png)
