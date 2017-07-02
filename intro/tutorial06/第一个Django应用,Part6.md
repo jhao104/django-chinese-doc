@@ -35,7 +35,7 @@ li a {
 <link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}" />
 ```
 
-　　`{%static%}`模板标签用户生成静态文件的绝对URL。以上你在开发过程中所需要对静态文件做的所有处理。 浏览器中重新载入http://localhost:8000/polls/，你应该会看到Question的超链接变成了绿色（Django的风格），这也表明你的样式表成功引入了。
+　　`{%static%}`模板标签用户生成静态文件的绝对URL。以上你在开发过程中所需要对静态文件做的所有处理。 浏览器中重新载入http://localhost:8000/polls/，  你应该会看到Question的超链接变成了绿色（Django的风格），这也表明你的样式表成功引入了。
 
 ## 添加背景图片
 
@@ -47,10 +47,10 @@ body {
 }
 ```
 
-　　重新加载http://localhost:8000/polls/，你应该在屏幕的右下方看到载入的背景图片。
+　　重新加载http://localhost:8000/polls/， 你应该在屏幕的右下方看到载入的背景图片。
 
 > 警告：{% static %} 模板标签在不是由 Django 生成的静态文件（比如样式表）中是不可用的。在以后开发过程中应该使用相对路径来相互链接静态文件，因为这样你可以只改变STATIC_URL（ static模板标签用它来生成URLs）而不用同时修改一大堆静态文件的路径。
 
 　　这一上仅仅是基础。有关框架中包含的设置和其他更多详细信息，参见[静态文件howto](https://docs.djangoproject.com/en/1.10/howto/static-files/) 和[静态文件参考](https://docs.djangoproject.com/en/1.10/ref/contrib/staticfiles/)。[部署静态文件](https://docs.djangoproject.com/en/1.10/howto/static-files/deployment/)讲述如何在真实的服务器上使用静态文件。
 
-　　当您对静态文件掌握的差不多了时，请阅读本教程的[第7部分](https://docs.djangoproject.com/en/1.10/intro/tutorial07/)，了解如何自定义Django自动生成的管理站点。
+　　当您对静态文件掌握的差不多了时，请阅读本教程的[第7部分](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial07/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart7.md)，了解如何自定义Django自动生成的管理站点。
