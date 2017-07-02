@@ -431,4 +431,4 @@ class QuestionIndexDetailTests(TestCase):
 
 　　关于测试的完整细节，请查看[Testing in Django](https://docs.djangoproject.com/en/1.10/topics/testing/)。
 
-　　当你对Django 视图的测试感到满意后，请阅读本教程的[第6部分](https://docs.djangoproject.com/en/1.10/intro/tutorial06/)来了解静态文件的管理。
+　　当你对Django 视图的测试感到满意后，请阅读本教程的[第6部分](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial06/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart6.md)来了解静态文件的管理。
