@@ -107,3 +107,77 @@ admin.site.register(Question, QuestionAdmin)
 
 ![admin14t](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/_images/admin14t.png)
 
+　　但是现在还有个小问题。上面页面中插槽纵队排列的方式需要占据大块的页面空间，看起来很不方便。为此，Django提供了一种扁平化的显示方式，你仅仅只需要将ChoiceInline继承的类改为admin.TabularInline：
+```python
+# polls/admin.py
+
+class ChoiceInline(admin.TabularInline):
+    #...
+```
+　　使用`TabularInline`代替`StackedInline``,相关的对象将以一种更紧凑的表格形式显示出来:
+![admin11t](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/_images/admin11t.png)
+
+　　注意，这样多了一个"删除"选项，它允许你删除已经存在的Choice.
+
+## 自定义修改列表
+
+　　现在Question的管理页面看起来已经差不多了，下面来看看修改列表页面，也就是显示了所有question的页面，即下图这个页面:
+![admin04t](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/_images/admin04t.png)
+
+　　Django默认只显示`str()`方法指定的内容。如果我们想要同时显示一些别的内容，可以使用list_display属性，它是一个由多个字段组成的元组，其中的每一个字段都会按顺序显示在页面上，代码如下：
+
+```python
+# polls/admin.py
+
+class QuestionAdmin(admin.ModelAdmin):
+    # ...
+    list_display = ('question_text', 'pub_date')
+```
+　　同时，还可以把[Part2](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial02/%E5%BC%80%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart2.md)中的`was_published_recently()`方法也加入进来：
+```python
+# polls/admin.py
+
+class QuestionAdmin(admin.ModelAdmin):
+    # ...
+    list_display = ('question_text', 'pub_date', 'was_published_recently')
+```
+
+　　现在question的修改列表页面看起来像这样:
+![admin12t](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/_images/admin12t.png)
+
+　　你可以点击其中一列的表头来让列表按照这列的值来进行排序，但是`was_published_recently`这列的表头不行，因为Django不支持按照随便一个方法的输出进行排序。另请注意，默认情况下，`was_published_recently`的列标题是方法的名称（下划线替换为空格），内容则是输出的字符串表示形式。
+
+　　可以通过给方法提供一些属性来改进输出的样式，就如下面所示:
+```python
+# polls/models.py
+
+class Question(models.Model):
+    # ...
+    def was_published_recently(self):
+        now = timezone.now()
+        return now - datetime.timedelta(days=1) <= self.pub_date <= now
+    was_published_recently.admin_order_field = 'pub_date'
+    was_published_recently.boolean = True
+    was_published_recently.short_description = 'Published recently?'
+```
+　　关于这些方法属性的更多信息，请参见[list_display](https://docs.djangoproject.com/en/1.10/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_display)。
+　　
+　　我们还可以对显示结果进行过滤，通过使用`list_filter`属性。在`QuestionAdmin`中添加下面的代码：
+```python
+list_filter = ['pub_date']
+```
+
+　　它添加了一个“过滤器”侧边栏，这样就可以通过pubdate字段来过滤显示question:
+![admin13t](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/_images/admin13t.png)
+
+　　过滤器显示的筛选类型取决与你过滤的字段，由于`pub_data`是` DateTimeField`，所以Django就自动给出了“今天”、“过去7天”、“本月”、“今年”这几个选项。
+
+　　这一切进展顺利。再添加一些搜索功能：
+```python
+search_fields = ['question_text']
+```
+
+　　这行代码在修改列表的顶部添加了一个搜索框。 当进行搜索时，Django将在question_text字段中进行搜索。 你在search_fields中使用任意数量的字段，但由于它在后台使用LIKE进行查询，尽量不要添加太多的字段，不然会降低数据库查询能力。
+
+
+
