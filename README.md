@@ -30,7 +30,7 @@
 
 　　Django提供一个抽象层（Models）以构建和操作你的web应用中的数据，通过以下内容了解更多：
 
-* **模型**：[模型简介(0%)](https://docs.djangoproject.com/en/1.11/topics/db/models/)|[字段类型(0%)](https://docs.djangoproject.com/en/1.11/ref/models/fields/)|[索引(0%)](https://docs.djangoproject.com/en/1.11/ref/models/indexes/)|[元选项(0%)](https://docs.djangoproject.com/en/1.11/ref/models/options/)|[模型类(0%)](https://docs.djangoproject.com/en/1.11/ref/models/class/)
+* **模型**：[模型简介(20%)](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/topics/db/models.md)|[字段类型(0%)](https://docs.djangoproject.com/en/1.11/ref/models/fields/)|[索引(0%)](https://docs.djangoproject.com/en/1.11/ref/models/indexes/)|[元选项(0%)](https://docs.djangoproject.com/en/1.11/ref/models/options/)|[模型类(0%)](https://docs.djangoproject.com/en/1.11/ref/models/class/)
 
 * **查询集**: [执行查询(0%)](https://docs.djangoproject.com/en/1.11/topics/db/queries/)|[查询集方法参考 (0%)](https://docs.djangoproject.com/en/1.11/topics/db/queries/)|[查询表达式(0%)](https://docs.djangoproject.com/en/1.11/ref/models/lookups/)
 

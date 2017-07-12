@@ -22,7 +22,7 @@ class Person(models.Model):
     last_name = models.CharField(max_length=30)
 ```
 
-其中`first_name`和`last_name`模型的都是[字段](#fields)，每个字段都是类的一个属性，每个属性映射到数据库中的列。
+其中`first_name`和`last_name`模型的都是[字段](#字段)，每个字段都是类的一个属性，每个属性映射到数据库中的列。
 
 上面的`Person`model将会像下面sql语句类似的创建一张表:
 
@@ -59,7 +59,7 @@ INSTALLED_APPS = [
 当你在`INSTALLED_APPS`中添加新的应用名时，一定要运行命令`manage.py migrate`，你可以事先使用`manage.py makemigrations`给应用生成迁移脚本。
 
 
-## <span id = "fields">字段</span>
+## 字段
 
 对于一个模型来说，最重要的是列出该模型在数据库中定义的字段。字段由models类属性指定。要注意选择的字段名称不要和[模型API (0%)](https://docs.djangoproject.com/en/1.10/ref/models/instances/)冲突，比如`clean`、`save`` 或者`delete`等。
 
