@@ -179,5 +179,80 @@ search_fields = ['question_text']
 
 　　这行代码在修改列表的顶部添加了一个搜索框。 当进行搜索时，Django将在question_text字段中进行搜索。 你在search_fields中使用任意数量的字段，但由于它在后台使用LIKE进行查询，尽量不要添加太多的字段，不然会降低数据库查询能力。
 
+　　修改列表自带分页功能，默认每页展示100条数据。
+
+## 自定义管理站点外观
+
+　　很明显，在每一个admin页面坐上顶端都显示“Django 管理”是感觉很荒诞，它仅仅是个占位文本。利用Django的模板系统，可以易修改它。
+
+　　它可以用Django的模板系统轻松改变。 Django的管理站点是用Django自己制作出来的，它的界面代码使用的是Django自己的模板系统。
+
+### 自定义项目模板
+
+　　在项目的路劲下（包含manage.py的目录）创建一个名为`templates`目录。Templates可以放在你的文件系统中Django所能访问到的任何地方。（运行Web服务器的用户即是运行Django的用户）。然而，但是作为一个好的习惯，最好把模板放在本项目目录下。
+
+　　在配置文件中(`mysite/settings.py`)在`TEMPLATES`中添加一个`DIRS`选项:
+```python
+# mysite/settings.py
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+```
+
+　　`DIRS`是在加载Django模板时检查的文件系统目录列表;它是一个搜索路径。
+
+> 模板组织方式：就像静态文件一样，我们可以把所有的模板都放在一起，形成一个大大的模板文件夹，并且工作正常。但是不建议这样！最好每一个模板都应该存放在它所属应用的模板目录内（例如polls/templates）而不是整个项目的模板目录（templates），因为这样每个应用才可以被方便和正确的重用。请参考[如何重用apps](> 模板组织方式：就像静态文件一样，我们可以把所有的模板都放在一起，形成一个大大的模板文件夹，并且工作正常。但是不建议这样！最好每一个模板都应该存放在它所属应用的模板目录内（例如polls/templates）而不是整个项目的模板目录（templates），因为这样每个应用才可以被方便和正确的重用。请参考[如何重用apps (0%)](https://docs.djangoproject.com/en/1.10/intro/reusable-apps/)。
+
+　　接下来，在刚才创建的`templates`中创建一个`admin`目录，将`admin/base_site.html`模板文件拷贝到该目录内。这个html文件来自Django源码，它位于`django/contrib/admin/templates`目录内。
+
+> 如何找到Django源文件: 在命令行中运行下面代码: `python -c "import django; print(django.__path__)"`
+
+　　然后替换文件中的`{{ site_header|default:_('Django administration') }}`（包括两个大括号),换成你想要命名的名字即可。编辑完成后应该类似下面的代码片段：
+
+```python
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">Polls Administration</a></h1>
+{% endblock %}
+```
+
+　　这里仅仅是使用这种方法来教您如何覆盖模板。在实际的项目中,您可以使用[django.contrib.admin.AdminSite。siteheader](https://docs.djangoproject.com/en/1.10/ref/contrib/admin/#django.contrib.admin.AdminSite.site_header)属性更容易实现这个特殊的定制。
+
+　　在这个模板文件中有许多类似这样的文本`{% block branding %}`、`{{ title }}`。`{%`和`{{`都是Django模板语法的一部分。当Django渲染`admin/base_site.html`的时候，这个模板语言将被生成最终的html页面，就像[Part3](https://github.com/jhao104/memory-notes/blob/master/Django/Django%201.10%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3-%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%BA%94%E7%94%A8Part3-%E8%A7%86%E5%9B%BE%E5%92%8C%E6%A8%A1%E6%9D%BF.md)中一样。
+
+　　注意任何Django管理站点的默认模板都可以重写。 想要重写一个模板文件，只需要做和重写`base_site.html`相同的操作就行——将它从默认的目录拷贝到你自定义的目录中，然后修改它。
+
+### 自定义应用模板
+
+　　聪明的读者可能会问：但是`DIRS`默认是空的，Django是如何找到默认的admin模板呢？回答是，由于`APP_DIRS`被设置为`True``，Django将自动查找每一个应用路径下的templates/子目录（不要忘了django.contrib.admin也是一个应用）。
+
+　　我们的投票应用不太复杂，因此不需要自定义admin模板。但是如果它变得越来越复杂，因为某些功能而需要修改Django的标准admin模板，那么修改的模板就比修改项目的模板更加明智。这样的话，你可以将投票应用加入到任何新的项目中，并且保证能够找到它所需要的自定义模板。更多关于Django如何加载模板文件的信息，请查看[模板加载 (0%)](https://docs.djangoproject.com/en/1.10/topics/templates/#template-loading)的文档。
+
+### 自定义管理站点首页
+
+　　在类似的情况下，您可能想要定制Django管理首页页面。默认情况下，管理站点首页显示所有`INSTALLED_APPS`内并在admin应用中注册过的app，以字母顺序进行排序。
+
+　　要定制管理站点首页，需要重写`admin/index.html`模板，就像前面修改`base_site.html`模板的方法一样，从源码目录拷贝到你指定的目录内。编辑该文件，你会看到文件内使用了一个`app_list`模板变量。该变量包含了所有已经安装的Django应用。你可以硬编码链接到指定对象的admin页面，使用任何你认为好的方法，用于替代这个`app_list`。
+
+
+
+
+
+
+
+
+
 
 
