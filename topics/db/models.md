@@ -38,7 +38,7 @@ CREATE TABLE myapp_person (
 
 * 表的名字`myapp_person_name`是根据模型中的元数据自动生成的(app_name + class_name),也可以自定义表的名称,参考这里[表名 (0%)](https://docs.djangoproject.com/en/1.11/ref/models/options/#table-names);
 
-* `id`字段是自动添加的，你可以重新改写这一行为，参见[自增主键](#Automatic_primary_key_fields);
+* `id`字段是自动添加的，你可以重新改写这一行为，参见[自增主键](#自增主键);
 
 * 本示例中的CREATE TABLE SQL使用的是PostgreSQL语法，但是在应用中，Django会根据[配置文件 (0%)](https://docs.djangoproject.com/en/1.10/topics/settings/)中指定的数据库类型来使用相应的SQL语句。
 
@@ -181,7 +181,68 @@ class Fruit(models.Model):
 
 最后重申，这些只是对最常见的字段选项的简短描述，更加详细内容参见[这里](https://docs.djangoproject.com/en/1.11/ref/models/fields/#common-model-field-options)。
 
+### 自增主键
 
+默认情况下Django会给所有的model添加类似下面的字段:
 
+```python
+id = models.AutoField(primary_key=True)
+```
 
+这就是自增主键。
 
+如果你想将某个字段设置为主键，在那个字段设置`primary_key=True`即可，Django发现已经有字段设置了`primary_key=True`时，将不会再自动添加`id`字段。每个model都必须要有一个字段是`primary_key=True`。如果你不添加，Django将自动添加。
+
+### 字段描述名
+
+除`ForeignKey`、`ManyToManyField`和`OneToOneField`外，每个字段类型都接受一个可选的位置参数（第一个位置）——字段的描述名。如果没有给定描述名，Django将根据字段的属性名称自动创建描述名——将属性名称的下划线替换成空格。
+
+比如这个例子中描述名是`person's first name`：
+```python
+first_name = models.CharField("person's first name", max_length=30)
+```
+
+而没有主动设置时，则是`first name`:
+```python
+first_name = models.CharField(max_length=30)
+```
+
+`ForeignKey`、`ManyToManyField`和`OneToOneField`也是有描述名的，只是他们的第一个参数必须是模型类，所以描述名需要通过关键字参数传入:
+```python
+poll = models.ForeignKey(
+    Poll,
+    on_delete=models.CASCADE,
+    verbose_name="the related poll",
+)
+sites = models.ManyToManyField(Site, verbose_name="list of sites")
+place = models.OneToOneField(
+    Place,
+    on_delete=models.CASCADE,
+    verbose_name="related place",
+)
+```
+
+习惯上描述名不用大写首字母，在必要的时候Django会自动大写首字母。
+
+### 关系
+
+显然，关系数据库的特点在于相互关联的表。Django提供了定义三种最常见的数据库关系类型方法:多对一、多对多和一对一。
+
+#### 多对一
+
+Django使用`django.db.models.ForeignKey`来定义一个多对一的关系,和字段类型一样，在模型当中把它做为一个类属性包含进来。`ForeignKey`接收一个位置参数——与model关联的类。
+
+例如:一辆汽车(Car)只有一家制造商(Manufacturer)，但是一家制造商可以生产很多辆汽车，所以可以按照这样方式来定义:
+```python
+rom django.db import models
+
+class Manufacturer(models.Model):
+    # ...
+    pass
+
+class Car(models.Model):
+    manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE)
+    # ...
+```
+
+>另外，`ForeignKey`字段还接受许多其他额外的参数
