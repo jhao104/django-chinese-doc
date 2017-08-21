@@ -100,6 +100,8 @@
     Starting development server at http://127.0.0.1:8000/
     Quit the server with CTRL-BREAK.
 
+
+
 .. note::
 
     注意：现在忽略有关未应用数据库迁移的警告;下面教程将很快处理数据库
@@ -109,7 +111,7 @@
 
 .. note::
 
-请注意：不要在任何生产环境使用这个服务器。它仅仅是用于在开发中使用。（我们的重点是编写Web框架，非Web服务器。）
+   请注意：不要在任何生产环境使用这个服务器。它仅仅是用于在开发中使用。（我们的重点是编写Web框架，非Web服务器。）
 
 既然服务器已经运行，请用你的浏览器访问 http://127.0.0.1:8000。
 在淡蓝色背景下，你将看到一个“Welcome to Django”的页面。 It worked!
@@ -278,3 +280,7 @@ url() argument: name
 .. _Django settings: https://docs.djangoproject.com/en/1.10/topics/settings/
 .. _URL转发器: https://docs.djangoproject.com/en/1.10/topics/http/urls/
 .. _如何利用WSGI进行部署: https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:

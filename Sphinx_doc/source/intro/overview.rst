@@ -196,7 +196,9 @@ URLconfs还用于将URL与Python代码分离。以下是上述Reporter/Article�
         context = {'year': year, 'article_list': a_list}
         return render(request, 'news/year_archive.html', context)
 
-　　这个例子使用了`Django模板系统 `_ ，它不仅功能强大，而且还让非编程人员使用觉得足够简单。
+
+　　这个例子使用了`Django模板系统`_ ，它不仅功能强大，而且还让非编程人员使用觉得足够简单。
+
 
 设计模板
 ========
@@ -274,3 +276,9 @@ Just a little
 .. _自定义模板过滤器: https://docs.djangoproject.com/en/1.10/howto/custom-template-tags/
 .. _缓存框架: https://docs.djangoproject.com/en/1.10/topics/cache/
 .. _联合框架: https://docs.djangoproject.com/en/1.10/ref/contrib/syndication/
+
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+

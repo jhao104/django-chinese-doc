@@ -79,3 +79,7 @@
 .. _操作系统发行版提供的Django: https://docs.djangoproject.com/en/1.10/topics/install/#installing-distribution-package
 .. _安装最新的开发版本: https://docs.djangoproject.com/en/1.10/topics/install/#installing-development-version
 .. _教程: https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial01/%E5%BC%80%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart1.md
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
