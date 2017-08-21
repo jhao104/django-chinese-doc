@@ -9,7 +9,7 @@
    intro/index
 
 
-Django中文文档
+Django1.10 中文文档
 ==================
 
   Django的百科全书
