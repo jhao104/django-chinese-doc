@@ -7,22 +7,19 @@
    :hidden:
 
    intro/index
-   topics/index
-   ref/index
-   howto/index
 
 
-Django1.10中文文档
+Django中文文档
 ==================
 
   Django的百科全书
 
+.. note::
+
+    本项目正在进行中，未翻译完成的部分会跳到官方文档，如果你有兴趣可以在github上加入我们。
+
 文档结构
 ========
-
-
-
-
 
   Django有很多的文档。一个好的组织结构能够帮助您在何处寻找你想要的内容：
 

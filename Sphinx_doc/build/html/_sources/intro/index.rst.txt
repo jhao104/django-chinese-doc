@@ -1,15 +1,14 @@
-.. _intro:
 
 入门教程
 ========
 
   刚开始接触Django?还是Web开发新人?好吧，你来了个正确的地方，这里能帮你快速学习并跑起一个Web应用。
 
-* `Django概览 <https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/Django概览.md>`_
+* :doc:`overview`
 
-* `快速安装 <https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/%E5%BF%AB%E9%80%9F%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97.md>`_
+* :doc:`install`
 
-* `开发第一个Django应用,Part1 <https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial01/%E5%BC%80%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart1.md>`_
+* :doc:`tutorial01`
 
 * `开发第一个Django应用,Part2 <https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial02/%E5%BC%80%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart2.md>`_
 
@@ -36,4 +35,15 @@
 
   如果您已经掌握其他几种语言，并希望快速开始使用Python，我们建议您使用 `Dive Into Python <http://www.diveintopython3.net/>`_ 。如果这不是你的风格，还有很多 `关于Python的书 <https://wiki.python.org/moin/PythonBooks>`_ 。
 
+
+
+
+.. toctree::
+    :maxdepth: 2
+    :numbered: 2
+    :hidden:
+
+    overview
+    install
+    tutorial01
 
