@@ -10,7 +10,7 @@
 
 * :doc:`tutorial01`
 
-* `开发第一个Django应用,Part2 <https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial02/%E5%BC%80%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart2.md>`_
+* :doc:`tutorial02`
 
 * `开发第一个Django应用,Part3 <https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial03/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart3.md>`_
 
@@ -46,4 +46,5 @@
     overview
     install
     tutorial01
+    tutorial02
 
