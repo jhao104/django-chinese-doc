@@ -1,40 +1,50 @@
-===============
-Getting started
-===============
 
-New to Django? Or to Web development in general? Well, you came to the right
-place: read this material to quickly get up and running.
+入门教程
+========
+
+  刚开始接触Django?还是Web开发新人?好吧，你来了个正确的地方，这里能帮你快速学习并跑起一个Web应用。
+
+* :doc:`overview`
+
+* :doc:`install`
+
+* :doc:`tutorial01`
+
+* :doc:`tutorial02`
+
+* `开发第一个Django应用,Part3 <https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial03/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart3.md>`_
+
+* `开发第一个Django应用,Part4 <https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial04/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart4.md>`_
+
+* `开发第一个Django应用,Part5 <https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial05/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart5.md>`_
+
+* `开发第一个Django应用,Part6 <https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial06/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart6.md>`_
+
+* `开发第一个Django应用,Part7 <https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial07/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart7.md>`_
+
+* `高级教程：如何编写可重用的应用程序 (0%) <https://docs.djangoproject.com/en/1.11/intro/reusable-apps/>`_
+
+* `接下来看什么 (0%) <https://docs.djangoproject.com/en/1.11/intro/whatsnext/>`_
+
+* `开发第一个Django补丁 (0%) <https://docs.djangoproject.com/en/1.11/intro/contributing/>`_
+
+
+  也可以看看:如果您是Python新手，您可能希望首先了解该语言是什么。 Django是100％的Python，所以如果你对Python的了解不多，你可能会从Django中获得更多的东西。
+
+  如果您刚开始编程，您可能需要从 `非编程人员的Python资源列表 <https://wiki.python.org/moin/BeginnersGuide/NonProgrammers>`_ 开始
+
+  如果您已经掌握其他几种语言，并希望快速开始使用Python，我们建议您使用 `Dive Into Python <http://www.diveintopython3.net/>`_ 。如果这不是你的风格，还有很多 `关于Python的书 <https://wiki.python.org/moin/PythonBooks>`_ 。
+
+
+
 
 .. toctree::
-   :maxdepth: 1
+    :maxdepth: 2
+    :numbered: 2
+    :hidden:
 
-   overview
-   install
-   tutorial01
-   tutorial02
-   tutorial03
-   tutorial04
-   tutorial05
-   tutorial06
-   tutorial07
-   reusable-apps
-   whatsnext
-   contributing
+    overview
+    install
+    tutorial01
+    tutorial02
 
-.. seealso::
-
-    If you're new to Python_, you might want to start by getting an idea of what
-    the language is like. Django is 100% Python, so if you've got minimal
-    comfort with Python you'll probably get a lot more out of Django.
-
-    If you're new to programming entirely, you might want to start with this
-    `list of Python resources for non-programmers`_
-
-    If you already know a few other languages and want to get up to speed with
-    Python quickly, we recommend `Dive Into Python`_. If that's not quite your
-    style, there are many other `books about Python`_.
-
-    .. _python: https://python.org/
-    .. _list of Python resources for non-programmers: https://wiki.python.org/moin/BeginnersGuide/NonProgrammers
-    .. _Dive Into Python: http://www.diveintopython3.net/
-    .. _books about Python: https://wiki.python.org/moin/PythonBooks
