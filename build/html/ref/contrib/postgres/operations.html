@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Database migration operations &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Database migration operations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/ref/contrib/postgres/operations.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="database-migration-operations">
+<h1>Database migration operations<a class="headerlink" href="#database-migration-operations" title="永久链接至标题">¶</a></h1>
+<p>All of these <a class="reference internal" href="../../migration-operations.html"><span class="doc">operations</span></a> are available from
+the <code class="docutils literal"><span class="pre">django.contrib.postgres.operations</span></code> module.</p>
+<div class="section" id="creating-extension-using-migrations">
+<span id="create-postgresql-extensions"></span><h2>Creating extension using migrations<a class="headerlink" href="#creating-extension-using-migrations" title="永久链接至标题">¶</a></h2>
+<p>You can create a PostgreSQL extension in your database using a migration file.
+This example creates an hstore extension, but the same principles apply for
+other extensions.</p>
+<p>Set up the hstore extension in PostgreSQL before the first <code class="docutils literal"><span class="pre">CreateModel</span></code>
+or <code class="docutils literal"><span class="pre">AddField</span></code> operation that involves
+<a class="reference internal" href="fields.html#django.contrib.postgres.fields.HStoreField" title="django.contrib.postgres.fields.HStoreField"><code class="xref py py-class docutils literal"><span class="pre">HStoreField</span></code></a> by adding a migration with
+the <a class="reference internal" href="#django.contrib.postgres.operations.HStoreExtension" title="django.contrib.postgres.operations.HStoreExtension"><code class="xref py py-class docutils literal"><span class="pre">HStoreExtension</span></code></a> operation.
+For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.contrib.postgres.operations</span> <span class="k">import</span> <span class="n">HStoreExtension</span>
+
+<span class="k">class</span> <span class="nc">Migration</span><span class="p">(</span><span class="n">migrations</span><span class="o">.</span><span class="n">Migration</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="n">operations</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">HStoreExtension</span><span class="p">(),</span>
+        <span class="o">...</span>
+    <span class="p">]</span>
+</pre></div>
+</div>
+<p>Creating the extension requires a database user with superuser privileges.
+If the Django database user doesn’t have superuser privileges, you’ll have
+to create the extension outside of Django migrations with a user that has
+the appropriate privileges. In that case, connect to your Django database and
+run the query <code class="docutils literal"><span class="pre">CREATE</span> <span class="pre">EXTENSION</span> <span class="pre">IF</span> <span class="pre">NOT</span> <span class="pre">EXISTS</span> <span class="pre">hstore;</span></code>.</p>
+</div>
+<div class="section" id="createextension">
+<h2><code class="docutils literal"><span class="pre">CreateExtension</span></code><a class="headerlink" href="#createextension" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.postgres.operations.CreateExtension">
+<em class="property">class </em><code class="descclassname">django.contrib.postgres.operations.</code><code class="descname">CreateExtension</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.postgres.operations.CreateExtension" title="永久链接至目标">¶</a></dt>
+<dd><p>An <code class="docutils literal"><span class="pre">Operation</span></code> subclass which installs PostgreSQL extensions.</p>
+<dl class="attribute">
+<dt id="django.contrib.postgres.operations.CreateExtension.name">
+<code class="descname">name</code><a class="headerlink" href="#django.contrib.postgres.operations.CreateExtension.name" title="永久链接至目标">¶</a></dt>
+<dd><p>This is a required argument. The name of the extension to be installed.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="hstoreextension">
+<h2><code class="docutils literal"><span class="pre">HStoreExtension</span></code><a class="headerlink" href="#hstoreextension" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.postgres.operations.HStoreExtension">
+<em class="property">class </em><code class="descclassname">django.contrib.postgres.operations.</code><code class="descname">HStoreExtension</code><a class="headerlink" href="#django.contrib.postgres.operations.HStoreExtension" title="永久链接至目标">¶</a></dt>
+<dd><p>Installs the <code class="docutils literal"><span class="pre">hstore</span></code> extension and also sets up the connection to
+interpret hstore data for possible use in subsequent migrations.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="trigramextension">
+<h2><code class="docutils literal"><span class="pre">TrigramExtension</span></code><a class="headerlink" href="#trigramextension" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.postgres.operations.TrigramExtension">
+<em class="property">class </em><code class="descclassname">django.contrib.postgres.operations.</code><code class="descname">TrigramExtension</code><a class="headerlink" href="#django.contrib.postgres.operations.TrigramExtension" title="永久链接至目标">¶</a></dt>
+<dd><div class="versionadded">
+</div>
+<p>Installs the <code class="docutils literal"><span class="pre">pg_trgm</span></code> extension.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="unaccentextension">
+<h2><code class="docutils literal"><span class="pre">UnaccentExtension</span></code><a class="headerlink" href="#unaccentextension" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.postgres.operations.UnaccentExtension">
+<em class="property">class </em><code class="descclassname">django.contrib.postgres.operations.</code><code class="descname">UnaccentExtension</code><a class="headerlink" href="#django.contrib.postgres.operations.UnaccentExtension" title="永久链接至目标">¶</a></dt>
+<dd><p>Installs the <code class="docutils literal"><span class="pre">unaccent</span></code> extension.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>JavaScript &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>JavaScript</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/internals/contributing/writing-code/javascript.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="javascript">
+<h1>JavaScript<a class="headerlink" href="#javascript" title="永久链接至标题">¶</a></h1>
+<p>While most of Django core is Python, the <code class="docutils literal"><span class="pre">admin</span></code> and <code class="docutils literal"><span class="pre">gis</span></code> contrib apps
+contain JavaScript code.</p>
+<p>Please follow these coding standards when writing JavaScript code for inclusion
+in Django.</p>
+<div class="section" id="code-style">
+<h2>Code style<a class="headerlink" href="#code-style" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li>Please conform to the indentation style dictated in the <code class="docutils literal"><span class="pre">.editorconfig</span></code>
+file. We recommend using a text editor with <a class="reference external" href="http://editorconfig.org/">EditorConfig</a> support to avoid
+indentation and whitespace issues. Most of the JavaScript files use 4 spaces
+for indentation, but there are some exceptions.</li>
+<li>When naming variables, use <code class="docutils literal"><span class="pre">camelCase</span></code> instead of <code class="docutils literal"><span class="pre">underscore_case</span></code>.
+Different JavaScript files sometimes use a different code style. Please try to
+conform to the code style of each file.</li>
+<li>Use the <a class="reference external" href="http://jshint.com/">JSHint</a> code linter to check your code for bugs and style errors.
+JSHint will be run when you run the JavaScript tests. We also recommended
+installing a JSHint plugin in your text editor.</li>
+</ul>
+</div>
+<div class="section" id="javascript-patches">
+<span id="id1"></span><h2>JavaScript patches<a class="headerlink" href="#javascript-patches" title="永久链接至标题">¶</a></h2>
+<p>Django’s admin system leverages the jQuery framework to increase the
+capabilities of the admin interface. In conjunction, there is an emphasis on
+admin JavaScript performance and minimizing overall admin media file size.
+Serving compressed or “minified” versions of JavaScript files is considered
+best practice in this regard.</p>
+<p>To that end, patches for JavaScript files should include both the original
+code for future development (e.g. <code class="docutils literal"><span class="pre">foo.js</span></code>), and a compressed version for
+production use (e.g. <code class="docutils literal"><span class="pre">foo.min.js</span></code>). Any links to the file in the codebase
+should point to the compressed version.</p>
+<div class="section" id="compressing-javascript">
+<h3>Compressing JavaScript<a class="headerlink" href="#compressing-javascript" title="永久链接至标题">¶</a></h3>
+<p>To simplify the process of providing optimized JavaScript code, Django
+includes a handy Python script which should be used to create a “minified”
+version. To run it:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> pip install closure
+<span class="gp">$</span> python django/contrib/admin/bin/compress.py
+</pre></div>
+</div>
+<p>Behind the scenes, <code class="docutils literal"><span class="pre">compress.py</span></code> is a front-end for Google’s
+<a class="reference external" href="https://developers.google.com/closure/compiler/">Closure Compiler</a> which is written in Java. The Closure Compiler library is
+not bundled with Django, but you can install it using pip as done above. The
+Closure Compiler library requires <a class="reference external" href="https://www.java.com">Java</a> 7 or higher.</p>
+<p>Please don’t forget to run <code class="docutils literal"><span class="pre">compress.py</span></code> and include the <code class="docutils literal"><span class="pre">diff</span></code> of the
+minified scripts when submitting patches for Django’s JavaScript.</p>
+</div>
+</div>
+<div class="section" id="javascript-tests">
+<h2>JavaScript tests<a class="headerlink" href="#javascript-tests" title="永久链接至标题">¶</a></h2>
+<p>Django’s JavaScript tests can be run in a browser or from the command line.
+The tests are located in a top level <code class="docutils literal"><span class="pre">js_tests</span></code> directory.</p>
+<div class="section" id="writing-tests">
+<h3>Writing tests<a class="headerlink" href="#writing-tests" title="永久链接至标题">¶</a></h3>
+<p>Django’s JavaScript tests use <a class="reference external" href="https://qunitjs.com/">QUnit</a>. Here is an example test module:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;magicTricks&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">beforeEach</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">$</span> <span class="o">=</span> <span class="nx">django</span><span class="p">.</span><span class="nx">jQuery</span><span class="p">;</span>
+        <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#qunit-fixture&#39;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="s1">&#39;&lt;button class=&quot;button&quot;&gt;&lt;/button&gt;&#39;</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="nx">test</span><span class="p">(</span><span class="s1">&#39;removeOnClick removes button on click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">assert</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">$</span> <span class="o">=</span> <span class="nx">django</span><span class="p">.</span><span class="nx">jQuery</span><span class="p">;</span>
+    <span class="nx">removeOnClick</span><span class="p">(</span><span class="s1">&#39;.button&#39;</span><span class="p">);</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;.button&#39;</span><span class="p">).</span><span class="nx">length</span> <span class="o">===</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;.button&#39;</span><span class="p">).</span><span class="nx">click</span><span class="p">();</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;.button&#39;</span><span class="p">).</span><span class="nx">length</span> <span class="o">===</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="nx">test</span><span class="p">(</span><span class="s1">&#39;copyOnClick adds button on click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">assert</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">$</span> <span class="o">=</span> <span class="nx">django</span><span class="p">.</span><span class="nx">jQuery</span><span class="p">;</span>
+    <span class="nx">copyOnClick</span><span class="p">(</span><span class="s1">&#39;.button&#39;</span><span class="p">);</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;.button&#39;</span><span class="p">).</span><span class="nx">length</span> <span class="o">===</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;.button&#39;</span><span class="p">).</span><span class="nx">click</span><span class="p">();</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;.button&#39;</span><span class="p">).</span><span class="nx">length</span> <span class="o">===</span> <span class="mi">2</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Please consult the QUnit documentation for information on the types of
+<a class="reference external" href="https://api.qunitjs.com/category/assert/">assertions supported by QUnit</a>.</p>
+</div>
+<div class="section" id="running-tests">
+<h3>Running tests<a class="headerlink" href="#running-tests" title="永久链接至标题">¶</a></h3>
+<p>The JavaScript tests may be run from a web browser or from the command line.</p>
+<div class="section" id="testing-from-a-web-browser">
+<h4>Testing from a web browser<a class="headerlink" href="#testing-from-a-web-browser" title="永久链接至标题">¶</a></h4>
+<p>To run the tests from a web browser, open up <code class="docutils literal"><span class="pre">js_tests/tests.html</span></code> in your
+browser.</p>
+<p>To measure code coverage when running the tests, you need to view that file
+over HTTP. To view code coverage:</p>
+<ul class="simple">
+<li>Execute <code class="docutils literal"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">http.server</span></code> (or <code class="docutils literal"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">SimpleHTTPServer</span></code> on
+Python 2) from the root directory (not from inside <code class="docutils literal"><span class="pre">js_tests</span></code>).</li>
+<li>Open <a class="reference external" href="http://localhost:8000/js_tests/tests.html">http://localhost:8000/js_tests/tests.html</a> in your web browser.</li>
+</ul>
+</div>
+<div class="section" id="testing-from-the-command-line">
+<h4>Testing from the command line<a class="headerlink" href="#testing-from-the-command-line" title="永久链接至标题">¶</a></h4>
+<p>To run the tests from the command line, you need to have <a class="reference external" href="https://nodejs.org/">Node.js</a> installed.</p>
+<p>After installing <cite>Node.js</cite>, install the JavaScript test dependencies by running
+the following from the root of your Django checkout:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> npm install
+</pre></div>
+</div>
+<p>Then run the tests with:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> npm <span class="nb">test</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

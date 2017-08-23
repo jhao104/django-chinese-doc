@@ -1,0 +1,264 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Validators &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Validators</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/ref/contrib/postgres/validators.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-django.contrib.postgres.validators">
+<span id="validators"></span><h1>Validators<a class="headerlink" href="#module-django.contrib.postgres.validators" title="永久链接至标题">¶</a></h1>
+<div class="section" id="keysvalidator">
+<h2><code class="docutils literal"><span class="pre">KeysValidator</span></code><a class="headerlink" href="#keysvalidator" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.postgres.validators.KeysValidator">
+<em class="property">class </em><code class="descclassname">django.contrib.postgres.validators.</code><code class="descname">KeysValidator</code><span class="sig-paren">(</span><em>keys</em>, <em>strict=False</em>, <em>messages=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/django/contrib/postgres/validators.html#KeysValidator"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.contrib.postgres.validators.KeysValidator" title="永久链接至目标">¶</a></dt>
+<dd><p>Validates that the given keys are contained in the value. If <code class="docutils literal"><span class="pre">strict</span></code> is
+<code class="docutils literal"><span class="pre">True</span></code>, then it also checks that there are no other keys present.</p>
+<p>The <code class="docutils literal"><span class="pre">messages</span></code> passed should be a dict containing the keys
+<code class="docutils literal"><span class="pre">missing_keys</span></code> and/or <code class="docutils literal"><span class="pre">extra_keys</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last">Note that this checks only for the existence of a given key, not that
+the value of a key is non-empty.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="range-validators">
+<h2>Range validators<a class="headerlink" href="#range-validators" title="永久链接至标题">¶</a></h2>
+<div class="section" id="rangemaxvaluevalidator">
+<h3><code class="docutils literal"><span class="pre">RangeMaxValueValidator</span></code><a class="headerlink" href="#rangemaxvaluevalidator" title="永久链接至标题">¶</a></h3>
+<dl class="class">
+<dt id="django.contrib.postgres.validators.RangeMaxValueValidator">
+<em class="property">class </em><code class="descclassname">django.contrib.postgres.validators.</code><code class="descname">RangeMaxValueValidator</code><span class="sig-paren">(</span><em>limit_value</em>, <em>message=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/django/contrib/postgres/validators.html#RangeMaxValueValidator"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.contrib.postgres.validators.RangeMaxValueValidator" title="永久链接至目标">¶</a></dt>
+<dd><p>Validates that the upper bound of the range is not greater than
+<code class="docutils literal"><span class="pre">limit_value</span></code>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="rangeminvaluevalidator">
+<h3><code class="docutils literal"><span class="pre">RangeMinValueValidator</span></code><a class="headerlink" href="#rangeminvaluevalidator" title="永久链接至标题">¶</a></h3>
+<dl class="class">
+<dt id="django.contrib.postgres.validators.RangeMinValueValidator">
+<em class="property">class </em><code class="descclassname">django.contrib.postgres.validators.</code><code class="descname">RangeMinValueValidator</code><span class="sig-paren">(</span><em>limit_value</em>, <em>message=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/django/contrib/postgres/validators.html#RangeMinValueValidator"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.contrib.postgres.validators.RangeMinValueValidator" title="永久链接至目标">¶</a></dt>
+<dd><p>Validates that the lower bound of the range is not less than the
+<code class="docutils literal"><span class="pre">limit_value</span></code>.</p>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,564 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Validators &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Validators</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/ref/validators.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-django.core.validators">
+<span id="validators"></span><h1>Validators<a class="headerlink" href="#module-django.core.validators" title="永久链接至标题">¶</a></h1>
+<div class="section" id="writing-validators">
+<h2>Writing validators<a class="headerlink" href="#writing-validators" title="永久链接至标题">¶</a></h2>
+<p>A validator is a callable that takes a value and raises a
+<a class="reference internal" href="exceptions.html#django.core.exceptions.ValidationError" title="django.core.exceptions.ValidationError"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code></a> if it doesn’t meet some
+criteria. Validators can be useful for re-using validation logic between
+different types of fields.</p>
+<p>For example, here’s a validator that only allows even numbers:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="k">import</span> <span class="n">ugettext_lazy</span> <span class="k">as</span> <span class="n">_</span>
+
+<span class="k">def</span> <span class="nf">validate_even</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+            <span class="n">_</span><span class="p">(</span><span class="s">&#39;%(value)s is not an even number&#39;</span><span class="p">),</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="n">value</span><span class="p">},</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<p>You can add this to a model field via the field’s <a class="reference internal" href="models/fields.html#django.db.models.Field.validators" title="django.db.models.Field.validators"><code class="xref py py-attr docutils literal"><span class="pre">validators</span></code></a>
+argument:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
+
+<span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">even_field</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">validate_even</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Because values are converted to Python before validators are run, you can even
+use the same validator with forms:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django</span> <span class="k">import</span> <span class="n">forms</span>
+
+<span class="k">class</span> <span class="nc">MyForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="n">even_field</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">validate_even</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>You can also use a class with a <code class="docutils literal"><span class="pre">__call__()</span></code> method for more complex or
+configurable validators. <a class="reference internal" href="#django.core.validators.RegexValidator" title="django.core.validators.RegexValidator"><code class="xref py py-class docutils literal"><span class="pre">RegexValidator</span></code></a>, for example, uses this
+technique. If a class-based validator is used in the
+<a class="reference internal" href="models/fields.html#django.db.models.Field.validators" title="django.db.models.Field.validators"><code class="xref py py-attr docutils literal"><span class="pre">validators</span></code></a> model field option, you should make
+sure it is <a class="reference internal" href="../topics/migrations.html#migration-serializing"><span class="std std-ref">serializable by the migration framework</span></a> by adding <a class="reference internal" href="../topics/migrations.html#custom-deconstruct-method"><span class="std std-ref">deconstruct()</span></a> and <code class="docutils literal"><span class="pre">__eq__()</span></code> methods.</p>
+</div>
+<div class="section" id="how-validators-are-run">
+<h2>How validators are run<a class="headerlink" href="#how-validators-are-run" title="永久链接至标题">¶</a></h2>
+<p>See the <a class="reference internal" href="forms/validation.html"><span class="doc">form validation</span></a> for more information on
+how validators are run in forms, and <a class="reference internal" href="models/instances.html#validating-objects"><span class="std std-ref">Validating objects</span></a> for how they’re run in models. Note that validators will
+not be run automatically when you save a model, but if you are using a
+<a class="reference internal" href="../topics/forms/modelforms.html#django.forms.ModelForm" title="django.forms.ModelForm"><code class="xref py py-class docutils literal"><span class="pre">ModelForm</span></code></a>, it will run your validators on any fields
+that are included in your form. See the
+<a class="reference internal" href="../topics/forms/modelforms.html"><span class="doc">ModelForm documentation</span></a> for information on
+how model validation interacts with forms.</p>
+</div>
+<div class="section" id="built-in-validators">
+<h2>Built-in validators<a class="headerlink" href="#built-in-validators" title="永久链接至标题">¶</a></h2>
+<p>The <a class="reference internal" href="#module-django.core.validators" title="django.core.validators: Validation utilities and base classes"><code class="xref py py-mod docutils literal"><span class="pre">django.core.validators</span></code></a> module contains a collection of callable
+validators for use with model and form fields. They’re used internally but
+are available for use with your own fields, too. They can be used in addition
+to, or in lieu of custom <code class="docutils literal"><span class="pre">field.clean()</span></code> methods.</p>
+<div class="section" id="regexvalidator">
+<h3><code class="docutils literal"><span class="pre">RegexValidator</span></code><a class="headerlink" href="#regexvalidator" title="永久链接至标题">¶</a></h3>
+<dl class="class">
+<dt id="django.core.validators.RegexValidator">
+<em class="property">class </em><code class="descclassname">django.core.validators.</code><code class="descname">RegexValidator</code><span class="sig-paren">(</span><em>regex=None</em>, <em>message=None</em>, <em>code=None</em>, <em>inverse_match=None</em>, <em>flags=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/validators.html#RegexValidator"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.validators.RegexValidator" title="永久链接至目标">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">参数:</th><td class="field-body"><ul class="first last simple">
+<li><strong>regex</strong> – If not <code class="docutils literal"><span class="pre">None</span></code>, overrides <a class="reference internal" href="#django.core.validators.RegexValidator.regex" title="django.core.validators.RegexValidator.regex"><code class="xref py py-attr docutils literal"><span class="pre">regex</span></code></a>. Can be a regular
+expression string or a pre-compiled regular expression.</li>
+<li><strong>message</strong> – If not <code class="docutils literal"><span class="pre">None</span></code>, overrides <a class="reference internal" href="#django.core.validators.RegexValidator.message" title="django.core.validators.RegexValidator.message"><code class="xref py py-attr docutils literal"><span class="pre">message</span></code></a>.</li>
+<li><strong>code</strong> – If not <code class="docutils literal"><span class="pre">None</span></code>, overrides <a class="reference internal" href="#django.core.validators.RegexValidator.code" title="django.core.validators.RegexValidator.code"><code class="xref py py-attr docutils literal"><span class="pre">code</span></code></a>.</li>
+<li><strong>inverse_match</strong> – If not <code class="docutils literal"><span class="pre">None</span></code>, overrides <a class="reference internal" href="#django.core.validators.RegexValidator.inverse_match" title="django.core.validators.RegexValidator.inverse_match"><code class="xref py py-attr docutils literal"><span class="pre">inverse_match</span></code></a>.</li>
+<li><strong>flags</strong> – If not <code class="docutils literal"><span class="pre">None</span></code>, overrides <a class="reference internal" href="#django.core.validators.RegexValidator.flags" title="django.core.validators.RegexValidator.flags"><code class="xref py py-attr docutils literal"><span class="pre">flags</span></code></a>. In that case,
+<a class="reference internal" href="#django.core.validators.RegexValidator.regex" title="django.core.validators.RegexValidator.regex"><code class="xref py py-attr docutils literal"><span class="pre">regex</span></code></a> must be a regular expression string, or
+<code class="xref py py-exc docutils literal"><span class="pre">TypeError</span></code> is raised.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="django.core.validators.RegexValidator.regex">
+<code class="descname">regex</code><a class="headerlink" href="#django.core.validators.RegexValidator.regex" title="永久链接至目标">¶</a></dt>
+<dd><p>The regular expression pattern to search for the provided <code class="docutils literal"><span class="pre">value</span></code>,
+or a pre-compiled regular expression. By default, raises a
+<a class="reference internal" href="exceptions.html#django.core.exceptions.ValidationError" title="django.core.exceptions.ValidationError"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code></a> with <a class="reference internal" href="#django.core.validators.RegexValidator.message" title="django.core.validators.RegexValidator.message"><code class="xref py py-attr docutils literal"><span class="pre">message</span></code></a>
+and <a class="reference internal" href="#django.core.validators.RegexValidator.code" title="django.core.validators.RegexValidator.code"><code class="xref py py-attr docutils literal"><span class="pre">code</span></code></a> if a match is not found. That standard behavior can
+be reversed by setting <a class="reference internal" href="#django.core.validators.RegexValidator.inverse_match" title="django.core.validators.RegexValidator.inverse_match"><code class="xref py py-attr docutils literal"><span class="pre">inverse_match</span></code></a> to <code class="docutils literal"><span class="pre">True</span></code>, in which case
+the <a class="reference internal" href="exceptions.html#django.core.exceptions.ValidationError" title="django.core.exceptions.ValidationError"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code></a> is raised when a
+match <strong>is</strong> found. By default, matches any string (including an empty
+string).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.core.validators.RegexValidator.message">
+<code class="descname">message</code><a class="headerlink" href="#django.core.validators.RegexValidator.message" title="永久链接至目标">¶</a></dt>
+<dd><p>The error message used by
+<a class="reference internal" href="exceptions.html#django.core.exceptions.ValidationError" title="django.core.exceptions.ValidationError"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code></a> if validation fails.
+Defaults to <code class="docutils literal"><span class="pre">&quot;Enter</span> <span class="pre">a</span> <span class="pre">valid</span> <span class="pre">value&quot;</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.core.validators.RegexValidator.code">
+<code class="descname">code</code><a class="headerlink" href="#django.core.validators.RegexValidator.code" title="永久链接至目标">¶</a></dt>
+<dd><p>The error code used by <a class="reference internal" href="exceptions.html#django.core.exceptions.ValidationError" title="django.core.exceptions.ValidationError"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code></a>
+if validation fails. Defaults to <code class="docutils literal"><span class="pre">&quot;invalid&quot;</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.core.validators.RegexValidator.inverse_match">
+<code class="descname">inverse_match</code><a class="headerlink" href="#django.core.validators.RegexValidator.inverse_match" title="永久链接至目标">¶</a></dt>
+<dd><p>The match mode for <a class="reference internal" href="#django.core.validators.RegexValidator.regex" title="django.core.validators.RegexValidator.regex"><code class="xref py py-attr docutils literal"><span class="pre">regex</span></code></a>. Defaults to <code class="docutils literal"><span class="pre">False</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.core.validators.RegexValidator.flags">
+<code class="descname">flags</code><a class="headerlink" href="#django.core.validators.RegexValidator.flags" title="永久链接至目标">¶</a></dt>
+<dd><p>The flags used when compiling the regular expression string
+<a class="reference internal" href="#django.core.validators.RegexValidator.regex" title="django.core.validators.RegexValidator.regex"><code class="xref py py-attr docutils literal"><span class="pre">regex</span></code></a>. If <a class="reference internal" href="#django.core.validators.RegexValidator.regex" title="django.core.validators.RegexValidator.regex"><code class="xref py py-attr docutils literal"><span class="pre">regex</span></code></a> is a pre-compiled regular expression,
+and <a class="reference internal" href="#django.core.validators.RegexValidator.flags" title="django.core.validators.RegexValidator.flags"><code class="xref py py-attr docutils literal"><span class="pre">flags</span></code></a> is overridden, <code class="xref py py-exc docutils literal"><span class="pre">TypeError</span></code> is raised. Defaults
+to <code class="docutils literal"><span class="pre">0</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="emailvalidator">
+<h3><code class="docutils literal"><span class="pre">EmailValidator</span></code><a class="headerlink" href="#emailvalidator" title="永久链接至标题">¶</a></h3>
+<dl class="class">
+<dt id="django.core.validators.EmailValidator">
+<em class="property">class </em><code class="descclassname">django.core.validators.</code><code class="descname">EmailValidator</code><span class="sig-paren">(</span><em>message=None</em>, <em>code=None</em>, <em>whitelist=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/validators.html#EmailValidator"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.validators.EmailValidator" title="永久链接至目标">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">参数:</th><td class="field-body"><ul class="first last simple">
+<li><strong>message</strong> – If not <code class="docutils literal"><span class="pre">None</span></code>, overrides <a class="reference internal" href="#django.core.validators.EmailValidator.message" title="django.core.validators.EmailValidator.message"><code class="xref py py-attr docutils literal"><span class="pre">message</span></code></a>.</li>
+<li><strong>code</strong> – If not <code class="docutils literal"><span class="pre">None</span></code>, overrides <a class="reference internal" href="#django.core.validators.EmailValidator.code" title="django.core.validators.EmailValidator.code"><code class="xref py py-attr docutils literal"><span class="pre">code</span></code></a>.</li>
+<li><strong>whitelist</strong> – If not <code class="docutils literal"><span class="pre">None</span></code>, overrides <a class="reference internal" href="#django.core.validators.EmailValidator.whitelist" title="django.core.validators.EmailValidator.whitelist"><code class="xref py py-attr docutils literal"><span class="pre">whitelist</span></code></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="django.core.validators.EmailValidator.message">
+<code class="descname">message</code><a class="headerlink" href="#django.core.validators.EmailValidator.message" title="永久链接至目标">¶</a></dt>
+<dd><p>The error message used by
+<a class="reference internal" href="exceptions.html#django.core.exceptions.ValidationError" title="django.core.exceptions.ValidationError"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code></a> if validation fails.
+Defaults to <code class="docutils literal"><span class="pre">&quot;Enter</span> <span class="pre">a</span> <span class="pre">valid</span> <span class="pre">email</span> <span class="pre">address&quot;</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.core.validators.EmailValidator.code">
+<code class="descname">code</code><a class="headerlink" href="#django.core.validators.EmailValidator.code" title="永久链接至目标">¶</a></dt>
+<dd><p>The error code used by <a class="reference internal" href="exceptions.html#django.core.exceptions.ValidationError" title="django.core.exceptions.ValidationError"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code></a>
+if validation fails. Defaults to <code class="docutils literal"><span class="pre">&quot;invalid&quot;</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.core.validators.EmailValidator.whitelist">
+<code class="descname">whitelist</code><a class="headerlink" href="#django.core.validators.EmailValidator.whitelist" title="永久链接至目标">¶</a></dt>
+<dd><p>Whitelist of email domains to allow. By default, a regular expression
+(the <code class="docutils literal"><span class="pre">domain_regex</span></code> attribute) is used to validate whatever appears
+after the &#64; sign. However, if that string appears in the whitelist, this
+validation is bypassed. If not provided, the default whitelist is
+<code class="docutils literal"><span class="pre">['localhost']</span></code>. Other domains that don’t contain a dot won’t pass
+validation, so you’d need to whitelist them as necessary.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="urlvalidator">
+<h3><code class="docutils literal"><span class="pre">URLValidator</span></code><a class="headerlink" href="#urlvalidator" title="永久链接至标题">¶</a></h3>
+<dl class="class">
+<dt id="django.core.validators.URLValidator">
+<em class="property">class </em><code class="descclassname">django.core.validators.</code><code class="descname">URLValidator</code><span class="sig-paren">(</span><em>schemes=None</em>, <em>regex=None</em>, <em>message=None</em>, <em>code=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/validators.html#URLValidator"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.validators.URLValidator" title="永久链接至目标">¶</a></dt>
+<dd><p>A <a class="reference internal" href="#django.core.validators.RegexValidator" title="django.core.validators.RegexValidator"><code class="xref py py-class docutils literal"><span class="pre">RegexValidator</span></code></a> that ensures a value looks like a URL, and raises
+an error code of <code class="docutils literal"><span class="pre">'invalid'</span></code> if it doesn’t.</p>
+<p>Loopback addresses and reserved IP spaces are considered valid. Literal
+IPv6 addresses (<span class="target" id="index-0"></span><a class="rfc reference external" href="https://tools.ietf.org/html/rfc2732.html"><strong>RFC 2732</strong></a>) and unicode domains are both supported.</p>
+<p>In addition to the optional arguments of its parent <a class="reference internal" href="#django.core.validators.RegexValidator" title="django.core.validators.RegexValidator"><code class="xref py py-class docutils literal"><span class="pre">RegexValidator</span></code></a>
+class, <code class="docutils literal"><span class="pre">URLValidator</span></code> accepts an extra optional attribute:</p>
+<dl class="attribute">
+<dt id="django.core.validators.URLValidator.schemes">
+<code class="descname">schemes</code><a class="headerlink" href="#django.core.validators.URLValidator.schemes" title="永久链接至目标">¶</a></dt>
+<dd><p>URL/URI scheme list to validate against. If not provided, the default
+list is <code class="docutils literal"><span class="pre">['http',</span> <span class="pre">'https',</span> <span class="pre">'ftp',</span> <span class="pre">'ftps']</span></code>. As a reference, the IANA
+website provides a full list of <a class="reference external" href="https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml">valid URI schemes</a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="validate-email">
+<h3><code class="docutils literal"><span class="pre">validate_email</span></code><a class="headerlink" href="#validate-email" title="永久链接至标题">¶</a></h3>
+<dl class="data">
+<dt id="django.core.validators.validate_email">
+<code class="descclassname">django.core.validators.</code><code class="descname">validate_email</code><a class="headerlink" href="#django.core.validators.validate_email" title="永久链接至目标">¶</a></dt>
+<dd><p>An <a class="reference internal" href="#django.core.validators.EmailValidator" title="django.core.validators.EmailValidator"><code class="xref py py-class docutils literal"><span class="pre">EmailValidator</span></code></a> instance without any customizations.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="validate-slug">
+<h3><code class="docutils literal"><span class="pre">validate_slug</span></code><a class="headerlink" href="#validate-slug" title="永久链接至标题">¶</a></h3>
+<dl class="data">
+<dt id="django.core.validators.validate_slug">
+<code class="descclassname">django.core.validators.</code><code class="descname">validate_slug</code><a class="headerlink" href="#django.core.validators.validate_slug" title="永久链接至目标">¶</a></dt>
+<dd><p>A <a class="reference internal" href="#django.core.validators.RegexValidator" title="django.core.validators.RegexValidator"><code class="xref py py-class docutils literal"><span class="pre">RegexValidator</span></code></a> instance that ensures a value consists of only
+letters, numbers, underscores or hyphens.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="validate-unicode-slug">
+<h3><code class="docutils literal"><span class="pre">validate_unicode_slug</span></code><a class="headerlink" href="#validate-unicode-slug" title="永久链接至标题">¶</a></h3>
+<dl class="data">
+<dt id="django.core.validators.validate_unicode_slug">
+<code class="descclassname">django.core.validators.</code><code class="descname">validate_unicode_slug</code><a class="headerlink" href="#django.core.validators.validate_unicode_slug" title="永久链接至目标">¶</a></dt>
+<dd><div class="versionadded">
+</div>
+<p>A <a class="reference internal" href="#django.core.validators.RegexValidator" title="django.core.validators.RegexValidator"><code class="xref py py-class docutils literal"><span class="pre">RegexValidator</span></code></a> instance that ensures a value consists of only
+Unicode letters, numbers, underscores, or hyphens.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="validate-ipv4-address">
+<h3><code class="docutils literal"><span class="pre">validate_ipv4_address</span></code><a class="headerlink" href="#validate-ipv4-address" title="永久链接至标题">¶</a></h3>
+<dl class="data">
+<dt id="django.core.validators.validate_ipv4_address">
+<code class="descclassname">django.core.validators.</code><code class="descname">validate_ipv4_address</code><a class="headerlink" href="#django.core.validators.validate_ipv4_address" title="永久链接至目标">¶</a></dt>
+<dd><p>A <a class="reference internal" href="#django.core.validators.RegexValidator" title="django.core.validators.RegexValidator"><code class="xref py py-class docutils literal"><span class="pre">RegexValidator</span></code></a> instance that ensures a value looks like an IPv4
+address.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="validate-ipv6-address">
+<h3><code class="docutils literal"><span class="pre">validate_ipv6_address</span></code><a class="headerlink" href="#validate-ipv6-address" title="永久链接至标题">¶</a></h3>
+<dl class="data">
+<dt id="django.core.validators.validate_ipv6_address">
+<code class="descclassname">django.core.validators.</code><code class="descname">validate_ipv6_address</code><a class="reference internal" href="../_modules/django/core/validators.html#validate_ipv6_address"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.validators.validate_ipv6_address" title="永久链接至目标">¶</a></dt>
+<dd><p>Uses <code class="docutils literal"><span class="pre">django.utils.ipv6</span></code> to check the validity of an IPv6 address.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="validate-ipv46-address">
+<h3><code class="docutils literal"><span class="pre">validate_ipv46_address</span></code><a class="headerlink" href="#validate-ipv46-address" title="永久链接至标题">¶</a></h3>
+<dl class="data">
+<dt id="django.core.validators.validate_ipv46_address">
+<code class="descclassname">django.core.validators.</code><code class="descname">validate_ipv46_address</code><a class="reference internal" href="../_modules/django/core/validators.html#validate_ipv46_address"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.validators.validate_ipv46_address" title="永久链接至目标">¶</a></dt>
+<dd><p>Uses both <code class="docutils literal"><span class="pre">validate_ipv4_address</span></code> and <code class="docutils literal"><span class="pre">validate_ipv6_address</span></code> to
+ensure a value is either a valid IPv4 or IPv6 address.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="validate-comma-separated-integer-list">
+<h3><code class="docutils literal"><span class="pre">validate_comma_separated_integer_list</span></code><a class="headerlink" href="#validate-comma-separated-integer-list" title="永久链接至标题">¶</a></h3>
+<dl class="data">
+<dt id="django.core.validators.validate_comma_separated_integer_list">
+<code class="descclassname">django.core.validators.</code><code class="descname">validate_comma_separated_integer_list</code><a class="headerlink" href="#django.core.validators.validate_comma_separated_integer_list" title="永久链接至目标">¶</a></dt>
+<dd><p>A <a class="reference internal" href="#django.core.validators.RegexValidator" title="django.core.validators.RegexValidator"><code class="xref py py-class docutils literal"><span class="pre">RegexValidator</span></code></a> instance that ensures a value is a
+comma-separated list of integers.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="int-list-validator">
+<h3><code class="docutils literal"><span class="pre">int_list_validator</span></code><a class="headerlink" href="#int-list-validator" title="永久链接至标题">¶</a></h3>
+<dl class="function">
+<dt id="django.core.validators.int_list_validator">
+<code class="descclassname">django.core.validators.</code><code class="descname">int_list_validator</code><span class="sig-paren">(</span><em>sep='</em>, <em>'</em>, <em>message=None</em>, <em>code='invalid'</em>, <em>allow_negative=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/validators.html#int_list_validator"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.validators.int_list_validator" title="永久链接至目标">¶</a></dt>
+<dd><div class="versionadded">
+</div>
+<p>Returns a <a class="reference internal" href="#django.core.validators.RegexValidator" title="django.core.validators.RegexValidator"><code class="xref py py-class docutils literal"><span class="pre">RegexValidator</span></code></a> instance that ensures a string consists
+of integers separated by <code class="docutils literal"><span class="pre">sep</span></code>. It allows negative integers when
+<code class="docutils literal"><span class="pre">allow_negative</span></code> is <code class="docutils literal"><span class="pre">True</span></code>.</p>
+<div class="versionchanged">
+<p>The <code class="docutils literal"><span class="pre">allow_negative</span></code> parameter was added.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="maxvaluevalidator">
+<h3><code class="docutils literal"><span class="pre">MaxValueValidator</span></code><a class="headerlink" href="#maxvaluevalidator" title="永久链接至标题">¶</a></h3>
+<dl class="class">
+<dt id="django.core.validators.MaxValueValidator">
+<em class="property">class </em><code class="descclassname">django.core.validators.</code><code class="descname">MaxValueValidator</code><span class="sig-paren">(</span><em>max_value</em>, <em>message=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/validators.html#MaxValueValidator"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.validators.MaxValueValidator" title="永久链接至目标">¶</a></dt>
+<dd><p>Raises a <a class="reference internal" href="exceptions.html#django.core.exceptions.ValidationError" title="django.core.exceptions.ValidationError"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code></a> with a code of
+<code class="docutils literal"><span class="pre">'max_value'</span></code> if <code class="docutils literal"><span class="pre">value</span></code> is greater than <code class="docutils literal"><span class="pre">max_value</span></code>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="minvaluevalidator">
+<h3><code class="docutils literal"><span class="pre">MinValueValidator</span></code><a class="headerlink" href="#minvaluevalidator" title="永久链接至标题">¶</a></h3>
+<dl class="class">
+<dt id="django.core.validators.MinValueValidator">
+<em class="property">class </em><code class="descclassname">django.core.validators.</code><code class="descname">MinValueValidator</code><span class="sig-paren">(</span><em>min_value</em>, <em>message=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/validators.html#MinValueValidator"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.validators.MinValueValidator" title="永久链接至目标">¶</a></dt>
+<dd><p>Raises a <a class="reference internal" href="exceptions.html#django.core.exceptions.ValidationError" title="django.core.exceptions.ValidationError"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code></a> with a code of
+<code class="docutils literal"><span class="pre">'min_value'</span></code> if <code class="docutils literal"><span class="pre">value</span></code> is less than <code class="docutils literal"><span class="pre">min_value</span></code>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="maxlengthvalidator">
+<h3><code class="docutils literal"><span class="pre">MaxLengthValidator</span></code><a class="headerlink" href="#maxlengthvalidator" title="永久链接至标题">¶</a></h3>
+<dl class="class">
+<dt id="django.core.validators.MaxLengthValidator">
+<em class="property">class </em><code class="descclassname">django.core.validators.</code><code class="descname">MaxLengthValidator</code><span class="sig-paren">(</span><em>max_length</em>, <em>message=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/validators.html#MaxLengthValidator"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.validators.MaxLengthValidator" title="永久链接至目标">¶</a></dt>
+<dd><p>Raises a <a class="reference internal" href="exceptions.html#django.core.exceptions.ValidationError" title="django.core.exceptions.ValidationError"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code></a> with a code of
+<code class="docutils literal"><span class="pre">'max_length'</span></code> if the length of <code class="docutils literal"><span class="pre">value</span></code> is greater than <code class="docutils literal"><span class="pre">max_length</span></code>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="minlengthvalidator">
+<h3><code class="docutils literal"><span class="pre">MinLengthValidator</span></code><a class="headerlink" href="#minlengthvalidator" title="永久链接至标题">¶</a></h3>
+<dl class="class">
+<dt id="django.core.validators.MinLengthValidator">
+<em class="property">class </em><code class="descclassname">django.core.validators.</code><code class="descname">MinLengthValidator</code><span class="sig-paren">(</span><em>min_length</em>, <em>message=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/validators.html#MinLengthValidator"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.validators.MinLengthValidator" title="永久链接至目标">¶</a></dt>
+<dd><p>Raises a <a class="reference internal" href="exceptions.html#django.core.exceptions.ValidationError" title="django.core.exceptions.ValidationError"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code></a> with a code of
+<code class="docutils literal"><span class="pre">'min_length'</span></code> if the length of <code class="docutils literal"><span class="pre">value</span></code> is less than <code class="docutils literal"><span class="pre">min_length</span></code>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="decimalvalidator">
+<h3><code class="docutils literal"><span class="pre">DecimalValidator</span></code><a class="headerlink" href="#decimalvalidator" title="永久链接至标题">¶</a></h3>
+<dl class="class">
+<dt id="django.core.validators.DecimalValidator">
+<em class="property">class </em><code class="descclassname">django.core.validators.</code><code class="descname">DecimalValidator</code><span class="sig-paren">(</span><em>max_digits</em>, <em>decimal_places</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/validators.html#DecimalValidator"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.validators.DecimalValidator" title="永久链接至目标">¶</a></dt>
+<dd><div class="versionadded">
+</div>
+<p>Raises <a class="reference internal" href="exceptions.html#django.core.exceptions.ValidationError" title="django.core.exceptions.ValidationError"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code></a> with the following
+codes:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">'max_digits'</span></code> if the number of digits is larger than <code class="docutils literal"><span class="pre">max_digits</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">'max_decimal_places'</span></code> if the number of decimals is larger than
+<code class="docutils literal"><span class="pre">decimal_places</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">'max_whole_digits'</span></code> if the number of whole digits is larger than
+the difference between <code class="docutils literal"><span class="pre">max_digits</span></code> and <code class="docutils literal"><span class="pre">decimal_places</span></code>.</li>
+</ul>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

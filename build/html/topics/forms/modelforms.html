@@ -1,0 +1,1408 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Creating forms from models &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Creating forms from models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/topics/forms/modelforms.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-django.forms.models">
+<span id="creating-forms-from-models"></span><h1>Creating forms from models<a class="headerlink" href="#module-django.forms.models" title="永久链接至标题">¶</a></h1>
+<div class="section" id="modelform">
+<h2><code class="docutils literal"><span class="pre">ModelForm</span></code><a class="headerlink" href="#modelform" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.forms.ModelForm">
+<em class="property">class </em><code class="descclassname">django.forms.</code><code class="descname">ModelForm</code><a class="reference internal" href="../../_modules/django/forms/models.html#ModelForm"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.forms.ModelForm" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>If you’re building a database-driven app, chances are you’ll have forms that
+map closely to Django models. For instance, you might have a <code class="docutils literal"><span class="pre">BlogComment</span></code>
+model, and you want to create a form that lets people submit comments. In this
+case, it would be redundant to define the field types in your form, because
+you’ve already defined the fields in your model.</p>
+<p>For this reason, Django provides a helper class that lets you create a <code class="docutils literal"><span class="pre">Form</span></code>
+class from a Django model.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">ModelForm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">myapp.models</span> <span class="k">import</span> <span class="n">Article</span>
+
+<span class="go"># Create the form class.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">ArticleForm</span><span class="p">(</span><span class="n">ModelForm</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="n">model</span> <span class="o">=</span> <span class="n">Article</span>
+<span class="gp">... </span>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;pub_date&#39;</span><span class="p">,</span> <span class="s">&#39;headline&#39;</span><span class="p">,</span> <span class="s">&#39;content&#39;</span><span class="p">,</span> <span class="s">&#39;reporter&#39;</span><span class="p">]</span>
+
+<span class="go"># Creating a form to add an article.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">form</span> <span class="o">=</span> <span class="n">ArticleForm</span><span class="p">()</span>
+
+<span class="go"># Creating a form to change an existing article.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">article</span> <span class="o">=</span> <span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">form</span> <span class="o">=</span> <span class="n">ArticleForm</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">article</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="field-types">
+<h3>Field types<a class="headerlink" href="#field-types" title="永久链接至标题">¶</a></h3>
+<p>The generated <code class="docutils literal"><span class="pre">Form</span></code> class will have a form field for every model field
+specified, in the order specified in the <code class="docutils literal"><span class="pre">fields</span></code> attribute.</p>
+<p>Each model field has a corresponding default form field. For example, a
+<code class="docutils literal"><span class="pre">CharField</span></code> on a model is represented as a <code class="docutils literal"><span class="pre">CharField</span></code> on a form. A model
+<code class="docutils literal"><span class="pre">ManyToManyField</span></code> is represented as a <code class="docutils literal"><span class="pre">MultipleChoiceField</span></code>. Here is the
+full list of conversions:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="41%" />
+<col width="59%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Model field</th>
+<th class="head">Form field</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.AutoField" title="django.db.models.AutoField"><code class="xref py py-class docutils literal"><span class="pre">AutoField</span></code></a></td>
+<td>Not represented in the form</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.BigAutoField" title="django.db.models.BigAutoField"><code class="xref py py-class docutils literal"><span class="pre">BigAutoField</span></code></a></td>
+<td>Not represented in the form</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.BigIntegerField" title="django.db.models.BigIntegerField"><code class="xref py py-class docutils literal"><span class="pre">BigIntegerField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.IntegerField" title="django.forms.IntegerField"><code class="xref py py-class docutils literal"><span class="pre">IntegerField</span></code></a> with
+<code class="docutils literal"><span class="pre">min_value</span></code> set to -9223372036854775808
+and <code class="docutils literal"><span class="pre">max_value</span></code> set to 9223372036854775807.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.BooleanField" title="django.db.models.BooleanField"><code class="xref py py-class docutils literal"><span class="pre">BooleanField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.BooleanField" title="django.forms.BooleanField"><code class="xref py py-class docutils literal"><span class="pre">BooleanField</span></code></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.CharField" title="django.db.models.CharField"><code class="xref py py-class docutils literal"><span class="pre">CharField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.CharField" title="django.forms.CharField"><code class="xref py py-class docutils literal"><span class="pre">CharField</span></code></a> with
+<code class="docutils literal"><span class="pre">max_length</span></code> set to the model field’s
+<code class="docutils literal"><span class="pre">max_length</span></code></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.CommaSeparatedIntegerField" title="django.db.models.CommaSeparatedIntegerField"><code class="xref py py-class docutils literal"><span class="pre">CommaSeparatedIntegerField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.CharField" title="django.forms.CharField"><code class="xref py py-class docutils literal"><span class="pre">CharField</span></code></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.DateField" title="django.db.models.DateField"><code class="xref py py-class docutils literal"><span class="pre">DateField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.DateField" title="django.forms.DateField"><code class="xref py py-class docutils literal"><span class="pre">DateField</span></code></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.DateTimeField" title="django.db.models.DateTimeField"><code class="xref py py-class docutils literal"><span class="pre">DateTimeField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.DateTimeField" title="django.forms.DateTimeField"><code class="xref py py-class docutils literal"><span class="pre">DateTimeField</span></code></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.DecimalField" title="django.db.models.DecimalField"><code class="xref py py-class docutils literal"><span class="pre">DecimalField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.DecimalField" title="django.forms.DecimalField"><code class="xref py py-class docutils literal"><span class="pre">DecimalField</span></code></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.EmailField" title="django.db.models.EmailField"><code class="xref py py-class docutils literal"><span class="pre">EmailField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.EmailField" title="django.forms.EmailField"><code class="xref py py-class docutils literal"><span class="pre">EmailField</span></code></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.FileField" title="django.db.models.FileField"><code class="xref py py-class docutils literal"><span class="pre">FileField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.FileField" title="django.forms.FileField"><code class="xref py py-class docutils literal"><span class="pre">FileField</span></code></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.FilePathField" title="django.db.models.FilePathField"><code class="xref py py-class docutils literal"><span class="pre">FilePathField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.FilePathField" title="django.forms.FilePathField"><code class="xref py py-class docutils literal"><span class="pre">FilePathField</span></code></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.FloatField" title="django.db.models.FloatField"><code class="xref py py-class docutils literal"><span class="pre">FloatField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.FloatField" title="django.forms.FloatField"><code class="xref py py-class docutils literal"><span class="pre">FloatField</span></code></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.ForeignKey" title="django.db.models.ForeignKey"><code class="xref py py-class docutils literal"><span class="pre">ForeignKey</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.ModelChoiceField" title="django.forms.ModelChoiceField"><code class="xref py py-class docutils literal"><span class="pre">ModelChoiceField</span></code></a>
+(see below)</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ImageField</span></code></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.ImageField" title="django.forms.ImageField"><code class="xref py py-class docutils literal"><span class="pre">ImageField</span></code></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.IntegerField" title="django.db.models.IntegerField"><code class="xref py py-class docutils literal"><span class="pre">IntegerField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.IntegerField" title="django.forms.IntegerField"><code class="xref py py-class docutils literal"><span class="pre">IntegerField</span></code></a></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">IPAddressField</span></code></td>
+<td><code class="docutils literal"><span class="pre">IPAddressField</span></code></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.GenericIPAddressField" title="django.db.models.GenericIPAddressField"><code class="xref py py-class docutils literal"><span class="pre">GenericIPAddressField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.GenericIPAddressField" title="django.forms.GenericIPAddressField"><code class="xref py py-class docutils literal"><span class="pre">GenericIPAddressField</span></code></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.ManyToManyField" title="django.db.models.ManyToManyField"><code class="xref py py-class docutils literal"><span class="pre">ManyToManyField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.ModelMultipleChoiceField" title="django.forms.ModelMultipleChoiceField"><code class="xref py py-class docutils literal"><span class="pre">ModelMultipleChoiceField</span></code></a>
+(see below)</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.NullBooleanField" title="django.db.models.NullBooleanField"><code class="xref py py-class docutils literal"><span class="pre">NullBooleanField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.NullBooleanField" title="django.forms.NullBooleanField"><code class="xref py py-class docutils literal"><span class="pre">NullBooleanField</span></code></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.PositiveIntegerField" title="django.db.models.PositiveIntegerField"><code class="xref py py-class docutils literal"><span class="pre">PositiveIntegerField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.IntegerField" title="django.forms.IntegerField"><code class="xref py py-class docutils literal"><span class="pre">IntegerField</span></code></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.PositiveSmallIntegerField" title="django.db.models.PositiveSmallIntegerField"><code class="xref py py-class docutils literal"><span class="pre">PositiveSmallIntegerField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.IntegerField" title="django.forms.IntegerField"><code class="xref py py-class docutils literal"><span class="pre">IntegerField</span></code></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.SlugField" title="django.db.models.SlugField"><code class="xref py py-class docutils literal"><span class="pre">SlugField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.SlugField" title="django.forms.SlugField"><code class="xref py py-class docutils literal"><span class="pre">SlugField</span></code></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.SmallIntegerField" title="django.db.models.SmallIntegerField"><code class="xref py py-class docutils literal"><span class="pre">SmallIntegerField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.IntegerField" title="django.forms.IntegerField"><code class="xref py py-class docutils literal"><span class="pre">IntegerField</span></code></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.TextField" title="django.db.models.TextField"><code class="xref py py-class docutils literal"><span class="pre">TextField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.CharField" title="django.forms.CharField"><code class="xref py py-class docutils literal"><span class="pre">CharField</span></code></a> with
+<code class="docutils literal"><span class="pre">widget=forms.Textarea</span></code></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.TimeField" title="django.db.models.TimeField"><code class="xref py py-class docutils literal"><span class="pre">TimeField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.TimeField" title="django.forms.TimeField"><code class="xref py py-class docutils literal"><span class="pre">TimeField</span></code></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../ref/models/fields.html#django.db.models.URLField" title="django.db.models.URLField"><code class="xref py py-class docutils literal"><span class="pre">URLField</span></code></a></td>
+<td><a class="reference internal" href="../../ref/forms/fields.html#django.forms.URLField" title="django.forms.URLField"><code class="xref py py-class docutils literal"><span class="pre">URLField</span></code></a></td>
+</tr>
+</tbody>
+</table>
+<p>As you might expect, the <code class="docutils literal"><span class="pre">ForeignKey</span></code> and <code class="docutils literal"><span class="pre">ManyToManyField</span></code> model field
+types are special cases:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">ForeignKey</span></code> is represented by <code class="docutils literal"><span class="pre">django.forms.ModelChoiceField</span></code>,
+which is a <code class="docutils literal"><span class="pre">ChoiceField</span></code> whose choices are a model <code class="docutils literal"><span class="pre">QuerySet</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">ManyToManyField</span></code> is represented by
+<code class="docutils literal"><span class="pre">django.forms.ModelMultipleChoiceField</span></code>, which is a
+<code class="docutils literal"><span class="pre">MultipleChoiceField</span></code> whose choices are a model <code class="docutils literal"><span class="pre">QuerySet</span></code>.</li>
+</ul>
+<p>In addition, each generated form field has attributes set as follows:</p>
+<ul class="simple">
+<li>If the model field has <code class="docutils literal"><span class="pre">blank=True</span></code>, then <code class="docutils literal"><span class="pre">required</span></code> is set to
+<code class="docutils literal"><span class="pre">False</span></code> on the form field. Otherwise, <code class="docutils literal"><span class="pre">required=True</span></code>.</li>
+<li>The form field’s <code class="docutils literal"><span class="pre">label</span></code> is set to the <code class="docutils literal"><span class="pre">verbose_name</span></code> of the model
+field, with the first character capitalized.</li>
+<li>The form field’s <code class="docutils literal"><span class="pre">help_text</span></code> is set to the <code class="docutils literal"><span class="pre">help_text</span></code> of the model
+field.</li>
+<li>If the model field has <code class="docutils literal"><span class="pre">choices</span></code> set, then the form field’s <code class="docutils literal"><span class="pre">widget</span></code>
+will be set to <code class="docutils literal"><span class="pre">Select</span></code>, with choices coming from the model field’s
+<code class="docutils literal"><span class="pre">choices</span></code>. The choices will normally include the blank choice which is
+selected by default. If the field is required, this forces the user to
+make a selection. The blank choice will not be included if the model
+field has <code class="docutils literal"><span class="pre">blank=False</span></code> and an explicit <code class="docutils literal"><span class="pre">default</span></code> value (the
+<code class="docutils literal"><span class="pre">default</span></code> value will be initially selected instead).</li>
+</ul>
+<p>Finally, note that you can override the form field used for a given model
+field. See <a class="reference internal" href="#overriding-the-default-fields">Overriding the default fields</a> below.</p>
+</div>
+<div class="section" id="a-full-example">
+<h3>A full example<a class="headerlink" href="#a-full-example" title="永久链接至标题">¶</a></h3>
+<p>Consider this set of models:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">ModelForm</span>
+
+<span class="n">TITLE_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s">&#39;MR&#39;</span><span class="p">,</span> <span class="s">&#39;Mr.&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;MRS&#39;</span><span class="p">,</span> <span class="s">&#39;Mrs.&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;MS&#39;</span><span class="p">,</span> <span class="s">&#39;Ms.&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Author</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">TITLE_CHOICES</span><span class="p">)</span>
+    <span class="n">birth_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>              <span class="c"># __unicode__ on Python 2</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+<span class="k">class</span> <span class="nc">Book</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">authors</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Author</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">AuthorForm</span><span class="p">(</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Author</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;title&#39;</span><span class="p">,</span> <span class="s">&#39;birth_date&#39;</span><span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">BookForm</span><span class="p">(</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Book</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;authors&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>With these models, the <code class="docutils literal"><span class="pre">ModelForm</span></code> subclasses above would be roughly
+equivalent to this (the only difference being the <code class="docutils literal"><span class="pre">save()</span></code> method, which
+we’ll discuss in a moment.):</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django</span> <span class="k">import</span> <span class="n">forms</span>
+
+<span class="k">class</span> <span class="nc">AuthorForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">Select</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">TITLE_CHOICES</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">birth_date</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">BookForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">authors</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ModelMultipleChoiceField</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="validation-on-a-modelform">
+<span id="validation-on-modelform"></span><h3>Validation on a <code class="docutils literal"><span class="pre">ModelForm</span></code><a class="headerlink" href="#validation-on-a-modelform" title="永久链接至标题">¶</a></h3>
+<p>There are two main steps involved in validating a <code class="docutils literal"><span class="pre">ModelForm</span></code>:</p>
+<ol class="arabic simple">
+<li><a class="reference internal" href="../../ref/forms/validation.html"><span class="doc">Validating the form</span></a></li>
+<li><a class="reference internal" href="../../ref/models/instances.html#validating-objects"><span class="std std-ref">Validating the model instance</span></a></li>
+</ol>
+<p>Just like normal form validation, model form validation is triggered implicitly
+when calling <a class="reference internal" href="../../ref/forms/api.html#django.forms.Form.is_valid" title="django.forms.Form.is_valid"><code class="xref py py-meth docutils literal"><span class="pre">is_valid()</span></code></a> or accessing the
+<a class="reference internal" href="../../ref/forms/api.html#django.forms.Form.errors" title="django.forms.Form.errors"><code class="xref py py-attr docutils literal"><span class="pre">errors</span></code></a> attribute and explicitly when calling
+<code class="docutils literal"><span class="pre">full_clean()</span></code>, although you will typically not use the latter method in
+practice.</p>
+<p><code class="docutils literal"><span class="pre">Model</span></code> validation (<a class="reference internal" href="../../ref/models/instances.html#django.db.models.Model.full_clean" title="django.db.models.Model.full_clean"><code class="xref py py-meth docutils literal"><span class="pre">Model.full_clean()</span></code></a>) is triggered from within the form
+validation step, right after the form’s <code class="docutils literal"><span class="pre">clean()</span></code> method is called.</p>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p class="last">The cleaning process modifies the model instance passed to the
+<code class="docutils literal"><span class="pre">ModelForm</span></code> constructor in various ways. For instance, any date fields on
+the model are converted into actual date objects. Failed validation may
+leave the underlying model instance in an inconsistent state and therefore
+it’s not recommended to reuse it.</p>
+</div>
+<div class="section" id="overriding-the-clean-method">
+<span id="overriding-modelform-clean-method"></span><h4>Overriding the clean() method<a class="headerlink" href="#overriding-the-clean-method" title="永久链接至标题">¶</a></h4>
+<p>You can override the <code class="docutils literal"><span class="pre">clean()</span></code> method on a model form to provide additional
+validation in the same way you can on a normal form.</p>
+<p>A model form instance attached to a model object will contain an <code class="docutils literal"><span class="pre">instance</span></code>
+attribute that gives its methods access to that specific model instance.</p>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p>The <code class="docutils literal"><span class="pre">ModelForm.clean()</span></code> method sets a flag that makes the <a class="reference internal" href="../../ref/models/instances.html#validating-objects"><span class="std std-ref">model
+validation</span></a> step validate the uniqueness of model
+fields that are marked as <code class="docutils literal"><span class="pre">unique</span></code>, <code class="docutils literal"><span class="pre">unique_together</span></code> or
+<code class="docutils literal"><span class="pre">unique_for_date|month|year</span></code>.</p>
+<p class="last">If you would like to override the <code class="docutils literal"><span class="pre">clean()</span></code> method and maintain this
+validation, you must call the parent class’s <code class="docutils literal"><span class="pre">clean()</span></code> method.</p>
+</div>
+</div>
+<div class="section" id="interaction-with-model-validation">
+<h4>Interaction with model validation<a class="headerlink" href="#interaction-with-model-validation" title="永久链接至标题">¶</a></h4>
+<p>As part of the validation process, <code class="docutils literal"><span class="pre">ModelForm</span></code> will call the <code class="docutils literal"><span class="pre">clean()</span></code>
+method of each field on your model that has a corresponding field on your form.
+If you have excluded any model fields, validation will not be run on those
+fields. See the <a class="reference internal" href="../../ref/forms/validation.html"><span class="doc">form validation</span></a> documentation
+for more on how field cleaning and validation work.</p>
+<p>The model’s <code class="docutils literal"><span class="pre">clean()</span></code> method will be called before any uniqueness checks are
+made. See <a class="reference internal" href="../../ref/models/instances.html#validating-objects"><span class="std std-ref">Validating objects</span></a> for more information
+on the model’s <code class="docutils literal"><span class="pre">clean()</span></code> hook.</p>
+</div>
+<div class="section" id="considerations-regarding-model-s-error-messages">
+<span id="considerations-regarding-model-errormessages"></span><h4>Considerations regarding model’s <code class="docutils literal"><span class="pre">error_messages</span></code><a class="headerlink" href="#considerations-regarding-model-s-error-messages" title="永久链接至标题">¶</a></h4>
+<p>Error messages defined at the
+<a class="reference internal" href="../../ref/forms/fields.html#django.forms.Field.error_messages" title="django.forms.Field.error_messages"><code class="xref py py-attr docutils literal"><span class="pre">form</span> <span class="pre">field</span></code></a> level or at the
+<a class="reference internal" href="#modelforms-overriding-default-fields"><span class="std std-ref">form Meta</span></a> level always take
+precedence over the error messages defined at the
+<a class="reference internal" href="../../ref/models/fields.html#django.db.models.Field.error_messages" title="django.db.models.Field.error_messages"><code class="xref py py-attr docutils literal"><span class="pre">model</span> <span class="pre">field</span></code></a> level.</p>
+<p>Error messages  defined on <a class="reference internal" href="../../ref/models/fields.html#django.db.models.Field.error_messages" title="django.db.models.Field.error_messages"><code class="xref py py-attr docutils literal"><span class="pre">model</span> <span class="pre">fields</span></code></a> are only used when the
+<code class="docutils literal"><span class="pre">ValidationError</span></code> is raised during the <a class="reference internal" href="../../ref/models/instances.html#validating-objects"><span class="std std-ref">model validation</span></a> step and no corresponding error messages are defined at
+the form level.</p>
+<p>You can override the error messages from <code class="docutils literal"><span class="pre">NON_FIELD_ERRORS</span></code> raised by model
+validation by adding the <a class="reference internal" href="../../ref/exceptions.html#django.core.exceptions.NON_FIELD_ERRORS" title="django.core.exceptions.NON_FIELD_ERRORS"><code class="xref py py-data docutils literal"><span class="pre">NON_FIELD_ERRORS</span></code></a> key
+to the <code class="docutils literal"><span class="pre">error_messages</span></code> dictionary of the <code class="docutils literal"><span class="pre">ModelForm</span></code>’s inner <code class="docutils literal"><span class="pre">Meta</span></code> class:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">ModelForm</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">NON_FIELD_ERRORS</span>
+
+<span class="k">class</span> <span class="nc">ArticleForm</span><span class="p">(</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">error_messages</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">NON_FIELD_ERRORS</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;unique_together&#39;</span><span class="p">:</span> <span class="s">&quot;%(model_name)s&#39;s %(field_labels)s are not unique.&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="the-save-method">
+<span id="topics-modelform-save"></span><h3>The <code class="docutils literal"><span class="pre">save()</span></code> method<a class="headerlink" href="#the-save-method" title="永久链接至标题">¶</a></h3>
+<p>Every <code class="docutils literal"><span class="pre">ModelForm</span></code> also has a <code class="docutils literal"><span class="pre">save()</span></code> method. This method creates and saves
+a database object from the data bound to the form. A subclass of <code class="docutils literal"><span class="pre">ModelForm</span></code>
+can accept an existing model instance as the keyword argument <code class="docutils literal"><span class="pre">instance</span></code>; if
+this is supplied, <code class="docutils literal"><span class="pre">save()</span></code> will update that instance. If it’s not supplied,
+<code class="docutils literal"><span class="pre">save()</span></code> will create a new instance of the specified model:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">myapp.models</span> <span class="kn">import</span> <span class="n">Article</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">myapp.forms</span> <span class="kn">import</span> <span class="n">ArticleForm</span>
+
+<span class="go"># Create a form instance from POST data.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">ArticleForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+
+<span class="go"># Save a new Article object from the form&#39;s data.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_article</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="go"># Create a form to edit an existing Article, but use</span>
+<span class="go"># POST data to populate the form.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">ArticleForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Note that if the form <a class="reference internal" href="#validation-on-modelform"><span class="std std-ref">hasn’t been validated</span></a>, calling <code class="docutils literal"><span class="pre">save()</span></code> will do so by checking
+<code class="docutils literal"><span class="pre">form.errors</span></code>. A <code class="docutils literal"><span class="pre">ValueError</span></code> will be raised if the data in the form
+doesn’t validate – i.e., if <code class="docutils literal"><span class="pre">form.errors</span></code> evaluates to <code class="docutils literal"><span class="pre">True</span></code>.</p>
+<p>If an optional field doesn’t appear in the form’s data, the resulting model
+instance uses the model field <a class="reference internal" href="../../ref/models/fields.html#django.db.models.Field.default" title="django.db.models.Field.default"><code class="xref py py-attr docutils literal"><span class="pre">default</span></code></a>, if
+there is one, for that field. This behavior doesn’t apply to fields that use
+<a class="reference internal" href="../../ref/forms/widgets.html#django.forms.CheckboxInput" title="django.forms.CheckboxInput"><code class="xref py py-class docutils literal"><span class="pre">CheckboxInput</span></code></a>,
+<a class="reference internal" href="../../ref/forms/widgets.html#django.forms.CheckboxSelectMultiple" title="django.forms.CheckboxSelectMultiple"><code class="xref py py-class docutils literal"><span class="pre">CheckboxSelectMultiple</span></code></a>, or
+<a class="reference internal" href="../../ref/forms/widgets.html#django.forms.SelectMultiple" title="django.forms.SelectMultiple"><code class="xref py py-class docutils literal"><span class="pre">SelectMultiple</span></code></a> (or any custom widget whose
+<a class="reference internal" href="../../ref/forms/widgets.html#django.forms.Widget.value_omitted_from_data" title="django.forms.Widget.value_omitted_from_data"><code class="xref py py-meth docutils literal"><span class="pre">value_omitted_from_data()</span></code></a> method always returns
+<code class="docutils literal"><span class="pre">False</span></code>) since an unchecked checkbox and unselected <code class="docutils literal"><span class="pre">&lt;select</span> <span class="pre">multiple&gt;</span></code>
+don’t appear in the data of an HTML form submission. Use a custom form field or
+widget if you’re designing an API and want the default fallback behavior for a
+field that uses one of these widgets.</p>
+<div class="versionchanged">
+<p>Older versions don’t have the exception for
+<a class="reference internal" href="../../ref/forms/widgets.html#django.forms.CheckboxInput" title="django.forms.CheckboxInput"><code class="xref py py-class docutils literal"><span class="pre">CheckboxInput</span></code></a> which means that unchecked checkboxes
+receive a value of <code class="docutils literal"><span class="pre">True</span></code> if that’s the model field default.</p>
+</div>
+<div class="versionchanged">
+<p>The <a class="reference internal" href="../../ref/forms/widgets.html#django.forms.Widget.value_omitted_from_data" title="django.forms.Widget.value_omitted_from_data"><code class="xref py py-meth docutils literal"><span class="pre">value_omitted_from_data()</span></code></a> method was added.</p>
+</div>
+<p>This <code class="docutils literal"><span class="pre">save()</span></code> method accepts an optional <code class="docutils literal"><span class="pre">commit</span></code> keyword argument, which
+accepts either <code class="docutils literal"><span class="pre">True</span></code> or <code class="docutils literal"><span class="pre">False</span></code>. If you call <code class="docutils literal"><span class="pre">save()</span></code> with
+<code class="docutils literal"><span class="pre">commit=False</span></code>, then it will return an object that hasn’t yet been saved to
+the database. In this case, it’s up to you to call <code class="docutils literal"><span class="pre">save()</span></code> on the resulting
+model instance. This is useful if you want to do custom processing on the
+object before saving it, or if you want to use one of the specialized
+<a class="reference internal" href="../../ref/models/instances.html#ref-models-force-insert"><span class="std std-ref">model saving options</span></a>. <code class="docutils literal"><span class="pre">commit</span></code> is <code class="docutils literal"><span class="pre">True</span></code>
+by default.</p>
+<p>Another side effect of using <code class="docutils literal"><span class="pre">commit=False</span></code> is seen when your model has
+a many-to-many relation with another model. If your model has a many-to-many
+relation and you specify <code class="docutils literal"><span class="pre">commit=False</span></code> when you save a form, Django cannot
+immediately save the form data for the many-to-many relation. This is because
+it isn’t possible to save many-to-many data for an instance until the instance
+exists in the database.</p>
+<p>To work around this problem, every time you save a form using <code class="docutils literal"><span class="pre">commit=False</span></code>,
+Django adds a <code class="docutils literal"><span class="pre">save_m2m()</span></code> method to your <code class="docutils literal"><span class="pre">ModelForm</span></code> subclass. After
+you’ve manually saved the instance produced by the form, you can invoke
+<code class="docutils literal"><span class="pre">save_m2m()</span></code> to save the many-to-many form data. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Create a form instance with POST data.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">f</span> <span class="o">=</span> <span class="n">AuthorForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+
+<span class="c"># Create, but don&#39;t save the new author instance.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">new_author</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="c"># Modify the author in some way.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">new_author</span><span class="o">.</span><span class="n">some_field</span> <span class="o">=</span> <span class="s">&#39;some_value&#39;</span>
+
+<span class="c"># Save the new instance.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">new_author</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="c"># Now, save the many-to-many data for the form.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">f</span><span class="o">.</span><span class="n">save_m2m</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Calling <code class="docutils literal"><span class="pre">save_m2m()</span></code> is only required if you use <code class="docutils literal"><span class="pre">save(commit=False)</span></code>.
+When you use a simple <code class="docutils literal"><span class="pre">save()</span></code> on a form, all data – including
+many-to-many data – is saved without the need for any additional method calls.
+For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Create a form instance with POST data.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">Author</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">f</span> <span class="o">=</span> <span class="n">AuthorForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="n">a</span><span class="p">)</span>
+
+<span class="c"># Create and save the new author instance. There&#39;s no need to do anything else.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">new_author</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Other than the <code class="docutils literal"><span class="pre">save()</span></code> and <code class="docutils literal"><span class="pre">save_m2m()</span></code> methods, a <code class="docutils literal"><span class="pre">ModelForm</span></code> works
+exactly the same way as any other <code class="docutils literal"><span class="pre">forms</span></code> form. For example, the
+<code class="docutils literal"><span class="pre">is_valid()</span></code> method is used to check for validity, the <code class="docutils literal"><span class="pre">is_multipart()</span></code>
+method is used to determine whether a form requires multipart file upload (and
+hence whether <code class="docutils literal"><span class="pre">request.FILES</span></code> must be passed to the form), etc. See
+<a class="reference internal" href="../../ref/forms/api.html#binding-uploaded-files"><span class="std std-ref">Binding uploaded files to a form</span></a> for more information.</p>
+</div>
+<div class="section" id="selecting-the-fields-to-use">
+<span id="modelforms-selecting-fields"></span><h3>Selecting the fields to use<a class="headerlink" href="#selecting-the-fields-to-use" title="永久链接至标题">¶</a></h3>
+<p>It is strongly recommended that you explicitly set all fields that should be
+edited in the form using the <code class="docutils literal"><span class="pre">fields</span></code> attribute. Failure to do so can easily
+lead to security problems when a form unexpectedly allows a user to set certain
+fields, especially when new fields are added to a model. Depending on how the
+form is rendered, the problem may not even be visible on the web page.</p>
+<p>The alternative approach would be to include all fields automatically, or
+blacklist only some. This fundamental approach is known to be much less secure
+and has led to serious exploits on major websites (e.g. <a class="reference external" href="https://github.com/blog/1068-public-key-security-vulnerability-and-mitigation">GitHub</a>).</p>
+<p>There are, however, two shortcuts available for cases where you can guarantee
+these security concerns do not apply to you:</p>
+<ol class="arabic">
+<li><p class="first">Set the <code class="docutils literal"><span class="pre">fields</span></code> attribute to the special value <code class="docutils literal"><span class="pre">'__all__'</span></code> to indicate
+that all fields in the model should be used. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">ModelForm</span>
+
+<span class="k">class</span> <span class="nc">AuthorForm</span><span class="p">(</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Author</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s">&#39;__all__&#39;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Set the <code class="docutils literal"><span class="pre">exclude</span></code> attribute of the <code class="docutils literal"><span class="pre">ModelForm</span></code>’s inner <code class="docutils literal"><span class="pre">Meta</span></code> class to
+a list of fields to be excluded from the form.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">class</span> <span class="nc">PartialAuthorForm</span><span class="p">(</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Author</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Since the <code class="docutils literal"><span class="pre">Author</span></code> model has the 3 fields <code class="docutils literal"><span class="pre">name</span></code>, <code class="docutils literal"><span class="pre">title</span></code> and
+<code class="docutils literal"><span class="pre">birth_date</span></code>, this will result in the fields <code class="docutils literal"><span class="pre">name</span></code> and <code class="docutils literal"><span class="pre">birth_date</span></code>
+being present on the form.</p>
+</li>
+</ol>
+<p>If either of these are used, the order the fields appear in the form will be the
+order the fields are defined in the model, with <code class="docutils literal"><span class="pre">ManyToManyField</span></code> instances
+appearing last.</p>
+<p>In addition, Django applies the following rule: if you set <code class="docutils literal"><span class="pre">editable=False</span></code> on
+the model field, <em>any</em> form created from the model via <code class="docutils literal"><span class="pre">ModelForm</span></code> will not
+include that field.</p>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p>Any fields not included in a form by the above logic
+will not be set by the form’s <code class="docutils literal"><span class="pre">save()</span></code> method. Also, if you
+manually add the excluded fields back to the form, they will not
+be initialized from the model instance.</p>
+<p>Django will prevent any attempt to save an incomplete model, so if
+the model does not allow the missing fields to be empty, and does
+not provide a default value for the missing fields, any attempt to
+<code class="docutils literal"><span class="pre">save()</span></code> a <code class="docutils literal"><span class="pre">ModelForm</span></code> with missing fields will fail.  To
+avoid this failure, you must instantiate your model with initial
+values for the missing, but required fields:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">author</span> <span class="o">=</span> <span class="n">Author</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&#39;Mr&#39;</span><span class="p">)</span>
+<span class="n">form</span> <span class="o">=</span> <span class="n">PartialAuthorForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="n">author</span><span class="p">)</span>
+<span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Alternatively, you can use <code class="docutils literal"><span class="pre">save(commit=False)</span></code> and manually set
+any extra required fields:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">form</span> <span class="o">=</span> <span class="n">PartialAuthorForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+<span class="n">author</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
+<span class="n">author</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Mr&#39;</span>
+<span class="n">author</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p class="last">See the <a class="reference internal" href="#the-save-method">section on saving forms</a> for more details on using
+<code class="docutils literal"><span class="pre">save(commit=False)</span></code>.</p>
+</div>
+</div>
+<div class="section" id="overriding-the-default-fields">
+<span id="modelforms-overriding-default-fields"></span><h3>Overriding the default fields<a class="headerlink" href="#overriding-the-default-fields" title="永久链接至标题">¶</a></h3>
+<p>The default field types, as described in the <a class="reference internal" href="#field-types">Field types</a> table above, are
+sensible defaults. If you have a <code class="docutils literal"><span class="pre">DateField</span></code> in your model, chances are you’d
+want that to be represented as a <code class="docutils literal"><span class="pre">DateField</span></code> in your form. But <code class="docutils literal"><span class="pre">ModelForm</span></code>
+gives you the flexibility of changing the form field for a given model.</p>
+<p>To specify a custom widget for a field, use the <code class="docutils literal"><span class="pre">widgets</span></code> attribute of the
+inner <code class="docutils literal"><span class="pre">Meta</span></code> class. This should be a dictionary mapping field names to widget
+classes or instances.</p>
+<p>For example, if you want the <code class="docutils literal"><span class="pre">CharField</span></code> for the <code class="docutils literal"><span class="pre">name</span></code> attribute of
+<code class="docutils literal"><span class="pre">Author</span></code> to be represented by a <code class="docutils literal"><span class="pre">&lt;textarea&gt;</span></code> instead of its default
+<code class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;text&quot;&gt;</span></code>, you can override the field’s widget:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">ModelForm</span><span class="p">,</span> <span class="n">Textarea</span>
+<span class="kn">from</span> <span class="nn">myapp.models</span> <span class="k">import</span> <span class="n">Author</span>
+
+<span class="k">class</span> <span class="nc">AuthorForm</span><span class="p">(</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Author</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;title&#39;</span><span class="p">,</span> <span class="s">&#39;birth_date&#39;</span><span class="p">)</span>
+        <span class="n">widgets</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">Textarea</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;cols&#39;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span> <span class="s">&#39;rows&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">}),</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">widgets</span></code> dictionary accepts either widget instances (e.g.,
+<code class="docutils literal"><span class="pre">Textarea(...)</span></code>) or classes (e.g., <code class="docutils literal"><span class="pre">Textarea</span></code>).</p>
+<p>Similarly, you can specify the <code class="docutils literal"><span class="pre">labels</span></code>, <code class="docutils literal"><span class="pre">help_texts</span></code> and <code class="docutils literal"><span class="pre">error_messages</span></code>
+attributes of the inner <code class="docutils literal"><span class="pre">Meta</span></code> class if you want to further customize a field.</p>
+<p>For example if you wanted to customize the wording of all user facing strings for
+the <code class="docutils literal"><span class="pre">name</span></code> field:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="k">import</span> <span class="n">ugettext_lazy</span> <span class="k">as</span> <span class="n">_</span>
+
+<span class="k">class</span> <span class="nc">AuthorForm</span><span class="p">(</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Author</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;title&#39;</span><span class="p">,</span> <span class="s">&#39;birth_date&#39;</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Writer&#39;</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">help_texts</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Some useful help text.&#39;</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">error_messages</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;max_length&#39;</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s">&quot;This writer&#39;s name is too long.&quot;</span><span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+<p>You can also specify <code class="docutils literal"><span class="pre">field_classes</span></code> to customize the type of fields
+instantiated by the form.</p>
+<p>For example, if you wanted to use <code class="docutils literal"><span class="pre">MySlugFormField</span></code> for the <code class="docutils literal"><span class="pre">slug</span></code>
+field, you could do the following:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">ModelForm</span>
+<span class="kn">from</span> <span class="nn">myapp.models</span> <span class="k">import</span> <span class="n">Article</span>
+
+<span class="k">class</span> <span class="nc">ArticleForm</span><span class="p">(</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Article</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;pub_date&#39;</span><span class="p">,</span> <span class="s">&#39;headline&#39;</span><span class="p">,</span> <span class="s">&#39;content&#39;</span><span class="p">,</span> <span class="s">&#39;reporter&#39;</span><span class="p">,</span> <span class="s">&#39;slug&#39;</span><span class="p">]</span>
+        <span class="n">field_classes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;slug&#39;</span><span class="p">:</span> <span class="n">MySlugFormField</span><span class="p">,</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+<p>Finally, if you want complete control over of a field – including its type,
+validators, required, etc. – you can do this by declaratively specifying
+fields like you would in a regular <code class="docutils literal"><span class="pre">Form</span></code>.</p>
+<p>If you want to specify a field’s validators, you can do so by defining
+the field declaratively and setting its <code class="docutils literal"><span class="pre">validators</span></code> parameter:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">ModelForm</span><span class="p">,</span> <span class="n">CharField</span>
+<span class="kn">from</span> <span class="nn">myapp.models</span> <span class="k">import</span> <span class="n">Article</span>
+
+<span class="k">class</span> <span class="nc">ArticleForm</span><span class="p">(</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="n">slug</span> <span class="o">=</span> <span class="n">CharField</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">validate_slug</span><span class="p">])</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Article</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;pub_date&#39;</span><span class="p">,</span> <span class="s">&#39;headline&#39;</span><span class="p">,</span> <span class="s">&#39;content&#39;</span><span class="p">,</span> <span class="s">&#39;reporter&#39;</span><span class="p">,</span> <span class="s">&#39;slug&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="versionadded">
+<p>The <code class="docutils literal"><span class="pre">Meta.field_classes</span></code> attribute was added.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p>When you explicitly instantiate a form field like this, it is important to
+understand how <code class="docutils literal"><span class="pre">ModelForm</span></code> and regular <code class="docutils literal"><span class="pre">Form</span></code> are related.</p>
+<p><code class="docutils literal"><span class="pre">ModelForm</span></code> is a regular <code class="docutils literal"><span class="pre">Form</span></code> which can automatically generate
+certain fields. The fields that are automatically generated depend on
+the content of the <code class="docutils literal"><span class="pre">Meta</span></code> class and on which fields have already been
+defined declaratively. Basically, <code class="docutils literal"><span class="pre">ModelForm</span></code> will <strong>only</strong> generate fields
+that are <strong>missing</strong> from the form, or in other words, fields that weren’t
+defined declaratively.</p>
+<p>Fields defined declaratively are left as-is, therefore any customizations
+made to <code class="docutils literal"><span class="pre">Meta</span></code> attributes such as <code class="docutils literal"><span class="pre">widgets</span></code>, <code class="docutils literal"><span class="pre">labels</span></code>, <code class="docutils literal"><span class="pre">help_texts</span></code>,
+or <code class="docutils literal"><span class="pre">error_messages</span></code> are ignored; these only apply to fields that are
+generated automatically.</p>
+<p>Similarly, fields defined declaratively do not draw their attributes like
+<code class="docutils literal"><span class="pre">max_length</span></code> or <code class="docutils literal"><span class="pre">required</span></code> from the corresponding model. If you want to
+maintain the behavior specified in the model, you must set the relevant
+arguments explicitly when declaring the form field.</p>
+<p>For example, if the <code class="docutils literal"><span class="pre">Article</span></code> model looks like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Article</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">headline</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="k">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="k">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s">&#39;Use puns liberally&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>and you want to do some custom validation for <code class="docutils literal"><span class="pre">headline</span></code>, while keeping
+the <code class="docutils literal"><span class="pre">blank</span></code> and <code class="docutils literal"><span class="pre">help_text</span></code> values as specified, you might define
+<code class="docutils literal"><span class="pre">ArticleForm</span></code> like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">class</span> <span class="nc">ArticleForm</span><span class="p">(</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="n">headline</span> <span class="o">=</span> <span class="n">MyFormField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="k">False</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s">&#39;Use puns liberally&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Article</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;headline&#39;</span><span class="p">,</span> <span class="s">&#39;content&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>You must ensure that the type of the form field can be used to set the
+contents of the corresponding model field. When they are not compatible,
+you will get a <code class="docutils literal"><span class="pre">ValueError</span></code> as no implicit conversion takes place.</p>
+<p class="last">See the <a class="reference internal" href="../../ref/forms/fields.html"><span class="doc">form field documentation</span></a> for more information
+on fields and their arguments.</p>
+</div>
+</div>
+<div class="section" id="enabling-localization-of-fields">
+<h3>Enabling localization of fields<a class="headerlink" href="#enabling-localization-of-fields" title="永久链接至标题">¶</a></h3>
+<p>By default, the fields in a <code class="docutils literal"><span class="pre">ModelForm</span></code> will not localize their data. To
+enable localization for fields, you can use the <code class="docutils literal"><span class="pre">localized_fields</span></code>
+attribute on the <code class="docutils literal"><span class="pre">Meta</span></code> class.</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">ModelForm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">myapp.models</span> <span class="k">import</span> <span class="n">Author</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">AuthorForm</span><span class="p">(</span><span class="n">ModelForm</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="n">model</span> <span class="o">=</span> <span class="n">Author</span>
+<span class="gp">... </span>        <span class="n">localized_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;birth_date&#39;</span><span class="p">,)</span>
+</pre></div>
+</div>
+<p>If <code class="docutils literal"><span class="pre">localized_fields</span></code> is set to the special value <code class="docutils literal"><span class="pre">'__all__'</span></code>, all fields
+will be localized.</p>
+</div>
+<div class="section" id="form-inheritance">
+<h3>Form inheritance<a class="headerlink" href="#form-inheritance" title="永久链接至标题">¶</a></h3>
+<p>As with basic forms, you can extend and reuse <code class="docutils literal"><span class="pre">ModelForms</span></code> by inheriting
+them. This is useful if you need to declare extra fields or extra methods on a
+parent class for use in a number of forms derived from models. For example,
+using the previous <code class="docutils literal"><span class="pre">ArticleForm</span></code> class:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">EnhancedArticleForm</span><span class="p">(</span><span class="n">ArticleForm</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">clean_pub_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="o">...</span>
+</pre></div>
+</div>
+<p>This creates a form that behaves identically to <code class="docutils literal"><span class="pre">ArticleForm</span></code>, except there’s
+some extra validation and cleaning for the <code class="docutils literal"><span class="pre">pub_date</span></code> field.</p>
+<p>You can also subclass the parent’s <code class="docutils literal"><span class="pre">Meta</span></code> inner class if you want to change
+the <code class="docutils literal"><span class="pre">Meta.fields</span></code> or <code class="docutils literal"><span class="pre">Meta.exclude</span></code> lists:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">RestrictedArticleForm</span><span class="p">(</span><span class="n">EnhancedArticleForm</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">(</span><span class="n">ArticleForm</span><span class="o">.</span><span class="n">Meta</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;body&#39;</span><span class="p">,)</span>
+</pre></div>
+</div>
+<p>This adds the extra method from the <code class="docutils literal"><span class="pre">EnhancedArticleForm</span></code> and modifies
+the original <code class="docutils literal"><span class="pre">ArticleForm.Meta</span></code> to remove one field.</p>
+<p>There are a couple of things to note, however.</p>
+<ul>
+<li><p class="first">Normal Python name resolution rules apply. If you have multiple base
+classes that declare a <code class="docutils literal"><span class="pre">Meta</span></code> inner class, only the first one will be
+used. This means the child’s <code class="docutils literal"><span class="pre">Meta</span></code>, if it exists, otherwise the
+<code class="docutils literal"><span class="pre">Meta</span></code> of the first parent, etc.</p>
+</li>
+<li><p class="first">It’s possible to inherit from both <code class="docutils literal"><span class="pre">Form</span></code> and <code class="docutils literal"><span class="pre">ModelForm</span></code> simultaneously,
+however, you must ensure that <code class="docutils literal"><span class="pre">ModelForm</span></code> appears first in the MRO. This is
+because these classes rely on different metaclasses and a class can only have
+one metaclass.</p>
+</li>
+<li><p class="first">It’s possible to declaratively remove a <code class="docutils literal"><span class="pre">Field</span></code> inherited from a parent class by
+setting the name to be <code class="docutils literal"><span class="pre">None</span></code> on the subclass.</p>
+<p>You can only use this technique to opt out from a field defined declaratively
+by a parent class; it won’t prevent the <code class="docutils literal"><span class="pre">ModelForm</span></code> metaclass from generating
+a default field. To opt-out from default fields, see
+<a class="reference internal" href="#modelforms-selecting-fields"><span class="std std-ref">Selecting the fields to use</span></a>.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="providing-initial-values">
+<h3>Providing initial values<a class="headerlink" href="#providing-initial-values" title="永久链接至标题">¶</a></h3>
+<p>As with regular forms, it’s possible to specify initial data for forms by
+specifying an <code class="docutils literal"><span class="pre">initial</span></code> parameter when instantiating the form. Initial
+values provided this way will override both initial values from the form field
+and values from an attached model instance. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">article</span> <span class="o">=</span> <span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">article</span><span class="o">.</span><span class="n">headline</span>
+<span class="go">&#39;My headline&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">form</span> <span class="o">=</span> <span class="n">ArticleForm</span><span class="p">(</span><span class="n">initial</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;headline&#39;</span><span class="p">:</span> <span class="s">&#39;Initial headline&#39;</span><span class="p">},</span> <span class="n">instance</span><span class="o">=</span><span class="n">article</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">form</span><span class="p">[</span><span class="s">&#39;headline&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+<span class="go">&#39;Initial headline&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="modelform-factory-function">
+<span id="modelforms-factory"></span><h3>ModelForm factory function<a class="headerlink" href="#modelform-factory-function" title="永久链接至标题">¶</a></h3>
+<p>You can create forms from a given model using the standalone function
+<a class="reference internal" href="../../ref/forms/models.html#django.forms.models.modelform_factory" title="django.forms.models.modelform_factory"><code class="xref py py-func docutils literal"><span class="pre">modelform_factory()</span></code></a>, instead of using a class
+definition. This may be more convenient if you do not have many customizations
+to make:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">modelform_factory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">myapp.models</span> <span class="k">import</span> <span class="n">Book</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">BookForm</span> <span class="o">=</span> <span class="n">modelform_factory</span><span class="p">(</span><span class="n">Book</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;author&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This can also be used to make simple modifications to existing forms, for
+example by specifying the widgets to be used for a given field:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">Textarea</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Form</span> <span class="o">=</span> <span class="n">modelform_factory</span><span class="p">(</span><span class="n">Book</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">BookForm</span><span class="p">,</span>
+<span class="gp">... </span>                         <span class="n">widgets</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="n">Textarea</span><span class="p">()})</span>
+</pre></div>
+</div>
+<p>The fields to include can be specified using the <code class="docutils literal"><span class="pre">fields</span></code> and <code class="docutils literal"><span class="pre">exclude</span></code>
+keyword arguments, or the corresponding attributes on the <code class="docutils literal"><span class="pre">ModelForm</span></code> inner
+<code class="docutils literal"><span class="pre">Meta</span></code> class. Please see the <code class="docutils literal"><span class="pre">ModelForm</span></code> <a class="reference internal" href="#modelforms-selecting-fields"><span class="std std-ref">Selecting the fields to use</span></a>
+documentation.</p>
+<p>… or enable localization for specific fields:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Form</span> <span class="o">=</span> <span class="n">modelform_factory</span><span class="p">(</span><span class="n">Author</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">AuthorForm</span><span class="p">,</span> <span class="n">localized_fields</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;birth_date&quot;</span><span class="p">,))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="model-formsets">
+<span id="id1"></span><h2>Model formsets<a class="headerlink" href="#model-formsets" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.forms.models.BaseModelFormSet">
+<em class="property">class </em><code class="descclassname">models.</code><code class="descname">BaseModelFormSet</code><a class="headerlink" href="#django.forms.models.BaseModelFormSet" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>Like <a class="reference internal" href="formsets.html"><span class="doc">regular formsets</span></a>, Django provides a couple
+of enhanced formset classes that make it easy to work with Django models. Let’s
+reuse the <code class="docutils literal"><span class="pre">Author</span></code> model from above:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">modelformset_factory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">myapp.models</span> <span class="k">import</span> <span class="n">Author</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">AuthorFormSet</span> <span class="o">=</span> <span class="n">modelformset_factory</span><span class="p">(</span><span class="n">Author</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;title&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Using <code class="docutils literal"><span class="pre">fields</span></code> restricts the formset to use only the given fields.
+Alternatively, you can take an “opt-out” approach, specifying which fields to
+exclude:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">AuthorFormSet</span> <span class="o">=</span> <span class="n">modelformset_factory</span><span class="p">(</span><span class="n">Author</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;birth_date&#39;</span><span class="p">,))</span>
+</pre></div>
+</div>
+<p>This will create a formset that is capable of working with the data associated
+with the <code class="docutils literal"><span class="pre">Author</span></code> model. It works just like a regular formset:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">formset</span> <span class="o">=</span> <span class="n">AuthorFormSet</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">formset</span><span class="p">)</span>
+<span class="go">&lt;input type=&quot;hidden&quot; name=&quot;form-TOTAL_FORMS&quot; value=&quot;1&quot; id=&quot;id_form-TOTAL_FORMS&quot; /&gt;&lt;input type=&quot;hidden&quot; name=&quot;form-INITIAL_FORMS&quot; value=&quot;0&quot; id=&quot;id_form-INITIAL_FORMS&quot; /&gt;&lt;input type=&quot;hidden&quot; name=&quot;form-MAX_NUM_FORMS&quot; id=&quot;id_form-MAX_NUM_FORMS&quot; /&gt;</span>
+<span class="go">&lt;tr&gt;&lt;th&gt;&lt;label for=&quot;id_form-0-name&quot;&gt;Name:&lt;/label&gt;&lt;/th&gt;&lt;td&gt;&lt;input id=&quot;id_form-0-name&quot; type=&quot;text&quot; name=&quot;form-0-name&quot; maxlength=&quot;100&quot; /&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="go">&lt;tr&gt;&lt;th&gt;&lt;label for=&quot;id_form-0-title&quot;&gt;Title:&lt;/label&gt;&lt;/th&gt;&lt;td&gt;&lt;select name=&quot;form-0-title&quot; id=&quot;id_form-0-title&quot;&gt;</span>
+<span class="go">&lt;option value=&quot;&quot; selected=&quot;selected&quot;&gt;---------&lt;/option&gt;</span>
+<span class="go">&lt;option value=&quot;MR&quot;&gt;Mr.&lt;/option&gt;</span>
+<span class="go">&lt;option value=&quot;MRS&quot;&gt;Mrs.&lt;/option&gt;</span>
+<span class="go">&lt;option value=&quot;MS&quot;&gt;Ms.&lt;/option&gt;</span>
+<span class="go">&lt;/select&gt;&lt;input type=&quot;hidden&quot; name=&quot;form-0-id&quot; id=&quot;id_form-0-id&quot; /&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last"><a class="reference internal" href="../../ref/forms/models.html#django.forms.models.modelformset_factory" title="django.forms.models.modelformset_factory"><code class="xref py py-func docutils literal"><span class="pre">modelformset_factory()</span></code></a> uses
+<a class="reference internal" href="../../ref/forms/formsets.html#django.forms.formsets.formset_factory" title="django.forms.formsets.formset_factory"><code class="xref py py-func docutils literal"><span class="pre">formset_factory()</span></code></a> to generate formsets. This
+means that a model formset is just an extension of a basic formset that
+knows how to interact with a particular model.</p>
+</div>
+<div class="section" id="changing-the-queryset">
+<h3>Changing the queryset<a class="headerlink" href="#changing-the-queryset" title="永久链接至标题">¶</a></h3>
+<p>By default, when you create a formset from a model, the formset will use a
+queryset that includes all objects in the model (e.g.,
+<code class="docutils literal"><span class="pre">Author.objects.all()</span></code>). You can override this behavior by using the
+<code class="docutils literal"><span class="pre">queryset</span></code> argument:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">formset</span> <span class="o">=</span> <span class="n">AuthorFormSet</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__startswith</span><span class="o">=</span><span class="s">&#39;O&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Alternatively, you can create a subclass that sets <code class="docutils literal"><span class="pre">self.queryset</span></code> in
+<code class="docutils literal"><span class="pre">__init__</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">BaseModelFormSet</span>
+<span class="kn">from</span> <span class="nn">myapp.models</span> <span class="k">import</span> <span class="n">Author</span>
+
+<span class="k">class</span> <span class="nc">BaseAuthorFormSet</span><span class="p">(</span><span class="n">BaseModelFormSet</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BaseAuthorFormSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__startswith</span><span class="o">=</span><span class="s">&#39;O&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then, pass your <code class="docutils literal"><span class="pre">BaseAuthorFormSet</span></code> class to the factory function:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">AuthorFormSet</span> <span class="o">=</span> <span class="n">modelformset_factory</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">Author</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;title&#39;</span><span class="p">),</span> <span class="n">formset</span><span class="o">=</span><span class="n">BaseAuthorFormSet</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you want to return a formset that doesn’t include <em>any</em> pre-existing
+instances of the model, you can specify an empty QuerySet:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">AuthorFormSet</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">none</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="changing-the-form">
+<h3>Changing the form<a class="headerlink" href="#changing-the-form" title="永久链接至标题">¶</a></h3>
+<p>By default, when you use <code class="docutils literal"><span class="pre">modelformset_factory</span></code>, a model form will
+be created using <a class="reference internal" href="../../ref/forms/models.html#django.forms.models.modelform_factory" title="django.forms.models.modelform_factory"><code class="xref py py-func docutils literal"><span class="pre">modelform_factory()</span></code></a>.
+Often, it can be useful to specify a custom model form. For example,
+you can create a custom model form that has custom validation:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">class</span> <span class="nc">AuthorForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Author</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;title&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">clean_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># custom validation for the name field</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>Then, pass your model form to the factory function:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">AuthorFormSet</span> <span class="o">=</span> <span class="n">modelformset_factory</span><span class="p">(</span><span class="n">Author</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">AuthorForm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It is not always necessary to define a custom model form. The
+<code class="docutils literal"><span class="pre">modelformset_factory</span></code> function has several arguments which are
+passed through to <code class="docutils literal"><span class="pre">modelform_factory</span></code>, which are described below.</p>
+</div>
+<div class="section" id="specifying-widgets-to-use-in-the-form-with-widgets">
+<h3>Specifying widgets to use in the form with <code class="docutils literal"><span class="pre">widgets</span></code><a class="headerlink" href="#specifying-widgets-to-use-in-the-form-with-widgets" title="永久链接至标题">¶</a></h3>
+<p>Using the <code class="docutils literal"><span class="pre">widgets</span></code> parameter, you can specify a dictionary of values to
+customize the <code class="docutils literal"><span class="pre">ModelForm</span></code>’s widget class for a particular field. This
+works the same way as the <code class="docutils literal"><span class="pre">widgets</span></code> dictionary on the inner <code class="docutils literal"><span class="pre">Meta</span></code>
+class of a <code class="docutils literal"><span class="pre">ModelForm</span></code> works:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">AuthorFormSet</span> <span class="o">=</span> <span class="n">modelformset_factory</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">Author</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;title&#39;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">widgets</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">Textarea</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;cols&#39;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span> <span class="s">&#39;rows&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">})})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="enabling-localization-for-fields-with-localized-fields">
+<h3>Enabling localization for fields with <code class="docutils literal"><span class="pre">localized_fields</span></code><a class="headerlink" href="#enabling-localization-for-fields-with-localized-fields" title="永久链接至标题">¶</a></h3>
+<p>Using the <code class="docutils literal"><span class="pre">localized_fields</span></code> parameter, you can enable localization for
+fields in the form.</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">AuthorFormSet</span> <span class="o">=</span> <span class="n">modelformset_factory</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">Author</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;title&#39;</span><span class="p">,</span> <span class="s">&#39;birth_date&#39;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">localized_fields</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;birth_date&#39;</span><span class="p">,))</span>
+</pre></div>
+</div>
+<p>If <code class="docutils literal"><span class="pre">localized_fields</span></code> is set to the special value <code class="docutils literal"><span class="pre">'__all__'</span></code>, all fields
+will be localized.</p>
+</div>
+<div class="section" id="id2">
+<h3>Providing initial values<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h3>
+<p>As with regular formsets, it’s possible to <a class="reference internal" href="formsets.html#formsets-initial-data"><span class="std std-ref">specify initial data</span></a> for forms in the formset by specifying an <code class="docutils literal"><span class="pre">initial</span></code>
+parameter when instantiating the model formset class returned by
+<a class="reference internal" href="../../ref/forms/models.html#django.forms.models.modelformset_factory" title="django.forms.models.modelformset_factory"><code class="xref py py-func docutils literal"><span class="pre">modelformset_factory()</span></code></a>. However, with model
+formsets, the initial values only apply to extra forms, those that aren’t
+attached to an existing model instance. If the extra forms with initial data
+aren’t changed by the user, they won’t be validated or saved.</p>
+</div>
+<div class="section" id="saving-objects-in-the-formset">
+<span id="id3"></span><h3>Saving objects in the formset<a class="headerlink" href="#saving-objects-in-the-formset" title="永久链接至标题">¶</a></h3>
+<p>As with a <code class="docutils literal"><span class="pre">ModelForm</span></code>, you can save the data as a model object. This is done
+with the formset’s <code class="docutils literal"><span class="pre">save()</span></code> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Create a formset instance with POST data.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">formset</span> <span class="o">=</span> <span class="n">AuthorFormSet</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+
+<span class="c"># Assuming all is valid, save the data.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">instances</span> <span class="o">=</span> <span class="n">formset</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">save()</span></code> method returns the instances that have been saved to the
+database. If a given instance’s data didn’t change in the bound data, the
+instance won’t be saved to the database and won’t be included in the return
+value (<code class="docutils literal"><span class="pre">instances</span></code>, in the above example).</p>
+<p>When fields are missing from the form (for example because they have been
+excluded), these fields will not be set by the <code class="docutils literal"><span class="pre">save()</span></code> method. You can find
+more information about this restriction, which also holds for regular
+<code class="docutils literal"><span class="pre">ModelForms</span></code>, in <a class="reference internal" href="#selecting-the-fields-to-use">Selecting the fields to use</a>.</p>
+<p>Pass <code class="docutils literal"><span class="pre">commit=False</span></code> to return the unsaved model instances:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># don&#39;t save to the database</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">instances</span> <span class="o">=</span> <span class="n">formset</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">instances</span><span class="p">:</span>
+<span class="o">...</span>     <span class="c"># do something with instance</span>
+<span class="o">...</span>     <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This gives you the ability to attach data to the instances before saving them
+to the database. If your formset contains a <code class="docutils literal"><span class="pre">ManyToManyField</span></code>, you’ll also
+need to call <code class="docutils literal"><span class="pre">formset.save_m2m()</span></code> to ensure the many-to-many relationships
+are saved properly.</p>
+<p>After calling <code class="docutils literal"><span class="pre">save()</span></code>, your model formset will have three new attributes
+containing the formset’s changes:</p>
+<dl class="attribute">
+<dt id="django.forms.models.BaseModelFormSet.changed_objects">
+<code class="descclassname">models.BaseModelFormSet.</code><code class="descname">changed_objects</code><a class="headerlink" href="#django.forms.models.BaseModelFormSet.changed_objects" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="django.forms.models.BaseModelFormSet.deleted_objects">
+<code class="descclassname">models.BaseModelFormSet.</code><code class="descname">deleted_objects</code><a class="headerlink" href="#django.forms.models.BaseModelFormSet.deleted_objects" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="django.forms.models.BaseModelFormSet.new_objects">
+<code class="descclassname">models.BaseModelFormSet.</code><code class="descname">new_objects</code><a class="headerlink" href="#django.forms.models.BaseModelFormSet.new_objects" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="limiting-the-number-of-editable-objects">
+<span id="model-formsets-max-num"></span><h3>Limiting the number of editable objects<a class="headerlink" href="#limiting-the-number-of-editable-objects" title="永久链接至标题">¶</a></h3>
+<p>As with regular formsets, you can use the <code class="docutils literal"><span class="pre">max_num</span></code> and <code class="docutils literal"><span class="pre">extra</span></code> parameters
+to <a class="reference internal" href="../../ref/forms/models.html#django.forms.models.modelformset_factory" title="django.forms.models.modelformset_factory"><code class="xref py py-func docutils literal"><span class="pre">modelformset_factory()</span></code></a> to limit the number of
+extra forms displayed.</p>
+<p><code class="docutils literal"><span class="pre">max_num</span></code> does not prevent existing objects from being displayed:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Author: Charles Baudelaire&gt;, &lt;Author: Paul Verlaine&gt;, &lt;Author: Walt Whitman&gt;]&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">AuthorFormSet</span> <span class="o">=</span> <span class="n">modelformset_factory</span><span class="p">(</span><span class="n">Author</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,),</span> <span class="n">max_num</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">formset</span> <span class="o">=</span> <span class="n">AuthorFormSet</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">formset</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()]</span>
+<span class="go">[&#39;Charles Baudelaire&#39;, &#39;Paul Verlaine&#39;, &#39;Walt Whitman&#39;]</span>
+</pre></div>
+</div>
+<p>Also, <code class="docutils literal"><span class="pre">extra=0</span></code> doesn’t prevent creation of new model instances as you can
+<a class="reference internal" href="formsets.html#understanding-the-managementform"><span class="std std-ref">add additional forms with JavaScript</span></a>
+or just send additional POST data. Formsets <a class="reference external" href="https://code.djangoproject.com/ticket/26142">don’t yet provide functionality</a> for an “edit only” view that
+prevents creation of new instances.</p>
+<p>If the value of <code class="docutils literal"><span class="pre">max_num</span></code> is greater than the number of existing related
+objects, up to <code class="docutils literal"><span class="pre">extra</span></code> additional blank forms will be added to the formset,
+so long as the total number of forms does not exceed <code class="docutils literal"><span class="pre">max_num</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">AuthorFormSet</span> <span class="o">=</span> <span class="n">modelformset_factory</span><span class="p">(</span><span class="n">Author</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,),</span> <span class="n">max_num</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">formset</span> <span class="o">=</span> <span class="n">AuthorFormSet</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="n">formset</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">form</span><span class="o">.</span><span class="n">as_table</span><span class="p">())</span>
+<span class="go">&lt;tr&gt;&lt;th&gt;&lt;label for=&quot;id_form-0-name&quot;&gt;Name:&lt;/label&gt;&lt;/th&gt;&lt;td&gt;&lt;input id=&quot;id_form-0-name&quot; type=&quot;text&quot; name=&quot;form-0-name&quot; value=&quot;Charles Baudelaire&quot; maxlength=&quot;100&quot; /&gt;&lt;input type=&quot;hidden&quot; name=&quot;form-0-id&quot; value=&quot;1&quot; id=&quot;id_form-0-id&quot; /&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="go">&lt;tr&gt;&lt;th&gt;&lt;label for=&quot;id_form-1-name&quot;&gt;Name:&lt;/label&gt;&lt;/th&gt;&lt;td&gt;&lt;input id=&quot;id_form-1-name&quot; type=&quot;text&quot; name=&quot;form-1-name&quot; value=&quot;Paul Verlaine&quot; maxlength=&quot;100&quot; /&gt;&lt;input type=&quot;hidden&quot; name=&quot;form-1-id&quot; value=&quot;3&quot; id=&quot;id_form-1-id&quot; /&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="go">&lt;tr&gt;&lt;th&gt;&lt;label for=&quot;id_form-2-name&quot;&gt;Name:&lt;/label&gt;&lt;/th&gt;&lt;td&gt;&lt;input id=&quot;id_form-2-name&quot; type=&quot;text&quot; name=&quot;form-2-name&quot; value=&quot;Walt Whitman&quot; maxlength=&quot;100&quot; /&gt;&lt;input type=&quot;hidden&quot; name=&quot;form-2-id&quot; value=&quot;2&quot; id=&quot;id_form-2-id&quot; /&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="go">&lt;tr&gt;&lt;th&gt;&lt;label for=&quot;id_form-3-name&quot;&gt;Name:&lt;/label&gt;&lt;/th&gt;&lt;td&gt;&lt;input id=&quot;id_form-3-name&quot; type=&quot;text&quot; name=&quot;form-3-name&quot; maxlength=&quot;100&quot; /&gt;&lt;input type=&quot;hidden&quot; name=&quot;form-3-id&quot; id=&quot;id_form-3-id&quot; /&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+</pre></div>
+</div>
+<p>A <code class="docutils literal"><span class="pre">max_num</span></code> value of <code class="docutils literal"><span class="pre">None</span></code> (the default) puts a high limit on the number
+of forms displayed (1000). In practice this is equivalent to no limit.</p>
+</div>
+<div class="section" id="using-a-model-formset-in-a-view">
+<h3>Using a model formset in a view<a class="headerlink" href="#using-a-model-formset-in-a-view" title="永久链接至标题">¶</a></h3>
+<p>Model formsets are very similar to formsets. Let’s say we want to present a
+formset to edit <code class="docutils literal"><span class="pre">Author</span></code> model instances:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">modelformset_factory</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">render</span>
+<span class="kn">from</span> <span class="nn">myapp.models</span> <span class="k">import</span> <span class="n">Author</span>
+
+<span class="k">def</span> <span class="nf">manage_authors</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">AuthorFormSet</span> <span class="o">=</span> <span class="n">modelformset_factory</span><span class="p">(</span><span class="n">Author</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;title&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">formset</span> <span class="o">=</span> <span class="n">AuthorFormSet</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">FILES</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">formset</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">formset</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="c"># do something.</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">formset</span> <span class="o">=</span> <span class="n">AuthorFormSet</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;manage_authors.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;formset&#39;</span><span class="p">:</span> <span class="n">formset</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>As you can see, the view logic of a model formset isn’t drastically different
+than that of a “normal” formset. The only difference is that we call
+<code class="docutils literal"><span class="pre">formset.save()</span></code> to save the data into the database. (This was described
+above, in <a class="reference internal" href="#saving-objects-in-the-formset"><span class="std std-ref">Saving objects in the formset</span></a>.)</p>
+</div>
+<div class="section" id="overriding-clean-on-a-modelformset">
+<span id="model-formsets-overriding-clean"></span><h3>Overriding <code class="docutils literal"><span class="pre">clean()</span></code> on a <code class="docutils literal"><span class="pre">ModelFormSet</span></code><a class="headerlink" href="#overriding-clean-on-a-modelformset" title="永久链接至标题">¶</a></h3>
+<p>Just like with <code class="docutils literal"><span class="pre">ModelForms</span></code>, by default the <code class="docutils literal"><span class="pre">clean()</span></code> method of a
+<code class="docutils literal"><span class="pre">ModelFormSet</span></code> will validate that none of the items in the formset violate
+the unique constraints on your model (either <code class="docutils literal"><span class="pre">unique</span></code>, <code class="docutils literal"><span class="pre">unique_together</span></code> or
+<code class="docutils literal"><span class="pre">unique_for_date|month|year</span></code>).  If you want to override the <code class="docutils literal"><span class="pre">clean()</span></code> method
+on a <code class="docutils literal"><span class="pre">ModelFormSet</span></code> and maintain this validation, you must call the parent
+class’s <code class="docutils literal"><span class="pre">clean</span></code> method:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">BaseModelFormSet</span>
+
+<span class="k">class</span> <span class="nc">MyModelFormSet</span><span class="p">(</span><span class="n">BaseModelFormSet</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MyModelFormSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="c"># example custom validation across forms in the formset</span>
+        <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forms</span><span class="p">:</span>
+            <span class="c"># your custom formset validation</span>
+            <span class="o">...</span>
+</pre></div>
+</div>
+<p>Also note that by the time you reach this step, individual model instances
+have already been created for each <code class="docutils literal"><span class="pre">Form</span></code>. Modifying a value in
+<code class="docutils literal"><span class="pre">form.cleaned_data</span></code> is not sufficient to affect the saved value. If you wish
+to modify a value in <code class="docutils literal"><span class="pre">ModelFormSet.clean()</span></code> you must modify
+<code class="docutils literal"><span class="pre">form.instance</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">BaseModelFormSet</span>
+
+<span class="k">class</span> <span class="nc">MyModelFormSet</span><span class="p">(</span><span class="n">BaseModelFormSet</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MyModelFormSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forms</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="c"># update the instance value.</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-a-custom-queryset">
+<h3>Using a custom queryset<a class="headerlink" href="#using-a-custom-queryset" title="永久链接至标题">¶</a></h3>
+<p>As stated earlier, you can override the default queryset used by the model
+formset:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">modelformset_factory</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">render</span>
+<span class="kn">from</span> <span class="nn">myapp.models</span> <span class="k">import</span> <span class="n">Author</span>
+
+<span class="k">def</span> <span class="nf">manage_authors</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">AuthorFormSet</span> <span class="o">=</span> <span class="n">modelformset_factory</span><span class="p">(</span><span class="n">Author</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;title&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&quot;POST&quot;</span><span class="p">:</span>
+        <span class="n">formset</span> <span class="o">=</span> <span class="n">AuthorFormSet</span><span class="p">(</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">FILES</span><span class="p">,</span>
+            <span class="n">queryset</span><span class="o">=</span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__startswith</span><span class="o">=</span><span class="s">&#39;O&#39;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">formset</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">formset</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="c"># Do something.</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">formset</span> <span class="o">=</span> <span class="n">AuthorFormSet</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__startswith</span><span class="o">=</span><span class="s">&#39;O&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;manage_authors.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;formset&#39;</span><span class="p">:</span> <span class="n">formset</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Note that we pass the <code class="docutils literal"><span class="pre">queryset</span></code> argument in both the <code class="docutils literal"><span class="pre">POST</span></code> and <code class="docutils literal"><span class="pre">GET</span></code>
+cases in this example.</p>
+</div>
+<div class="section" id="using-the-formset-in-the-template">
+<h3>Using the formset in the template<a class="headerlink" href="#using-the-formset-in-the-template" title="永久链接至标题">¶</a></h3>
+<p>There are three ways to render a formset in a Django template.</p>
+<p>First, you can let the formset do most of the work:</p>
+<div class="highlight-html+django"><div class="highlight"><pre><span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;&quot;</span><span class="nt">&gt;</span>
+    <span class="cp">{{</span> <span class="nv">formset</span> <span class="cp">}}</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+<p>Second, you can manually render the formset, but let the form deal with
+itself:</p>
+<div class="highlight-html+django"><div class="highlight"><pre><span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;&quot;</span><span class="nt">&gt;</span>
+    <span class="cp">{{</span> <span class="nv">formset.management_form</span> <span class="cp">}}</span>
+    <span class="cp">{%</span> <span class="k">for</span> <span class="nv">form</span> <span class="k">in</span> <span class="nv">formset</span> <span class="cp">%}</span>
+        <span class="cp">{{</span> <span class="nv">form</span> <span class="cp">}}</span>
+    <span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+<p>When you manually render the forms yourself, be sure to render the management
+form as shown above. See the <a class="reference internal" href="formsets.html#understanding-the-managementform"><span class="std std-ref">management form documentation</span></a>.</p>
+<p>Third, you can manually render each field:</p>
+<div class="highlight-html+django"><div class="highlight"><pre><span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;&quot;</span><span class="nt">&gt;</span>
+    <span class="cp">{{</span> <span class="nv">formset.management_form</span> <span class="cp">}}</span>
+    <span class="cp">{%</span> <span class="k">for</span> <span class="nv">form</span> <span class="k">in</span> <span class="nv">formset</span> <span class="cp">%}</span>
+        <span class="cp">{%</span> <span class="k">for</span> <span class="nv">field</span> <span class="k">in</span> <span class="nv">form</span> <span class="cp">%}</span>
+            <span class="cp">{{</span> <span class="nv">field.label_tag</span> <span class="cp">}}</span> <span class="cp">{{</span> <span class="nv">field</span> <span class="cp">}}</span>
+        <span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+    <span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+<p>If you opt to use this third method and you don’t iterate over the fields with
+a <code class="docutils literal"><span class="pre">{%</span> <span class="pre">for</span> <span class="pre">%}</span></code> loop, you’ll need to render the primary key field. For example,
+if you were rendering the <code class="docutils literal"><span class="pre">name</span></code> and <code class="docutils literal"><span class="pre">age</span></code> fields of a model:</p>
+<div class="highlight-html+django"><div class="highlight"><pre><span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;&quot;</span><span class="nt">&gt;</span>
+    <span class="cp">{{</span> <span class="nv">formset.management_form</span> <span class="cp">}}</span>
+    <span class="cp">{%</span> <span class="k">for</span> <span class="nv">form</span> <span class="k">in</span> <span class="nv">formset</span> <span class="cp">%}</span>
+        <span class="cp">{{</span> <span class="nv">form.id</span> <span class="cp">}}</span>
+        <span class="nt">&lt;ul&gt;</span>
+            <span class="nt">&lt;li&gt;</span><span class="cp">{{</span> <span class="nv">form.name</span> <span class="cp">}}</span><span class="nt">&lt;/li&gt;</span>
+            <span class="nt">&lt;li&gt;</span><span class="cp">{{</span> <span class="nv">form.age</span> <span class="cp">}}</span><span class="nt">&lt;/li&gt;</span>
+        <span class="nt">&lt;/ul&gt;</span>
+    <span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+<p>Notice how we need to explicitly render <code class="docutils literal"><span class="pre">{{</span> <span class="pre">form.id</span> <span class="pre">}}</span></code>. This ensures that
+the model formset, in the <code class="docutils literal"><span class="pre">POST</span></code> case, will work correctly. (This example
+assumes a primary key named <code class="docutils literal"><span class="pre">id</span></code>. If you’ve explicitly defined your own
+primary key that isn’t called <code class="docutils literal"><span class="pre">id</span></code>, make sure it gets rendered.)</p>
+</div>
+</div>
+<div class="section" id="inline-formsets">
+<span id="id4"></span><h2>Inline formsets<a class="headerlink" href="#inline-formsets" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.forms.models.BaseInlineFormSet">
+<em class="property">class </em><code class="descclassname">models.</code><code class="descname">BaseInlineFormSet</code><a class="headerlink" href="#django.forms.models.BaseInlineFormSet" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>Inline formsets is a small abstraction layer on top of model formsets. These
+simplify the case of working with related objects via a foreign key. Suppose
+you have these two models:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+
+<span class="k">class</span> <span class="nc">Author</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Book</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">author</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Author</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you want to create a formset that allows you to edit books belonging to
+a particular author, you could do this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.forms</span> <span class="kn">import</span> <span class="n">inlineformset_factory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">BookFormSet</span> <span class="o">=</span> <span class="n">inlineformset_factory</span><span class="p">(</span><span class="n">Author</span><span class="p">,</span> <span class="n">Book</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;title&#39;</span><span class="p">,))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">author</span> <span class="o">=</span> <span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;Mike Royko&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">formset</span> <span class="o">=</span> <span class="n">BookFormSet</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">author</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last"><a class="reference internal" href="../../ref/forms/models.html#django.forms.models.inlineformset_factory" title="django.forms.models.inlineformset_factory"><code class="xref py py-func docutils literal"><span class="pre">inlineformset_factory()</span></code></a> uses
+<a class="reference internal" href="../../ref/forms/models.html#django.forms.models.modelformset_factory" title="django.forms.models.modelformset_factory"><code class="xref py py-func docutils literal"><span class="pre">modelformset_factory()</span></code></a> and marks
+<code class="docutils literal"><span class="pre">can_delete=True</span></code>.</p>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">参见</p>
+<p class="last"><a class="reference internal" href="formsets.html#manually-rendered-can-delete-and-can-order"><span class="std std-ref">Manually rendered can_delete and can_order</span></a>.</p>
+</div>
+<div class="section" id="overriding-methods-on-an-inlineformset">
+<h3>Overriding methods on an <code class="docutils literal"><span class="pre">InlineFormSet</span></code><a class="headerlink" href="#overriding-methods-on-an-inlineformset" title="永久链接至标题">¶</a></h3>
+<p>When overriding methods on <code class="docutils literal"><span class="pre">InlineFormSet</span></code>, you should subclass
+<a class="reference internal" href="#django.forms.models.BaseInlineFormSet" title="django.forms.models.BaseInlineFormSet"><code class="xref py py-class docutils literal"><span class="pre">BaseInlineFormSet</span></code></a> rather than
+<a class="reference internal" href="#django.forms.models.BaseModelFormSet" title="django.forms.models.BaseModelFormSet"><code class="xref py py-class docutils literal"><span class="pre">BaseModelFormSet</span></code></a>.</p>
+<p>For example, if you want to override <code class="docutils literal"><span class="pre">clean()</span></code>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.forms</span> <span class="kn">import</span> <span class="n">BaseInlineFormSet</span>
+
+<span class="k">class</span> <span class="nc">CustomInlineFormSet</span><span class="p">(</span><span class="n">BaseInlineFormSet</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CustomInlineFormSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="c"># example custom validation across forms in the formset</span>
+        <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forms</span><span class="p">:</span>
+            <span class="c"># your custom formset validation</span>
+            <span class="o">...</span>
+</pre></div>
+</div>
+<p>See also <a class="reference internal" href="#model-formsets-overriding-clean"><span class="std std-ref">Overriding clean() on a ModelFormSet</span></a>.</p>
+<p>Then when you create your inline formset, pass in the optional argument
+<code class="docutils literal"><span class="pre">formset</span></code>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.forms</span> <span class="kn">import</span> <span class="n">inlineformset_factory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">BookFormSet</span> <span class="o">=</span> <span class="n">inlineformset_factory</span><span class="p">(</span><span class="n">Author</span><span class="p">,</span> <span class="n">Book</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;title&#39;</span><span class="p">,),</span>
+<span class="gp">... </span>    <span class="n">formset</span><span class="o">=</span><span class="n">CustomInlineFormSet</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">author</span> <span class="o">=</span> <span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;Mike Royko&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">formset</span> <span class="o">=</span> <span class="n">BookFormSet</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">author</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="more-than-one-foreign-key-to-the-same-model">
+<h3>More than one foreign key to the same model<a class="headerlink" href="#more-than-one-foreign-key-to-the-same-model" title="永久链接至标题">¶</a></h3>
+<p>If your model contains more than one foreign key to the same model, you’ll
+need to resolve the ambiguity manually using <code class="docutils literal"><span class="pre">fk_name</span></code>. For example, consider
+the following model:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Friendship</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">from_friend</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Friend</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s">&#39;from_friends&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">to_friend</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Friend</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s">&#39;friends&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">length_in_months</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>To resolve this, you can use <code class="docutils literal"><span class="pre">fk_name</span></code> to
+<a class="reference internal" href="../../ref/forms/models.html#django.forms.models.inlineformset_factory" title="django.forms.models.inlineformset_factory"><code class="xref py py-func docutils literal"><span class="pre">inlineformset_factory()</span></code></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">FriendshipFormSet</span> <span class="o">=</span> <span class="n">inlineformset_factory</span><span class="p">(</span><span class="n">Friend</span><span class="p">,</span> <span class="n">Friendship</span><span class="p">,</span> <span class="n">fk_name</span><span class="o">=</span><span class="s">&#39;from_friend&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;to_friend&#39;</span><span class="p">,</span> <span class="s">&#39;length_in_months&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-an-inline-formset-in-a-view">
+<h3>Using an inline formset in a view<a class="headerlink" href="#using-an-inline-formset-in-a-view" title="永久链接至标题">¶</a></h3>
+<p>You may want to provide a view that allows a user to edit the related objects
+of a model. Here’s how you can do that:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">manage_books</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">author_id</span><span class="p">):</span>
+    <span class="n">author</span> <span class="o">=</span> <span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">author_id</span><span class="p">)</span>
+    <span class="n">BookInlineFormSet</span> <span class="o">=</span> <span class="n">inlineformset_factory</span><span class="p">(</span><span class="n">Author</span><span class="p">,</span> <span class="n">Book</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;title&#39;</span><span class="p">,))</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&quot;POST&quot;</span><span class="p">:</span>
+        <span class="n">formset</span> <span class="o">=</span> <span class="n">BookInlineFormSet</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">FILES</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="n">author</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">formset</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">formset</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="c"># Do something. Should generally end with a redirect. For example:</span>
+            <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">author</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">formset</span> <span class="o">=</span> <span class="n">BookInlineFormSet</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">author</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;manage_books.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;formset&#39;</span><span class="p">:</span> <span class="n">formset</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Notice how we pass <code class="docutils literal"><span class="pre">instance</span></code> in both the <code class="docutils literal"><span class="pre">POST</span></code> and <code class="docutils literal"><span class="pre">GET</span></code> cases.</p>
+</div>
+<div class="section" id="specifying-widgets-to-use-in-the-inline-form">
+<h3>Specifying widgets to use in the inline form<a class="headerlink" href="#specifying-widgets-to-use-in-the-inline-form" title="永久链接至标题">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">inlineformset_factory</span></code> uses <code class="docutils literal"><span class="pre">modelformset_factory</span></code> and passes most
+of its arguments to <code class="docutils literal"><span class="pre">modelformset_factory</span></code>. This means you can use
+the <code class="docutils literal"><span class="pre">widgets</span></code> parameter in much the same way as passing it to
+<code class="docutils literal"><span class="pre">modelformset_factory</span></code>. See <a class="reference internal" href="#specifying-widgets-to-use-in-the-form-with-widgets">Specifying widgets to use in the form with
+widgets</a> above.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

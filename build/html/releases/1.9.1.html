@@ -1,0 +1,283 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Django 1.9.1 release notes &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Django 1.9.1 release notes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/releases/1.9.1.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="django-1-9-1-release-notes">
+<h1>Django 1.9.1 release notes<a class="headerlink" href="#django-1-9-1-release-notes" title="永久链接至标题">¶</a></h1>
+<p><em>January 2, 2016</em></p>
+<p>Django 1.9.1 fixes several bugs in 1.9.</p>
+<div class="section" id="bugfixes">
+<h2>Bugfixes<a class="headerlink" href="#bugfixes" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li>Fixed <code class="docutils literal"><span class="pre">BaseCache.get_or_set()</span></code> with the <code class="docutils literal"><span class="pre">DummyCache</span></code> backend
+(<a href="#id1"><span class="problematic" id="id2">:ticket:`25840`</span></a>).</li>
+<li>Fixed a regression in <code class="docutils literal"><span class="pre">FormMixin</span></code> causing forms to be validated twice
+(<a href="#id3"><span class="problematic" id="id4">:ticket:`25548`</span></a>, <a href="#id5"><span class="problematic" id="id6">:ticket:`26018`</span></a>).</li>
+<li>Fixed a system check crash with nested <code class="docutils literal"><span class="pre">ArrayField</span></code>s (<a href="#id7"><span class="problematic" id="id8">:ticket:`25867`</span></a>).</li>
+<li>Fixed a state bug when migrating a <code class="docutils literal"><span class="pre">SeparateDatabaseAndState</span></code> operation
+backwards (<a href="#id9"><span class="problematic" id="id10">:ticket:`25896`</span></a>).</li>
+<li>Fixed a regression in <code class="docutils literal"><span class="pre">CommonMiddleware</span></code> causing <code class="docutils literal"><span class="pre">If-None-Match</span></code> checks
+to always return HTTP 200 (<a href="#id11"><span class="problematic" id="id12">:ticket:`25900`</span></a>).</li>
+<li>Fixed missing <code class="docutils literal"><span class="pre">varchar/text_pattern_ops</span></code> index on <code class="docutils literal"><span class="pre">CharField</span></code> and
+<code class="docutils literal"><span class="pre">TextField</span></code> respectively when using <code class="docutils literal"><span class="pre">AlterField</span></code> on PostgreSQL
+(<a href="#id13"><span class="problematic" id="id14">:ticket:`25412`</span></a>).</li>
+<li>Fixed admin’s delete confirmation page’s summary counts of related objects
+(<a href="#id15"><span class="problematic" id="id16">:ticket:`25883`</span></a>).</li>
+<li>Added <code class="docutils literal"><span class="pre">from</span> <span class="pre">__future__</span> <span class="pre">import</span> <span class="pre">unicode_literals</span></code> to the default <code class="docutils literal"><span class="pre">apps.py</span></code>
+created by <code class="docutils literal"><span class="pre">startapp</span></code> on Python 2 (<a href="#id17"><span class="problematic" id="id18">:ticket:`25909`</span></a>). Add this line to your
+own <code class="docutils literal"><span class="pre">apps.py</span></code> files created using Django 1.9 if you want your migrations
+to work on both Python 2 and Python 3.</li>
+<li>Prevented <code class="docutils literal"><span class="pre">QuerySet.delete()</span></code> from crashing on MySQL when querying across
+relations (<a href="#id19"><span class="problematic" id="id20">:ticket:`25882`</span></a>).</li>
+<li>Fixed evaluation of zero-length slices of <code class="docutils literal"><span class="pre">QuerySet.values()</span></code>
+(<a href="#id21"><span class="problematic" id="id22">:ticket:`25894`</span></a>).</li>
+<li>Fixed a state bug when using an <code class="docutils literal"><span class="pre">AlterModelManagers</span></code> operation
+(<a href="#id23"><span class="problematic" id="id24">:ticket:`25852`</span></a>).</li>
+<li>Fixed <code class="docutils literal"><span class="pre">TypedChoiceField</span></code> change detection with nullable fields
+(<a href="#id25"><span class="problematic" id="id26">:ticket:`25942`</span></a>).</li>
+<li>Fixed incorrect timezone warnings in custom admin templates that don’t have
+a <code class="docutils literal"><span class="pre">data-admin-utc-offset</span></code> attribute in the <code class="docutils literal"><span class="pre">body</span></code> tag.
+(<a href="#id27"><span class="problematic" id="id28">:ticket:`25845`</span></a>).</li>
+<li>Fixed a regression which prevented using a language not in Django’s default
+language list (<a class="reference internal" href="../ref/settings.html#std:setting-LANGUAGES"><code class="xref std std-setting docutils literal"><span class="pre">LANGUAGES</span></code></a>) (<a href="#id29"><span class="problematic" id="id30">:ticket:`25915`</span></a>).</li>
+<li>Avoided hiding some exceptions, like an invalid <code class="docutils literal"><span class="pre">INSTALLED_APPS</span></code> setting,
+behind <code class="docutils literal"><span class="pre">AppRegistryNotReady</span></code> when starting <code class="docutils literal"><span class="pre">runserver</span></code> (<a href="#id31"><span class="problematic" id="id32">:ticket:`25510`</span></a>).
+This regression appeared in 1.8.5 as a side effect of fixing <a href="#id33"><span class="problematic" id="id34">:ticket:`24704`</span></a>
+and by mistake the fix wasn’t applied to the <code class="docutils literal"><span class="pre">stable/1.9.x</span></code> branch.</li>
+<li>Fixed <code class="docutils literal"><span class="pre">migrate</span> <span class="pre">--fake-initial</span></code> detection of many-to-many tables
+(<a href="#id35"><span class="problematic" id="id36">:ticket:`25922`</span></a>).</li>
+<li>Restored the functionality of the admin’s <code class="docutils literal"><span class="pre">list_editable</span></code> add and change
+buttons (<a href="#id37"><span class="problematic" id="id38">:ticket:`25903`</span></a>).</li>
+<li>Fixed <code class="docutils literal"><span class="pre">isnull</span></code> query lookup for <code class="docutils literal"><span class="pre">ForeignObject</span></code>
+(<a href="#id39"><span class="problematic" id="id40">:ticket:`25972`</span></a>).</li>
+<li>Fixed a regression in the admin which ignored line breaks in read-only fields
+instead of converting them to <code class="docutils literal"><span class="pre">&lt;br&gt;</span></code> (<a href="#id41"><span class="problematic" id="id42">:ticket:`25465`</span></a>).</li>
+<li>Fixed incorrect object reference in
+<code class="docutils literal"><span class="pre">SingleObjectMixin.get_context_object_name()</span></code> (<a href="#id43"><span class="problematic" id="id44">:ticket:`26006`</span></a>).</li>
+<li>Made <code class="docutils literal"><span class="pre">loaddata</span></code> skip disabling and enabling database constraints when it
+doesn’t load any fixtures (<a href="#id45"><span class="problematic" id="id46">:ticket:`23372`</span></a>).</li>
+<li>Restored <code class="docutils literal"><span class="pre">contrib.auth</span></code> hashers compatibility with py-bcrypt
+(<a href="#id47"><span class="problematic" id="id48">:ticket:`26016`</span></a>).</li>
+<li>Fixed a crash in <code class="docutils literal"><span class="pre">QuerySet.values()/values_list()</span></code> after an <code class="docutils literal"><span class="pre">annotate()</span></code>
+and <code class="docutils literal"><span class="pre">order_by()</span></code> when <code class="docutils literal"><span class="pre">values()/values_list()</span></code> includes a field not in
+the <code class="docutils literal"><span class="pre">order_by()</span></code> (<a href="#id49"><span class="problematic" id="id50">:ticket:`25316`</span></a>).</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

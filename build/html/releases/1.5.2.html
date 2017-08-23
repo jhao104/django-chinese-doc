@@ -1,0 +1,280 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Django 1.5.2 release notes &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Django 1.5.2 release notes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/releases/1.5.2.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="django-1-5-2-release-notes">
+<h1>Django 1.5.2 release notes<a class="headerlink" href="#django-1-5-2-release-notes" title="永久链接至标题">¶</a></h1>
+<p><em>August 13, 2013</em></p>
+<p>This is Django 1.5.2, a bugfix and security release for Django 1.5.</p>
+<div class="section" id="mitigated-possible-xss-attack-via-user-supplied-redirect-urls">
+<h2>Mitigated possible XSS attack via user-supplied redirect URLs<a class="headerlink" href="#mitigated-possible-xss-attack-via-user-supplied-redirect-urls" title="永久链接至标题">¶</a></h2>
+<p>Django relies on user input in some cases (e.g.
+<a class="reference internal" href="../topics/auth/default.html#django.contrib.auth.views.login" title="django.contrib.auth.views.login"><code class="xref py py-func docutils literal"><span class="pre">django.contrib.auth.views.login()</span></code></a>, <code class="docutils literal"><span class="pre">django.contrib.comments</span></code>, and
+<a class="reference internal" href="../topics/i18n/index.html"><span class="doc">i18n</span></a>) to redirect the user to an “on success” URL.
+The security checks for these redirects (namely
+<code class="docutils literal"><span class="pre">django.utils.http.is_safe_url()</span></code>) didn’t check if the scheme is <code class="docutils literal"><span class="pre">http(s)</span></code>
+and as such allowed <code class="docutils literal"><span class="pre">javascript:...</span></code> URLs to be entered. If a developer
+relied on <code class="docutils literal"><span class="pre">is_safe_url()</span></code> to provide safe redirect targets and put such a
+URL into a link, they could suffer from a XSS attack. This bug doesn’t affect
+Django currently, since we only put this URL into the <code class="docutils literal"><span class="pre">Location</span></code> response
+header and browsers seem to ignore JavaScript there.</p>
+</div>
+<div class="section" id="xss-vulnerability-in-django-contrib-admin">
+<h2>XSS vulnerability in <a class="reference internal" href="../ref/contrib/admin/index.html#module-django.contrib.admin" title="django.contrib.admin: Django's admin site."><code class="xref py py-mod docutils literal"><span class="pre">django.contrib.admin</span></code></a><a class="headerlink" href="#xss-vulnerability-in-django-contrib-admin" title="永久链接至标题">¶</a></h2>
+<p>If a <a class="reference internal" href="../ref/models/fields.html#django.db.models.URLField" title="django.db.models.URLField"><code class="xref py py-class docutils literal"><span class="pre">URLField</span></code></a> is used in Django 1.5, it displays the
+current value of the field and a link to the target on the admin change page.
+The display routine of this widget was flawed and allowed for XSS.</p>
+</div>
+<div class="section" id="bugfixes">
+<h2>Bugfixes<a class="headerlink" href="#bugfixes" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li>Fixed a crash with <a class="reference internal" href="../ref/models/querysets.html#django.db.models.query.QuerySet.prefetch_related" title="django.db.models.query.QuerySet.prefetch_related"><code class="xref py py-meth docutils literal"><span class="pre">prefetch_related()</span></code></a>
+(#19607) as well as some <code class="docutils literal"><span class="pre">pickle</span></code> regressions with <code class="docutils literal"><span class="pre">prefetch_related</span></code>
+(#20157 and #20257).</li>
+<li>Fixed a regression in <a class="reference internal" href="../ref/contrib/gis/index.html#module-django.contrib.gis" title="django.contrib.gis: Geographic Information System (GIS) extensions for Django"><code class="xref py py-mod docutils literal"><span class="pre">django.contrib.gis</span></code></a> in the Google Map output on
+Python 3 (#20773).</li>
+<li>Made <code class="docutils literal"><span class="pre">DjangoTestSuiteRunner.setup_databases</span></code> properly handle aliases for
+the default database (#19940) and prevented <code class="docutils literal"><span class="pre">teardown_databases</span></code> from
+attempting to tear down aliases (#20681).</li>
+<li>Fixed the <code class="docutils literal"><span class="pre">django.core.cache.backends.memcached.MemcachedCache</span></code> backend’s
+<code class="docutils literal"><span class="pre">get_many()</span></code> method on Python 3 (#20722).</li>
+<li>Fixed <a class="reference internal" href="../ref/contrib/humanize.html#module-django.contrib.humanize" title="django.contrib.humanize: A set of Django template filters useful for adding a &quot;human touch&quot; to data."><code class="xref py py-mod docutils literal"><span class="pre">django.contrib.humanize</span></code></a> translation syntax errors. Affected
+languages: Mexican Spanish, Mongolian, Romanian, Turkish (#20695).</li>
+<li>Added support for wheel packages (#19252).</li>
+<li>The CSRF token now rotates when a user logs in.</li>
+<li>Some Python 3 compatibility fixes including #20212 and #20025.</li>
+<li>Fixed some rare cases where <a class="reference internal" href="../ref/models/querysets.html#django.db.models.query.QuerySet.get" title="django.db.models.query.QuerySet.get"><code class="xref py py-meth docutils literal"><span class="pre">get()</span></code></a>
+exceptions recursed infinitely (#20278).</li>
+<li><a class="reference internal" href="../ref/django-admin.html#django-admin-makemessages"><code class="xref std std-djadmin docutils literal"><span class="pre">makemessages</span></code></a> no longer crashes with <code class="docutils literal"><span class="pre">UnicodeDecodeError</span></code>
+(#20354).</li>
+<li>Fixed <code class="docutils literal"><span class="pre">geojson</span></code> detection with SpatiaLite.</li>
+<li><a class="reference internal" href="../topics/testing/tools.html#django.test.SimpleTestCase.assertContains" title="django.test.SimpleTestCase.assertContains"><code class="xref py py-meth docutils literal"><span class="pre">assertContains()</span></code></a> once again works with
+binary content (#20237).</li>
+<li>Fixed <a class="reference internal" href="../ref/models/fields.html#django.db.models.ManyToManyField" title="django.db.models.ManyToManyField"><code class="xref py py-class docutils literal"><span class="pre">ManyToManyField</span></code></a> if it has a unicode <code class="docutils literal"><span class="pre">name</span></code>
+parameter (#20207).</li>
+<li>Ensured that the WSGI request’s path is correctly based on the
+<code class="docutils literal"><span class="pre">SCRIPT_NAME</span></code> environment variable or the <a class="reference internal" href="../ref/settings.html#std:setting-FORCE_SCRIPT_NAME"><code class="xref std std-setting docutils literal"><span class="pre">FORCE_SCRIPT_NAME</span></code></a>
+setting, regardless of whether or not either has a trailing slash (#20169).</li>
+<li>Fixed an obscure bug with the <a class="reference internal" href="../topics/testing/tools.html#django.test.override_settings" title="django.test.override_settings"><code class="xref py py-func docutils literal"><span class="pre">override_settings()</span></code></a>
+decorator. If you hit an <code class="docutils literal"><span class="pre">AttributeError:</span> <span class="pre">'Settings'</span> <span class="pre">object</span> <span class="pre">has</span> <span class="pre">no</span> <span class="pre">attribute</span>
+<span class="pre">'_original_allowed_hosts'</span></code> exception, it’s probably fixed (#20636).</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

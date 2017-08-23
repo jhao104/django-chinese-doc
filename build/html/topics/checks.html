@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>System check framework &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>System check framework</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/topics/checks.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-django.core.checks">
+<span id="system-check-framework"></span><h1>System check framework<a class="headerlink" href="#module-django.core.checks" title="永久链接至标题">¶</a></h1>
+<p>The system check framework is a set of static checks for validating Django
+projects. It detects common problems and provides hints for how to fix them.
+The framework is extensible so you can easily add your own checks.</p>
+<p>Checks can be triggered explicitly via the <a class="reference internal" href="../ref/django-admin.html#django-admin-check"><code class="xref std std-djadmin docutils literal"><span class="pre">check</span></code></a> command. Checks are
+triggered implicitly before most commands, including <a class="reference internal" href="../ref/django-admin.html#django-admin-runserver"><code class="xref std std-djadmin docutils literal"><span class="pre">runserver</span></code></a> and
+<a class="reference internal" href="../ref/django-admin.html#django-admin-migrate"><code class="xref std std-djadmin docutils literal"><span class="pre">migrate</span></code></a>. For performance reasons, checks are not run as part of the
+WSGI stack that is used in deployment. If you need to run system checks on your
+deployment server, trigger them explicitly using <a class="reference internal" href="../ref/django-admin.html#django-admin-check"><code class="xref std std-djadmin docutils literal"><span class="pre">check</span></code></a>.</p>
+<p>Serious errors will prevent Django commands (such as <a class="reference internal" href="../ref/django-admin.html#django-admin-runserver"><code class="xref std std-djadmin docutils literal"><span class="pre">runserver</span></code></a>) from
+running at all. Minor problems are reported to the console. If you have inspected
+the cause of a warning and are happy to ignore it, you can hide specific warnings
+using the <a class="reference internal" href="../ref/settings.html#std:setting-SILENCED_SYSTEM_CHECKS"><code class="xref std std-setting docutils literal"><span class="pre">SILENCED_SYSTEM_CHECKS</span></code></a> setting in your project settings file.</p>
+<p>A full list of all checks that can be raised by Django can be found in the
+<a class="reference internal" href="../ref/checks.html"><span class="doc">System check reference</span></a>.</p>
+<div class="section" id="writing-your-own-checks">
+<h2>Writing your own checks<a class="headerlink" href="#writing-your-own-checks" title="永久链接至标题">¶</a></h2>
+<p>The framework is flexible and allows you to write functions that perform
+any other kind of check you may require. The following is an example stub
+check function:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.core.checks</span> <span class="k">import</span> <span class="n">Error</span><span class="p">,</span> <span class="n">register</span>
+
+<span class="nd">@register</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">example_check</span><span class="p">(</span><span class="n">app_configs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c"># ... your check logic here</span>
+    <span class="k">if</span> <span class="n">check_failed</span><span class="p">:</span>
+        <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Error</span><span class="p">(</span>
+                <span class="s">&#39;an error&#39;</span><span class="p">,</span>
+                <span class="n">hint</span><span class="o">=</span><span class="s">&#39;A hint.&#39;</span><span class="p">,</span>
+                <span class="n">obj</span><span class="o">=</span><span class="n">checked_object</span><span class="p">,</span>
+                <span class="nb">id</span><span class="o">=</span><span class="s">&#39;myapp.E001&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">errors</span>
+</pre></div>
+</div>
+<p>The check function <em>must</em> accept an <code class="docutils literal"><span class="pre">app_configs</span></code> argument; this argument is
+the list of applications that should be inspected. If None, the check must be
+run on <em>all</em> installed apps in the project. The <code class="docutils literal"><span class="pre">**kwargs</span></code> argument is required
+for future expansion.</p>
+<div class="section" id="messages">
+<h3>Messages<a class="headerlink" href="#messages" title="永久链接至标题">¶</a></h3>
+<p>The function must return a list of messages. If no problems are found as a result
+of the check, the check function must return an empty list.</p>
+<p>The warnings and errors raised by the check method must be instances of
+<a class="reference internal" href="../ref/checks.html#django.core.checks.CheckMessage" title="django.core.checks.CheckMessage"><code class="xref py py-class docutils literal"><span class="pre">CheckMessage</span></code></a>. An instance of
+<a class="reference internal" href="../ref/checks.html#django.core.checks.CheckMessage" title="django.core.checks.CheckMessage"><code class="xref py py-class docutils literal"><span class="pre">CheckMessage</span></code></a> encapsulates a single reportable
+error or warning. It also provides context and hints applicable to the
+message, and a unique identifier that is used for filtering purposes.</p>
+<p>The concept is very similar to messages from the <a class="reference internal" href="../ref/contrib/messages.html"><span class="doc">message framework</span></a> or the <a class="reference internal" href="logging.html"><span class="doc">logging framework</span></a>.
+Messages are tagged with a <code class="docutils literal"><span class="pre">level</span></code> indicating the severity of the message.</p>
+<p>There are also shortcuts to make creating messages with common levels easier.
+When using these classes you can omit the <code class="docutils literal"><span class="pre">level</span></code> argument because it is
+implied by the class name.</p>
+<ul class="simple">
+<li><a class="reference internal" href="../ref/checks.html#django.core.checks.Debug" title="django.core.checks.Debug"><code class="xref py py-class docutils literal"><span class="pre">Debug</span></code></a></li>
+<li><a class="reference internal" href="../ref/checks.html#django.core.checks.Info" title="django.core.checks.Info"><code class="xref py py-class docutils literal"><span class="pre">Info</span></code></a></li>
+<li><a class="reference internal" href="../ref/checks.html#django.core.checks.Warning" title="django.core.checks.Warning"><code class="xref py py-class docutils literal"><span class="pre">Warning</span></code></a></li>
+<li><a class="reference internal" href="../ref/checks.html#django.core.checks.Error" title="django.core.checks.Error"><code class="xref py py-class docutils literal"><span class="pre">Error</span></code></a></li>
+<li><a class="reference internal" href="../ref/checks.html#django.core.checks.Critical" title="django.core.checks.Critical"><code class="xref py py-class docutils literal"><span class="pre">Critical</span></code></a></li>
+</ul>
+</div>
+<div class="section" id="registering-and-labeling-checks">
+<h3>Registering and labeling checks<a class="headerlink" href="#registering-and-labeling-checks" title="永久链接至标题">¶</a></h3>
+<p>Lastly, your check function must be registered explicitly with system check
+registry. Checks should be registered in a file that’s loaded when your
+application is loaded; for example, in the <a class="reference internal" href="../ref/applications.html#django.apps.AppConfig.ready" title="django.apps.AppConfig.ready"><code class="xref py py-meth docutils literal"><span class="pre">AppConfig.ready()</span></code></a> method.</p>
+<dl class="function">
+<dt id="django.core.checks.register">
+<code class="descclassname">django.core.checks.</code><code class="descname">register</code><span class="sig-paren">(</span><em>*tags)(function</em><span class="sig-paren">)</span><a class="headerlink" href="#django.core.checks.register" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>You can pass as many tags to <code class="docutils literal"><span class="pre">register</span></code> as you want in order to label your
+check. Tagging checks is useful since it allows you to run only a certain
+group of checks. For example, to register a compatibility check, you would
+make the following call:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.core.checks</span> <span class="k">import</span> <span class="n">register</span><span class="p">,</span> <span class="n">Tags</span>
+
+<span class="nd">@register</span><span class="p">(</span><span class="n">Tags</span><span class="o">.</span><span class="n">compatibility</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">my_check</span><span class="p">(</span><span class="n">app_configs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="c"># ... perform compatibility checks and collect errors</span>
+    <span class="k">return</span> <span class="n">errors</span>
+</pre></div>
+</div>
+<p>You can register “deployment checks” that are only relevant to a production
+settings file like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="nd">@register</span><span class="p">(</span><span class="n">Tags</span><span class="o">.</span><span class="n">security</span><span class="p">,</span> <span class="n">deploy</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">my_check</span><span class="p">(</span><span class="n">app_configs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>These checks will only be run if the <a class="reference internal" href="../ref/django-admin.html#cmdoption-check-deploy"><code class="xref std std-option docutils literal"><span class="pre">check</span> <span class="pre">--deploy</span></code></a> option is used.</p>
+<p>You can also use <code class="docutils literal"><span class="pre">register</span></code> as a function rather than a decorator by
+passing a callable object (usually a function) as the first argument
+to <code class="docutils literal"><span class="pre">register</span></code>.</p>
+<p>The code below is equivalent to the code above:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">def</span> <span class="nf">my_check</span><span class="p">(</span><span class="n">app_configs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="o">...</span>
+<span class="n">register</span><span class="p">(</span><span class="n">my_check</span><span class="p">,</span> <span class="n">Tags</span><span class="o">.</span><span class="n">security</span><span class="p">,</span> <span class="n">deploy</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="field-model-manager-and-database-checks">
+<span id="field-checking"></span><h3>Field, model, manager, and database checks<a class="headerlink" href="#field-model-manager-and-database-checks" title="永久链接至标题">¶</a></h3>
+<p>In some cases, you won’t need to register your check function – you can
+piggyback on an existing registration.</p>
+<p>Fields, models, model managers, and database backends all implement a
+<code class="docutils literal"><span class="pre">check()</span></code> method that is already registered with the check framework. If you
+want to add extra checks, you can extend the implementation on the base class,
+perform any extra checks you need, and append any messages to those generated
+by the base class. It’s recommended that you delegate each check to separate
+methods.</p>
+<div class="versionchanged">
+<p>Database backend checks were added.</p>
+</div>
+<p>Consider an example where you are implementing a custom field named
+<code class="docutils literal"><span class="pre">RangedIntegerField</span></code>. This field adds <code class="docutils literal"><span class="pre">min</span></code> and <code class="docutils literal"><span class="pre">max</span></code> arguments to the
+constructor of <code class="docutils literal"><span class="pre">IntegerField</span></code>. You may want to add a check to ensure that users
+provide a min value that is less than or equal to the max value. The following
+code snippet shows how you can implement this check:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.core</span> <span class="k">import</span> <span class="n">checks</span>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
+
+<span class="k">class</span> <span class="nc">RangedIntegerField</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RangedIntegerField</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="o">=</span> <span class="nb">min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="o">=</span> <span class="nb">max</span>
+
+    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c"># Call the superclass</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">RangedIntegerField</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c"># Do some custom checks and add messages to `errors`:</span>
+        <span class="n">errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_check_min_max_values</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+        <span class="c"># Return all errors and warnings</span>
+        <span class="k">return</span> <span class="n">errors</span>
+
+    <span class="k">def</span> <span class="nf">_check_min_max_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="n">checks</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span>
+                    <span class="s">&#39;min greater than max.&#39;</span><span class="p">,</span>
+                    <span class="n">hint</span><span class="o">=</span><span class="s">&#39;Decrease min or increase max.&#39;</span><span class="p">,</span>
+                    <span class="n">obj</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                    <span class="nb">id</span><span class="o">=</span><span class="s">&#39;myapp.E001&#39;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="c"># When no error, return an empty list</span>
+        <span class="k">return</span> <span class="p">[]</span>
+</pre></div>
+</div>
+<p>If you wanted to add checks to a model manager, you would take the same
+approach on your subclass of <a class="reference internal" href="db/managers.html#django.db.models.Manager" title="django.db.models.Manager"><code class="xref py py-class docutils literal"><span class="pre">Manager</span></code></a>.</p>
+<p>If you want to add a check to a model class, the approach is <em>almost</em> the same:
+the only difference is that the check is a classmethod, not an instance method:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MyModel</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c"># ... your own checks ...</span>
+        <span class="k">return</span> <span class="n">errors</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="writing-tests">
+<h3>Writing tests<a class="headerlink" href="#writing-tests" title="永久链接至标题">¶</a></h3>
+<p>Messages are comparable. That allows you to easily write tests:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.core.checks</span> <span class="k">import</span> <span class="n">Error</span>
+<span class="n">errors</span> <span class="o">=</span> <span class="n">checked_object</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+<span class="n">expected_errors</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Error</span><span class="p">(</span>
+        <span class="s">&#39;an error&#39;</span><span class="p">,</span>
+        <span class="n">hint</span><span class="o">=</span><span class="s">&#39;A hint.&#39;</span><span class="p">,</span>
+        <span class="n">obj</span><span class="o">=</span><span class="n">checked_object</span><span class="p">,</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s">&#39;myapp.E001&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">errors</span><span class="p">,</span> <span class="n">expected_errors</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

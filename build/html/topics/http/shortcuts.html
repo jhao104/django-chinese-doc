@@ -1,0 +1,491 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Django shortcut functions &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Django shortcut functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/topics/http/shortcuts.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-django.shortcuts">
+<span id="django-shortcut-functions"></span><h1>Django shortcut functions<a class="headerlink" href="#module-django.shortcuts" title="永久链接至标题">¶</a></h1>
+<p id="index-0">The package <code class="docutils literal"><span class="pre">django.shortcuts</span></code> collects helper functions and classes that
+“span” multiple levels of MVC. In other words, these functions/classes
+introduce controlled coupling for convenience’s sake.</p>
+<div class="section" id="render">
+<h2><code class="docutils literal"><span class="pre">render()</span></code><a class="headerlink" href="#render" title="永久链接至标题">¶</a></h2>
+<dl class="function">
+<dt id="django.shortcuts.render">
+<code class="descclassname">django.shortcuts.</code><code class="descname">render</code><span class="sig-paren">(</span><em>request</em>, <em>template_name</em>, <em>context=None</em>, <em>content_type=None</em>, <em>status=None</em>, <em>using=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/shortcuts.html#render"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.shortcuts.render" title="永久链接至目标">¶</a></dt>
+<dd><p>Combines a given template with a given context dictionary and returns an
+<a class="reference internal" href="../../ref/request-response.html#django.http.HttpResponse" title="django.http.HttpResponse"><code class="xref py py-class docutils literal"><span class="pre">HttpResponse</span></code></a> object with that rendered text.</p>
+<p>Django does not provide a shortcut function which returns a
+<a class="reference internal" href="../../ref/template-response.html#django.template.response.TemplateResponse" title="django.template.response.TemplateResponse"><code class="xref py py-class docutils literal"><span class="pre">TemplateResponse</span></code></a> because the constructor
+of <a class="reference internal" href="../../ref/template-response.html#django.template.response.TemplateResponse" title="django.template.response.TemplateResponse"><code class="xref py py-class docutils literal"><span class="pre">TemplateResponse</span></code></a> offers the same level
+of convenience as <a class="reference internal" href="#django.shortcuts.render" title="django.shortcuts.render"><code class="xref py py-func docutils literal"><span class="pre">render()</span></code></a>.</p>
+</dd></dl>
+
+<div class="section" id="required-arguments">
+<h3>Required arguments<a class="headerlink" href="#required-arguments" title="永久链接至标题">¶</a></h3>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">request</span></code></dt>
+<dd>The request object used to generate this response.</dd>
+<dt><code class="docutils literal"><span class="pre">template_name</span></code></dt>
+<dd>The full name of a template to use or sequence of template names. If a
+sequence is given, the first template that exists will be used. See the
+<a class="reference internal" href="../templates.html#template-loading"><span class="std std-ref">template loading documentation</span></a> for more
+information on how templates are found.</dd>
+</dl>
+</div>
+<div class="section" id="optional-arguments">
+<h3>Optional arguments<a class="headerlink" href="#optional-arguments" title="永久链接至标题">¶</a></h3>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">context</span></code></dt>
+<dd>A dictionary of values to add to the template context. By default, this
+is an empty dictionary. If a value in the dictionary is callable, the
+view will call it just before rendering the template.</dd>
+<dt><code class="docutils literal"><span class="pre">content_type</span></code></dt>
+<dd>The MIME type to use for the resulting document. Defaults to the value of
+the <a class="reference internal" href="../../ref/settings.html#std:setting-DEFAULT_CONTENT_TYPE"><code class="xref std std-setting docutils literal"><span class="pre">DEFAULT_CONTENT_TYPE</span></code></a> setting.</dd>
+<dt><code class="docutils literal"><span class="pre">status</span></code></dt>
+<dd>The status code for the response. Defaults to <code class="docutils literal"><span class="pre">200</span></code>.</dd>
+<dt><code class="docutils literal"><span class="pre">using</span></code></dt>
+<dd>The <a class="reference internal" href="../../ref/settings.html#std:setting-TEMPLATES-NAME"><code class="xref std std-setting docutils literal"><span class="pre">NAME</span></code></a> of a template engine to use for
+loading the template.</dd>
+</dl>
+</div>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="永久链接至标题">¶</a></h3>
+<p>The following example renders the template <code class="docutils literal"><span class="pre">myapp/index.html</span></code> with the
+MIME type <em class="mimetype">application/xhtml+xml</em>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">render</span>
+
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c"># View code here...</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;myapp/index.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s">&#39;foo&#39;</span><span class="p">:</span> <span class="s">&#39;bar&#39;</span><span class="p">,</span>
+    <span class="p">},</span> <span class="n">content_type</span><span class="o">=</span><span class="s">&#39;application/xhtml+xml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This example is equivalent to:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpResponse</span>
+<span class="kn">from</span> <span class="nn">django.template</span> <span class="k">import</span> <span class="n">loader</span>
+
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c"># View code here...</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="s">&#39;myapp/index.html&#39;</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;foo&#39;</span><span class="p">:</span> <span class="s">&#39;bar&#39;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">request</span><span class="p">),</span> <span class="n">content_type</span><span class="o">=</span><span class="s">&#39;application/xhtml+xml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="render-to-response">
+<h2><code class="docutils literal"><span class="pre">render_to_response()</span></code><a class="headerlink" href="#render-to-response" title="永久链接至标题">¶</a></h2>
+<dl class="function">
+<dt id="django.shortcuts.render_to_response">
+<code class="descclassname">django.shortcuts.</code><code class="descname">render_to_response</code><span class="sig-paren">(</span><em>template_name</em>, <em>context=None</em>, <em>content_type=None</em>, <em>status=None</em>, <em>using=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/shortcuts.html#render_to_response"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.shortcuts.render_to_response" title="永久链接至目标">¶</a></dt>
+<dd><p>This function preceded the introduction of <a class="reference internal" href="#django.shortcuts.render" title="django.shortcuts.render"><code class="xref py py-func docutils literal"><span class="pre">render()</span></code></a> and works
+similarly except that it doesn’t make the <code class="docutils literal"><span class="pre">request</span></code> available in the
+response. It’s not recommended and is likely to be deprecated in the future.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="redirect">
+<h2><code class="docutils literal"><span class="pre">redirect()</span></code><a class="headerlink" href="#redirect" title="永久链接至标题">¶</a></h2>
+<dl class="function">
+<dt id="django.shortcuts.redirect">
+<code class="descclassname">django.shortcuts.</code><code class="descname">redirect</code><span class="sig-paren">(</span><em>to</em>, <em>permanent=False</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/shortcuts.html#redirect"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.shortcuts.redirect" title="永久链接至目标">¶</a></dt>
+<dd><p>Returns an <a class="reference internal" href="../../ref/request-response.html#django.http.HttpResponseRedirect" title="django.http.HttpResponseRedirect"><code class="xref py py-class docutils literal"><span class="pre">HttpResponseRedirect</span></code></a> to the appropriate URL
+for the arguments passed.</p>
+<p>The arguments could be:</p>
+<ul class="simple">
+<li>A model: the model’s <a class="reference internal" href="../../ref/models/instances.html#django.db.models.Model.get_absolute_url" title="django.db.models.Model.get_absolute_url"><code class="xref py py-meth docutils literal"><span class="pre">get_absolute_url()</span></code></a>
+function will be called.</li>
+<li>A view name, possibly with arguments: <a class="reference internal" href="../../ref/urlresolvers.html#django.urls.reverse" title="django.urls.reverse"><code class="xref py py-func docutils literal"><span class="pre">reverse()</span></code></a> will be
+used to reverse-resolve the name.</li>
+<li>An absolute or relative URL, which will be used as-is for the redirect
+location.</li>
+</ul>
+<p>By default issues a temporary redirect; pass <code class="docutils literal"><span class="pre">permanent=True</span></code> to issue a
+permanent redirect.</p>
+</dd></dl>
+
+<div class="section" id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="永久链接至标题">¶</a></h3>
+<p>You can use the <a class="reference internal" href="#django.shortcuts.redirect" title="django.shortcuts.redirect"><code class="xref py py-func docutils literal"><span class="pre">redirect()</span></code></a> function in a number of ways.</p>
+<ol class="arabic">
+<li><p class="first">By passing some object; that object’s
+<a class="reference internal" href="../../ref/models/instances.html#django.db.models.Model.get_absolute_url" title="django.db.models.Model.get_absolute_url"><code class="xref py py-meth docutils literal"><span class="pre">get_absolute_url()</span></code></a> method will be called
+to figure out the redirect URL:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">redirect</span>
+
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="nb">object</span> <span class="o">=</span> <span class="n">MyModel</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">By passing the name of a view and optionally some positional or
+keyword arguments; the URL will be reverse resolved using the
+<a class="reference internal" href="../../ref/urlresolvers.html#django.urls.reverse" title="django.urls.reverse"><code class="xref py py-func docutils literal"><span class="pre">reverse()</span></code></a> method:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s">&#39;some-view-name&#39;</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="s">&#39;bar&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">By passing a hardcoded URL to redirect to:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s">&#39;/some/url/&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This also works with full URLs:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s">&#39;https://example.com/&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>By default, <a class="reference internal" href="#django.shortcuts.redirect" title="django.shortcuts.redirect"><code class="xref py py-func docutils literal"><span class="pre">redirect()</span></code></a> returns a temporary redirect. All of the above
+forms accept a <code class="docutils literal"><span class="pre">permanent</span></code> argument; if set to <code class="docutils literal"><span class="pre">True</span></code> a permanent redirect
+will be returned:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="nb">object</span> <span class="o">=</span> <span class="n">MyModel</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">permanent</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="get-object-or-404">
+<h2><code class="docutils literal"><span class="pre">get_object_or_404()</span></code><a class="headerlink" href="#get-object-or-404" title="永久链接至标题">¶</a></h2>
+<dl class="function">
+<dt id="django.shortcuts.get_object_or_404">
+<code class="descclassname">django.shortcuts.</code><code class="descname">get_object_or_404</code><span class="sig-paren">(</span><em>klass</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/shortcuts.html#get_object_or_404"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.shortcuts.get_object_or_404" title="永久链接至目标">¶</a></dt>
+<dd><p>Calls <a class="reference internal" href="../../ref/models/querysets.html#django.db.models.query.QuerySet.get" title="django.db.models.query.QuerySet.get"><code class="xref py py-meth docutils literal"><span class="pre">get()</span></code></a> on a given model manager,
+but it raises <a class="reference internal" href="views.html#django.http.Http404" title="django.http.Http404"><code class="xref py py-class docutils literal"><span class="pre">Http404</span></code></a> instead of the model’s
+<a class="reference internal" href="../../ref/models/instances.html#django.db.models.Model.DoesNotExist" title="django.db.models.Model.DoesNotExist"><code class="xref py py-class docutils literal"><span class="pre">DoesNotExist</span></code></a> exception.</p>
+</dd></dl>
+
+<div class="section" id="id1">
+<h3>Required arguments<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h3>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">klass</span></code></dt>
+<dd>A <a class="reference internal" href="../../ref/models/instances.html#django.db.models.Model" title="django.db.models.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a> class,
+a <a class="reference internal" href="../db/managers.html#django.db.models.Manager" title="django.db.models.Manager"><code class="xref py py-class docutils literal"><span class="pre">Manager</span></code></a>,
+or a <a class="reference internal" href="../../ref/models/querysets.html#django.db.models.query.QuerySet" title="django.db.models.query.QuerySet"><code class="xref py py-class docutils literal"><span class="pre">QuerySet</span></code></a> instance from which to get
+the object.</dd>
+<dt><code class="docutils literal"><span class="pre">**kwargs</span></code></dt>
+<dd>Lookup parameters, which should be in the format accepted by <code class="docutils literal"><span class="pre">get()</span></code> and
+<code class="docutils literal"><span class="pre">filter()</span></code>.</dd>
+</dl>
+</div>
+<div class="section" id="id2">
+<h3>Example<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h3>
+<p>The following example gets the object with the primary key of 1 from
+<code class="docutils literal"><span class="pre">MyModel</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">get_object_or_404</span>
+
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">my_object</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">MyModel</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This example is equivalent to:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">Http404</span>
+
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">my_object</span> <span class="o">=</span> <span class="n">MyModel</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">MyModel</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="s">&quot;No MyModel matches the given query.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The most common use case is to pass a <a class="reference internal" href="../../ref/models/instances.html#django.db.models.Model" title="django.db.models.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a>, as
+shown above. However, you can also pass a
+<a class="reference internal" href="../../ref/models/querysets.html#django.db.models.query.QuerySet" title="django.db.models.query.QuerySet"><code class="xref py py-class docutils literal"><span class="pre">QuerySet</span></code></a> instance:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">queryset</span> <span class="o">=</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">title__startswith</span><span class="o">=</span><span class="s">&#39;M&#39;</span><span class="p">)</span>
+<span class="n">get_object_or_404</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The above example is a bit contrived since it’s equivalent to doing:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Book</span><span class="p">,</span> <span class="n">title__startswith</span><span class="o">=</span><span class="s">&#39;M&#39;</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>but it can be useful if you are passed the <code class="docutils literal"><span class="pre">queryset</span></code> variable from somewhere
+else.</p>
+<p>Finally, you can also use a <a class="reference internal" href="../db/managers.html#django.db.models.Manager" title="django.db.models.Manager"><code class="xref py py-class docutils literal"><span class="pre">Manager</span></code></a>. This is useful
+for example if you have a
+<a class="reference internal" href="../db/managers.html#custom-managers"><span class="std std-ref">custom manager</span></a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Book</span><span class="o">.</span><span class="n">dahl_objects</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&#39;Matilda&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also use
+<a class="reference internal" href="../../ref/models/relations.html#django.db.models.fields.related.RelatedManager" title="django.db.models.fields.related.RelatedManager"><code class="xref py py-class docutils literal"><span class="pre">related</span> <span class="pre">managers</span></code></a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">author</span> <span class="o">=</span> <span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;Roald Dahl&#39;</span><span class="p">)</span>
+<span class="n">get_object_or_404</span><span class="p">(</span><span class="n">author</span><span class="o">.</span><span class="n">book_set</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&#39;Matilda&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note: As with <code class="docutils literal"><span class="pre">get()</span></code>, a
+<a class="reference internal" href="../../ref/exceptions.html#django.core.exceptions.MultipleObjectsReturned" title="django.core.exceptions.MultipleObjectsReturned"><code class="xref py py-class docutils literal"><span class="pre">MultipleObjectsReturned</span></code></a> exception
+will be raised if more than one object is found.</p>
+</div>
+</div>
+<div class="section" id="get-list-or-404">
+<h2><code class="docutils literal"><span class="pre">get_list_or_404()</span></code><a class="headerlink" href="#get-list-or-404" title="永久链接至标题">¶</a></h2>
+<dl class="function">
+<dt id="django.shortcuts.get_list_or_404">
+<code class="descclassname">django.shortcuts.</code><code class="descname">get_list_or_404</code><span class="sig-paren">(</span><em>klass</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/shortcuts.html#get_list_or_404"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.shortcuts.get_list_or_404" title="永久链接至目标">¶</a></dt>
+<dd><p>Returns the result of <a class="reference internal" href="../../ref/models/querysets.html#django.db.models.query.QuerySet.filter" title="django.db.models.query.QuerySet.filter"><code class="xref py py-meth docutils literal"><span class="pre">filter()</span></code></a> on a
+given model manager cast to a list, raising <a class="reference internal" href="views.html#django.http.Http404" title="django.http.Http404"><code class="xref py py-class docutils literal"><span class="pre">Http404</span></code></a> if
+the resulting list is empty.</p>
+</dd></dl>
+
+<div class="section" id="id3">
+<h3>Required arguments<a class="headerlink" href="#id3" title="永久链接至标题">¶</a></h3>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">klass</span></code></dt>
+<dd>A <a class="reference internal" href="../../ref/models/instances.html#django.db.models.Model" title="django.db.models.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a>, <a class="reference internal" href="../db/managers.html#django.db.models.Manager" title="django.db.models.Manager"><code class="xref py py-class docutils literal"><span class="pre">Manager</span></code></a> or
+<a class="reference internal" href="../../ref/models/querysets.html#django.db.models.query.QuerySet" title="django.db.models.query.QuerySet"><code class="xref py py-class docutils literal"><span class="pre">QuerySet</span></code></a> instance from which to get the
+list.</dd>
+<dt><code class="docutils literal"><span class="pre">**kwargs</span></code></dt>
+<dd>Lookup parameters, which should be in the format accepted by <code class="docutils literal"><span class="pre">get()</span></code> and
+<code class="docutils literal"><span class="pre">filter()</span></code>.</dd>
+</dl>
+</div>
+<div class="section" id="id4">
+<h3>Example<a class="headerlink" href="#id4" title="永久链接至标题">¶</a></h3>
+<p>The following example gets all published objects from <code class="docutils literal"><span class="pre">MyModel</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">get_list_or_404</span>
+
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">my_objects</span> <span class="o">=</span> <span class="n">get_list_or_404</span><span class="p">(</span><span class="n">MyModel</span><span class="p">,</span> <span class="n">published</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This example is equivalent to:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">Http404</span>
+
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">my_objects</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">MyModel</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">published</span><span class="o">=</span><span class="k">True</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">my_objects</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="s">&quot;No MyModel matches the given query.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

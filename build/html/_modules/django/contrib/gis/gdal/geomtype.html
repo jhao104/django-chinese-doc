@@ -1,0 +1,323 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.contrib.gis.gdal.geomtype &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../../../index.html"/>
+        <link rel="up" title="django" href="../../../../django.html"/> 
+
+  
+  <script src="../../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../../../django.html">django</a> &raquo;</li>
+        
+      <li>django.contrib.gis.gdal.geomtype</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.contrib.gis.gdal.geomtype 源代码</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.contrib.gis.gdal.error</span> <span class="k">import</span> <span class="n">GDALException</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">six</span>
+
+
+<div class="viewcode-block" id="OGRGeomType"><a class="viewcode-back" href="../../../../../ref/contrib/gis/gdal.html#django.contrib.gis.gdal.OGRGeomType">[文档]</a><span class="k">class</span> <span class="nc">OGRGeomType</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="s">&quot;Encapsulates OGR Geometry Types.&quot;</span>
+
+    <span class="n">wkb25bit</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2147483648</span>
+
+    <span class="c"># Dictionary of acceptable OGRwkbGeometryType s and their string names.</span>
+    <span class="n">_types</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s">&#39;Unknown&#39;</span><span class="p">,</span>
+              <span class="mi">1</span><span class="p">:</span> <span class="s">&#39;Point&#39;</span><span class="p">,</span>
+              <span class="mi">2</span><span class="p">:</span> <span class="s">&#39;LineString&#39;</span><span class="p">,</span>
+              <span class="mi">3</span><span class="p">:</span> <span class="s">&#39;Polygon&#39;</span><span class="p">,</span>
+              <span class="mi">4</span><span class="p">:</span> <span class="s">&#39;MultiPoint&#39;</span><span class="p">,</span>
+              <span class="mi">5</span><span class="p">:</span> <span class="s">&#39;MultiLineString&#39;</span><span class="p">,</span>
+              <span class="mi">6</span><span class="p">:</span> <span class="s">&#39;MultiPolygon&#39;</span><span class="p">,</span>
+              <span class="mi">7</span><span class="p">:</span> <span class="s">&#39;GeometryCollection&#39;</span><span class="p">,</span>
+              <span class="mi">100</span><span class="p">:</span> <span class="s">&#39;None&#39;</span><span class="p">,</span>
+              <span class="mi">101</span><span class="p">:</span> <span class="s">&#39;LinearRing&#39;</span><span class="p">,</span>
+              <span class="mi">102</span><span class="p">:</span> <span class="s">&#39;PointZ&#39;</span><span class="p">,</span>
+              <span class="mi">1</span> <span class="o">+</span> <span class="n">wkb25bit</span><span class="p">:</span> <span class="s">&#39;Point25D&#39;</span><span class="p">,</span>
+              <span class="mi">2</span> <span class="o">+</span> <span class="n">wkb25bit</span><span class="p">:</span> <span class="s">&#39;LineString25D&#39;</span><span class="p">,</span>
+              <span class="mi">3</span> <span class="o">+</span> <span class="n">wkb25bit</span><span class="p">:</span> <span class="s">&#39;Polygon25D&#39;</span><span class="p">,</span>
+              <span class="mi">4</span> <span class="o">+</span> <span class="n">wkb25bit</span><span class="p">:</span> <span class="s">&#39;MultiPoint25D&#39;</span><span class="p">,</span>
+              <span class="mi">5</span> <span class="o">+</span> <span class="n">wkb25bit</span><span class="p">:</span> <span class="s">&#39;MultiLineString25D&#39;</span><span class="p">,</span>
+              <span class="mi">6</span> <span class="o">+</span> <span class="n">wkb25bit</span><span class="p">:</span> <span class="s">&#39;MultiPolygon25D&#39;</span><span class="p">,</span>
+              <span class="mi">7</span> <span class="o">+</span> <span class="n">wkb25bit</span><span class="p">:</span> <span class="s">&#39;GeometryCollection25D&#39;</span><span class="p">,</span>
+              <span class="p">}</span>
+    <span class="c"># Reverse type dictionary, keyed by lower-case of the name.</span>
+    <span class="n">_str_types</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_types</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_input</span><span class="p">):</span>
+        <span class="s">&quot;Figures out the correct OGR Type based upon the input.&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_input</span><span class="p">,</span> <span class="n">OGRGeomType</span><span class="p">):</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="n">type_input</span><span class="o">.</span><span class="n">num</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_input</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+            <span class="n">type_input</span> <span class="o">=</span> <span class="n">type_input</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">type_input</span> <span class="o">==</span> <span class="s">&#39;geometry&#39;</span><span class="p">:</span>
+                <span class="n">type_input</span> <span class="o">=</span> <span class="s">&#39;unknown&#39;</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_str_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_input</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">num</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">GDALException</span><span class="p">(</span><span class="s">&#39;Invalid OGR String Type &quot;%s&quot;&#39;</span> <span class="o">%</span> <span class="n">type_input</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_input</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">type_input</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_types</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">GDALException</span><span class="p">(</span><span class="s">&#39;Invalid OGR Integer Type: %d&#39;</span> <span class="o">%</span> <span class="n">type_input</span><span class="p">)</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="n">type_input</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Invalid OGR input type given.&#39;</span><span class="p">)</span>
+
+        <span class="c"># Setting the OGR geometry type number.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="n">num</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;Returns the value of the name property.&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Does an equivalence test on the OGR type with the given</span>
+<span class="sd">        other OGRGeomType, the short-hand string, or the integer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">OGRGeomType</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">num</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="n">other</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">False</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;Returns a short-hand string form of the OGR Geometry type.&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_types</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">django</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;Returns the Django GeometryField for this OGR Type.&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;25D&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;LinearRing&#39;</span><span class="p">,</span> <span class="s">&#39;None&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="k">None</span>
+        <span class="k">elif</span> <span class="n">s</span> <span class="o">==</span> <span class="s">&#39;Unknown&#39;</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="s">&#39;Geometry&#39;</span>
+        <span class="k">elif</span> <span class="n">s</span> <span class="o">==</span> <span class="s">&#39;PointZ&#39;</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="s">&#39;Point&#39;</span>
+        <span class="k">return</span> <span class="n">s</span> <span class="o">+</span> <span class="s">&#39;Field&#39;</span>
+
+    <span class="k">def</span> <span class="nf">to_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform Point, LineString, Polygon, and their 25D equivalents</span>
+<span class="sd">        to their Multi... counterpart.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s">&#39;Point&#39;</span><span class="p">,</span> <span class="s">&#39;LineString&#39;</span><span class="p">,</span> <span class="s">&#39;Polygon&#39;</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">+=</span> <span class="mi">3</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

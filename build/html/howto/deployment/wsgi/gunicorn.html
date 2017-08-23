@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>How to use Django with Gunicorn &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>How to use Django with Gunicorn</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/howto/deployment/wsgi/gunicorn.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="how-to-use-django-with-gunicorn">
+<h1>How to use Django with Gunicorn<a class="headerlink" href="#how-to-use-django-with-gunicorn" title="永久链接至标题">¶</a></h1>
+<p><a class="reference external" href="http://gunicorn.org/">Gunicorn</a> (‘Green Unicorn’) is a pure-Python WSGI server for UNIX. It has no
+dependencies and is easy to install and use.</p>
+<div class="section" id="installing-gunicorn">
+<h2>Installing Gunicorn<a class="headerlink" href="#installing-gunicorn" title="永久链接至标题">¶</a></h2>
+<p>Installing gunicorn is as easy as <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">gunicorn</span></code>. For more
+details, see the <a class="reference external" href="http://docs.gunicorn.org/en/latest/install.html">gunicorn documentation</a>.</p>
+</div>
+<div class="section" id="running-django-in-gunicorn-as-a-generic-wsgi-application">
+<h2>Running Django in Gunicorn as a generic WSGI application<a class="headerlink" href="#running-django-in-gunicorn-as-a-generic-wsgi-application" title="永久链接至标题">¶</a></h2>
+<p>When Gunicorn is installed, a <code class="docutils literal"><span class="pre">gunicorn</span></code> command is available which starts
+the Gunicorn server process. At its simplest, gunicorn just needs to be called
+with the location of a module containing a WSGI application object named
+<cite>application</cite>. So for a typical Django project, invoking gunicorn would look
+like:</p>
+<div class="highlight-bash"><div class="highlight"><pre>gunicorn myproject.wsgi
+</pre></div>
+</div>
+<p>This will start one process running one thread listening on <code class="docutils literal"><span class="pre">127.0.0.1:8000</span></code>.
+It requires that your project be on the Python path; the simplest way to ensure
+that is to run this command from the same directory as your <code class="docutils literal"><span class="pre">manage.py</span></code> file.</p>
+<p>See Gunicorn’s <a class="reference external" href="http://docs.gunicorn.org/en/latest/deploy.html">deployment documentation</a> for additional tips.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

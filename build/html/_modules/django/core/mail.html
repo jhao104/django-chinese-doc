@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.core.mail &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/>
+        <link rel="up" title="django" href="../../django.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../django.html">django</a> &raquo;</li>
+        
+      <li>django.core.mail</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.core.mail 源代码</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Tools for sending email.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="c"># Imported for backwards compatibility and for the sake</span>
+<span class="c"># of a cleaner namespace. These symbols used to be in</span>
+<span class="c"># django/core/mail.py before the introduction of email</span>
+<span class="c"># backends and the subsequent reorganization (See #10355)</span>
+<span class="kn">from</span> <span class="nn">django.core.mail.message</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_ATTACHMENT_MIME_TYPE</span><span class="p">,</span> <span class="n">BadHeaderError</span><span class="p">,</span> <span class="n">EmailMessage</span><span class="p">,</span>
+    <span class="n">EmailMultiAlternatives</span><span class="p">,</span> <span class="n">SafeMIMEMultipart</span><span class="p">,</span> <span class="n">SafeMIMEText</span><span class="p">,</span>
+    <span class="n">forbid_multi_line_headers</span><span class="p">,</span> <span class="n">make_msgid</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">django.core.mail.utils</span> <span class="k">import</span> <span class="n">DNS_NAME</span><span class="p">,</span> <span class="n">CachedDnsName</span>
+<span class="kn">from</span> <span class="nn">django.utils.module_loading</span> <span class="k">import</span> <span class="n">import_string</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&#39;CachedDnsName&#39;</span><span class="p">,</span> <span class="s">&#39;DNS_NAME&#39;</span><span class="p">,</span> <span class="s">&#39;EmailMessage&#39;</span><span class="p">,</span> <span class="s">&#39;EmailMultiAlternatives&#39;</span><span class="p">,</span>
+    <span class="s">&#39;SafeMIMEText&#39;</span><span class="p">,</span> <span class="s">&#39;SafeMIMEMultipart&#39;</span><span class="p">,</span> <span class="s">&#39;DEFAULT_ATTACHMENT_MIME_TYPE&#39;</span><span class="p">,</span>
+    <span class="s">&#39;make_msgid&#39;</span><span class="p">,</span> <span class="s">&#39;BadHeaderError&#39;</span><span class="p">,</span> <span class="s">&#39;forbid_multi_line_headers&#39;</span><span class="p">,</span>
+    <span class="s">&#39;get_connection&#39;</span><span class="p">,</span> <span class="s">&#39;send_mail&#39;</span><span class="p">,</span> <span class="s">&#39;send_mass_mail&#39;</span><span class="p">,</span> <span class="s">&#39;mail_admins&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mail_managers&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="get_connection"><a class="viewcode-back" href="../../../topics/email.html#django.core.mail.get_connection">[文档]</a><span class="k">def</span> <span class="nf">get_connection</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">fail_silently</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load an email backend and return an instance of it.</span>
+
+<span class="sd">    If backend is None (default) settings.EMAIL_BACKEND is used.</span>
+
+<span class="sd">    Both fail_silently and other keyword arguments are used in the</span>
+<span class="sd">    constructor of the backend.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">klass</span> <span class="o">=</span> <span class="n">import_string</span><span class="p">(</span><span class="n">backend</span> <span class="ow">or</span> <span class="n">settings</span><span class="o">.</span><span class="n">EMAIL_BACKEND</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="n">fail_silently</span><span class="o">=</span><span class="n">fail_silently</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="send_mail"><a class="viewcode-back" href="../../../topics/email.html#django.core.mail.send_mail">[文档]</a><span class="k">def</span> <span class="nf">send_mail</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">from_email</span><span class="p">,</span> <span class="n">recipient_list</span><span class="p">,</span>
+              <span class="n">fail_silently</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">auth_user</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">auth_password</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>
+              <span class="n">connection</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">html_message</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Easy wrapper for sending a single message to a recipient list. All members</span>
+<span class="sd">    of the recipient list will see the other recipients in the &#39;To&#39; field.</span>
+
+<span class="sd">    If auth_user is None, the EMAIL_HOST_USER setting is used.</span>
+<span class="sd">    If auth_password is None, the EMAIL_HOST_PASSWORD setting is used.</span>
+
+<span class="sd">    Note: The API for this method is frozen. New code wanting to extend the</span>
+<span class="sd">    functionality should use the EmailMessage class directly.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">connection</span> <span class="o">=</span> <span class="n">connection</span> <span class="ow">or</span> <span class="n">get_connection</span><span class="p">(</span>
+        <span class="n">username</span><span class="o">=</span><span class="n">auth_user</span><span class="p">,</span>
+        <span class="n">password</span><span class="o">=</span><span class="n">auth_password</span><span class="p">,</span>
+        <span class="n">fail_silently</span><span class="o">=</span><span class="n">fail_silently</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">mail</span> <span class="o">=</span> <span class="n">EmailMultiAlternatives</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">from_email</span><span class="p">,</span> <span class="n">recipient_list</span><span class="p">,</span> <span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">html_message</span><span class="p">:</span>
+        <span class="n">mail</span><span class="o">.</span><span class="n">attach_alternative</span><span class="p">(</span><span class="n">html_message</span><span class="p">,</span> <span class="s">&#39;text/html&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mail</span><span class="o">.</span><span class="n">send</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="send_mass_mail"><a class="viewcode-back" href="../../../topics/email.html#django.core.mail.send_mass_mail">[文档]</a><span class="k">def</span> <span class="nf">send_mass_mail</span><span class="p">(</span><span class="n">datatuple</span><span class="p">,</span> <span class="n">fail_silently</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">auth_user</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>
+                   <span class="n">auth_password</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">connection</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a datatuple of (subject, message, from_email, recipient_list), sends</span>
+<span class="sd">    each message to each recipient list. Returns the number of emails sent.</span>
+
+<span class="sd">    If from_email is None, the DEFAULT_FROM_EMAIL setting is used.</span>
+<span class="sd">    If auth_user and auth_password are set, they&#39;re used to log in.</span>
+<span class="sd">    If auth_user is None, the EMAIL_HOST_USER setting is used.</span>
+<span class="sd">    If auth_password is None, the EMAIL_HOST_PASSWORD setting is used.</span>
+
+<span class="sd">    Note: The API for this method is frozen. New code wanting to extend the</span>
+<span class="sd">    functionality should use the EmailMessage class directly.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">connection</span> <span class="o">=</span> <span class="n">connection</span> <span class="ow">or</span> <span class="n">get_connection</span><span class="p">(</span>
+        <span class="n">username</span><span class="o">=</span><span class="n">auth_user</span><span class="p">,</span>
+        <span class="n">password</span><span class="o">=</span><span class="n">auth_password</span><span class="p">,</span>
+        <span class="n">fail_silently</span><span class="o">=</span><span class="n">fail_silently</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">EmailMessage</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">recipient</span><span class="p">,</span> <span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">subject</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">recipient</span> <span class="ow">in</span> <span class="n">datatuple</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">connection</span><span class="o">.</span><span class="n">send_messages</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="mail_admins"><a class="viewcode-back" href="../../../topics/email.html#django.core.mail.mail_admins">[文档]</a><span class="k">def</span> <span class="nf">mail_admins</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">fail_silently</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">connection</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>
+                <span class="n">html_message</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sends a message to the admins, as defined by the ADMINS setting.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">ADMINS</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">mail</span> <span class="o">=</span> <span class="n">EmailMultiAlternatives</span><span class="p">(</span>
+        <span class="s">&#39;%s%s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">EMAIL_SUBJECT_PREFIX</span><span class="p">,</span> <span class="n">subject</span><span class="p">),</span> <span class="n">message</span><span class="p">,</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">SERVER_EMAIL</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">ADMINS</span><span class="p">],</span>
+        <span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">html_message</span><span class="p">:</span>
+        <span class="n">mail</span><span class="o">.</span><span class="n">attach_alternative</span><span class="p">(</span><span class="n">html_message</span><span class="p">,</span> <span class="s">&#39;text/html&#39;</span><span class="p">)</span>
+    <span class="n">mail</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">fail_silently</span><span class="o">=</span><span class="n">fail_silently</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="mail_managers"><a class="viewcode-back" href="../../../topics/email.html#django.core.mail.mail_managers">[文档]</a><span class="k">def</span> <span class="nf">mail_managers</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">fail_silently</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">connection</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>
+                  <span class="n">html_message</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sends a message to the managers, as defined by the MANAGERS setting.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">MANAGERS</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">mail</span> <span class="o">=</span> <span class="n">EmailMultiAlternatives</span><span class="p">(</span>
+        <span class="s">&#39;%s%s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">EMAIL_SUBJECT_PREFIX</span><span class="p">,</span> <span class="n">subject</span><span class="p">),</span> <span class="n">message</span><span class="p">,</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">SERVER_EMAIL</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">MANAGERS</span><span class="p">],</span>
+        <span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">html_message</span><span class="p">:</span>
+        <span class="n">mail</span><span class="o">.</span><span class="n">attach_alternative</span><span class="p">(</span><span class="n">html_message</span><span class="p">,</span> <span class="s">&#39;text/html&#39;</span><span class="p">)</span>
+    <span class="n">mail</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">fail_silently</span><span class="o">=</span><span class="n">fail_silently</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

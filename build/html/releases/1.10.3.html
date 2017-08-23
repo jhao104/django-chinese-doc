@@ -1,0 +1,275 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Django 1.10.3 release notes &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Django 1.10.3 release notes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/releases/1.10.3.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="django-1-10-3-release-notes">
+<h1>Django 1.10.3 release notes<a class="headerlink" href="#django-1-10-3-release-notes" title="永久链接至标题">¶</a></h1>
+<p><em>November 1, 2016</em></p>
+<p>Django 1.10.3 fixes two security issues and several bugs in 1.10.2.</p>
+<div class="section" id="user-with-hardcoded-password-created-when-running-tests-on-oracle">
+<h2>User with hardcoded password created when running tests on Oracle<a class="headerlink" href="#user-with-hardcoded-password-created-when-running-tests-on-oracle" title="永久链接至标题">¶</a></h2>
+<p>When running tests with an Oracle database, Django creates a temporary database
+user. In older versions, if a password isn’t manually specified in the database
+settings <code class="docutils literal"><span class="pre">TEST</span></code> dictionary, a hardcoded password is used. This could allow
+an attacker with network access to the database server to connect.</p>
+<p>This user is usually dropped after the test suite completes, but not when using
+the <code class="docutils literal"><span class="pre">manage.py</span> <span class="pre">test</span> <span class="pre">--keepdb</span></code> option or if the user has an active session
+(such as an attacker’s connection).</p>
+<p>A randomly generated password is now used for each test run.</p>
+</div>
+<div class="section" id="dns-rebinding-vulnerability-when-debug-true">
+<h2>DNS rebinding vulnerability when <code class="docutils literal"><span class="pre">DEBUG=True</span></code><a class="headerlink" href="#dns-rebinding-vulnerability-when-debug-true" title="永久链接至标题">¶</a></h2>
+<p>Older versions of Django don’t validate the <code class="docutils literal"><span class="pre">Host</span></code> header against
+<code class="docutils literal"><span class="pre">settings.ALLOWED_HOSTS</span></code> when <code class="docutils literal"><span class="pre">settings.DEBUG=True</span></code>. This makes them
+vulnerable to a <a class="reference external" href="http://benmmurphy.github.io/blog/2016/07/11/rails-webconsole-dns-rebinding/">DNS rebinding attack</a>.</p>
+<p>While Django doesn’t ship a module that allows remote code execution, this is
+at least a cross-site scripting vector, which could be quite serious if
+developers load a copy of the production database in development or connect to
+some production services for which there’s no development instance, for
+example. If a project uses a package like the <code class="docutils literal"><span class="pre">django-debug-toolbar</span></code>, then
+the attacker could execute arbitrary SQL, which could be especially bad if the
+developers connect to the database with a superuser account.</p>
+<p><code class="docutils literal"><span class="pre">settings.ALLOWED_HOSTS</span></code> is now validated regardless of <code class="docutils literal"><span class="pre">DEBUG</span></code>. For
+convenience, if <code class="docutils literal"><span class="pre">ALLOWED_HOSTS</span></code> is empty and <code class="docutils literal"><span class="pre">DEBUG=True</span></code>, the following
+variations of localhost are allowed <code class="docutils literal"><span class="pre">['localhost',</span> <span class="pre">'127.0.0.1',</span> <span class="pre">'::1']</span></code>. If
+your local settings file has your production <code class="docutils literal"><span class="pre">ALLOWED_HOSTS</span></code> value, you must
+now omit it to get those fallback values.</p>
+</div>
+<div class="section" id="bugfixes">
+<h2>Bugfixes<a class="headerlink" href="#bugfixes" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li>Allowed <code class="docutils literal"><span class="pre">User.is_authenticated</span></code> and <code class="docutils literal"><span class="pre">User.is_anonymous</span></code> properties to be
+tested for <code class="docutils literal"><span class="pre">set</span></code> membership (<a href="#id1"><span class="problematic" id="id2">:ticket:`27309`</span></a>).</li>
+<li>Fixed a performance regression when running <code class="docutils literal"><span class="pre">migrate</span></code> in projects
+with <code class="docutils literal"><span class="pre">RenameModel</span></code> operations (<a href="#id3"><span class="problematic" id="id4">:ticket:`27279`</span></a>).</li>
+<li>Added <code class="docutils literal"><span class="pre">model_name</span></code> to the <code class="docutils literal"><span class="pre">allow_migrate()</span></code> calls in <code class="docutils literal"><span class="pre">makemigrations</span></code>
+(<a href="#id5"><span class="problematic" id="id6">:ticket:`27200`</span></a>).</li>
+<li>Made the <code class="docutils literal"><span class="pre">JavaScriptCatalog</span></code> view respect the <code class="docutils literal"><span class="pre">packages</span></code> argument;
+previously it was ignored (<a href="#id7"><span class="problematic" id="id8">:ticket:`27374`</span></a>).</li>
+<li>Fixed <code class="docutils literal"><span class="pre">QuerySet.bulk_create()</span></code> on PostgreSQL when the number of objects is
+a multiple plus one of <code class="docutils literal"><span class="pre">batch_size</span></code> (<a href="#id9"><span class="problematic" id="id10">:ticket:`27385`</span></a>).</li>
+<li>Prevented <code class="docutils literal"><span class="pre">i18n_patterns()</span></code> from using too much of the URL as the language
+to fix a use case for <code class="docutils literal"><span class="pre">prefix_default_language=False</span></code> (<a href="#id11"><span class="problematic" id="id12">:ticket:`27063`</span></a>).</li>
+<li>Replaced a possibly incorrect redirect from <code class="docutils literal"><span class="pre">SessionMiddleware</span></code> when a
+session is destroyed in a concurrent request with a <code class="docutils literal"><span class="pre">SuspiciousOperation</span></code>
+to indicate that the request can’t be completed (<a href="#id13"><span class="problematic" id="id14">:ticket:`27363`</span></a>).</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

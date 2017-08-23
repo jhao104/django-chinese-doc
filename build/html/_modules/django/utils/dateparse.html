@@ -1,0 +1,352 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.utils.dateparse &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/>
+        <link rel="up" title="django" href="../../django.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../django.html">django</a> &raquo;</li>
+        
+      <li>django.utils.dateparse</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.utils.dateparse 源代码</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Functions to parse datetime objects.&quot;&quot;&quot;</span>
+
+<span class="c"># We&#39;re using regular expressions rather than time.strptime because:</span>
+<span class="c"># - They provide both validation and parsing.</span>
+<span class="c"># - They&#39;re more flexible for datetimes.</span>
+<span class="c"># - The date/datetime/time constructors produce friendlier error messages.</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">six</span>
+<span class="kn">from</span> <span class="nn">django.utils.timezone</span> <span class="k">import</span> <span class="n">get_fixed_timezone</span><span class="p">,</span> <span class="n">utc</span>
+
+<span class="n">date_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="s">r&#39;(?P&lt;year&gt;\d{4})-(?P&lt;month&gt;\d{1,2})-(?P&lt;day&gt;\d{1,2})$&#39;</span>
+<span class="p">)</span>
+
+<span class="n">time_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="s">r&#39;(?P&lt;hour&gt;\d{1,2}):(?P&lt;minute&gt;\d{1,2})&#39;</span>
+    <span class="s">r&#39;(?::(?P&lt;second&gt;\d{1,2})(?:\.(?P&lt;microsecond&gt;\d{1,6})\d{0,6})?)?&#39;</span>
+<span class="p">)</span>
+
+<span class="n">datetime_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="s">r&#39;(?P&lt;year&gt;\d{4})-(?P&lt;month&gt;\d{1,2})-(?P&lt;day&gt;\d{1,2})&#39;</span>
+    <span class="s">r&#39;[T ](?P&lt;hour&gt;\d{1,2}):(?P&lt;minute&gt;\d{1,2})&#39;</span>
+    <span class="s">r&#39;(?::(?P&lt;second&gt;\d{1,2})(?:\.(?P&lt;microsecond&gt;\d{1,6})\d{0,6})?)?&#39;</span>
+    <span class="s">r&#39;(?P&lt;tzinfo&gt;Z|[+-]\d{2}(?::?\d{2})?)?$&#39;</span>
+<span class="p">)</span>
+
+<span class="n">standard_duration_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="s">r&#39;^&#39;</span>
+    <span class="s">r&#39;(?:(?P&lt;days&gt;-?\d+) (days?, )?)?&#39;</span>
+    <span class="s">r&#39;((?:(?P&lt;hours&gt;\d+):)(?=\d+:\d+))?&#39;</span>
+    <span class="s">r&#39;(?:(?P&lt;minutes&gt;\d+):)?&#39;</span>
+    <span class="s">r&#39;(?P&lt;seconds&gt;\d+)&#39;</span>
+    <span class="s">r&#39;(?:\.(?P&lt;microseconds&gt;\d{1,6})\d{0,6})?&#39;</span>
+    <span class="s">r&#39;$&#39;</span>
+<span class="p">)</span>
+
+<span class="c"># Support the sections of ISO 8601 date representation that are accepted by</span>
+<span class="c"># timedelta</span>
+<span class="n">iso8601_duration_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="s">r&#39;^P&#39;</span>
+    <span class="s">r&#39;(?:(?P&lt;days&gt;\d+(.\d+)?)D)?&#39;</span>
+    <span class="s">r&#39;(?:T&#39;</span>
+    <span class="s">r&#39;(?:(?P&lt;hours&gt;\d+(.\d+)?)H)?&#39;</span>
+    <span class="s">r&#39;(?:(?P&lt;minutes&gt;\d+(.\d+)?)M)?&#39;</span>
+    <span class="s">r&#39;(?:(?P&lt;seconds&gt;\d+(.\d+)?)S)?&#39;</span>
+    <span class="s">r&#39;)?&#39;</span>
+    <span class="s">r&#39;$&#39;</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="parse_date"><a class="viewcode-back" href="../../../ref/utils.html#django.utils.dateparse.parse_date">[文档]</a><span class="k">def</span> <span class="nf">parse_date</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parses a string and return a datetime.date.</span>
+
+<span class="sd">    Raises ValueError if the input is well formatted but not a valid date.</span>
+<span class="sd">    Returns None if the input isn&#39;t well formatted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">date_re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">kw</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">())}</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="parse_time"><a class="viewcode-back" href="../../../ref/utils.html#django.utils.dateparse.parse_time">[文档]</a><span class="k">def</span> <span class="nf">parse_time</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parses a string and return a datetime.time.</span>
+
+<span class="sd">    This function doesn&#39;t support time zone offsets.</span>
+
+<span class="sd">    Raises ValueError if the input is well formatted but not a valid time.</span>
+<span class="sd">    Returns None if the input isn&#39;t well formatted, in particular if it</span>
+<span class="sd">    contains an offset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">time_re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">kw</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">kw</span><span class="p">[</span><span class="s">&#39;microsecond&#39;</span><span class="p">]:</span>
+            <span class="n">kw</span><span class="p">[</span><span class="s">&#39;microsecond&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s">&#39;microsecond&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="s">&#39;0&#39;</span><span class="p">)</span>
+        <span class="n">kw</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">kw</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">(</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="parse_datetime"><a class="viewcode-back" href="../../../ref/utils.html#django.utils.dateparse.parse_datetime">[文档]</a><span class="k">def</span> <span class="nf">parse_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parses a string and return a datetime.datetime.</span>
+
+<span class="sd">    This function supports time zone offsets. When the input contains one,</span>
+<span class="sd">    the output uses a timezone with a fixed offset from UTC.</span>
+
+<span class="sd">    Raises ValueError if the input is well formatted but not a valid datetime.</span>
+<span class="sd">    Returns None if the input isn&#39;t well formatted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">datetime_re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">kw</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">kw</span><span class="p">[</span><span class="s">&#39;microsecond&#39;</span><span class="p">]:</span>
+            <span class="n">kw</span><span class="p">[</span><span class="s">&#39;microsecond&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s">&#39;microsecond&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="s">&#39;0&#39;</span><span class="p">)</span>
+        <span class="n">tzinfo</span> <span class="o">=</span> <span class="n">kw</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;tzinfo&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tzinfo</span> <span class="o">==</span> <span class="s">&#39;Z&#39;</span><span class="p">:</span>
+            <span class="n">tzinfo</span> <span class="o">=</span> <span class="n">utc</span>
+        <span class="k">elif</span> <span class="n">tzinfo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="n">offset_mins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tzinfo</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tzinfo</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">tzinfo</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="n">offset_mins</span>
+            <span class="k">if</span> <span class="n">tzinfo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;-&#39;</span><span class="p">:</span>
+                <span class="n">offset</span> <span class="o">=</span> <span class="o">-</span><span class="n">offset</span>
+            <span class="n">tzinfo</span> <span class="o">=</span> <span class="n">get_fixed_timezone</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+        <span class="n">kw</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">kw</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">}</span>
+        <span class="n">kw</span><span class="p">[</span><span class="s">&#39;tzinfo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tzinfo</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="parse_duration"><a class="viewcode-back" href="../../../ref/utils.html#django.utils.dateparse.parse_duration">[文档]</a><span class="k">def</span> <span class="nf">parse_duration</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parses a duration string and returns a datetime.timedelta.</span>
+
+<span class="sd">    The preferred format for durations in Django is &#39;%d %H:%M:%S.%f&#39;.</span>
+
+<span class="sd">    Also supports ISO 8601 representation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">standard_duration_re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">iso8601_duration_re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">kw</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">kw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;microseconds&#39;</span><span class="p">):</span>
+            <span class="n">kw</span><span class="p">[</span><span class="s">&#39;microseconds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s">&#39;microseconds&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="s">&#39;0&#39;</span><span class="p">)</span>
+        <span class="n">kw</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">kw</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

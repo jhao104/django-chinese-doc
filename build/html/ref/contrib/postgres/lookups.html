@@ -1,0 +1,272 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>PostgreSQL specific lookups &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>PostgreSQL specific lookups</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/ref/contrib/postgres/lookups.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="postgresql-specific-lookups">
+<h1>PostgreSQL specific lookups<a class="headerlink" href="#postgresql-specific-lookups" title="永久链接至标题">¶</a></h1>
+<div class="section" id="trigram-similarity">
+<h2>Trigram similarity<a class="headerlink" href="#trigram-similarity" title="永久链接至标题">¶</a></h2>
+<div class="versionadded" id="std:fieldlookup-trigram_similar">
+</div>
+<p>The <code class="docutils literal"><span class="pre">trigram_similar</span></code> lookup allows you to perform trigram lookups,
+measuring the number of trigrams (three consecutive characters) shared, using a
+dedicated PostgreSQL extension. A trigram lookup is given an expression and
+returns results that have a similarity measurement greater than the current
+similarity threshold.</p>
+<p>To use it, add <code class="docutils literal"><span class="pre">'django.contrib.postgres'</span></code> in your <a class="reference internal" href="../../settings.html#std:setting-INSTALLED_APPS"><code class="xref std std-setting docutils literal"><span class="pre">INSTALLED_APPS</span></code></a>
+and activate the <a class="reference external" href="https://www.postgresql.org/docs/current/static/pgtrgm.html">pg_trgm extension</a> on
+PostgreSQL. You can install the extension using the
+<a class="reference internal" href="operations.html#django.contrib.postgres.operations.TrigramExtension" title="django.contrib.postgres.operations.TrigramExtension"><code class="xref py py-class docutils literal"><span class="pre">TrigramExtension</span></code></a> migration
+operation.</p>
+<p>The <code class="docutils literal"><span class="pre">trigram_similar</span></code> lookup can be used on
+<a class="reference internal" href="../../models/fields.html#django.db.models.CharField" title="django.db.models.CharField"><code class="xref py py-class docutils literal"><span class="pre">CharField</span></code></a> and <a class="reference internal" href="../../models/fields.html#django.db.models.TextField" title="django.db.models.TextField"><code class="xref py py-class docutils literal"><span class="pre">TextField</span></code></a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">City</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__trigram_similar</span><span class="o">=</span><span class="s">&quot;Middlesborough&quot;</span><span class="p">)</span>
+<span class="go">[&#39;&lt;City: Middlesbrough&gt;&#39;]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="unaccent">
+<h2><code class="docutils literal"><span class="pre">Unaccent</span></code><a class="headerlink" href="#unaccent" title="永久链接至标题">¶</a></h2>
+<p id="std:fieldlookup-unaccent">The <code class="docutils literal"><span class="pre">unaccent</span></code> lookup allows you to perform accent-insensitive lookups using
+a dedicated PostgreSQL extension.</p>
+<p>This lookup is implemented using <a class="reference internal" href="../../models/lookups.html#django.db.models.Transform" title="django.db.models.Transform"><code class="xref py py-class docutils literal"><span class="pre">Transform</span></code></a>, so it
+can be chained with other lookup functions. To use it, you need to add
+<code class="docutils literal"><span class="pre">'django.contrib.postgres'</span></code> in your <a class="reference internal" href="../../settings.html#std:setting-INSTALLED_APPS"><code class="xref std std-setting docutils literal"><span class="pre">INSTALLED_APPS</span></code></a> and activate
+the <a class="reference external" href="https://www.postgresql.org/docs/current/static/unaccent.html">unaccent extension on PostgreSQL</a>. The
+<a class="reference internal" href="operations.html#django.contrib.postgres.operations.UnaccentExtension" title="django.contrib.postgres.operations.UnaccentExtension"><code class="xref py py-class docutils literal"><span class="pre">UnaccentExtension</span></code></a> migration
+operation is available if you want to perform this activation using migrations).</p>
+<p>The <code class="docutils literal"><span class="pre">unaccent</span></code> lookup can be used on
+<a class="reference internal" href="../../models/fields.html#django.db.models.CharField" title="django.db.models.CharField"><code class="xref py py-class docutils literal"><span class="pre">CharField</span></code></a> and <a class="reference internal" href="../../models/fields.html#django.db.models.TextField" title="django.db.models.TextField"><code class="xref py py-class docutils literal"><span class="pre">TextField</span></code></a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">City</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__unaccent</span><span class="o">=</span><span class="s">&quot;México&quot;</span><span class="p">)</span>
+<span class="go">[&#39;&lt;City: Mexico&gt;&#39;]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">first_name__unaccent__startswith</span><span class="o">=</span><span class="s">&quot;Jerem&quot;</span><span class="p">)</span>
+<span class="go">[&#39;&lt;User: Jeremy&gt;&#39;, &#39;&lt;User: Jérémy&gt;&#39;, &#39;&lt;User: Jérémie&gt;&#39;, &#39;&lt;User: Jeremie&gt;&#39;]</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p class="last"><code class="docutils literal"><span class="pre">unaccent</span></code> lookups should perform fine in most use cases. However, queries
+using this filter will generally perform full table scans, which can be slow
+on large tables. In those cases, using dedicated full text indexing tools
+might be appropriate.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

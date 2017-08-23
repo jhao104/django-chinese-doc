@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>FAQ: Databases and models &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>FAQ: Databases and models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/faq/models.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="faq-databases-and-models">
+<h1>FAQ: Databases and models<a class="headerlink" href="#faq-databases-and-models" title="永久链接至标题">¶</a></h1>
+<div class="section" id="how-can-i-see-the-raw-sql-queries-django-is-running">
+<span id="faq-see-raw-sql-queries"></span><h2>How can I see the raw SQL queries Django is running?<a class="headerlink" href="#how-can-i-see-the-raw-sql-queries-django-is-running" title="永久链接至标题">¶</a></h2>
+<p>Make sure your Django <a class="reference internal" href="../ref/settings.html#std:setting-DEBUG"><code class="xref std std-setting docutils literal"><span class="pre">DEBUG</span></code></a> setting is set to <code class="docutils literal"><span class="pre">True</span></code>.
+Then, just do this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">connection</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">connection</span><span class="o">.</span><span class="n">queries</span>
+<span class="go">[{&#39;sql&#39;: &#39;SELECT polls_polls.id, polls_polls.question, polls_polls.pub_date FROM polls_polls&#39;,</span>
+<span class="go">&#39;time&#39;: &#39;0.002&#39;}]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">connection.queries</span></code> is only available if <a class="reference internal" href="../ref/settings.html#std:setting-DEBUG"><code class="xref std std-setting docutils literal"><span class="pre">DEBUG</span></code></a> is <code class="docutils literal"><span class="pre">True</span></code>.
+It’s a list of dictionaries in order of query execution. Each dictionary has
+the following:</p>
+<div class="highlight-default"><div class="highlight"><pre>``sql`` -- The raw SQL statement
+``time`` -- How long the statement took to execute, in seconds.
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">connection.queries</span></code> includes all SQL statements – INSERTs, UPDATES,
+SELECTs, etc. Each time your app hits the database, the query will be recorded.</p>
+<p>If you are using <a class="reference internal" href="../topics/db/multi-db.html"><span class="doc">multiple databases</span></a>, you can use the
+same interface on each member of the <code class="docutils literal"><span class="pre">connections</span></code> dictionary:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">connections</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">connections</span><span class="p">[</span><span class="s">&#39;my_db_alias&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">queries</span>
+</pre></div>
+</div>
+<p>If you need to clear the query list manually at any point in your functions,
+just call <code class="docutils literal"><span class="pre">reset_queries()</span></code>, like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">reset_queries</span>
+<span class="n">reset_queries</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="can-i-use-django-with-a-pre-existing-database">
+<h2>Can I use Django with a pre-existing database?<a class="headerlink" href="#can-i-use-django-with-a-pre-existing-database" title="永久链接至标题">¶</a></h2>
+<p>Yes. See <a class="reference internal" href="../howto/legacy-databases.html"><span class="doc">Integrating with a legacy database</span></a>.</p>
+</div>
+<div class="section" id="if-i-make-changes-to-a-model-how-do-i-update-the-database">
+<h2>If I make changes to a model, how do I update the database?<a class="headerlink" href="#if-i-make-changes-to-a-model-how-do-i-update-the-database" title="永久链接至标题">¶</a></h2>
+<p>Take a look at Django’s support for <a class="reference internal" href="../topics/migrations.html#module-django.db.migrations" title="django.db.migrations: Schema migration support for Django models"><code class="xref py py-mod docutils literal"><span class="pre">schema</span> <span class="pre">migrations</span></code></a>.</p>
+<p>If you don’t mind clearing data, your project’s <code class="docutils literal"><span class="pre">manage.py</span></code> utility has a
+<a class="reference internal" href="../ref/django-admin.html#django-admin-flush"><code class="xref std std-djadmin docutils literal"><span class="pre">flush</span></code></a> option to reset the database to the state it was in
+immediately after <a class="reference internal" href="../ref/django-admin.html#django-admin-migrate"><code class="xref std std-djadmin docutils literal"><span class="pre">migrate</span></code></a> was executed.</p>
+</div>
+<div class="section" id="do-django-models-support-multiple-column-primary-keys">
+<h2>Do Django models support multiple-column primary keys?<a class="headerlink" href="#do-django-models-support-multiple-column-primary-keys" title="永久链接至标题">¶</a></h2>
+<p>No. Only single-column primary keys are supported.</p>
+<p>But this isn’t an issue in practice, because there’s nothing stopping you from
+adding other constraints (using the <code class="docutils literal"><span class="pre">unique_together</span></code> model option or
+creating the constraint directly in your database), and enforcing the
+uniqueness at that level. Single-column primary keys are needed for things such
+as the admin interface to work; e.g., you need a simple way of being able to
+specify an object to edit or delete.</p>
+</div>
+<div class="section" id="does-django-support-nosql-databases">
+<h2>Does Django support NoSQL databases?<a class="headerlink" href="#does-django-support-nosql-databases" title="永久链接至标题">¶</a></h2>
+<p>NoSQL databases are not officially supported by Django itself. There are,
+however, a number of side project and forks which allow NoSQL functionality in
+Django, like <a class="reference external" href="http://django-nonrel.org/">Django non-rel</a>.</p>
+<p>You can also take a look on <a class="reference external" href="https://code.djangoproject.com/wiki/NoSqlSupport">the wiki page</a> which discusses some alternatives.</p>
+</div>
+<div class="section" id="how-do-i-add-database-specific-options-to-my-create-table-statements-such-as-specifying-myisam-as-the-table-type">
+<h2>How do I add database-specific options to my CREATE TABLE statements, such as specifying MyISAM as the table type?<a class="headerlink" href="#how-do-i-add-database-specific-options-to-my-create-table-statements-such-as-specifying-myisam-as-the-table-type" title="永久链接至标题">¶</a></h2>
+<p>We try to avoid adding special cases in the Django code to accommodate all the
+database-specific options such as table type, etc. If you’d like to use any of
+these options, create a migration with a
+<a class="reference internal" href="../ref/migration-operations.html#django.db.migrations.operations.RunSQL" title="django.db.migrations.operations.RunSQL"><code class="xref py py-class docutils literal"><span class="pre">RunSQL</span></code></a> operation that contains
+<code class="docutils literal"><span class="pre">ALTER</span> <span class="pre">TABLE</span></code> statements that do what you want to do.</p>
+<p>For example, if you’re using MySQL and want your tables to use the MyISAM table
+type, use the following SQL:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">ALTER</span> <span class="n">TABLE</span> <span class="n">myapp_mytable</span> <span class="n">ENGINE</span><span class="o">=</span><span class="n">MyISAM</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

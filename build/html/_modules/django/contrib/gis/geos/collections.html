@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.contrib.gis.geos.collections &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../../../index.html"/>
+        <link rel="up" title="django" href="../../../../django.html"/> 
+
+  
+  <script src="../../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../../../django.html">django</a> &raquo;</li>
+        
+      <li>django.contrib.gis.geos.collections</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.contrib.gis.geos.collections 源代码</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd"> This module houses the Geometry Collection objects:</span>
+<span class="sd"> GeometryCollection, MultiPoint, MultiLineString, and MultiPolygon</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">ctypes</span> <span class="k">import</span> <span class="n">byref</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_uint</span>
+
+<span class="kn">from</span> <span class="nn">django.contrib.gis.geos</span> <span class="k">import</span> <span class="n">prototypes</span> <span class="k">as</span> <span class="n">capi</span>
+<span class="kn">from</span> <span class="nn">django.contrib.gis.geos.error</span> <span class="k">import</span> <span class="n">GEOSException</span>
+<span class="kn">from</span> <span class="nn">django.contrib.gis.geos.geometry</span> <span class="k">import</span> <span class="n">GEOSGeometry</span><span class="p">,</span> <span class="n">LinearGeometryMixin</span>
+<span class="kn">from</span> <span class="nn">django.contrib.gis.geos.libgeos</span> <span class="k">import</span> <span class="n">geos_version_info</span><span class="p">,</span> <span class="n">get_pointer_arr</span>
+<span class="kn">from</span> <span class="nn">django.contrib.gis.geos.linestring</span> <span class="k">import</span> <span class="n">LinearRing</span><span class="p">,</span> <span class="n">LineString</span>
+<span class="kn">from</span> <span class="nn">django.contrib.gis.geos.point</span> <span class="k">import</span> <span class="n">Point</span>
+<span class="kn">from</span> <span class="nn">django.contrib.gis.geos.polygon</span> <span class="k">import</span> <span class="n">Polygon</span>
+<span class="kn">from</span> <span class="nn">django.utils.deprecation</span> <span class="k">import</span> <span class="n">RemovedInDjango20Warning</span>
+<span class="kn">from</span> <span class="nn">django.utils.six.moves</span> <span class="k">import</span> <span class="nb">range</span>
+
+
+<div class="viewcode-block" id="GeometryCollection"><a class="viewcode-back" href="../../../../../ref/contrib/gis/geos.html#django.contrib.gis.geos.GeometryCollection">[文档]</a><span class="k">class</span> <span class="nc">GeometryCollection</span><span class="p">(</span><span class="n">GEOSGeometry</span><span class="p">):</span>
+    <span class="n">_typeid</span> <span class="o">=</span> <span class="mi">7</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="s">&quot;Initializes a Geometry Collection from a sequence of Geometry objects.&quot;</span>
+
+        <span class="c"># Checking the arguments</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c"># If only one geometry provided or a list of geometries is provided</span>
+            <span class="c">#  in the first argument.</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+                <span class="n">init_geoms</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">init_geoms</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">init_geoms</span> <span class="o">=</span> <span class="n">args</span>
+
+        <span class="c"># Ensuring that only the permitted geometries are allowed in this collection</span>
+        <span class="c"># this is moved to list mixin super class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_allowed</span><span class="p">(</span><span class="n">init_geoms</span><span class="p">)</span>
+
+        <span class="c"># Creating the geometry pointer array.</span>
+        <span class="n">collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_collection</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">init_geoms</span><span class="p">),</span> <span class="nb">iter</span><span class="p">(</span><span class="n">init_geoms</span><span class="p">))</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GeometryCollection</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;Iterates over each Geometry in the Collection.&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;Returns the number of geometries in this Collection.&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_geom</span>
+
+    <span class="c"># ### Methods for compatibility with ListMixin ###</span>
+    <span class="k">def</span> <span class="nf">_create_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+        <span class="c"># Creating the geometry pointer array.</span>
+        <span class="n">geoms</span> <span class="o">=</span> <span class="n">get_pointer_arr</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+            <span class="c"># this is a little sloppy, but makes life easier</span>
+            <span class="c"># allow GEOSGeometry types (python wrappers) or pointer types</span>
+            <span class="n">geoms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">capi</span><span class="o">.</span><span class="n">geom_clone</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="s">&#39;ptr&#39;</span><span class="p">,</span> <span class="n">g</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">capi</span><span class="o">.</span><span class="n">create_collection</span><span class="p">(</span><span class="n">c_int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_typeid</span><span class="p">),</span> <span class="n">byref</span><span class="p">(</span><span class="n">geoms</span><span class="p">),</span> <span class="n">c_uint</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_get_single_internal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">capi</span><span class="o">.</span><span class="n">get_geomn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_single_external</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="s">&quot;Returns the Geometry from this Collection at the given index (0-based).&quot;</span>
+        <span class="c"># Checking the index and returning the corresponding GEOS geometry.</span>
+        <span class="k">return</span> <span class="n">GEOSGeometry</span><span class="p">(</span><span class="n">capi</span><span class="o">.</span><span class="n">geom_clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_single_internal</span><span class="p">(</span><span class="n">index</span><span class="p">)),</span> <span class="n">srid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">srid</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+        <span class="s">&quot;Create a new collection, and destroy the contents of the previous pointer.&quot;</span>
+        <span class="n">prev_ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptr</span>
+        <span class="n">srid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">srid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_collection</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">srid</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">srid</span> <span class="o">=</span> <span class="n">srid</span>
+        <span class="n">capi</span><span class="o">.</span><span class="n">destroy_geom</span><span class="p">(</span><span class="n">prev_ptr</span><span class="p">)</span>
+
+    <span class="n">_set_single</span> <span class="o">=</span> <span class="n">GEOSGeometry</span><span class="o">.</span><span class="n">_set_single_rebuild</span>
+    <span class="n">_assign_extended_slice</span> <span class="o">=</span> <span class="n">GEOSGeometry</span><span class="o">.</span><span class="n">_assign_extended_slice_rebuild</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;GeometryCollection&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+                <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+                <span class="s">&#39;geometries&#39;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="n">geom</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="s">&#39;coordinates&#39;</span><span class="p">:</span> <span class="n">geom</span><span class="o">.</span><span class="n">coords</span><span class="p">}</span>
+                    <span class="k">for</span> <span class="n">geom</span> <span class="ow">in</span> <span class="bp">self</span>
+                <span class="p">],</span>
+            <span class="p">})</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">GeometryCollection</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">json</span>
+    <span class="n">geojson</span> <span class="o">=</span> <span class="n">json</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;Returns the KML for this Geometry Collection.&quot;</span>
+        <span class="k">return</span> <span class="s">&#39;&lt;MultiGeometry&gt;%s&lt;/MultiGeometry&gt;&#39;</span> <span class="o">%</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">kml</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;Returns a tuple of all the coordinates in this Geometry Collection&quot;</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">tuple</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="nb">tuple</span></div>
+
+
+<span class="c"># MultiPoint, MultiLineString, and MultiPolygon class definitions.</span>
+<div class="viewcode-block" id="MultiPoint"><a class="viewcode-back" href="../../../../../ref/contrib/gis/geos.html#django.contrib.gis.geos.MultiPoint">[文档]</a><span class="k">class</span> <span class="nc">MultiPoint</span><span class="p">(</span><span class="n">GeometryCollection</span><span class="p">):</span>
+    <span class="n">_allowed</span> <span class="o">=</span> <span class="n">Point</span>
+    <span class="n">_typeid</span> <span class="o">=</span> <span class="mi">4</span></div>
+
+
+<div class="viewcode-block" id="MultiLineString"><a class="viewcode-back" href="../../../../../ref/contrib/gis/geos.html#django.contrib.gis.geos.MultiLineString">[文档]</a><span class="k">class</span> <span class="nc">MultiLineString</span><span class="p">(</span><span class="n">LinearGeometryMixin</span><span class="p">,</span> <span class="n">GeometryCollection</span><span class="p">):</span>
+    <span class="n">_allowed</span> <span class="o">=</span> <span class="p">(</span><span class="n">LineString</span><span class="p">,</span> <span class="n">LinearRing</span><span class="p">)</span>
+    <span class="n">_typeid</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">closed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">geos_version_info</span><span class="p">()[</span><span class="s">&#39;version&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="s">&#39;3.5&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GEOSException</span><span class="p">(</span><span class="s">&quot;MultiLineString.closed requires GEOS &gt;= 3.5.0.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MultiLineString</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">closed</span></div>
+
+
+<div class="viewcode-block" id="MultiPolygon"><a class="viewcode-back" href="../../../../../ref/contrib/gis/geos.html#django.contrib.gis.geos.MultiPolygon">[文档]</a><span class="k">class</span> <span class="nc">MultiPolygon</span><span class="p">(</span><span class="n">GeometryCollection</span><span class="p">):</span>
+    <span class="n">_allowed</span> <span class="o">=</span> <span class="n">Polygon</span>
+    <span class="n">_typeid</span> <span class="o">=</span> <span class="mi">6</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cascaded_union</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;Returns a cascaded union of this MultiPolygon.&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s">&quot;`cascaded_union` is deprecated, use the `unary_union` property instead.&quot;</span><span class="p">,</span>
+            <span class="n">RemovedInDjango20Warning</span><span class="p">,</span> <span class="mi">2</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">GEOSGeometry</span><span class="p">(</span><span class="n">capi</span><span class="o">.</span><span class="n">geos_cascaded_union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">srid</span><span class="p">)</span></div>
+
+<span class="c"># Setting the allowed types here since GeometryCollection is defined before</span>
+<span class="c"># its subclasses.</span>
+<span class="n">GeometryCollection</span><span class="o">.</span><span class="n">_allowed</span> <span class="o">=</span> <span class="p">(</span><span class="n">Point</span><span class="p">,</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">LinearRing</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">MultiPoint</span><span class="p">,</span> <span class="n">MultiLineString</span><span class="p">,</span> <span class="n">MultiPolygon</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

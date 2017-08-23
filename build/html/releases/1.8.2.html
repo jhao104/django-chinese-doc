@@ -1,0 +1,271 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Django 1.8.2 release notes &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Django 1.8.2 release notes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/releases/1.8.2.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="django-1-8-2-release-notes">
+<h1>Django 1.8.2 release notes<a class="headerlink" href="#django-1-8-2-release-notes" title="永久链接至标题">¶</a></h1>
+<p><em>May 20, 2015</em></p>
+<p>Django 1.8.2 fixes a security issue and several bugs in 1.8.1.</p>
+<div class="section" id="fixed-session-flushing-in-the-cached-db-backend">
+<h2>Fixed session flushing in the <code class="docutils literal"><span class="pre">cached_db</span></code> backend<a class="headerlink" href="#fixed-session-flushing-in-the-cached-db-backend" title="永久链接至标题">¶</a></h2>
+<p>A change to <code class="docutils literal"><span class="pre">session.flush()</span></code> in the <code class="docutils literal"><span class="pre">cached_db</span></code> session backend in Django
+1.8 mistakenly sets the session key to an empty string rather than <code class="docutils literal"><span class="pre">None</span></code>. An
+empty string is treated as a valid session key and the session cookie is set
+accordingly. Any users with an empty string in their session cookie will use
+the same session store. <code class="docutils literal"><span class="pre">session.flush()</span></code> is called by
+<code class="docutils literal"><span class="pre">django.contrib.auth.logout()</span></code> and, more seriously, by
+<code class="docutils literal"><span class="pre">django.contrib.auth.login()</span></code> when a user switches accounts. If a user is
+logged in and logs in again to a different account (without logging out) the
+session is flushed to avoid reuse. After the session is flushed (and its
+session key becomes <code class="docutils literal"><span class="pre">''</span></code>) the account details are set on the session and the
+session is saved. Any users with an empty string in their session cookie will
+now be logged into that account.</p>
+</div>
+<div class="section" id="bugfixes">
+<h2>Bugfixes<a class="headerlink" href="#bugfixes" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li>Fixed check for template engine alias uniqueness (<a href="#id1"><span class="problematic" id="id2">:ticket:`24685`</span></a>).</li>
+<li>Fixed crash when reusing the same <code class="docutils literal"><span class="pre">Case</span></code> instance in a query
+(<a href="#id3"><span class="problematic" id="id4">:ticket:`24752`</span></a>).</li>
+<li>Corrected join promotion for <code class="docutils literal"><span class="pre">Case</span></code> expressions. For example, annotating a
+query with a  <code class="docutils literal"><span class="pre">Case</span></code> expression could unexpectedly filter out results
+(<a href="#id5"><span class="problematic" id="id6">:ticket:`24766`</span></a>).</li>
+<li>Fixed negated <code class="docutils literal"><span class="pre">Q</span></code> objects in expressions. Cases like
+<code class="docutils literal"><span class="pre">Case(When(~Q(friends__age__lte=30)))</span></code> tried to generate a subquery which
+resulted in a crash (<a href="#id7"><span class="problematic" id="id8">:ticket:`24705`</span></a>).</li>
+<li>Fixed incorrect GROUP BY clause generation on MySQL when the query’s model
+has a self-referential foreign key (<a href="#id9"><span class="problematic" id="id10">:ticket:`24748`</span></a>).</li>
+<li>Implemented <code class="docutils literal"><span class="pre">ForeignKey.get_db_prep_value()</span></code> so that <code class="docutils literal"><span class="pre">ForeignKey</span></code>s
+pointing to <a class="reference internal" href="../ref/models/fields.html#django.db.models.UUIDField" title="django.db.models.UUIDField"><code class="xref py py-class docutils literal"><span class="pre">UUIDField</span></code></a> and inheritance on models
+with <code class="docutils literal"><span class="pre">UUIDField</span></code> primary keys work correctly (<a href="#id11"><span class="problematic" id="id12">:ticket:`24698`</span></a>,
+<a href="#id13"><span class="problematic" id="id14">:ticket:`24712`</span></a>).</li>
+<li>Fixed <code class="docutils literal"><span class="pre">isnull</span></code> lookup for <code class="docutils literal"><span class="pre">HStoreField</span></code> (<a href="#id15"><span class="problematic" id="id16">:ticket:`24751`</span></a>).</li>
+<li>Fixed a MySQL crash when a migration removes a combined index (unique_together
+or index_together) containing a foreign key (<a href="#id17"><span class="problematic" id="id18">:ticket:`24757`</span></a>).</li>
+<li>Fixed session cookie deletion when using <a class="reference internal" href="../ref/settings.html#std:setting-SESSION_COOKIE_DOMAIN"><code class="xref std std-setting docutils literal"><span class="pre">SESSION_COOKIE_DOMAIN</span></code></a>
+(<a href="#id19"><span class="problematic" id="id20">:ticket:`24799`</span></a>).</li>
+<li>On PostgreSQL, when no access is granted for the <code class="docutils literal"><span class="pre">postgres</span></code> database,
+Django now falls back to the default database when it normally requires a
+“no database” connection (<a href="#id21"><span class="problematic" id="id22">:ticket:`24791`</span></a>).</li>
+<li>Fixed display of <code class="docutils literal"><span class="pre">contrib.admin</span></code>’s <code class="docutils literal"><span class="pre">ForeignKey</span></code> widget when it’s used
+in a row with other fields (<a href="#id23"><span class="problematic" id="id24">:ticket:`24784`</span></a>).</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

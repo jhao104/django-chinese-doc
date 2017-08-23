@@ -1,0 +1,309 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>How to install Django on Windows &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>How to install Django on Windows</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/howto/windows.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="how-to-install-django-on-windows">
+<h1>How to install Django on Windows<a class="headerlink" href="#how-to-install-django-on-windows" title="永久链接至标题">¶</a></h1>
+<p>This document will guide you through installing Python 3.5 and Django on
+Windows. It also provides instructions for installing <a class="reference external" href="https://pypi.python.org/pypi/virtualenv">virtualenv</a> and
+<a class="reference external" href="https://pypi.python.org/pypi/virtualenvwrapper-win">virtualenvwrapper</a>, which make it easier to work on Python projects. This is
+meant as a beginner’s guide for users working on Django projects and does not
+reflect how Django should be installed when developing patches for Django
+itself.</p>
+<p>The steps in this guide have been tested with Windows 7, 8, and 10. In other
+versions, the steps would be similar. You will need to be familiar with using
+the Windows command prompt.</p>
+<div class="section" id="install-python">
+<h2>Install Python<a class="headerlink" href="#install-python" title="永久链接至标题">¶</a></h2>
+<p>Django is a Python web framework, thus requiring Python to be installed on your
+machine. At the time of writing, Python 3.5 is the latest version.</p>
+<p>To install Python on your machine go to <a class="reference external" href="https://python.org/downloads/">https://python.org/downloads/</a>. The
+website should offer you a download button for the latest Python version.
+Download the executable installer and run it. Check the box next to <code class="docutils literal"><span class="pre">Add</span>
+<span class="pre">Python</span> <span class="pre">3.5</span> <span class="pre">to</span> <span class="pre">PATH</span></code> and then click <code class="docutils literal"><span class="pre">Install</span> <span class="pre">Now</span></code>.</p>
+<p>After installation, open the command prompt and check that the Python version
+matches the version you installed by executing:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">python</span> <span class="o">--</span><span class="n">version</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="about-pip">
+<h2>About <code class="docutils literal"><span class="pre">pip</span></code><a class="headerlink" href="#about-pip" title="永久链接至标题">¶</a></h2>
+<p><a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> is a package manage for Python. It makes installing and uninstalling
+Python packages (such as Django!) very easy. For the rest of the installation,
+we’ll use <code class="docutils literal"><span class="pre">pip</span></code> to install Python packages from the command line.</p>
+<p>To install pip on your machine, go to
+<a class="reference external" href="https://pip.pypa.io/en/latest/installing/">https://pip.pypa.io/en/latest/installing/</a>, and follow the <code class="docutils literal"><span class="pre">Installing</span> <span class="pre">with</span>
+<span class="pre">get-pip.py</span></code> instructions.</p>
+</div>
+<div class="section" id="install-virtualenv-and-virtualenvwrapper">
+<h2>Install <code class="docutils literal"><span class="pre">virtualenv</span></code> and <code class="docutils literal"><span class="pre">virtualenvwrapper</span></code><a class="headerlink" href="#install-virtualenv-and-virtualenvwrapper" title="永久链接至标题">¶</a></h2>
+<p><a class="reference external" href="https://pypi.python.org/pypi/virtualenv">virtualenv</a> and <a class="reference external" href="https://pypi.python.org/pypi/virtualenvwrapper-win">virtualenvwrapper</a> provide a dedicated environment for
+each Django project you create. While not mandatory, this is considered a best
+practice and will save you time in the future when you’re ready to deploy your
+project. Simply type:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">pip</span> <span class="n">install</span> <span class="n">virtualenvwrapper</span><span class="o">-</span><span class="n">win</span>
+</pre></div>
+</div>
+<p>Then create a virtual environment for your project:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">mkvirtualenv</span> <span class="n">myproject</span>
+</pre></div>
+</div>
+<p>The virtual environment will be activated automatically and you’ll see
+“(myproject)” next to the command prompt to designate that. If you start a new
+command prompt, you’ll need to activate the environment again using:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">workon</span> <span class="n">myproject</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-django">
+<h2>Install Django<a class="headerlink" href="#install-django" title="永久链接至标题">¶</a></h2>
+<p>Django can be installed easily using <code class="docutils literal"><span class="pre">pip</span></code> within your virtual environment.</p>
+<p>In the command prompt, ensure your virtual environment is active, and execute
+the following command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">pip</span> <span class="n">install</span> <span class="n">django</span>
+</pre></div>
+</div>
+<p>This will download and install the latest Django release.</p>
+<p>After the installation has completed, you can verify your Django installation
+by executing <code class="docutils literal"><span class="pre">django-admin</span> <span class="pre">--version</span></code> in the command prompt.</p>
+<p>See <a class="reference internal" href="../topics/install.html#database-installation"><span class="std std-ref">Get your database running</span></a> for information on database installation
+with Django.</p>
+</div>
+<div class="section" id="common-pitfalls">
+<h2>Common pitfalls<a class="headerlink" href="#common-pitfalls" title="永久链接至标题">¶</a></h2>
+<ul>
+<li><p class="first">If <code class="docutils literal"><span class="pre">django-admin</span></code> only displays the help text no matter what arguments
+it is given, there is probably a problem with the file association in
+Windows. Check if there is more than one environment variable set for
+running Python scripts in <code class="docutils literal"><span class="pre">PATH</span></code>. This usually occurs when there is more
+than one Python version installed.</p>
+</li>
+<li><p class="first">If you are connecting to the internet behind a proxy, there might be problem
+in running the command <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django</span></code>. Set the environment variables
+for proxy configuration in the command prompt as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="nb">set</span> <span class="n">http_proxy</span><span class="o">=</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">username</span><span class="p">:</span><span class="n">password</span><span class="nd">@proxyserver</span><span class="p">:</span><span class="n">proxyport</span>
+<span class="nb">set</span> <span class="n">https_proxy</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">username</span><span class="p">:</span><span class="n">password</span><span class="nd">@proxyserver</span><span class="p">:</span><span class="n">proxyport</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

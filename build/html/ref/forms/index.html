@@ -1,0 +1,278 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Forms &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Forms</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/ref/forms/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="forms">
+<h1>Forms<a class="headerlink" href="#forms" title="永久链接至标题">¶</a></h1>
+<p>Detailed form API reference. For introductory material, see the
+<a class="reference internal" href="../../topics/forms/index.html"><span class="doc">Working with forms</span></a> topic guide.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">The Forms API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#bound-and-unbound-forms">Bound and unbound forms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#using-forms-to-validate-data">Using forms to validate data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#dynamic-initial-values">Dynamic initial values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#checking-which-form-data-has-changed">Checking which form data has changed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#accessing-the-fields-from-the-form">Accessing the fields from the form</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#accessing-clean-data">Accessing “clean” data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#outputting-forms-as-html">Outputting forms as HTML</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#more-granular-output">More granular output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#customizing-boundfield">Customizing <code class="docutils literal"><span class="pre">BoundField</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#binding-uploaded-files-to-a-form">Binding uploaded files to a form</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#subclassing-forms">Subclassing forms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#prefixes-for-forms">Prefixes for forms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fields.html">Form fields</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fields.html#core-field-arguments">Core field arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fields.html#checking-if-the-field-data-has-changed">Checking if the field data has changed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fields.html#built-in-field-classes">Built-in <code class="docutils literal"><span class="pre">Field</span></code> classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fields.html#slightly-complex-built-in-field-classes">Slightly complex built-in <code class="docutils literal"><span class="pre">Field</span></code> classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fields.html#fields-which-handle-relationships">Fields which handle relationships</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fields.html#creating-custom-fields">Creating custom fields</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">Model Form Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models.html#modelform-factory"><code class="docutils literal"><span class="pre">modelform_factory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#modelformset-factory"><code class="docutils literal"><span class="pre">modelformset_factory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#inlineformset-factory"><code class="docutils literal"><span class="pre">inlineformset_factory</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="formsets.html">Formset Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="formsets.html#formset-factory"><code class="docutils literal"><span class="pre">formset_factory</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="widgets.html">Widgets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="widgets.html#specifying-widgets">Specifying widgets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="widgets.html#setting-arguments-for-widgets">Setting arguments for widgets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="widgets.html#widgets-inheriting-from-the-select-widget">Widgets inheriting from the <code class="docutils literal"><span class="pre">Select</span></code> widget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="widgets.html#customizing-widget-instances">Customizing widget instances</a></li>
+<li class="toctree-l2"><a class="reference internal" href="widgets.html#base-widget-classes">Base widget classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="widgets.html#built-in-widgets">Built-in widgets</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Form and field validation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#raising-validationerror">Raising <code class="docutils literal"><span class="pre">ValidationError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#using-validation-in-practice">Using validation in practice</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

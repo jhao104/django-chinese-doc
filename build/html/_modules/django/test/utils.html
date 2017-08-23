@@ -1,0 +1,939 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.test.utils &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/>
+        <link rel="up" title="django" href="../../django.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../django.html">django</a> &raquo;</li>
+        
+      <li>django.test.utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.test.utils 源代码</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">wraps</span>
+<span class="kn">from</span> <span class="nn">unittest</span> <span class="k">import</span> <span class="n">TestCase</span><span class="p">,</span> <span class="n">skipIf</span><span class="p">,</span> <span class="n">skipUnless</span>
+<span class="kn">from</span> <span class="nn">xml.dom.minidom</span> <span class="k">import</span> <span class="n">Node</span><span class="p">,</span> <span class="n">parseString</span>
+
+<span class="kn">from</span> <span class="nn">django.apps</span> <span class="k">import</span> <span class="n">apps</span>
+<span class="kn">from</span> <span class="nn">django.apps.registry</span> <span class="k">import</span> <span class="n">Apps</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">UserSettingsHolder</span><span class="p">,</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.core</span> <span class="k">import</span> <span class="n">mail</span>
+<span class="kn">from</span> <span class="nn">django.core.signals</span> <span class="k">import</span> <span class="n">request_started</span>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">reset_queries</span>
+<span class="kn">from</span> <span class="nn">django.db.models.options</span> <span class="k">import</span> <span class="n">Options</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">request</span>
+<span class="kn">from</span> <span class="nn">django.template</span> <span class="k">import</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">django.test.signals</span> <span class="k">import</span> <span class="n">setting_changed</span><span class="p">,</span> <span class="n">template_rendered</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">get_script_prefix</span><span class="p">,</span> <span class="n">set_script_prefix</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">six</span>
+<span class="kn">from</span> <span class="nn">django.utils.decorators</span> <span class="k">import</span> <span class="n">available_attrs</span>
+<span class="kn">from</span> <span class="nn">django.utils.encoding</span> <span class="k">import</span> <span class="n">force_str</span>
+<span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="k">import</span> <span class="n">deactivate</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">jinja2</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">jinja2</span> <span class="o">=</span> <span class="k">None</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&#39;Approximate&#39;</span><span class="p">,</span> <span class="s">&#39;ContextList&#39;</span><span class="p">,</span> <span class="s">&#39;isolate_lru_cache&#39;</span><span class="p">,</span> <span class="s">&#39;get_runner&#39;</span><span class="p">,</span>
+    <span class="s">&#39;modify_settings&#39;</span><span class="p">,</span> <span class="s">&#39;override_settings&#39;</span><span class="p">,</span>
+    <span class="s">&#39;requires_tz_support&#39;</span><span class="p">,</span>
+    <span class="s">&#39;setup_test_environment&#39;</span><span class="p">,</span> <span class="s">&#39;teardown_test_environment&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">TZ_SUPPORT</span> <span class="o">=</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="s">&#39;tzset&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Approximate</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">places</span><span class="o">=</span><span class="mi">7</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">places</span> <span class="o">=</span> <span class="n">places</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">==</span> <span class="n">other</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">True</span>
+        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">-</span> <span class="n">other</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">places</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+
+<span class="k">class</span> <span class="nc">ContextList</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A wrapper that provides direct key access to context items contained</span>
+<span class="sd">    in a list of context objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">subcontext</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">subcontext</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">subcontext</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ContextList</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__getitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">False</span>
+        <span class="k">return</span> <span class="k">True</span>
+
+    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Flattened keys of subcontexts.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">subcontext</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">for</span> <span class="nb">dict</span> <span class="ow">in</span> <span class="n">subcontext</span><span class="p">:</span>
+                <span class="n">keys</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">keys</span>
+
+
+<span class="k">def</span> <span class="nf">instrumented_test_render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An instrumented Template render method, providing a signal</span>
+<span class="sd">    that can be intercepted by the test system Client</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">template_rendered</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodelist</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="setup_test_environment"><a class="viewcode-back" href="../../../topics/testing/advanced.html#django.test.utils.setup_test_environment">[文档]</a><span class="k">def</span> <span class="nf">setup_test_environment</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform global pre-test setup, such as installing the instrumented template</span>
+<span class="sd">    renderer and setting the email backend to the locmem email backend.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Template</span><span class="o">.</span><span class="n">_original_render</span> <span class="o">=</span> <span class="n">Template</span><span class="o">.</span><span class="n">_render</span>
+    <span class="n">Template</span><span class="o">.</span><span class="n">_render</span> <span class="o">=</span> <span class="n">instrumented_test_render</span>
+
+    <span class="c"># Storing previous values in the settings module itself is problematic.</span>
+    <span class="c"># Store them in arbitrary (but related) modules instead. See #20636.</span>
+
+    <span class="n">mail</span><span class="o">.</span><span class="n">_original_email_backend</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">EMAIL_BACKEND</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">EMAIL_BACKEND</span> <span class="o">=</span> <span class="s">&#39;django.core.mail.backends.locmem.EmailBackend&#39;</span>
+
+    <span class="n">request</span><span class="o">.</span><span class="n">_original_allowed_hosts</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">ALLOWED_HOSTS</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">ALLOWED_HOSTS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;*&#39;</span><span class="p">]</span>
+
+    <span class="n">mail</span><span class="o">.</span><span class="n">outbox</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">deactivate</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="teardown_test_environment"><a class="viewcode-back" href="../../../topics/testing/advanced.html#django.test.utils.teardown_test_environment">[文档]</a><span class="k">def</span> <span class="nf">teardown_test_environment</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform any global post-test teardown, such as restoring the original</span>
+<span class="sd">    template renderer and restoring the email sending functions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Template</span><span class="o">.</span><span class="n">_render</span> <span class="o">=</span> <span class="n">Template</span><span class="o">.</span><span class="n">_original_render</span>
+    <span class="k">del</span> <span class="n">Template</span><span class="o">.</span><span class="n">_original_render</span>
+
+    <span class="n">settings</span><span class="o">.</span><span class="n">EMAIL_BACKEND</span> <span class="o">=</span> <span class="n">mail</span><span class="o">.</span><span class="n">_original_email_backend</span>
+    <span class="k">del</span> <span class="n">mail</span><span class="o">.</span><span class="n">_original_email_backend</span>
+
+    <span class="n">settings</span><span class="o">.</span><span class="n">ALLOWED_HOSTS</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">_original_allowed_hosts</span>
+    <span class="k">del</span> <span class="n">request</span><span class="o">.</span><span class="n">_original_allowed_hosts</span>
+
+    <span class="k">del</span> <span class="n">mail</span><span class="o">.</span><span class="n">outbox</span></div>
+
+
+<span class="k">def</span> <span class="nf">get_runner</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">test_runner_class</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">test_runner_class</span><span class="p">:</span>
+        <span class="n">test_runner_class</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">TEST_RUNNER</span>
+
+    <span class="n">test_path</span> <span class="o">=</span> <span class="n">test_runner_class</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+    <span class="c"># Allow for Python 2.5 relative paths</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_path</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">test_module_name</span> <span class="o">=</span> <span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">test_module_name</span> <span class="o">=</span> <span class="s">&#39;.&#39;</span>
+    <span class="n">test_module</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="n">test_module_name</span><span class="p">,</span> <span class="p">{},</span> <span class="p">{},</span> <span class="n">force_str</span><span class="p">(</span><span class="n">test_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">test_runner</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">test_module</span><span class="p">,</span> <span class="n">test_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">test_runner</span>
+
+
+<span class="k">class</span> <span class="nc">TestContextDecorator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A base class that can either be used as a context manager during tests</span>
+<span class="sd">    or as a test function or unittest.TestCase subclass decorator to perform</span>
+<span class="sd">    temporary alterations.</span>
+
+<span class="sd">    `attr_name`: attribute assigned the return value of enable() if used as</span>
+<span class="sd">                 a class decorator.</span>
+
+<span class="sd">    `kwarg_name`: keyword argument passing the return value of enable() if</span>
+<span class="sd">                  used as a function decorator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">kwarg_name</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attr_name</span> <span class="o">=</span> <span class="n">attr_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwarg_name</span> <span class="o">=</span> <span class="n">kwarg_name</span>
+
+    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">disable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disable</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">decorate_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">TestCase</span><span class="p">):</span>
+            <span class="n">decorated_setUp</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">setUp</span>
+            <span class="n">decorated_tearDown</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">tearDown</span>
+
+            <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="n">inner_self</span><span class="p">):</span>
+                <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attr_name</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">inner_self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+                <span class="n">decorated_setUp</span><span class="p">(</span><span class="n">inner_self</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="n">inner_self</span><span class="p">):</span>
+                <span class="n">decorated_tearDown</span><span class="p">(</span><span class="n">inner_self</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">disable</span><span class="p">()</span>
+
+            <span class="n">cls</span><span class="o">.</span><span class="n">setUp</span> <span class="o">=</span> <span class="n">setUp</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">tearDown</span> <span class="o">=</span> <span class="n">tearDown</span>
+            <span class="k">return</span> <span class="n">cls</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Can only decorate subclasses of unittest.TestCase&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">decorate_callable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">assigned</span><span class="o">=</span><span class="n">available_attrs</span><span class="p">(</span><span class="n">func</span><span class="p">))</span>
+        <span class="k">def</span> <span class="nf">inner</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">with</span> <span class="bp">self</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwarg_name</span><span class="p">:</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">kwarg_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">context</span>
+                <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">inner</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decorated</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">decorated</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">decorate_class</span><span class="p">(</span><span class="n">decorated</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">decorated</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">decorate_callable</span><span class="p">(</span><span class="n">decorated</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Cannot decorate object of type %s&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">decorated</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="override_settings"><a class="viewcode-back" href="../../../topics/testing/tools.html#django.test.utils.override_settings">[文档]</a><span class="k">class</span> <span class="nc">override_settings</span><span class="p">(</span><span class="n">TestContextDecorator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Acts as either a decorator or a context manager. If it&#39;s a decorator it</span>
+<span class="sd">    takes a function and returns a wrapped function. If it&#39;s a contextmanager</span>
+<span class="sd">    it&#39;s used with the ``with`` statement. In either event entering/exiting</span>
+<span class="sd">    are called before and after, respectively, the function/block is executed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">override_settings</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Keep this code at the beginning to leave the settings unchanged</span>
+        <span class="c"># in case it raises an exception because INSTALLED_APPS is invalid.</span>
+        <span class="k">if</span> <span class="s">&#39;INSTALLED_APPS&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">apps</span><span class="o">.</span><span class="n">set_installed_apps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s">&#39;INSTALLED_APPS&#39;</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">apps</span><span class="o">.</span><span class="n">unset_installed_apps</span><span class="p">()</span>
+                <span class="k">raise</span>
+        <span class="n">override</span> <span class="o">=</span> <span class="n">UserSettingsHolder</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">_wrapped</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">new_value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">override</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">new_value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wrapped</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">_wrapped</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">_wrapped</span> <span class="o">=</span> <span class="n">override</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">new_value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">setting_changed</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">_wrapped</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span>
+                                 <span class="n">setting</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">new_value</span><span class="p">,</span> <span class="n">enter</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">disable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s">&#39;INSTALLED_APPS&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+            <span class="n">apps</span><span class="o">.</span><span class="n">unset_installed_apps</span><span class="p">()</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">_wrapped</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrapped</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrapped</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+            <span class="n">new_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="k">None</span><span class="p">)</span>
+            <span class="n">setting_changed</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">_wrapped</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span>
+                                 <span class="n">setting</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">new_value</span><span class="p">,</span> <span class="n">enter</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">save_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_func</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">test_func</span><span class="o">.</span><span class="n">_overridden_settings</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="n">test_func</span><span class="o">.</span><span class="n">_overridden_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Duplicate dict to prevent subclasses from altering their parent.</span>
+            <span class="n">test_func</span><span class="o">.</span><span class="n">_overridden_settings</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">test_func</span><span class="o">.</span><span class="n">_overridden_settings</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">decorate_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">django.test</span> <span class="k">import</span> <span class="n">SimpleTestCase</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">SimpleTestCase</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s">&quot;Only subclasses of Django SimpleTestCase can be decorated &quot;</span>
+                <span class="s">&quot;with override_settings&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_options</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls</span></div>
+
+
+<div class="viewcode-block" id="modify_settings"><a class="viewcode-back" href="../../../topics/testing/tools.html#django.test.utils.modify_settings">[文档]</a><span class="k">class</span> <span class="nc">modify_settings</span><span class="p">(</span><span class="n">override_settings</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Like override_settings, but makes it possible to append, prepend or remove</span>
+<span class="sd">    items instead of redefining the entire list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+            <span class="c"># Hack used when instantiating from SimpleTestCase.setUpClass.</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">kwargs</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operations</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">args</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">override_settings</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">save_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_func</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">test_func</span><span class="o">.</span><span class="n">_modified_settings</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="n">test_func</span><span class="o">.</span><span class="n">_modified_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Duplicate list to prevent subclasses from altering their parent.</span>
+            <span class="n">test_func</span><span class="o">.</span><span class="n">_modified_settings</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="n">test_func</span><span class="o">.</span><span class="n">_modified_settings</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span>
+
+    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">operations</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c"># When called from SimpleTestCase.setUpClass, values may be</span>
+                <span class="c"># overridden several times; cumulate changes.</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="p">[]))</span>
+            <span class="k">for</span> <span class="n">action</span><span class="p">,</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">operations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c"># items my be a single value or an iterable.</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+                    <span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="n">items</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s">&#39;append&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span> <span class="o">+</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s">&#39;prepend&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span> <span class="o">+</span> <span class="n">value</span>
+                <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s">&#39;remove&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">value</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Unsupported action: %s&quot;</span> <span class="o">%</span> <span class="n">action</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">modify_settings</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span></div>
+
+
+<span class="k">class</span> <span class="nc">override_system_checks</span><span class="p">(</span><span class="n">TestContextDecorator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Acts as a decorator. Overrides list of registered system checks.</span>
+<span class="sd">    Useful when you override `INSTALLED_APPS`, e.g. if you exclude `auth` app,</span>
+<span class="sd">    you also need to exclude its system checks.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_checks</span><span class="p">,</span> <span class="n">deployment_checks</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">django.core.checks.registry</span> <span class="k">import</span> <span class="n">registry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">registry</span> <span class="o">=</span> <span class="n">registry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_checks</span> <span class="o">=</span> <span class="n">new_checks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deployment_checks</span> <span class="o">=</span> <span class="n">deployment_checks</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">override_system_checks</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_checks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">registered_checks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">registered_checks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_checks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_deployment_checks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">deployment_checks</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deployment_checks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">deployment_checks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deployment_checks</span>
+
+    <span class="k">def</span> <span class="nf">disable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">registered_checks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_checks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">deployment_checks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_deployment_checks</span>
+
+
+<span class="k">def</span> <span class="nf">compare_xml</span><span class="p">(</span><span class="n">want</span><span class="p">,</span> <span class="n">got</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tries to do a &#39;xml-comparison&#39; of want and got.  Plain string</span>
+<span class="sd">    comparison doesn&#39;t always work because, for example, attribute</span>
+<span class="sd">    ordering should not be important. Comment nodes are not considered in the</span>
+<span class="sd">    comparison. Leading and trailing whitespace is ignored on both chunks.</span>
+
+<span class="sd">    Based on https://github.com/lxml/lxml/blob/master/src/lxml/doctestcompare.py</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_norm_whitespace_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;[ \t\n][ \t\n]+&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">norm_whitespace</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_norm_whitespace_re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">child_text</span><span class="p">(</span><span class="n">element</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">element</span><span class="o">.</span><span class="n">childNodes</span>
+                       <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">nodeType</span> <span class="o">==</span> <span class="n">Node</span><span class="o">.</span><span class="n">TEXT_NODE</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="n">element</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">element</span><span class="o">.</span><span class="n">childNodes</span>
+                <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">nodeType</span> <span class="o">==</span> <span class="n">Node</span><span class="o">.</span><span class="n">ELEMENT_NODE</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">norm_child_text</span><span class="p">(</span><span class="n">element</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">norm_whitespace</span><span class="p">(</span><span class="n">child_text</span><span class="p">(</span><span class="n">element</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">attrs_dict</span><span class="p">(</span><span class="n">element</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">check_element</span><span class="p">(</span><span class="n">want_element</span><span class="p">,</span> <span class="n">got_element</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">want_element</span><span class="o">.</span><span class="n">tagName</span> <span class="o">!=</span> <span class="n">got_element</span><span class="o">.</span><span class="n">tagName</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">False</span>
+        <span class="k">if</span> <span class="n">norm_child_text</span><span class="p">(</span><span class="n">want_element</span><span class="p">)</span> <span class="o">!=</span> <span class="n">norm_child_text</span><span class="p">(</span><span class="n">got_element</span><span class="p">):</span>
+            <span class="k">return</span> <span class="k">False</span>
+        <span class="k">if</span> <span class="n">attrs_dict</span><span class="p">(</span><span class="n">want_element</span><span class="p">)</span> <span class="o">!=</span> <span class="n">attrs_dict</span><span class="p">(</span><span class="n">got_element</span><span class="p">):</span>
+            <span class="k">return</span> <span class="k">False</span>
+        <span class="n">want_children</span> <span class="o">=</span> <span class="n">children</span><span class="p">(</span><span class="n">want_element</span><span class="p">)</span>
+        <span class="n">got_children</span> <span class="o">=</span> <span class="n">children</span><span class="p">(</span><span class="n">got_element</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">want_children</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">got_children</span><span class="p">):</span>
+            <span class="k">return</span> <span class="k">False</span>
+        <span class="k">for</span> <span class="n">want</span><span class="p">,</span> <span class="n">got</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">want_children</span><span class="p">,</span> <span class="n">got_children</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">check_element</span><span class="p">(</span><span class="n">want</span><span class="p">,</span> <span class="n">got</span><span class="p">):</span>
+                <span class="k">return</span> <span class="k">False</span>
+        <span class="k">return</span> <span class="k">True</span>
+
+    <span class="k">def</span> <span class="nf">first_node</span><span class="p">(</span><span class="n">document</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">document</span><span class="o">.</span><span class="n">childNodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">nodeType</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">.</span><span class="n">COMMENT_NODE</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">node</span>
+
+    <span class="n">want</span><span class="p">,</span> <span class="n">got</span> <span class="o">=</span> <span class="n">strip_quotes</span><span class="p">(</span><span class="n">want</span><span class="p">,</span> <span class="n">got</span><span class="p">)</span>
+    <span class="n">want</span> <span class="o">=</span> <span class="n">want</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\\</span><span class="s">n&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+    <span class="n">got</span> <span class="o">=</span> <span class="n">got</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\\</span><span class="s">n&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+
+    <span class="c"># If the string is not a complete xml document, we may need to add a</span>
+    <span class="c"># root element. This allow us to compare fragments, like &quot;&lt;foo/&gt;&lt;bar/&gt;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">want</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;&lt;?xml&#39;</span><span class="p">):</span>
+        <span class="n">wrapper</span> <span class="o">=</span> <span class="s">&#39;&lt;root&gt;%s&lt;/root&gt;&#39;</span>
+        <span class="n">want</span> <span class="o">=</span> <span class="n">wrapper</span> <span class="o">%</span> <span class="n">want</span>
+        <span class="n">got</span> <span class="o">=</span> <span class="n">wrapper</span> <span class="o">%</span> <span class="n">got</span>
+
+    <span class="c"># Parse the want and got strings, and compare the parsings.</span>
+    <span class="n">want_root</span> <span class="o">=</span> <span class="n">first_node</span><span class="p">(</span><span class="n">parseString</span><span class="p">(</span><span class="n">want</span><span class="p">))</span>
+    <span class="n">got_root</span> <span class="o">=</span> <span class="n">first_node</span><span class="p">(</span><span class="n">parseString</span><span class="p">(</span><span class="n">got</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">check_element</span><span class="p">(</span><span class="n">want_root</span><span class="p">,</span> <span class="n">got_root</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">strip_quotes</span><span class="p">(</span><span class="n">want</span><span class="p">,</span> <span class="n">got</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Strip quotes of doctests output values:</span>
+
+<span class="sd">    &gt;&gt;&gt; strip_quotes(&quot;&#39;foo&#39;&quot;)</span>
+<span class="sd">    &quot;foo&quot;</span>
+<span class="sd">    &gt;&gt;&gt; strip_quotes(&#39;&quot;foo&quot;&#39;)</span>
+<span class="sd">    &quot;foo&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">is_quoted_string</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s">&quot;&#39;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">is_quoted_unicode</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;u&#39;</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s">&quot;&#39;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_quoted_string</span><span class="p">(</span><span class="n">want</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_quoted_string</span><span class="p">(</span><span class="n">got</span><span class="p">):</span>
+        <span class="n">want</span> <span class="o">=</span> <span class="n">want</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">got</span> <span class="o">=</span> <span class="n">got</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">is_quoted_unicode</span><span class="p">(</span><span class="n">want</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_quoted_unicode</span><span class="p">(</span><span class="n">got</span><span class="p">):</span>
+        <span class="n">want</span> <span class="o">=</span> <span class="n">want</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">got</span> <span class="o">=</span> <span class="n">got</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">want</span><span class="p">,</span> <span class="n">got</span>
+
+
+<span class="k">def</span> <span class="nf">str_prefix</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">s</span> <span class="o">%</span> <span class="p">{</span><span class="s">&#39;_&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span> <span class="k">if</span> <span class="n">six</span><span class="o">.</span><span class="n">PY3</span> <span class="k">else</span> <span class="s">&#39;u&#39;</span><span class="p">}</span>
+
+
+<span class="k">class</span> <span class="nc">CaptureQueriesContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Context manager that captures queries executed by the specified connection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">connection</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">captured_queries</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">captured_queries</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">captured_queries</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">captured_queries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">queries</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_queries</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">final_queries</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_debug_cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">force_debug_cursor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">force_debug_cursor</span> <span class="o">=</span> <span class="k">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_queries</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">queries_log</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_queries</span> <span class="o">=</span> <span class="k">None</span>
+        <span class="n">request_started</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">reset_queries</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">force_debug_cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_debug_cursor</span>
+        <span class="n">request_started</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">reset_queries</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exc_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_queries</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">queries_log</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ignore_warnings</span><span class="p">(</span><span class="n">TestContextDecorator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="k">if</span> <span class="s">&#39;message&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_kwargs</span> <span class="ow">or</span> <span class="s">&#39;module&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter_func</span> <span class="o">=</span> <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter_func</span> <span class="o">=</span> <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ignore_warnings</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">catch_warnings</span> <span class="o">=</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">catch_warnings</span><span class="o">.</span><span class="n">__enter__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_func</span><span class="p">(</span><span class="s">&#39;ignore&#39;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">disable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">catch_warnings</span><span class="o">.</span><span class="n">__exit__</span><span class="p">(</span><span class="o">*</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">())</span>
+
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">patch_logger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">,</span> <span class="n">log_level</span><span class="p">,</span> <span class="n">log_kwargs</span><span class="o">=</span><span class="k">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Context manager that takes a named logger and the logging level</span>
+<span class="sd">    and provides a simple mock-like list of messages received</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">calls</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">replacement</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">call</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">%</span> <span class="n">args</span>
+        <span class="n">calls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">call</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span> <span class="k">if</span> <span class="n">log_kwargs</span> <span class="k">else</span> <span class="n">call</span><span class="p">)</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span>
+    <span class="n">orig</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">log_level</span><span class="p">)</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">log_level</span><span class="p">,</span> <span class="n">replacement</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">calls</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">log_level</span><span class="p">,</span> <span class="n">orig</span><span class="p">)</span>
+
+
+<span class="c"># On OSes that don&#39;t provide tzset (Windows), we can&#39;t set the timezone</span>
+<span class="c"># in which the program runs. As a consequence, we must skip tests that</span>
+<span class="c"># don&#39;t enforce a specific timezone (with timezone.override or equivalent),</span>
+<span class="c"># or attempt to interpret naive datetimes in the default timezone.</span>
+
+<span class="n">requires_tz_support</span> <span class="o">=</span> <span class="n">skipUnless</span><span class="p">(</span>
+    <span class="n">TZ_SUPPORT</span><span class="p">,</span>
+    <span class="s">&quot;This test relies on the ability to run a program in an arbitrary &quot;</span>
+    <span class="s">&quot;time zone, but your operating system isn&#39;t able to do that.&quot;</span>
+<span class="p">)</span>
+
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">extend_sys_path</span><span class="p">(</span><span class="o">*</span><span class="n">paths</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Context manager to temporarily add paths to sys.path.&quot;&quot;&quot;</span>
+    <span class="n">_orig_sys_path</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">[:]</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">_orig_sys_path</span>
+
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">isolate_lru_cache</span><span class="p">(</span><span class="n">lru_cache_object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Clear the cache of an LRU cache object on entering and exiting.&quot;&quot;&quot;</span>
+    <span class="n">lru_cache_object</span><span class="o">.</span><span class="n">cache_clear</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">lru_cache_object</span><span class="o">.</span><span class="n">cache_clear</span><span class="p">()</span>
+
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">captured_output</span><span class="p">(</span><span class="n">stream_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a context manager used by captured_stdout/stdin/stderr</span>
+<span class="sd">    that temporarily replaces the sys stream *stream_name* with a StringIO.</span>
+
+<span class="sd">    Note: This function and the following ``captured_std*`` are copied</span>
+<span class="sd">          from CPython&#39;s ``test.support`` module.&quot;&quot;&quot;</span>
+    <span class="n">orig_stdout</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">)</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">StringIO</span><span class="p">())</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">,</span> <span class="n">orig_stdout</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">captured_stdout</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Capture the output of sys.stdout:</span>
+
+<span class="sd">       with captured_stdout() as stdout:</span>
+<span class="sd">           print(&quot;hello&quot;)</span>
+<span class="sd">       self.assertEqual(stdout.getvalue(), &quot;hello\n&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">captured_output</span><span class="p">(</span><span class="s">&quot;stdout&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">captured_stderr</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Capture the output of sys.stderr:</span>
+
+<span class="sd">       with captured_stderr() as stderr:</span>
+<span class="sd">           print(&quot;hello&quot;, file=sys.stderr)</span>
+<span class="sd">       self.assertEqual(stderr.getvalue(), &quot;hello\n&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">captured_output</span><span class="p">(</span><span class="s">&quot;stderr&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">captured_stdin</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Capture the input to sys.stdin:</span>
+
+<span class="sd">       with captured_stdin() as stdin:</span>
+<span class="sd">           stdin.write(&#39;hello\n&#39;)</span>
+<span class="sd">           stdin.seek(0)</span>
+<span class="sd">           # call test code that consumes from sys.stdin</span>
+<span class="sd">           captured = input()</span>
+<span class="sd">       self.assertEqual(captured, &quot;hello&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">captured_output</span><span class="p">(</span><span class="s">&quot;stdin&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">reset_warning_registry</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clear warning registry for all modules. This is required in some tests</span>
+<span class="sd">    because of a bug in Python that prevents warnings.simplefilter(&quot;always&quot;)</span>
+<span class="sd">    from always making warnings appear: http://bugs.python.org/issue4180</span>
+
+<span class="sd">    The bug was fixed in Python 3.4.2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="s">&quot;__warningregistry__&quot;</span>
+    <span class="k">for</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">freeze_time</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Context manager to temporarily freeze time.time(). This temporarily</span>
+<span class="sd">    modifies the time function of the time module. Modules which import the</span>
+<span class="sd">    time function directly (e.g. `from time import time`) won&#39;t be affected</span>
+<span class="sd">    This isn&#39;t meant as a public API, but helps reduce some repetitive code in</span>
+<span class="sd">    Django&#39;s test suite.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_real_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">t</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">_real_time</span>
+
+
+<span class="k">def</span> <span class="nf">require_jinja2</span><span class="p">(</span><span class="n">test_func</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator to enable a Jinja2 template engine in addition to the regular</span>
+<span class="sd">    Django template engine for a test or skip it if Jinja2 isn&#39;t available.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">test_func</span> <span class="o">=</span> <span class="n">skipIf</span><span class="p">(</span><span class="n">jinja2</span> <span class="ow">is</span> <span class="k">None</span><span class="p">,</span> <span class="s">&quot;this test requires jinja2&quot;</span><span class="p">)(</span><span class="n">test_func</span><span class="p">)</span>
+    <span class="n">test_func</span> <span class="o">=</span> <span class="n">override_settings</span><span class="p">(</span><span class="n">TEMPLATES</span><span class="o">=</span><span class="p">[{</span>
+        <span class="s">&#39;BACKEND&#39;</span><span class="p">:</span> <span class="s">&#39;django.template.backends.django.DjangoTemplates&#39;</span><span class="p">,</span>
+        <span class="s">&#39;APP_DIRS&#39;</span><span class="p">:</span> <span class="k">True</span><span class="p">,</span>
+    <span class="p">},</span> <span class="p">{</span>
+        <span class="s">&#39;BACKEND&#39;</span><span class="p">:</span> <span class="s">&#39;django.template.backends.jinja2.Jinja2&#39;</span><span class="p">,</span>
+        <span class="s">&#39;APP_DIRS&#39;</span><span class="p">:</span> <span class="k">True</span><span class="p">,</span>
+        <span class="s">&#39;OPTIONS&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;keep_trailing_newline&#39;</span><span class="p">:</span> <span class="k">True</span><span class="p">},</span>
+    <span class="p">}])(</span><span class="n">test_func</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">test_func</span>
+
+
+<span class="k">class</span> <span class="nc">override_script_prefix</span><span class="p">(</span><span class="n">TestContextDecorator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator or context manager to temporary override the script prefix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="n">prefix</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">override_script_prefix</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_prefix</span> <span class="o">=</span> <span class="n">get_script_prefix</span><span class="p">()</span>
+        <span class="n">set_script_prefix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">disable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">set_script_prefix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old_prefix</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">LoggingCaptureMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Capture the output from the &#39;django&#39; logger and store it on the class&#39;s</span>
+<span class="sd">    logger_output attribute.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;django&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stream</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger_output</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger_output</span>
+
+    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_stream</span>
+
+
+<span class="k">class</span> <span class="nc">isolate_apps</span><span class="p">(</span><span class="n">TestContextDecorator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Act as either a decorator or a context manager to register models defined</span>
+<span class="sd">    in its wrapped context to an isolated registry.</span>
+
+<span class="sd">    The list of installed apps the isolated registry should contain must be</span>
+<span class="sd">    passed as arguments.</span>
+
+<span class="sd">    Two optional keyword arguments can be specified:</span>
+
+<span class="sd">    `attr_name`: attribute assigned the isolated registry if used as a class</span>
+<span class="sd">                 decorator.</span>
+
+<span class="sd">    `kwarg_name`: keyword argument passing the isolated registry if used as a</span>
+<span class="sd">                  function decorator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">installed_apps</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">installed_apps</span> <span class="o">=</span> <span class="n">installed_apps</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">isolate_apps</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_apps</span> <span class="o">=</span> <span class="n">Options</span><span class="o">.</span><span class="n">default_apps</span>
+        <span class="n">apps</span> <span class="o">=</span> <span class="n">Apps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">installed_apps</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">Options</span><span class="p">,</span> <span class="s">&#39;default_apps&#39;</span><span class="p">,</span> <span class="n">apps</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">apps</span>
+
+    <span class="k">def</span> <span class="nf">disable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">Options</span><span class="p">,</span> <span class="s">&#39;default_apps&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_apps</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="o">*</span><span class="n">tags</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator to add tags to a test class or method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;tags&#39;</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">tags</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">obj</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

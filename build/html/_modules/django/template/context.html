@@ -1,0 +1,493 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.template.context &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/>
+        <link rel="up" title="django" href="../../django.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../django.html">django</a> &raquo;</li>
+        
+      <li>django.template.context</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.template.context 源代码</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span>
+
+<span class="kn">from</span> <span class="nn">django.utils.deprecation</span> <span class="k">import</span> <span class="n">RemovedInDjango20Warning</span>
+
+<span class="c"># Hard-coded processor for easier use of CSRF protection.</span>
+<span class="n">_builtin_context_processors</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;django.template.context_processors.csrf&#39;</span><span class="p">,)</span>
+
+
+<div class="viewcode-block" id="ContextPopException"><a class="viewcode-back" href="../../../ref/templates/api.html#django.template.ContextPopException">[文档]</a><span class="k">class</span> <span class="nc">ContextPopException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="s">&quot;pop() has been called more times than push()&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<span class="k">class</span> <span class="nc">ContextDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ContextDict</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">context</span><span class="o">.</span><span class="n">dicts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">BaseContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dict_</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_dicts</span><span class="p">(</span><span class="n">dict_</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_reset_dicts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="n">builtins</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;True&#39;</span><span class="p">:</span> <span class="k">True</span><span class="p">,</span> <span class="s">&#39;False&#39;</span><span class="p">:</span> <span class="k">False</span><span class="p">,</span> <span class="s">&#39;None&#39;</span><span class="p">:</span> <span class="k">None</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dicts</span> <span class="o">=</span> <span class="p">[</span><span class="n">builtins</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">duplicate</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="n">BaseContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
+        <span class="n">duplicate</span><span class="o">.</span><span class="n">dicts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">[:]</span>
+        <span class="k">return</span> <span class="n">duplicate</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">d</span>
+
+    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">dicts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">BaseContext</span><span class="p">):</span>
+                <span class="n">dicts</span> <span class="o">+=</span> <span class="n">d</span><span class="o">.</span><span class="n">dicts</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dicts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ContextDict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">dicts</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ContextPopException</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="s">&quot;Set a variable in the current context&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="s">&quot;Get a variable&#39;s value, starting at the current context and going upward&quot;</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="s">&quot;Delete a variable from the current context&quot;</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">has_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s">&quot;%s.has_key() is deprecated in favor of the &#39;in&#39; operator.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+            <span class="n">RemovedInDjango20Warning</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">True</span>
+        <span class="k">return</span> <span class="k">False</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">otherwise</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">otherwise</span>
+
+    <span class="k">def</span> <span class="nf">setdefault</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="k">return</span> <span class="n">default</span>
+
+    <span class="k">def</span> <span class="nf">new</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a new context with the same properties, but with only the</span>
+<span class="sd">        values given in &#39;values&#39; stored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_context</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">new_context</span><span class="o">.</span><span class="n">_reset_dicts</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_context</span>
+
+    <span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns self.dicts as one dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flat</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">:</span>
+            <span class="n">flat</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">flat</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compares two contexts by comparing theirs &#39;dicts&#39; attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BaseContext</span><span class="p">):</span>
+            <span class="c"># because dictionaries can be put in different order</span>
+            <span class="c"># we have to flatten them like in templates</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+        <span class="c"># if it&#39;s not comparable return false</span>
+        <span class="k">return</span> <span class="k">False</span>
+
+
+<div class="viewcode-block" id="Context"><a class="viewcode-back" href="../../../ref/templates/api.html#django.template.Context">[文档]</a><span class="k">class</span> <span class="nc">Context</span><span class="p">(</span><span class="n">BaseContext</span><span class="p">):</span>
+    <span class="s">&quot;A stack container for variable context&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dict_</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">autoescape</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="n">use_l10n</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">use_tz</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autoescape</span> <span class="o">=</span> <span class="n">autoescape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_l10n</span> <span class="o">=</span> <span class="n">use_l10n</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_tz</span> <span class="o">=</span> <span class="n">use_tz</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">template_name</span> <span class="o">=</span> <span class="s">&quot;unknown&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render_context</span> <span class="o">=</span> <span class="n">RenderContext</span><span class="p">()</span>
+        <span class="c"># Set to the original template -- as opposed to extended or included</span>
+        <span class="c"># templates -- during rendering, see bind_template.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">template</span> <span class="o">=</span> <span class="k">None</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Context</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">dict_</span><span class="p">)</span>
+
+    <span class="nd">@contextmanager</span>
+    <span class="k">def</span> <span class="nf">bind_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Context is already bound to a template&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">template</span> <span class="o">=</span> <span class="n">template</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">yield</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">template</span> <span class="o">=</span> <span class="k">None</span>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">duplicate</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Context</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__copy__</span><span class="p">()</span>
+        <span class="n">duplicate</span><span class="o">.</span><span class="n">render_context</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">render_context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">duplicate</span>
+
+<div class="viewcode-block" id="Context.update"><a class="viewcode-back" href="../../../ref/templates/api.html#django.template.Context.update">[文档]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_dict</span><span class="p">):</span>
+        <span class="s">&quot;Pushes other_dict to the stack of dictionaries in the Context&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">other_dict</span><span class="p">,</span> <span class="s">&#39;__getitem__&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;other_dict must be a mapping (dictionary-like) object.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other_dict</span><span class="p">,</span> <span class="n">BaseContext</span><span class="p">):</span>
+            <span class="n">other_dict</span> <span class="o">=</span> <span class="n">other_dict</span><span class="o">.</span><span class="n">dicts</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ContextDict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_dict</span><span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">RenderContext</span><span class="p">(</span><span class="n">BaseContext</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A stack container for storing Template state.</span>
+
+<span class="sd">    RenderContext simplifies the implementation of template Nodes by providing a</span>
+<span class="sd">    safe place to store state between invocations of a node&#39;s `render` method.</span>
+
+<span class="sd">    The RenderContext also provides scoping rules that are more sensible for</span>
+<span class="sd">    &#39;template local&#39; variables. The render context stack is pushed before each</span>
+<span class="sd">    template is rendered, creating a fresh scope with nothing in it. Name</span>
+<span class="sd">    resolution fails if a variable is not found at the top of the RequestContext</span>
+<span class="sd">    stack. Thus, variables are local to a specific template and don&#39;t affect the</span>
+<span class="sd">    rendering of other templates as they would if they were stored in the normal</span>
+<span class="sd">    template context.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">yield</span> <span class="n">d</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">otherwise</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">otherwise</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="RequestContext"><a class="viewcode-back" href="../../../ref/templates/api.html#django.template.RequestContext">[文档]</a><span class="k">class</span> <span class="nc">RequestContext</span><span class="p">(</span><span class="n">Context</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This subclass of template.Context automatically populates itself using</span>
+<span class="sd">    the processors defined in the engine&#39;s configuration.</span>
+<span class="sd">    Additional processors can be specified as a list of callables</span>
+<span class="sd">    using the &quot;processors&quot; keyword argument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">dict_</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">processors</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">use_l10n</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">use_tz</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">autoescape</span><span class="o">=</span><span class="k">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RequestContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="n">dict_</span><span class="p">,</span> <span class="n">use_l10n</span><span class="o">=</span><span class="n">use_l10n</span><span class="p">,</span> <span class="n">use_tz</span><span class="o">=</span><span class="n">use_tz</span><span class="p">,</span> <span class="n">autoescape</span><span class="o">=</span><span class="n">autoescape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_processors</span> <span class="o">=</span> <span class="p">()</span> <span class="k">if</span> <span class="n">processors</span> <span class="ow">is</span> <span class="k">None</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">processors</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_processors_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">)</span>
+
+        <span class="c"># placeholder for context processors output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">({})</span>
+
+        <span class="c"># empty dict for any new modifications</span>
+        <span class="c"># (so that context processors don&#39;t overwrite them)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">({})</span>
+
+    <span class="nd">@contextmanager</span>
+    <span class="k">def</span> <span class="nf">bind_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Context is already bound to a template&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">template</span> <span class="o">=</span> <span class="n">template</span>
+        <span class="c"># Set context processors according to the template engine&#39;s settings.</span>
+        <span class="n">processors</span> <span class="o">=</span> <span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">template_context_processors</span> <span class="o">+</span>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">_processors</span><span class="p">)</span>
+        <span class="n">updates</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">processor</span> <span class="ow">in</span> <span class="n">processors</span><span class="p">:</span>
+            <span class="n">updates</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">processor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_processors_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">updates</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">yield</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">template</span> <span class="o">=</span> <span class="k">None</span>
+            <span class="c"># Unset context processors.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dicts</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_processors_index</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">new</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="n">new_context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">RequestContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="c"># This is for backwards-compatibility: RequestContexts created via</span>
+        <span class="c"># Context.new don&#39;t include values from context processors.</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">new_context</span><span class="p">,</span> <span class="s">&#39;_processors_index&#39;</span><span class="p">):</span>
+            <span class="k">del</span> <span class="n">new_context</span><span class="o">.</span><span class="n">_processors_index</span>
+        <span class="k">return</span> <span class="n">new_context</span></div>
+
+
+<span class="k">def</span> <span class="nf">make_context</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a suitable Context from a plain dict and optionally an HttpRequest.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">request</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># The following pattern is required to ensure values from</span>
+        <span class="c"># context override those from template context processors.</span>
+        <span class="n">original_context</span> <span class="o">=</span> <span class="n">context</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">RequestContext</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">original_context</span><span class="p">:</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">original_context</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">context</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

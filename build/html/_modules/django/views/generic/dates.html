@@ -1,0 +1,1022 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.views.generic.dates &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../../index.html"/>
+        <link rel="up" title="django" href="../../../django.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../../django.html">django</a> &raquo;</li>
+        
+      <li>django.views.generic.dates</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.views.generic.dates 源代码</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">ImproperlyConfigured</span>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">Http404</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">timezone</span>
+<span class="kn">from</span> <span class="nn">django.utils.encoding</span> <span class="k">import</span> <span class="n">force_str</span><span class="p">,</span> <span class="n">force_text</span>
+<span class="kn">from</span> <span class="nn">django.utils.functional</span> <span class="k">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="k">import</span> <span class="n">ugettext</span> <span class="k">as</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">django.views.generic.base</span> <span class="k">import</span> <span class="n">View</span>
+<span class="kn">from</span> <span class="nn">django.views.generic.detail</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">BaseDetailView</span><span class="p">,</span> <span class="n">SingleObjectTemplateResponseMixin</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">django.views.generic.list</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">MultipleObjectMixin</span><span class="p">,</span> <span class="n">MultipleObjectTemplateResponseMixin</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="YearMixin"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.YearMixin">[文档]</a><span class="k">class</span> <span class="nc">YearMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mixin for views manipulating year-based data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">year_format</span> <span class="o">=</span> <span class="s">&#39;%Y&#39;</span>
+    <span class="n">year</span> <span class="o">=</span> <span class="k">None</span>
+
+<div class="viewcode-block" id="YearMixin.get_year_format"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.YearMixin.get_year_format">[文档]</a>    <span class="k">def</span> <span class="nf">get_year_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a year format string in strptime syntax to be used to parse the</span>
+<span class="sd">        year from url variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">year_format</span></div>
+
+<div class="viewcode-block" id="YearMixin.get_year"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.YearMixin.get_year">[文档]</a>    <span class="k">def</span> <span class="nf">get_year</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the year for which this view should display data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span>
+        <span class="k">if</span> <span class="n">year</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;year&#39;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s">&#39;year&#39;</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&quot;No year specified&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">year</span></div>
+
+<div class="viewcode-block" id="YearMixin.get_next_year"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.YearMixin.get_next_year">[文档]</a>    <span class="k">def</span> <span class="nf">get_next_year</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the next valid year.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_get_next_prev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">is_previous</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s">&#39;year&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="YearMixin.get_previous_year"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.YearMixin.get_previous_year">[文档]</a>    <span class="k">def</span> <span class="nf">get_previous_year</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the previous valid year.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_get_next_prev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">is_previous</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s">&#39;year&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_next_year</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the start date of the next interval.</span>
+
+<span class="sd">        The interval is defined by start date &lt;= item date &lt; next start date.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">date</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_current_year</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the start date of the current interval.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MonthMixin"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.MonthMixin">[文档]</a><span class="k">class</span> <span class="nc">MonthMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mixin for views manipulating month-based data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">month_format</span> <span class="o">=</span> <span class="s">&#39;%b&#39;</span>
+    <span class="n">month</span> <span class="o">=</span> <span class="k">None</span>
+
+<div class="viewcode-block" id="MonthMixin.get_month_format"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.MonthMixin.get_month_format">[文档]</a>    <span class="k">def</span> <span class="nf">get_month_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a month format string in strptime syntax to be used to parse the</span>
+<span class="sd">        month from url variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">month_format</span></div>
+
+<div class="viewcode-block" id="MonthMixin.get_month"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.MonthMixin.get_month">[文档]</a>    <span class="k">def</span> <span class="nf">get_month</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the month for which this view should display data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">month</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span>
+        <span class="k">if</span> <span class="n">month</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">month</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;month&#39;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">month</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s">&#39;month&#39;</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&quot;No month specified&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">month</span></div>
+
+<div class="viewcode-block" id="MonthMixin.get_next_month"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.MonthMixin.get_next_month">[文档]</a>    <span class="k">def</span> <span class="nf">get_next_month</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the next valid month.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_get_next_prev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">is_previous</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s">&#39;month&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MonthMixin.get_previous_month"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.MonthMixin.get_previous_month">[文档]</a>    <span class="k">def</span> <span class="nf">get_previous_month</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the previous valid month.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_get_next_prev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">is_previous</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s">&#39;month&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_next_month</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the start date of the next interval.</span>
+
+<span class="sd">        The interval is defined by start date &lt;= item date &lt; next start date.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">date</span><span class="o">.</span><span class="n">month</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">date</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="n">date</span><span class="o">.</span><span class="n">month</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_current_month</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the start date of the previous interval.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DayMixin"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.DayMixin">[文档]</a><span class="k">class</span> <span class="nc">DayMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mixin for views manipulating day-based data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">day_format</span> <span class="o">=</span> <span class="s">&#39;%d&#39;</span>
+    <span class="n">day</span> <span class="o">=</span> <span class="k">None</span>
+
+<div class="viewcode-block" id="DayMixin.get_day_format"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.DayMixin.get_day_format">[文档]</a>    <span class="k">def</span> <span class="nf">get_day_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a day format string in strptime syntax to be used to parse the day</span>
+<span class="sd">        from url variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">day_format</span></div>
+
+<div class="viewcode-block" id="DayMixin.get_day"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.DayMixin.get_day">[文档]</a>    <span class="k">def</span> <span class="nf">get_day</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the day for which this view should display data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">day</span>
+        <span class="k">if</span> <span class="n">day</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;day&#39;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s">&#39;day&#39;</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&quot;No day specified&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">day</span></div>
+
+<div class="viewcode-block" id="DayMixin.get_next_day"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.DayMixin.get_next_day">[文档]</a>    <span class="k">def</span> <span class="nf">get_next_day</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the next valid day.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_get_next_prev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">is_previous</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s">&#39;day&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DayMixin.get_previous_day"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.DayMixin.get_previous_day">[文档]</a>    <span class="k">def</span> <span class="nf">get_previous_day</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the previous valid day.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_get_next_prev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">is_previous</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s">&#39;day&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_next_day</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the start date of the next interval.</span>
+
+<span class="sd">        The interval is defined by start date &lt;= item date &lt; next start date.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">date</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_current_day</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the start date of the current interval.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">date</span></div>
+
+
+<div class="viewcode-block" id="WeekMixin"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.WeekMixin">[文档]</a><span class="k">class</span> <span class="nc">WeekMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mixin for views manipulating week-based data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">week_format</span> <span class="o">=</span> <span class="s">&#39;%U&#39;</span>
+    <span class="n">week</span> <span class="o">=</span> <span class="k">None</span>
+
+<div class="viewcode-block" id="WeekMixin.get_week_format"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.WeekMixin.get_week_format">[文档]</a>    <span class="k">def</span> <span class="nf">get_week_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a week format string in strptime syntax to be used to parse the</span>
+<span class="sd">        week from url variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">week_format</span></div>
+
+<div class="viewcode-block" id="WeekMixin.get_week"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.WeekMixin.get_week">[文档]</a>    <span class="k">def</span> <span class="nf">get_week</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the week for which this view should display data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">week</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">week</span>
+        <span class="k">if</span> <span class="n">week</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">week</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;week&#39;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">week</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s">&#39;week&#39;</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&quot;No week specified&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">week</span></div>
+
+<div class="viewcode-block" id="WeekMixin.get_next_week"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.WeekMixin.get_next_week">[文档]</a>    <span class="k">def</span> <span class="nf">get_next_week</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the next valid week.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_get_next_prev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">is_previous</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s">&#39;week&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">get_previous_week</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the previous valid week.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_get_next_prev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">is_previous</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s">&#39;week&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_next_week</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the start date of the next interval.</span>
+
+<span class="sd">        The interval is defined by start date &lt;= item date &lt; next start date.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">date</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_weekday</span><span class="p">(</span><span class="n">date</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_get_current_week</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the start date of the current interval.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">date</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_weekday</span><span class="p">(</span><span class="n">date</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_get_weekday</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the weekday for a given date.</span>
+
+<span class="sd">        The first day according to the week format is 0 and the last day is 6.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">week_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_week_format</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">week_format</span> <span class="o">==</span> <span class="s">&#39;%W&#39;</span><span class="p">:</span>                 <span class="c"># week starts on Monday</span>
+            <span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">weekday</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">week_format</span> <span class="o">==</span> <span class="s">&#39;%U&#39;</span><span class="p">:</span>               <span class="c"># week starts on Sunday</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">weekday</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">7</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;unknown week format: %s&quot;</span> <span class="o">%</span> <span class="n">week_format</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DateMixin"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.DateMixin">[文档]</a><span class="k">class</span> <span class="nc">DateMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mixin class for views manipulating date-based data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">date_field</span> <span class="o">=</span> <span class="k">None</span>
+    <span class="n">allow_future</span> <span class="o">=</span> <span class="k">False</span>
+
+<div class="viewcode-block" id="DateMixin.get_date_field"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.DateMixin.get_date_field">[文档]</a>    <span class="k">def</span> <span class="nf">get_date_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the name of the date field to be used to filter by.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_field</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ImproperlyConfigured</span><span class="p">(</span><span class="s">&quot;%s.date_field is required.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_field</span></div>
+
+<div class="viewcode-block" id="DateMixin.get_allow_future"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.DateMixin.get_allow_future">[文档]</a>    <span class="k">def</span> <span class="nf">get_allow_future</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns `True` if the view should be allowed to display objects from</span>
+<span class="sd">        the future.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_future</span></div>
+
+    <span class="c"># Note: the following three methods only work in subclasses that also</span>
+    <span class="c"># inherit SingleObjectMixin or MultipleObjectMixin.</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">uses_datetime_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return `True` if the date field is a `DateTimeField` and `False`</span>
+<span class="sd">        if it&#39;s a `DateField`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span><span class="o">.</span><span class="n">model</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="k">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">get_field</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_date_field</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_make_date_lookup_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert a date into a datetime when the date field is a DateTimeField.</span>
+
+<span class="sd">        When time zone support is enabled, `date` is assumed to be in the</span>
+<span class="sd">        current time zone, so that displayed items are consistent with the URL.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses_datetime_field</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">min</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">USE_TZ</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">make_aware</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">timezone</span><span class="o">.</span><span class="n">get_current_timezone</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">_make_single_date_lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the lookup kwargs for filtering on a single date.</span>
+
+<span class="sd">        If the date field is a DateTimeField, we can&#39;t just filter on</span>
+<span class="sd">        date_field=date because that doesn&#39;t take the time into account.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">date_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_date_field</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses_datetime_field</span><span class="p">:</span>
+            <span class="n">since</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_date_lookup_arg</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+            <span class="n">until</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_date_lookup_arg</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s">&#39;%s__gte&#39;</span> <span class="o">%</span> <span class="n">date_field</span><span class="p">:</span> <span class="n">since</span><span class="p">,</span>
+                <span class="s">&#39;%s__lt&#39;</span> <span class="o">%</span> <span class="n">date_field</span><span class="p">:</span> <span class="n">until</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Skip self._make_date_lookup_arg, it&#39;s a no-op in this branch.</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">date_field</span><span class="p">:</span> <span class="n">date</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="BaseDateListView"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.BaseDateListView">[文档]</a><span class="k">class</span> <span class="nc">BaseDateListView</span><span class="p">(</span><span class="n">MultipleObjectMixin</span><span class="p">,</span> <span class="n">DateMixin</span><span class="p">,</span> <span class="n">View</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for date-based views displaying a list of objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">allow_empty</span> <span class="o">=</span> <span class="k">False</span>
+    <span class="n">date_list_period</span> <span class="o">=</span> <span class="s">&#39;year&#39;</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">date_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_list</span><span class="p">,</span> <span class="n">extra_context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dated_items</span><span class="p">()</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="n">object_list</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">object_list</span><span class="p">,</span>
+                                        <span class="n">date_list</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">date_list</span><span class="p">)</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extra_context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_to_response</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BaseDateListView.get_dated_items"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.BaseDateListView.get_dated_items">[文档]</a>    <span class="k">def</span> <span class="nf">get_dated_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain the list of dates and items.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;A DateView must provide an implementation of get_dated_items()&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">get_ordering</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the field or fields to use for ordering the queryset; uses the</span>
+<span class="sd">        date field by default.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s">&#39;-%s&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_date_field</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordering</span> <span class="ow">is</span> <span class="k">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordering</span>
+
+<div class="viewcode-block" id="BaseDateListView.get_dated_queryset"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.BaseDateListView.get_dated_queryset">[文档]</a>    <span class="k">def</span> <span class="nf">get_dated_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">lookup</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a queryset properly filtered according to `allow_future` and any</span>
+<span class="sd">        extra lookup kwargs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">**</span><span class="n">lookup</span><span class="p">)</span>
+        <span class="n">date_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_date_field</span><span class="p">()</span>
+        <span class="n">allow_future</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_allow_future</span><span class="p">()</span>
+        <span class="n">allow_empty</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_allow_empty</span><span class="p">()</span>
+        <span class="n">paginate_by</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_paginate_by</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_future</span><span class="p">:</span>
+            <span class="n">now</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses_datetime_field</span> <span class="k">else</span> <span class="n">timezone_today</span><span class="p">()</span>
+            <span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="s">&#39;%s__lte&#39;</span> <span class="o">%</span> <span class="n">date_field</span><span class="p">:</span> <span class="n">now</span><span class="p">})</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_empty</span><span class="p">:</span>
+            <span class="c"># When pagination is enabled, it&#39;s better to do a cheap query</span>
+            <span class="c"># than to load the unpaginated queryset in memory.</span>
+            <span class="n">is_empty</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">paginate_by</span> <span class="ow">is</span> <span class="k">None</span> <span class="k">else</span> <span class="ow">not</span> <span class="n">qs</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">is_empty</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&quot;No %(verbose_name_plural)s available&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">{</span>
+                    <span class="s">&#39;verbose_name_plural&#39;</span><span class="p">:</span> <span class="n">force_text</span><span class="p">(</span><span class="n">qs</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">verbose_name_plural</span><span class="p">)</span>
+                <span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">qs</span></div>
+
+<div class="viewcode-block" id="BaseDateListView.get_date_list_period"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.BaseDateListView.get_date_list_period">[文档]</a>    <span class="k">def</span> <span class="nf">get_date_list_period</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the aggregation period for the list of dates: &#39;year&#39;, &#39;month&#39;, or &#39;day&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_list_period</span></div>
+
+<div class="viewcode-block" id="BaseDateListView.get_date_list"><a class="viewcode-back" href="../../../../ref/class-based-views/mixins-date-based.html#django.views.generic.dates.BaseDateListView.get_date_list">[文档]</a>    <span class="k">def</span> <span class="nf">get_date_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queryset</span><span class="p">,</span> <span class="n">date_type</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">ordering</span><span class="o">=</span><span class="s">&#39;ASC&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a date list by calling `queryset.dates/datetimes()`, checking</span>
+<span class="sd">        along the way for empty lists that aren&#39;t allowed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">date_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_date_field</span><span class="p">()</span>
+        <span class="n">allow_empty</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_allow_empty</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">date_type</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="n">date_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_date_list_period</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses_datetime_field</span><span class="p">:</span>
+            <span class="n">date_list</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">datetimes</span><span class="p">(</span><span class="n">date_field</span><span class="p">,</span> <span class="n">date_type</span><span class="p">,</span> <span class="n">ordering</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">date_list</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">dates</span><span class="p">(</span><span class="n">date_field</span><span class="p">,</span> <span class="n">date_type</span><span class="p">,</span> <span class="n">ordering</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">date_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">date_list</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">allow_empty</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">force_text</span><span class="p">(</span><span class="n">queryset</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">verbose_name_plural</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&quot;No %(verbose_name_plural)s available&quot;</span><span class="p">)</span> <span class="o">%</span>
+                          <span class="p">{</span><span class="s">&#39;verbose_name_plural&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">date_list</span></div></div>
+
+
+<div class="viewcode-block" id="BaseArchiveIndexView"><a class="viewcode-back" href="../../../../ref/class-based-views/generic-date-based.html#django.views.generic.dates.BaseArchiveIndexView">[文档]</a><span class="k">class</span> <span class="nc">BaseArchiveIndexView</span><span class="p">(</span><span class="n">BaseDateListView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for archives of date-based items.</span>
+
+<span class="sd">    Requires a response mixin.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">context_object_name</span> <span class="o">=</span> <span class="s">&#39;latest&#39;</span>
+
+    <span class="k">def</span> <span class="nf">get_dated_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return (date_list, items, extra_context) for this request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dated_queryset</span><span class="p">()</span>
+        <span class="n">date_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_date_list</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">ordering</span><span class="o">=</span><span class="s">&#39;DESC&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">date_list</span><span class="p">:</span>
+            <span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">none</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">date_list</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="p">{})</span></div>
+
+
+<div class="viewcode-block" id="ArchiveIndexView"><a class="viewcode-back" href="../../../../ref/class-based-views/generic-date-based.html#django.views.generic.dates.ArchiveIndexView">[文档]</a><span class="k">class</span> <span class="nc">ArchiveIndexView</span><span class="p">(</span><span class="n">MultipleObjectTemplateResponseMixin</span><span class="p">,</span> <span class="n">BaseArchiveIndexView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Top-level archive of date-based items.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">template_name_suffix</span> <span class="o">=</span> <span class="s">&#39;_archive&#39;</span></div>
+
+
+<div class="viewcode-block" id="BaseYearArchiveView"><a class="viewcode-back" href="../../../../ref/class-based-views/generic-date-based.html#django.views.generic.dates.BaseYearArchiveView">[文档]</a><span class="k">class</span> <span class="nc">BaseYearArchiveView</span><span class="p">(</span><span class="n">YearMixin</span><span class="p">,</span> <span class="n">BaseDateListView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of objects published in a given year.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">date_list_period</span> <span class="o">=</span> <span class="s">&#39;month&#39;</span>
+    <span class="n">make_object_list</span> <span class="o">=</span> <span class="k">False</span>
+
+    <span class="k">def</span> <span class="nf">get_dated_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return (date_list, items, extra_context) for this request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_year</span><span class="p">()</span>
+
+        <span class="n">date_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_date_field</span><span class="p">()</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="n">_date_from_string</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_year_format</span><span class="p">())</span>
+
+        <span class="n">since</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_date_lookup_arg</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+        <span class="n">until</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_date_lookup_arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_next_year</span><span class="p">(</span><span class="n">date</span><span class="p">))</span>
+        <span class="n">lookup_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;%s__gte&#39;</span> <span class="o">%</span> <span class="n">date_field</span><span class="p">:</span> <span class="n">since</span><span class="p">,</span>
+            <span class="s">&#39;%s__lt&#39;</span> <span class="o">%</span> <span class="n">date_field</span><span class="p">:</span> <span class="n">until</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dated_queryset</span><span class="p">(</span><span class="o">**</span><span class="n">lookup_kwargs</span><span class="p">)</span>
+        <span class="n">date_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_date_list</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_make_object_list</span><span class="p">():</span>
+            <span class="c"># We need this to be a queryset since parent classes introspect it</span>
+            <span class="c"># to find information about the model.</span>
+            <span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">none</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">date_list</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;year&#39;</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span>
+            <span class="s">&#39;next_year&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_year</span><span class="p">(</span><span class="n">date</span><span class="p">),</span>
+            <span class="s">&#39;previous_year&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_previous_year</span><span class="p">(</span><span class="n">date</span><span class="p">),</span>
+        <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">get_make_object_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return `True` if this view should contain the full list of objects in</span>
+<span class="sd">        the given year.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_object_list</span></div>
+
+
+<div class="viewcode-block" id="YearArchiveView"><a class="viewcode-back" href="../../../../ref/class-based-views/generic-date-based.html#django.views.generic.dates.YearArchiveView">[文档]</a><span class="k">class</span> <span class="nc">YearArchiveView</span><span class="p">(</span><span class="n">MultipleObjectTemplateResponseMixin</span><span class="p">,</span> <span class="n">BaseYearArchiveView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of objects published in a given year.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">template_name_suffix</span> <span class="o">=</span> <span class="s">&#39;_archive_year&#39;</span></div>
+
+
+<div class="viewcode-block" id="BaseMonthArchiveView"><a class="viewcode-back" href="../../../../ref/class-based-views/generic-date-based.html#django.views.generic.dates.BaseMonthArchiveView">[文档]</a><span class="k">class</span> <span class="nc">BaseMonthArchiveView</span><span class="p">(</span><span class="n">YearMixin</span><span class="p">,</span> <span class="n">MonthMixin</span><span class="p">,</span> <span class="n">BaseDateListView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of objects published in a given month.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">date_list_period</span> <span class="o">=</span> <span class="s">&#39;day&#39;</span>
+
+    <span class="k">def</span> <span class="nf">get_dated_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return (date_list, items, extra_context) for this request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_year</span><span class="p">()</span>
+        <span class="n">month</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_month</span><span class="p">()</span>
+
+        <span class="n">date_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_date_field</span><span class="p">()</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="n">_date_from_string</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_year_format</span><span class="p">(),</span>
+                                 <span class="n">month</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_month_format</span><span class="p">())</span>
+
+        <span class="n">since</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_date_lookup_arg</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+        <span class="n">until</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_date_lookup_arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_next_month</span><span class="p">(</span><span class="n">date</span><span class="p">))</span>
+        <span class="n">lookup_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;%s__gte&#39;</span> <span class="o">%</span> <span class="n">date_field</span><span class="p">:</span> <span class="n">since</span><span class="p">,</span>
+            <span class="s">&#39;%s__lt&#39;</span> <span class="o">%</span> <span class="n">date_field</span><span class="p">:</span> <span class="n">until</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dated_queryset</span><span class="p">(</span><span class="o">**</span><span class="n">lookup_kwargs</span><span class="p">)</span>
+        <span class="n">date_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_date_list</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">date_list</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;month&#39;</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span>
+            <span class="s">&#39;next_month&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_month</span><span class="p">(</span><span class="n">date</span><span class="p">),</span>
+            <span class="s">&#39;previous_month&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_previous_month</span><span class="p">(</span><span class="n">date</span><span class="p">),</span>
+        <span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="MonthArchiveView"><a class="viewcode-back" href="../../../../ref/class-based-views/generic-date-based.html#django.views.generic.dates.MonthArchiveView">[文档]</a><span class="k">class</span> <span class="nc">MonthArchiveView</span><span class="p">(</span><span class="n">MultipleObjectTemplateResponseMixin</span><span class="p">,</span> <span class="n">BaseMonthArchiveView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of objects published in a given month.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">template_name_suffix</span> <span class="o">=</span> <span class="s">&#39;_archive_month&#39;</span></div>
+
+
+<div class="viewcode-block" id="BaseWeekArchiveView"><a class="viewcode-back" href="../../../../ref/class-based-views/generic-date-based.html#django.views.generic.dates.BaseWeekArchiveView">[文档]</a><span class="k">class</span> <span class="nc">BaseWeekArchiveView</span><span class="p">(</span><span class="n">YearMixin</span><span class="p">,</span> <span class="n">WeekMixin</span><span class="p">,</span> <span class="n">BaseDateListView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of objects published in a given week.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_dated_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return (date_list, items, extra_context) for this request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_year</span><span class="p">()</span>
+        <span class="n">week</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_week</span><span class="p">()</span>
+
+        <span class="n">date_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_date_field</span><span class="p">()</span>
+        <span class="n">week_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_week_format</span><span class="p">()</span>
+        <span class="n">week_start</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;%W&#39;</span><span class="p">:</span> <span class="s">&#39;1&#39;</span><span class="p">,</span>
+            <span class="s">&#39;%U&#39;</span><span class="p">:</span> <span class="s">&#39;0&#39;</span><span class="p">,</span>
+        <span class="p">}[</span><span class="n">week_format</span><span class="p">]</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="n">_date_from_string</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_year_format</span><span class="p">(),</span>
+                                 <span class="n">week_start</span><span class="p">,</span> <span class="s">&#39;%w&#39;</span><span class="p">,</span>
+                                 <span class="n">week</span><span class="p">,</span> <span class="n">week_format</span><span class="p">)</span>
+
+        <span class="n">since</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_date_lookup_arg</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+        <span class="n">until</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_date_lookup_arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_next_week</span><span class="p">(</span><span class="n">date</span><span class="p">))</span>
+        <span class="n">lookup_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;%s__gte&#39;</span> <span class="o">%</span> <span class="n">date_field</span><span class="p">:</span> <span class="n">since</span><span class="p">,</span>
+            <span class="s">&#39;%s__lt&#39;</span> <span class="o">%</span> <span class="n">date_field</span><span class="p">:</span> <span class="n">until</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dated_queryset</span><span class="p">(</span><span class="o">**</span><span class="n">lookup_kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="k">None</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;week&#39;</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span>
+            <span class="s">&#39;next_week&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_week</span><span class="p">(</span><span class="n">date</span><span class="p">),</span>
+            <span class="s">&#39;previous_week&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_previous_week</span><span class="p">(</span><span class="n">date</span><span class="p">),</span>
+        <span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="WeekArchiveView"><a class="viewcode-back" href="../../../../ref/class-based-views/generic-date-based.html#django.views.generic.dates.WeekArchiveView">[文档]</a><span class="k">class</span> <span class="nc">WeekArchiveView</span><span class="p">(</span><span class="n">MultipleObjectTemplateResponseMixin</span><span class="p">,</span> <span class="n">BaseWeekArchiveView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of objects published in a given week.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">template_name_suffix</span> <span class="o">=</span> <span class="s">&#39;_archive_week&#39;</span></div>
+
+
+<div class="viewcode-block" id="BaseDayArchiveView"><a class="viewcode-back" href="../../../../ref/class-based-views/generic-date-based.html#django.views.generic.dates.BaseDayArchiveView">[文档]</a><span class="k">class</span> <span class="nc">BaseDayArchiveView</span><span class="p">(</span><span class="n">YearMixin</span><span class="p">,</span> <span class="n">MonthMixin</span><span class="p">,</span> <span class="n">DayMixin</span><span class="p">,</span> <span class="n">BaseDateListView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of objects published on a given day.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get_dated_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return (date_list, items, extra_context) for this request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_year</span><span class="p">()</span>
+        <span class="n">month</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_month</span><span class="p">()</span>
+        <span class="n">day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_day</span><span class="p">()</span>
+
+        <span class="n">date</span> <span class="o">=</span> <span class="n">_date_from_string</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_year_format</span><span class="p">(),</span>
+                                 <span class="n">month</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_month_format</span><span class="p">(),</span>
+                                 <span class="n">day</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_day_format</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dated_items</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_dated_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Do the actual heavy lifting of getting the dated items; this accepts a</span>
+<span class="sd">        date object so that TodayArchiveView can be trivial.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lookup_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_single_date_lookup</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dated_queryset</span><span class="p">(</span><span class="o">**</span><span class="n">lookup_kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="k">None</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;day&#39;</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span>
+            <span class="s">&#39;previous_day&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_previous_day</span><span class="p">(</span><span class="n">date</span><span class="p">),</span>
+            <span class="s">&#39;next_day&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_day</span><span class="p">(</span><span class="n">date</span><span class="p">),</span>
+            <span class="s">&#39;previous_month&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_previous_month</span><span class="p">(</span><span class="n">date</span><span class="p">),</span>
+            <span class="s">&#39;next_month&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_month</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+        <span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="DayArchiveView"><a class="viewcode-back" href="../../../../ref/class-based-views/generic-date-based.html#django.views.generic.dates.DayArchiveView">[文档]</a><span class="k">class</span> <span class="nc">DayArchiveView</span><span class="p">(</span><span class="n">MultipleObjectTemplateResponseMixin</span><span class="p">,</span> <span class="n">BaseDayArchiveView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of objects published on a given day.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">template_name_suffix</span> <span class="o">=</span> <span class="s">&quot;_archive_day&quot;</span></div>
+
+
+<div class="viewcode-block" id="BaseTodayArchiveView"><a class="viewcode-back" href="../../../../ref/class-based-views/generic-date-based.html#django.views.generic.dates.BaseTodayArchiveView">[文档]</a><span class="k">class</span> <span class="nc">BaseTodayArchiveView</span><span class="p">(</span><span class="n">BaseDayArchiveView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of objects published today.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_dated_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return (date_list, items, extra_context) for this request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dated_items</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TodayArchiveView"><a class="viewcode-back" href="../../../../ref/class-based-views/generic-date-based.html#django.views.generic.dates.TodayArchiveView">[文档]</a><span class="k">class</span> <span class="nc">TodayArchiveView</span><span class="p">(</span><span class="n">MultipleObjectTemplateResponseMixin</span><span class="p">,</span> <span class="n">BaseTodayArchiveView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of objects published today.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">template_name_suffix</span> <span class="o">=</span> <span class="s">&quot;_archive_day&quot;</span></div>
+
+
+<div class="viewcode-block" id="BaseDateDetailView"><a class="viewcode-back" href="../../../../ref/class-based-views/generic-date-based.html#django.views.generic.dates.BaseDateDetailView">[文档]</a><span class="k">class</span> <span class="nc">BaseDateDetailView</span><span class="p">(</span><span class="n">YearMixin</span><span class="p">,</span> <span class="n">MonthMixin</span><span class="p">,</span> <span class="n">DayMixin</span><span class="p">,</span> <span class="n">DateMixin</span><span class="p">,</span> <span class="n">BaseDetailView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detail view of a single object on a single date; this differs from the</span>
+<span class="sd">    standard DetailView by accepting a year/month/day in the URL.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the object this request displays.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_year</span><span class="p">()</span>
+        <span class="n">month</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_month</span><span class="p">()</span>
+        <span class="n">day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_day</span><span class="p">()</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="n">_date_from_string</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_year_format</span><span class="p">(),</span>
+                                 <span class="n">month</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_month_format</span><span class="p">(),</span>
+                                 <span class="n">day</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_day_format</span><span class="p">())</span>
+
+        <span class="c"># Use a custom queryset if provided</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span> <span class="k">if</span> <span class="n">queryset</span> <span class="ow">is</span> <span class="k">None</span> <span class="k">else</span> <span class="n">queryset</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_allow_future</span><span class="p">()</span> <span class="ow">and</span> <span class="n">date</span> <span class="o">&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="n">_</span><span class="p">(</span>
+                <span class="s">&quot;Future %(verbose_name_plural)s not available because &quot;</span>
+                <span class="s">&quot;%(class_name)s.allow_future is False.&quot;</span>
+            <span class="p">)</span> <span class="o">%</span> <span class="p">{</span>
+                <span class="s">&#39;verbose_name_plural&#39;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">verbose_name_plural</span><span class="p">,</span>
+                <span class="s">&#39;class_name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+            <span class="p">})</span>
+
+        <span class="c"># Filter down a queryset from self.queryset using the date from the</span>
+        <span class="c"># URL. This&#39;ll get passed as the queryset to DetailView.get_object,</span>
+        <span class="c"># which&#39;ll handle the 404</span>
+        <span class="n">lookup_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_single_date_lookup</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">**</span><span class="n">lookup_kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">BaseDetailView</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_object</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">qs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DateDetailView"><a class="viewcode-back" href="../../../../ref/class-based-views/generic-date-based.html#django.views.generic.dates.DateDetailView">[文档]</a><span class="k">class</span> <span class="nc">DateDetailView</span><span class="p">(</span><span class="n">SingleObjectTemplateResponseMixin</span><span class="p">,</span> <span class="n">BaseDateDetailView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detail view of a single object on a single date; this differs from the</span>
+<span class="sd">    standard DetailView by accepting a year/month/day in the URL.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">template_name_suffix</span> <span class="o">=</span> <span class="s">&#39;_detail&#39;</span></div>
+
+
+<span class="k">def</span> <span class="nf">_date_from_string</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">year_format</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">month_format</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">day_format</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="s">&#39;__&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper: get a datetime.date object given a format string and a year,</span>
+<span class="sd">    month, and day (only year is mandatory). Raise a 404 for an invalid date.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">format</span> <span class="o">=</span> <span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">year_format</span><span class="p">,</span> <span class="n">month_format</span><span class="p">,</span> <span class="n">day_format</span><span class="p">))</span>
+    <span class="n">datestr</span> <span class="o">=</span> <span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="p">))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">force_str</span><span class="p">(</span><span class="n">datestr</span><span class="p">),</span> <span class="nb">format</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&quot;Invalid date string &#39;%(datestr)s&#39; given format &#39;%(format)s&#39;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">{</span>
+            <span class="s">&#39;datestr&#39;</span><span class="p">:</span> <span class="n">datestr</span><span class="p">,</span>
+            <span class="s">&#39;format&#39;</span><span class="p">:</span> <span class="nb">format</span><span class="p">,</span>
+        <span class="p">})</span>
+
+
+<span class="k">def</span> <span class="nf">_get_next_prev</span><span class="p">(</span><span class="n">generic_view</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">is_previous</span><span class="p">,</span> <span class="n">period</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper: Get the next or the previous valid date. The idea is to allow</span>
+<span class="sd">    links on month/day views to never be 404s by never providing a date</span>
+<span class="sd">    that&#39;ll be invalid for the given view.</span>
+
+<span class="sd">    This is a bit complicated since it handles different intervals of time,</span>
+<span class="sd">    hence the coupling to generic_view.</span>
+
+<span class="sd">    However in essence the logic comes down to:</span>
+
+<span class="sd">        * If allow_empty and allow_future are both true, this is easy: just</span>
+<span class="sd">          return the naive result (just the next/previous day/week/month,</span>
+<span class="sd">          regardless of object existence.)</span>
+
+<span class="sd">        * If allow_empty is true, allow_future is false, and the naive result</span>
+<span class="sd">          isn&#39;t in the future, then return it; otherwise return None.</span>
+
+<span class="sd">        * If allow_empty is false and allow_future is true, return the next</span>
+<span class="sd">          date *that contains a valid object*, even if it&#39;s in the future. If</span>
+<span class="sd">          there are no next objects, return None.</span>
+
+<span class="sd">        * If allow_empty is false and allow_future is false, return the next</span>
+<span class="sd">          date that contains a valid object. If that date is in the future, or</span>
+<span class="sd">          if there are no next objects, return None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">date_field</span> <span class="o">=</span> <span class="n">generic_view</span><span class="o">.</span><span class="n">get_date_field</span><span class="p">()</span>
+    <span class="n">allow_empty</span> <span class="o">=</span> <span class="n">generic_view</span><span class="o">.</span><span class="n">get_allow_empty</span><span class="p">()</span>
+    <span class="n">allow_future</span> <span class="o">=</span> <span class="n">generic_view</span><span class="o">.</span><span class="n">get_allow_future</span><span class="p">()</span>
+
+    <span class="n">get_current</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">generic_view</span><span class="p">,</span> <span class="s">&#39;_get_current_%s&#39;</span> <span class="o">%</span> <span class="n">period</span><span class="p">)</span>
+    <span class="n">get_next</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">generic_view</span><span class="p">,</span> <span class="s">&#39;_get_next_%s&#39;</span> <span class="o">%</span> <span class="n">period</span><span class="p">)</span>
+
+    <span class="c"># Bounds of the current interval</span>
+    <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">get_current</span><span class="p">(</span><span class="n">date</span><span class="p">),</span> <span class="n">get_next</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+
+    <span class="c"># If allow_empty is True, the naive result will be valid</span>
+    <span class="k">if</span> <span class="n">allow_empty</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_previous</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">get_current</span><span class="p">(</span><span class="n">start</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">end</span>
+
+        <span class="k">if</span> <span class="n">allow_future</span> <span class="ow">or</span> <span class="n">result</span> <span class="o">&lt;=</span> <span class="n">timezone_today</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">None</span>
+
+    <span class="c"># Otherwise, we&#39;ll need to go to the database to look for an object</span>
+    <span class="c"># whose date_field is at least (greater than/less than) the given</span>
+    <span class="c"># naive result</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># Construct a lookup and an ordering depending on whether we&#39;re doing</span>
+        <span class="c"># a previous date or a next date lookup.</span>
+        <span class="k">if</span> <span class="n">is_previous</span><span class="p">:</span>
+            <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;%s__lt&#39;</span> <span class="o">%</span> <span class="n">date_field</span><span class="p">:</span> <span class="n">generic_view</span><span class="o">.</span><span class="n">_make_date_lookup_arg</span><span class="p">(</span><span class="n">start</span><span class="p">)}</span>
+            <span class="n">ordering</span> <span class="o">=</span> <span class="s">&#39;-%s&#39;</span> <span class="o">%</span> <span class="n">date_field</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;%s__gte&#39;</span> <span class="o">%</span> <span class="n">date_field</span><span class="p">:</span> <span class="n">generic_view</span><span class="o">.</span><span class="n">_make_date_lookup_arg</span><span class="p">(</span><span class="n">end</span><span class="p">)}</span>
+            <span class="n">ordering</span> <span class="o">=</span> <span class="n">date_field</span>
+
+        <span class="c"># Filter out objects in the future if appropriate.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_future</span><span class="p">:</span>
+            <span class="c"># Fortunately, to match the implementation of allow_future,</span>
+            <span class="c"># we need __lte, which doesn&#39;t conflict with __lt above.</span>
+            <span class="k">if</span> <span class="n">generic_view</span><span class="o">.</span><span class="n">uses_datetime_field</span><span class="p">:</span>
+                <span class="n">now</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">now</span> <span class="o">=</span> <span class="n">timezone_today</span><span class="p">()</span>
+            <span class="n">lookup</span><span class="p">[</span><span class="s">&#39;%s__lte&#39;</span> <span class="o">%</span> <span class="n">date_field</span><span class="p">]</span> <span class="o">=</span> <span class="n">now</span>
+
+        <span class="n">qs</span> <span class="o">=</span> <span class="n">generic_view</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">**</span><span class="n">lookup</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">ordering</span><span class="p">)</span>
+
+        <span class="c"># Snag the first object from the queryset; if it doesn&#39;t exist that</span>
+        <span class="c"># means there&#39;s no next/previous link available.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">date_field</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">None</span>
+
+        <span class="c"># Convert datetimes to dates in the current time zone.</span>
+        <span class="k">if</span> <span class="n">generic_view</span><span class="o">.</span><span class="n">uses_datetime_field</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">USE_TZ</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+
+        <span class="c"># Return the first day of the period.</span>
+        <span class="k">return</span> <span class="n">get_current</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">timezone_today</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the current date in the current time zone.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">USE_TZ</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">timezone</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">())</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

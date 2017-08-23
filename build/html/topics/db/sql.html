@@ -1,0 +1,538 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Performing raw SQL queries &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Performing raw SQL queries</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/topics/db/sql.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="performing-raw-sql-queries">
+<h1>Performing raw SQL queries<a class="headerlink" href="#performing-raw-sql-queries" title="永久链接至标题">¶</a></h1>
+<p>When the <a class="reference internal" href="queries.html"><span class="doc">model query APIs</span></a> don’t go far enough, you
+can fall back to writing raw SQL. Django gives you two ways of performing raw
+SQL queries: you can use <a class="reference internal" href="#django.db.models.Manager.raw" title="django.db.models.Manager.raw"><code class="xref py py-meth docutils literal"><span class="pre">Manager.raw()</span></code></a> to <a class="reference internal" href="#performing-raw-queries">perform raw queries and
+return model instances</a>, or you can avoid the model layer entirely and
+<a class="reference internal" href="#executing-custom-sql-directly">execute custom SQL directly</a>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p class="last">You should be very careful whenever you write raw SQL. Every time you use
+it, you should properly escape any parameters that the user can control
+by using <code class="docutils literal"><span class="pre">params</span></code> in order to protect against SQL injection attacks.
+Please read more about <a class="reference internal" href="../security.html#sql-injection-protection"><span class="std std-ref">SQL injection protection</span></a>.</p>
+</div>
+<div class="section" id="performing-raw-queries">
+<span id="executing-raw-queries"></span><h2>Performing raw queries<a class="headerlink" href="#performing-raw-queries" title="永久链接至标题">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">raw()</span></code> manager method can be used to perform raw SQL queries that
+return model instances:</p>
+<dl class="method">
+<dt id="django.db.models.Manager.raw">
+<code class="descclassname">Manager.</code><code class="descname">raw</code><span class="sig-paren">(</span><em>raw_query</em>, <em>params=None</em>, <em>translations=None</em><span class="sig-paren">)</span><a class="headerlink" href="#django.db.models.Manager.raw" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>This method takes a raw SQL query, executes it, and returns a
+<code class="docutils literal"><span class="pre">django.db.models.query.RawQuerySet</span></code> instance. This <code class="docutils literal"><span class="pre">RawQuerySet</span></code> instance
+can be iterated over just like a normal
+<a class="reference internal" href="../../ref/models/querysets.html#django.db.models.query.QuerySet" title="django.db.models.query.QuerySet"><code class="xref py py-class docutils literal"><span class="pre">QuerySet</span></code></a> to provide object instances.</p>
+<p>This is best illustrated with an example. Suppose you have the following model:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">first_name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="n">last_name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="n">birth_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You could then execute custom SQL like so:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">raw</span><span class="p">(</span><span class="s">&#39;SELECT * FROM myapp_person&#39;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="go">John Smith</span>
+<span class="go">Jane Jones</span>
+</pre></div>
+</div>
+<p>Of course, this example isn’t very exciting – it’s exactly the same as
+running <code class="docutils literal"><span class="pre">Person.objects.all()</span></code>. However, <code class="docutils literal"><span class="pre">raw()</span></code> has a bunch of other
+options that make it very powerful.</p>
+<div class="admonition-model-table-names admonition">
+<p class="first admonition-title">Model table names</p>
+<p>Where did the name of the <code class="docutils literal"><span class="pre">Person</span></code> table come from in that example?</p>
+<p>By default, Django figures out a database table name by joining the
+model’s “app label” – the name you used in <code class="docutils literal"><span class="pre">manage.py</span> <span class="pre">startapp</span></code> – to
+the model’s class name, with an underscore between them. In the example
+we’ve assumed that the <code class="docutils literal"><span class="pre">Person</span></code> model lives in an app named <code class="docutils literal"><span class="pre">myapp</span></code>,
+so its table would be <code class="docutils literal"><span class="pre">myapp_person</span></code>.</p>
+<p class="last">For more details check out the documentation for the
+<a class="reference internal" href="../../ref/models/options.html#django.db.models.Options.db_table" title="django.db.models.Options.db_table"><code class="xref py py-attr docutils literal"><span class="pre">db_table</span></code></a> option, which also lets you manually set the
+database table name.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p class="last">No checking is done on the SQL statement that is passed in to <code class="docutils literal"><span class="pre">.raw()</span></code>.
+Django expects that the statement will return a set of rows from the
+database, but does nothing to enforce that. If the query does not
+return rows, a (possibly cryptic) error will result.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p class="last">If you are performing queries on MySQL, note that MySQL’s silent type coercion
+may cause unexpected results when mixing types. If you query on a string
+type column, but with an integer value, MySQL will coerce the types of all values
+in the table to an integer before performing the comparison. For example, if your
+table contains the values <code class="docutils literal"><span class="pre">'abc'</span></code>, <code class="docutils literal"><span class="pre">'def'</span></code> and you query for <code class="docutils literal"><span class="pre">WHERE</span> <span class="pre">mycolumn=0</span></code>,
+both rows will match. To prevent this, perform the correct typecasting
+before using the value in a query.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p class="last">While a <code class="docutils literal"><span class="pre">RawQuerySet</span></code> instance can be iterated over like a normal
+<a class="reference internal" href="../../ref/models/querysets.html#django.db.models.query.QuerySet" title="django.db.models.query.QuerySet"><code class="xref py py-class docutils literal"><span class="pre">QuerySet</span></code></a>, <code class="docutils literal"><span class="pre">RawQuerySet</span></code> doesn’t
+implement all methods you can use with <code class="docutils literal"><span class="pre">QuerySet</span></code>. For example,
+<code class="docutils literal"><span class="pre">__bool__()</span></code> and <code class="docutils literal"><span class="pre">__len__()</span></code> are not defined in <code class="docutils literal"><span class="pre">RawQuerySet</span></code>, and
+thus all <code class="docutils literal"><span class="pre">RawQuerySet</span></code> instances are considered <code class="docutils literal"><span class="pre">True</span></code>. The reason
+these methods are not implemented in <code class="docutils literal"><span class="pre">RawQuerySet</span></code> is that implementing
+them without internal caching would be a performance drawback and adding
+such caching would be backward incompatible.</p>
+</div>
+<div class="section" id="mapping-query-fields-to-model-fields">
+<h3>Mapping query fields to model fields<a class="headerlink" href="#mapping-query-fields-to-model-fields" title="永久链接至标题">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">raw()</span></code> automatically maps fields in the query to fields on the model.</p>
+<p>The order of fields in your query doesn’t matter. In other words, both
+of the following queries work identically:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">raw</span><span class="p">(</span><span class="s">&#39;SELECT id, first_name, last_name, birth_date FROM myapp_person&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">raw</span><span class="p">(</span><span class="s">&#39;SELECT last_name, birth_date, first_name, id FROM myapp_person&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+<p>Matching is done by name. This means that you can use SQL’s <code class="docutils literal"><span class="pre">AS</span></code> clauses to
+map fields in the query to model fields. So if you had some other table that
+had <code class="docutils literal"><span class="pre">Person</span></code> data in it, you could easily map it into <code class="docutils literal"><span class="pre">Person</span></code> instances:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">raw</span><span class="p">(</span><span class="s">&#39;&#39;&#39;SELECT first AS first_name,</span>
+<span class="gp">... </span><span class="s">                             last AS last_name,</span>
+<span class="gp">... </span><span class="s">                             bd AS birth_date,</span>
+<span class="gp">... </span><span class="s">                             pk AS id,</span>
+<span class="gp">... </span><span class="s">                      FROM some_other_table&#39;&#39;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As long as the names match, the model instances will be created correctly.</p>
+<p>Alternatively, you can map fields in the query to model fields using the
+<code class="docutils literal"><span class="pre">translations</span></code> argument to <code class="docutils literal"><span class="pre">raw()</span></code>. This is a dictionary mapping names of
+fields in the query to names of fields on the model. For example, the above
+query could also be written:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">name_map</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;first&#39;</span><span class="p">:</span> <span class="s">&#39;first_name&#39;</span><span class="p">,</span> <span class="s">&#39;last&#39;</span><span class="p">:</span> <span class="s">&#39;last_name&#39;</span><span class="p">,</span> <span class="s">&#39;bd&#39;</span><span class="p">:</span> <span class="s">&#39;birth_date&#39;</span><span class="p">,</span> <span class="s">&#39;pk&#39;</span><span class="p">:</span> <span class="s">&#39;id&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">raw</span><span class="p">(</span><span class="s">&#39;SELECT * FROM some_other_table&#39;</span><span class="p">,</span> <span class="n">translations</span><span class="o">=</span><span class="n">name_map</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="index-lookups">
+<h3>Index lookups<a class="headerlink" href="#index-lookups" title="永久链接至标题">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">raw()</span></code> supports indexing, so if you need only the first result you can
+write:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">first_person</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">raw</span><span class="p">(</span><span class="s">&#39;SELECT * FROM myapp_person&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>However, the indexing and slicing are not performed at the database level. If
+you have a large number of <code class="docutils literal"><span class="pre">Person</span></code> objects in your database, it is more
+efficient to limit the query at the SQL level:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">first_person</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">raw</span><span class="p">(</span><span class="s">&#39;SELECT * FROM myapp_person LIMIT 1&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="deferring-model-fields">
+<h3>Deferring model fields<a class="headerlink" href="#deferring-model-fields" title="永久链接至标题">¶</a></h3>
+<p>Fields may also be left out:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">people</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">raw</span><span class="p">(</span><span class="s">&#39;SELECT id, first_name FROM myapp_person&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">Person</span></code> objects returned by this query will be deferred model instances
+(see <a class="reference internal" href="../../ref/models/querysets.html#django.db.models.query.QuerySet.defer" title="django.db.models.query.QuerySet.defer"><code class="xref py py-meth docutils literal"><span class="pre">defer()</span></code></a>). This means that the
+fields that are omitted from the query will be loaded on demand. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">raw</span><span class="p">(</span><span class="s">&#39;SELECT id, first_name FROM myapp_person&#39;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span> <span class="c"># This will be retrieved by the original query</span>
+<span class="gp">... </span>          <span class="n">p</span><span class="o">.</span><span class="n">last_name</span><span class="p">)</span> <span class="c"># This will be retrieved on demand</span>
+<span class="gp">...</span>
+<span class="go">John Smith</span>
+<span class="go">Jane Jones</span>
+</pre></div>
+</div>
+<p>From outward appearances, this looks like the query has retrieved both
+the first name and last name. However, this example actually issued 3
+queries. Only the first names were retrieved by the raw() query – the
+last names were both retrieved on demand when they were printed.</p>
+<p>There is only one field that you can’t leave out - the primary key
+field. Django uses the primary key to identify model instances, so it
+must always be included in a raw query. An <code class="docutils literal"><span class="pre">InvalidQuery</span></code> exception
+will be raised if you forget to include the primary key.</p>
+</div>
+<div class="section" id="adding-annotations">
+<h3>Adding annotations<a class="headerlink" href="#adding-annotations" title="永久链接至标题">¶</a></h3>
+<p>You can also execute queries containing fields that aren’t defined on the
+model. For example, we could use <a class="reference external" href="https://www.postgresql.org/docs/current/static/functions-datetime.html">PostgreSQL’s age() function</a> to get a list
+of people with their ages calculated by the database:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">people</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">raw</span><span class="p">(</span><span class="s">&#39;SELECT *, age(birth_date) AS age FROM myapp_person&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">people</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s">&quot;%s is %s.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">age</span><span class="p">))</span>
+<span class="go">John is 37.</span>
+<span class="go">Jane is 42.</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="passing-parameters-into-raw">
+<h3>Passing parameters into <code class="docutils literal"><span class="pre">raw()</span></code><a class="headerlink" href="#passing-parameters-into-raw" title="永久链接至标题">¶</a></h3>
+<p>If you need to perform parameterized queries, you can use the <code class="docutils literal"><span class="pre">params</span></code>
+argument to <code class="docutils literal"><span class="pre">raw()</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">lname</span> <span class="o">=</span> <span class="s">&#39;Doe&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">raw</span><span class="p">(</span><span class="s">&#39;SELECT * FROM myapp_person WHERE last_name = %s&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">lname</span><span class="p">])</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">params</span></code> is a list or dictionary of parameters. You’ll use <code class="docutils literal"><span class="pre">%s</span></code>
+placeholders in the query string for a list, or <code class="docutils literal"><span class="pre">%(key)s</span></code>
+placeholders for a dictionary (where <code class="docutils literal"><span class="pre">key</span></code> is replaced by a
+dictionary key, of course), regardless of your database engine.  Such
+placeholders will be replaced with parameters from the <code class="docutils literal"><span class="pre">params</span></code>
+argument.</p>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last">Dictionary params are not supported with the SQLite backend; with
+this backend, you must pass parameters as a list.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p><strong>Do not use string formatting on raw queries!</strong></p>
+<p>It’s tempting to write the above query as:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="s">&#39;SELECT * FROM myapp_person WHERE last_name = %s&#39;</span> <span class="o">%</span> <span class="n">lname</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">raw</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Don’t.</strong></p>
+<p class="last">Using the <code class="docutils literal"><span class="pre">params</span></code> argument completely protects you from <a class="reference external" href="https://en.wikipedia.org/wiki/SQL_injection">SQL injection
+attacks</a>, a common exploit where attackers inject arbitrary SQL into
+your database. If you use string interpolation, sooner or later you’ll
+fall victim to SQL injection. As long as you remember to always use the
+<code class="docutils literal"><span class="pre">params</span></code> argument you’ll be protected.</p>
+</div>
+</div>
+</div>
+<div class="section" id="executing-custom-sql-directly">
+<span id="executing-custom-sql"></span><h2>Executing custom SQL directly<a class="headerlink" href="#executing-custom-sql-directly" title="永久链接至标题">¶</a></h2>
+<p>Sometimes even <a class="reference internal" href="#django.db.models.Manager.raw" title="django.db.models.Manager.raw"><code class="xref py py-meth docutils literal"><span class="pre">Manager.raw()</span></code></a> isn’t quite enough: you might need to
+perform queries that don’t map cleanly to models, or directly execute
+<code class="docutils literal"><span class="pre">UPDATE</span></code>, <code class="docutils literal"><span class="pre">INSERT</span></code>, or <code class="docutils literal"><span class="pre">DELETE</span></code> queries.</p>
+<p>In these cases, you can always access the database directly, routing around
+the model layer entirely.</p>
+<p>The object <code class="docutils literal"><span class="pre">django.db.connection</span></code> represents the default database
+connection. To use the database connection, call <code class="docutils literal"><span class="pre">connection.cursor()</span></code> to
+get a cursor object. Then, call <code class="docutils literal"><span class="pre">cursor.execute(sql,</span> <span class="pre">[params])</span></code> to execute
+the SQL and <code class="docutils literal"><span class="pre">cursor.fetchone()</span></code> or <code class="docutils literal"><span class="pre">cursor.fetchall()</span></code> to return the
+resulting rows.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">connection</span>
+
+<span class="k">def</span> <span class="nf">my_custom_sql</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;UPDATE bar SET foo = 1 WHERE baz = %s&quot;</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">baz</span><span class="p">])</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT foo FROM bar WHERE baz = %s&quot;</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">baz</span><span class="p">])</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">row</span>
+</pre></div>
+</div>
+<p>Note that if you want to include literal percent signs in the query, you have to
+double them in the case you are passing parameters:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT foo FROM bar WHERE baz = &#39;30%&#39;&quot;</span><span class="p">)</span>
+<span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT foo FROM bar WHERE baz = &#39;30%%&#39; AND id = %s&quot;</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>If you are using <a class="reference internal" href="multi-db.html"><span class="doc">more than one database</span></a>, you can
+use <code class="docutils literal"><span class="pre">django.db.connections</span></code> to obtain the connection (and cursor) for a
+specific database. <code class="docutils literal"><span class="pre">django.db.connections</span></code> is a dictionary-like
+object that allows you to retrieve a specific connection using its
+alias:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">connections</span>
+<span class="n">cursor</span> <span class="o">=</span> <span class="n">connections</span><span class="p">[</span><span class="s">&#39;my_db_alias&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+<span class="c"># Your code here...</span>
+</pre></div>
+</div>
+<p>By default, the Python DB API will return results without their field names,
+which means you end up with a <code class="docutils literal"><span class="pre">list</span></code> of values, rather than a <code class="docutils literal"><span class="pre">dict</span></code>. At a
+small performance and memory cost, you can return results as a <code class="docutils literal"><span class="pre">dict</span></code> by
+using something like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">def</span> <span class="nf">dictfetchall</span><span class="p">(</span><span class="n">cursor</span><span class="p">):</span>
+    <span class="s">&quot;Return all rows from a cursor as a dict&quot;</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cursor</span><span class="o">.</span><span class="n">description</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">row</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+    <span class="p">]</span>
+</pre></div>
+</div>
+<p>Another option is to use <code class="xref py py-func docutils literal"><span class="pre">collections.namedtuple()</span></code> from the Python
+standard library. A <code class="docutils literal"><span class="pre">namedtuple</span></code> is a tuple-like object that has fields
+accessible by attribute lookup; it’s also indexable and iterable. Results are
+immutable and accessible by field names or indices, which might be useful:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+
+<span class="k">def</span> <span class="nf">namedtuplefetchall</span><span class="p">(</span><span class="n">cursor</span><span class="p">):</span>
+    <span class="s">&quot;Return all rows from a cursor as a namedtuple&quot;</span>
+    <span class="n">desc</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">description</span>
+    <span class="n">nt_result</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&#39;Result&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">desc</span><span class="p">])</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">nt_result</span><span class="p">(</span><span class="o">*</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()]</span>
+</pre></div>
+</div>
+<p>Here is an example of the difference between the three:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT id, parent_id FROM test LIMIT 2&quot;</span><span class="p">);</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+<span class="go">((54360982, None), (54360880, None))</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT id, parent_id FROM test LIMIT 2&quot;</span><span class="p">);</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dictfetchall</span><span class="p">(</span><span class="n">cursor</span><span class="p">)</span>
+<span class="go">[{&#39;parent_id&#39;: None, &#39;id&#39;: 54360982}, {&#39;parent_id&#39;: None, &#39;id&#39;: 54360880}]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT id, parent_id FROM test LIMIT 2&quot;</span><span class="p">);</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">namedtuplefetchall</span><span class="p">(</span><span class="n">cursor</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span>
+<span class="go">[Result(id=54360982, parent_id=None), Result(id=54360880, parent_id=None)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span>
+<span class="go">54360982</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">54360982</span>
+</pre></div>
+</div>
+<div class="section" id="connections-and-cursors">
+<h3>Connections and cursors<a class="headerlink" href="#connections-and-cursors" title="永久链接至标题">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">connection</span></code> and <code class="docutils literal"><span class="pre">cursor</span></code> mostly implement the standard Python DB-API
+described in <span class="target" id="index-0"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0249"><strong>PEP 249</strong></a> — except when it comes to <a class="reference internal" href="transactions.html"><span class="doc">transaction handling</span></a>.</p>
+<p>If you’re not familiar with the Python DB-API, note that the SQL statement in
+<code class="docutils literal"><span class="pre">cursor.execute()</span></code> uses placeholders, <code class="docutils literal"><span class="pre">&quot;%s&quot;</span></code>, rather than adding
+parameters directly within the SQL. If you use this technique, the underlying
+database library will automatically escape your parameters as necessary.</p>
+<p>Also note that Django expects the <code class="docutils literal"><span class="pre">&quot;%s&quot;</span></code> placeholder, <em>not</em> the <code class="docutils literal"><span class="pre">&quot;?&quot;</span></code>
+placeholder, which is used by the SQLite Python bindings. This is for the sake
+of consistency and sanity.</p>
+<p>Using a cursor as a context manager:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>is equivalent to:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">c</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">finally</span><span class="p">:</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,467 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Design philosophies &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Design philosophies</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/misc/design-philosophies.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="design-philosophies">
+<h1>Design philosophies<a class="headerlink" href="#design-philosophies" title="永久链接至标题">¶</a></h1>
+<p>This document explains some of the fundamental philosophies Django’s developers
+have used in creating the framework. Its goal is to explain the past and guide
+the future.</p>
+<div class="section" id="overall">
+<h2>Overall<a class="headerlink" href="#overall" title="永久链接至标题">¶</a></h2>
+<div class="section" id="loose-coupling">
+<span id="id1"></span><h3>Loose coupling<a class="headerlink" href="#loose-coupling" title="永久链接至标题">¶</a></h3>
+<p id="index-0">A fundamental goal of Django’s stack is <a class="reference external" href="http://c2.com/cgi/wiki?CouplingAndCohesion">loose coupling and tight cohesion</a>.
+The various layers of the framework shouldn’t “know” about each other unless
+absolutely necessary.</p>
+<p>For example, the template system knows nothing about Web requests, the database
+layer knows nothing about data display and the view system doesn’t care which
+template system a programmer uses.</p>
+<p>Although Django comes with a full stack for convenience, the pieces of the
+stack are independent of another wherever possible.</p>
+</div>
+<div class="section" id="less-code">
+<span id="id2"></span><h3>Less code<a class="headerlink" href="#less-code" title="永久链接至标题">¶</a></h3>
+<p>Django apps should use as little code as possible; they should lack boilerplate.
+Django should take full advantage of Python’s dynamic capabilities, such as
+introspection.</p>
+</div>
+<div class="section" id="quick-development">
+<span id="id3"></span><h3>Quick development<a class="headerlink" href="#quick-development" title="永久链接至标题">¶</a></h3>
+<p>The point of a Web framework in the 21st century is to make the tedious aspects
+of Web development fast. Django should allow for incredibly quick Web
+development.</p>
+</div>
+<div class="section" id="don-t-repeat-yourself-dry">
+<span id="dry"></span><h3>Don’t repeat yourself (DRY)<a class="headerlink" href="#don-t-repeat-yourself-dry" title="永久链接至标题">¶</a></h3>
+<p id="index-1">Every distinct concept and/or piece of data should live in one, and only one,
+place. Redundancy is bad. Normalization is good.</p>
+<p>The framework, within reason, should deduce as much as possible from as little
+as possible.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参见</p>
+<p class="last">The <a class="reference external" href="http://c2.com/cgi/wiki?DontRepeatYourself">discussion of DRY on the Portland Pattern Repository</a></p>
+</div>
+</div>
+<div class="section" id="explicit-is-better-than-implicit">
+<span id="id5"></span><h3>Explicit is better than implicit<a class="headerlink" href="#explicit-is-better-than-implicit" title="永久链接至标题">¶</a></h3>
+<p>This is a core Python principle listed in <span class="target" id="index-2"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0020"><strong>PEP 20</strong></a>, and it means Django
+shouldn’t do too much “magic.” Magic shouldn’t happen unless there’s a really
+good reason for it. Magic is worth using only if it creates a huge convenience
+unattainable in other ways, and it isn’t implemented in a way that confuses
+developers who are trying to learn how to use the feature.</p>
+</div>
+<div class="section" id="consistency">
+<span id="id6"></span><h3>Consistency<a class="headerlink" href="#consistency" title="永久链接至标题">¶</a></h3>
+<p>The framework should be consistent at all levels. Consistency applies to
+everything from low-level (the Python coding style used) to high-level (the
+“experience” of using Django).</p>
+</div>
+</div>
+<div class="section" id="models">
+<h2>Models<a class="headerlink" href="#models" title="永久链接至标题">¶</a></h2>
+<div class="section" id="id7">
+<h3>Explicit is better than implicit<a class="headerlink" href="#id7" title="永久链接至标题">¶</a></h3>
+<p>Fields shouldn’t assume certain behaviors based solely on the name of the
+field. This requires too much knowledge of the system and is prone to errors.
+Instead, behaviors should be based on keyword arguments and, in some cases, on
+the type of the field.</p>
+</div>
+<div class="section" id="include-all-relevant-domain-logic">
+<h3>Include all relevant domain logic<a class="headerlink" href="#include-all-relevant-domain-logic" title="永久链接至标题">¶</a></h3>
+<p>Models should encapsulate every aspect of an “object,” following Martin
+Fowler’s <a class="reference external" href="http://www.martinfowler.com/eaaCatalog/activeRecord.html">Active Record</a> design pattern.</p>
+<p>This is why both the data represented by a model and information about
+it (its human-readable name, options like default ordering, etc.) are
+defined in the model class; all the information needed to understand a
+given model should be stored <em>in</em> the model.</p>
+</div>
+</div>
+<div class="section" id="database-api">
+<h2>Database API<a class="headerlink" href="#database-api" title="永久链接至标题">¶</a></h2>
+<p>The core goals of the database API are:</p>
+<div class="section" id="sql-efficiency">
+<h3>SQL efficiency<a class="headerlink" href="#sql-efficiency" title="永久链接至标题">¶</a></h3>
+<p>It should execute SQL statements as few times as possible, and it should
+optimize statements internally.</p>
+<p>This is why developers need to call <code class="docutils literal"><span class="pre">save()</span></code> explicitly, rather than the
+framework saving things behind the scenes silently.</p>
+<p>This is also why the <code class="docutils literal"><span class="pre">select_related()</span></code> <code class="docutils literal"><span class="pre">QuerySet</span></code> method exists. It’s an
+optional performance booster for the common case of selecting “every related
+object.”</p>
+</div>
+<div class="section" id="terse-powerful-syntax">
+<h3>Terse, powerful syntax<a class="headerlink" href="#terse-powerful-syntax" title="永久链接至标题">¶</a></h3>
+<p>The database API should allow rich, expressive statements in as little syntax
+as possible. It should not rely on importing other modules or helper objects.</p>
+<p>Joins should be performed automatically, behind the scenes, when necessary.</p>
+<p>Every object should be able to access every related object, systemwide. This
+access should work both ways.</p>
+</div>
+<div class="section" id="option-to-drop-into-raw-sql-easily-when-needed">
+<h3>Option to drop into raw SQL easily, when needed<a class="headerlink" href="#option-to-drop-into-raw-sql-easily-when-needed" title="永久链接至标题">¶</a></h3>
+<p>The database API should realize it’s a shortcut but not necessarily an
+end-all-be-all. The framework should make it easy to write custom SQL – entire
+statements, or just custom <code class="docutils literal"><span class="pre">WHERE</span></code> clauses as custom parameters to API calls.</p>
+</div>
+</div>
+<div class="section" id="url-design">
+<h2>URL design<a class="headerlink" href="#url-design" title="永久链接至标题">¶</a></h2>
+<div class="section" id="id8">
+<h3>Loose coupling<a class="headerlink" href="#id8" title="永久链接至标题">¶</a></h3>
+<p>URLs in a Django app should not be coupled to the underlying Python code. Tying
+URLs to Python function names is a Bad And Ugly Thing.</p>
+<p>Along these lines, the Django URL system should allow URLs for the same app to
+be different in different contexts. For example, one site may put stories at
+<code class="docutils literal"><span class="pre">/stories/</span></code>, while another may use <code class="docutils literal"><span class="pre">/news/</span></code>.</p>
+</div>
+<div class="section" id="infinite-flexibility">
+<h3>Infinite flexibility<a class="headerlink" href="#infinite-flexibility" title="永久链接至标题">¶</a></h3>
+<p>URLs should be as flexible as possible. Any conceivable URL design should be
+allowed.</p>
+</div>
+<div class="section" id="encourage-best-practices">
+<h3>Encourage best practices<a class="headerlink" href="#encourage-best-practices" title="永久链接至标题">¶</a></h3>
+<p>The framework should make it just as easy (or even easier) for a developer to
+design pretty URLs than ugly ones.</p>
+<p>File extensions in Web-page URLs should be avoided.</p>
+<p>Vignette-style commas in URLs deserve severe punishment.</p>
+</div>
+<div class="section" id="definitive-urls">
+<span id="id9"></span><h3>Definitive URLs<a class="headerlink" href="#definitive-urls" title="永久链接至标题">¶</a></h3>
+<p id="index-3">Technically, <code class="docutils literal"><span class="pre">foo.com/bar</span></code> and <code class="docutils literal"><span class="pre">foo.com/bar/</span></code> are two different URLs, and
+search-engine robots (and some Web traffic-analyzing tools) would treat them as
+separate pages. Django should make an effort to “normalize” URLs so that
+search-engine robots don’t get confused.</p>
+<p>This is the reasoning behind the <a class="reference internal" href="../ref/settings.html#std:setting-APPEND_SLASH"><code class="xref std std-setting docutils literal"><span class="pre">APPEND_SLASH</span></code></a> setting.</p>
+</div>
+</div>
+<div class="section" id="template-system">
+<h2>Template system<a class="headerlink" href="#template-system" title="永久链接至标题">¶</a></h2>
+<div class="section" id="separate-logic-from-presentation">
+<span id="separation-of-logic-and-presentation"></span><h3>Separate logic from presentation<a class="headerlink" href="#separate-logic-from-presentation" title="永久链接至标题">¶</a></h3>
+<p>We see a template system as a tool that controls presentation and
+presentation-related logic – and that’s it. The template system shouldn’t
+support functionality that goes beyond this basic goal.</p>
+</div>
+<div class="section" id="discourage-redundancy">
+<h3>Discourage redundancy<a class="headerlink" href="#discourage-redundancy" title="永久链接至标题">¶</a></h3>
+<p>The majority of dynamic websites use some sort of common sitewide design –
+a common header, footer, navigation bar, etc. The Django template system should
+make it easy to store those elements in a single place, eliminating duplicate
+code.</p>
+<p>This is the philosophy behind <a class="reference internal" href="../ref/templates/language.html#template-inheritance"><span class="std std-ref">template inheritance</span></a>.</p>
+</div>
+<div class="section" id="be-decoupled-from-html">
+<h3>Be decoupled from HTML<a class="headerlink" href="#be-decoupled-from-html" title="永久链接至标题">¶</a></h3>
+<p>The template system shouldn’t be designed so that it only outputs HTML. It
+should be equally good at generating other text-based formats, or just plain
+text.</p>
+</div>
+<div class="section" id="xml-should-not-be-used-for-template-languages">
+<h3>XML should not be used for template languages<a class="headerlink" href="#xml-should-not-be-used-for-template-languages" title="永久链接至标题">¶</a></h3>
+<p id="index-4">Using an XML engine to parse templates introduces a whole new world of human
+error in editing templates – and incurs an unacceptable level of overhead in
+template processing.</p>
+</div>
+<div class="section" id="assume-designer-competence">
+<h3>Assume designer competence<a class="headerlink" href="#assume-designer-competence" title="永久链接至标题">¶</a></h3>
+<p>The template system shouldn’t be designed so that templates necessarily are
+displayed nicely in WYSIWYG editors such as Dreamweaver. That is too severe of
+a limitation and wouldn’t allow the syntax to be as nice as it is. Django
+expects template authors are comfortable editing HTML directly.</p>
+</div>
+<div class="section" id="treat-whitespace-obviously">
+<h3>Treat whitespace obviously<a class="headerlink" href="#treat-whitespace-obviously" title="永久链接至标题">¶</a></h3>
+<p>The template system shouldn’t do magic things with whitespace. If a template
+includes whitespace, the system should treat the whitespace as it treats text
+– just display it. Any whitespace that’s not in a template tag should be
+displayed.</p>
+</div>
+<div class="section" id="don-t-invent-a-programming-language">
+<h3>Don’t invent a programming language<a class="headerlink" href="#don-t-invent-a-programming-language" title="永久链接至标题">¶</a></h3>
+<p>The goal is not to invent a programming language. The goal is to offer just
+enough programming-esque functionality, such as branching and looping, that is
+essential for making presentation-related decisions. The <a class="reference internal" href="../topics/templates.html#template-language-intro"><span class="std std-ref">Django Template
+Language (DTL)</span></a> aims to avoid advanced logic.</p>
+<p>The Django template system recognizes that templates are most often written by
+<em>designers</em>, not <em>programmers</em>, and therefore should not assume Python
+knowledge.</p>
+</div>
+<div class="section" id="safety-and-security">
+<h3>Safety and security<a class="headerlink" href="#safety-and-security" title="永久链接至标题">¶</a></h3>
+<p>The template system, out of the box, should forbid the inclusion of malicious
+code – such as commands that delete database records.</p>
+<p>This is another reason the template system doesn’t allow arbitrary Python code.</p>
+</div>
+<div class="section" id="extensibility">
+<h3>Extensibility<a class="headerlink" href="#extensibility" title="永久链接至标题">¶</a></h3>
+<p>The template system should recognize that advanced template authors may want
+to extend its technology.</p>
+<p>This is the philosophy behind custom template tags and filters.</p>
+</div>
+</div>
+<div class="section" id="views">
+<h2>Views<a class="headerlink" href="#views" title="永久链接至标题">¶</a></h2>
+<div class="section" id="simplicity">
+<h3>Simplicity<a class="headerlink" href="#simplicity" title="永久链接至标题">¶</a></h3>
+<p>Writing a view should be as simple as writing a Python function. Developers
+shouldn’t have to instantiate a class when a function will do.</p>
+</div>
+<div class="section" id="use-request-objects">
+<h3>Use request objects<a class="headerlink" href="#use-request-objects" title="永久链接至标题">¶</a></h3>
+<p>Views should have access to a request object – an object that stores metadata
+about the current request. The object should be passed directly to a view
+function, rather than the view function having to access the request data from
+a global variable. This makes it light, clean and easy to test views by passing
+in “fake” request objects.</p>
+</div>
+<div class="section" id="id10">
+<h3>Loose coupling<a class="headerlink" href="#id10" title="永久链接至标题">¶</a></h3>
+<p>A view shouldn’t care about which template system the developer uses – or even
+whether a template system is used at all.</p>
+</div>
+<div class="section" id="differentiate-between-get-and-post">
+<h3>Differentiate between GET and POST<a class="headerlink" href="#differentiate-between-get-and-post" title="永久链接至标题">¶</a></h3>
+<p>GET and POST are distinct; developers should explicitly use one or the other.
+The framework should make it easy to distinguish between GET and POST data.</p>
+</div>
+</div>
+<div class="section" id="cache-framework">
+<span id="cache-design-philosophy"></span><h2>Cache Framework<a class="headerlink" href="#cache-framework" title="永久链接至标题">¶</a></h2>
+<p>The core goals of Django’s <a class="reference internal" href="../topics/cache.html"><span class="doc">cache framework</span></a> are:</p>
+<div class="section" id="id11">
+<h3>Less code<a class="headerlink" href="#id11" title="永久链接至标题">¶</a></h3>
+<p>A cache should be as fast as possible.  Hence, all framework code surrounding
+the cache backend should be kept to the absolute minimum, especially for
+<code class="docutils literal"><span class="pre">get()</span></code> operations.</p>
+</div>
+<div class="section" id="id12">
+<h3>Consistency<a class="headerlink" href="#id12" title="永久链接至标题">¶</a></h3>
+<p>The cache API should provide a consistent interface across the different
+cache backends.</p>
+</div>
+<div class="section" id="id13">
+<h3>Extensibility<a class="headerlink" href="#id13" title="永久链接至标题">¶</a></h3>
+<p>The cache API should be extensible at the application level based on the
+developer’s needs (for example, see <a class="reference internal" href="../topics/cache.html#cache-key-transformation"><span class="std std-ref">Cache key transformation</span></a>).</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

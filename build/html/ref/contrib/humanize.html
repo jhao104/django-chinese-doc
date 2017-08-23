@@ -1,0 +1,334 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.contrib.humanize &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="docutils literal"><span class="pre">django.contrib.humanize</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/ref/contrib/humanize.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-django.contrib.humanize">
+<span id="django-contrib-humanize"></span><h1><code class="docutils literal"><span class="pre">django.contrib.humanize</span></code><a class="headerlink" href="#module-django.contrib.humanize" title="永久链接至标题">¶</a></h1>
+<p>A set of Django template filters useful for adding a “human touch” to data.</p>
+<p>To activate these filters, add <code class="docutils literal"><span class="pre">'django.contrib.humanize'</span></code> to your
+<a class="reference internal" href="../settings.html#std:setting-INSTALLED_APPS"><code class="xref std std-setting docutils literal"><span class="pre">INSTALLED_APPS</span></code></a> setting. Once you’ve done that, use
+<code class="docutils literal"><span class="pre">{%</span> <span class="pre">load</span> <span class="pre">humanize</span> <span class="pre">%}</span></code> in a template, and you’ll have access to the following
+filters.</p>
+<div class="section" id="apnumber">
+<span id="std:templatefilter-apnumber"></span><h2><code class="docutils literal"><span class="pre">apnumber</span></code><a class="headerlink" href="#apnumber" title="永久链接至标题">¶</a></h2>
+<p>For numbers 1-9, returns the number spelled out. Otherwise, returns the
+number. This follows Associated Press style.</p>
+<p>Examples:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">1</span></code> becomes <code class="docutils literal"><span class="pre">one</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">2</span></code> becomes <code class="docutils literal"><span class="pre">two</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">10</span></code> becomes <code class="docutils literal"><span class="pre">10</span></code>.</li>
+</ul>
+<p>You can pass in either an integer or a string representation of an integer.</p>
+</div>
+<div class="section" id="intcomma">
+<span id="std:templatefilter-intcomma"></span><h2><code class="docutils literal"><span class="pre">intcomma</span></code><a class="headerlink" href="#intcomma" title="永久链接至标题">¶</a></h2>
+<p>Converts an integer or float (or a string representation of either) to a string
+containing commas every three digits.</p>
+<p>Examples:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">4500</span></code> becomes <code class="docutils literal"><span class="pre">4,500</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">4500.2</span></code> becomes <code class="docutils literal"><span class="pre">4,500.2</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">45000</span></code> becomes <code class="docutils literal"><span class="pre">45,000</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">450000</span></code> becomes <code class="docutils literal"><span class="pre">450,000</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">4500000</span></code> becomes <code class="docutils literal"><span class="pre">4,500,000</span></code>.</li>
+</ul>
+<p><a class="reference internal" href="../../topics/i18n/formatting.html"><span class="doc">Format localization</span></a> will be respected if enabled,
+e.g. with the <code class="docutils literal"><span class="pre">'de'</span></code> language:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">45000</span></code> becomes <code class="docutils literal"><span class="pre">'45.000'</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">450000</span></code> becomes <code class="docutils literal"><span class="pre">'450.000'</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="intword">
+<span id="std:templatefilter-intword"></span><h2><code class="docutils literal"><span class="pre">intword</span></code><a class="headerlink" href="#intword" title="永久链接至标题">¶</a></h2>
+<p>Converts a large integer (or a string representation of an integer) to a
+friendly text representation. Works best for numbers over 1 million.</p>
+<p>Examples:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">1000000</span></code> becomes <code class="docutils literal"><span class="pre">1.0</span> <span class="pre">million</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">1200000</span></code> becomes <code class="docutils literal"><span class="pre">1.2</span> <span class="pre">million</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">1200000000</span></code> becomes <code class="docutils literal"><span class="pre">1.2</span> <span class="pre">billion</span></code>.</li>
+</ul>
+<p>Values up to 10^100 (Googol) are supported.</p>
+<p><a class="reference internal" href="../../topics/i18n/formatting.html"><span class="doc">Format localization</span></a> will be respected if enabled,
+e.g. with the <code class="docutils literal"><span class="pre">'de'</span></code> language:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">1000000</span></code> becomes <code class="docutils literal"><span class="pre">'1,0</span> <span class="pre">Million'</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">1200000</span></code> becomes <code class="docutils literal"><span class="pre">'1,2</span> <span class="pre">Million'</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">1200000000</span></code> becomes <code class="docutils literal"><span class="pre">'1,2</span> <span class="pre">Milliarden'</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="naturalday">
+<span id="std:templatefilter-naturalday"></span><h2><code class="docutils literal"><span class="pre">naturalday</span></code><a class="headerlink" href="#naturalday" title="永久链接至标题">¶</a></h2>
+<p>For dates that are the current day or within one day, return “today”,
+“tomorrow” or “yesterday”, as appropriate. Otherwise, format the date using
+the passed in format string.</p>
+<p><strong>Argument:</strong> Date formatting string as described in the <a class="reference internal" href="../templates/builtins.html#std:templatefilter-date"><code class="xref std std-tfilter docutils literal"><span class="pre">date</span></code></a> tag.</p>
+<p>Examples (when ‘today’ is 17 Feb 2007):</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">16</span> <span class="pre">Feb</span> <span class="pre">2007</span></code> becomes <code class="docutils literal"><span class="pre">yesterday</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span></code> becomes <code class="docutils literal"><span class="pre">today</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">18</span> <span class="pre">Feb</span> <span class="pre">2007</span></code> becomes <code class="docutils literal"><span class="pre">tomorrow</span></code>.</li>
+<li>Any other day is formatted according to given argument or the
+<a class="reference internal" href="../settings.html#std:setting-DATE_FORMAT"><code class="xref std std-setting docutils literal"><span class="pre">DATE_FORMAT</span></code></a> setting if no argument is given.</li>
+</ul>
+</div>
+<div class="section" id="naturaltime">
+<span id="std:templatefilter-naturaltime"></span><h2><code class="docutils literal"><span class="pre">naturaltime</span></code><a class="headerlink" href="#naturaltime" title="永久链接至标题">¶</a></h2>
+<p>For datetime values, returns a string representing how many seconds,
+minutes or hours ago it was – falling back to the <a class="reference internal" href="../templates/builtins.html#std:templatefilter-timesince"><code class="xref std std-tfilter docutils literal"><span class="pre">timesince</span></code></a>
+format if the value is more than a day old. In case the datetime value is in
+the future the return value will automatically use an appropriate phrase.</p>
+<p>Examples (when ‘now’ is 17 Feb 2007 16:30:00):</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">16:30:00</span></code> becomes <code class="docutils literal"><span class="pre">now</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">16:29:31</span></code> becomes <code class="docutils literal"><span class="pre">29</span> <span class="pre">seconds</span> <span class="pre">ago</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">16:29:00</span></code> becomes <code class="docutils literal"><span class="pre">a</span> <span class="pre">minute</span> <span class="pre">ago</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">16:25:35</span></code> becomes <code class="docutils literal"><span class="pre">4</span> <span class="pre">minutes</span> <span class="pre">ago</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">15:30:29</span></code> becomes <code class="docutils literal"><span class="pre">59</span> <span class="pre">minutes</span> <span class="pre">ago</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">15:30:01</span></code> becomes <code class="docutils literal"><span class="pre">59</span> <span class="pre">minutes</span> <span class="pre">ago</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">15:30:00</span></code> becomes <code class="docutils literal"><span class="pre">an</span> <span class="pre">hour</span> <span class="pre">ago</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">13:31:29</span></code> becomes <code class="docutils literal"><span class="pre">2</span> <span class="pre">hours</span> <span class="pre">ago</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">16</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">13:31:29</span></code> becomes <code class="docutils literal"><span class="pre">1</span> <span class="pre">day,</span> <span class="pre">2</span> <span class="pre">hours</span> <span class="pre">ago</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">16</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">13:30:01</span></code> becomes <code class="docutils literal"><span class="pre">1</span> <span class="pre">day,</span> <span class="pre">2</span> <span class="pre">hours</span> <span class="pre">ago</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">16</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">13:30:00</span></code> becomes <code class="docutils literal"><span class="pre">1</span> <span class="pre">day,</span> <span class="pre">3</span> <span class="pre">hours</span> <span class="pre">ago</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">16:30:30</span></code> becomes <code class="docutils literal"><span class="pre">30</span> <span class="pre">seconds</span> <span class="pre">from</span> <span class="pre">now</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">16:30:29</span></code> becomes <code class="docutils literal"><span class="pre">29</span> <span class="pre">seconds</span> <span class="pre">from</span> <span class="pre">now</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">16:31:00</span></code> becomes <code class="docutils literal"><span class="pre">a</span> <span class="pre">minute</span> <span class="pre">from</span> <span class="pre">now</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">16:34:35</span></code> becomes <code class="docutils literal"><span class="pre">4</span> <span class="pre">minutes</span> <span class="pre">from</span> <span class="pre">now</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">17:30:29</span></code> becomes <code class="docutils literal"><span class="pre">an</span> <span class="pre">hour</span> <span class="pre">from</span> <span class="pre">now</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">17</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">18:31:29</span></code> becomes <code class="docutils literal"><span class="pre">2</span> <span class="pre">hours</span> <span class="pre">from</span> <span class="pre">now</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">18</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">16:31:29</span></code> becomes <code class="docutils literal"><span class="pre">1</span> <span class="pre">day</span> <span class="pre">from</span> <span class="pre">now</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">26</span> <span class="pre">Feb</span> <span class="pre">2007</span> <span class="pre">18:31:29</span></code> becomes <code class="docutils literal"><span class="pre">1</span> <span class="pre">week,</span> <span class="pre">2</span> <span class="pre">days</span> <span class="pre">from</span> <span class="pre">now</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="ordinal">
+<span id="std:templatefilter-ordinal"></span><h2><code class="docutils literal"><span class="pre">ordinal</span></code><a class="headerlink" href="#ordinal" title="永久链接至标题">¶</a></h2>
+<p>Converts an integer to its ordinal as a string.</p>
+<p>Examples:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">1</span></code> becomes <code class="docutils literal"><span class="pre">1st</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">2</span></code> becomes <code class="docutils literal"><span class="pre">2nd</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">3</span></code> becomes <code class="docutils literal"><span class="pre">3rd</span></code>.</li>
+</ul>
+<p>You can pass in either an integer or a string representation of an integer.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

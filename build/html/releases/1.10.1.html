@@ -1,0 +1,284 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Django 1.10.1 release notes &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Django 1.10.1 release notes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/releases/1.10.1.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="django-1-10-1-release-notes">
+<h1>Django 1.10.1 release notes<a class="headerlink" href="#django-1-10-1-release-notes" title="永久链接至标题">¶</a></h1>
+<p><em>September 1, 2016</em></p>
+<p>Django 1.10.1 fixes several bugs in 1.10.</p>
+<div class="section" id="bugfixes">
+<h2>Bugfixes<a class="headerlink" href="#bugfixes" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li>Fixed a crash in MySQL connections where <code class="docutils literal"><span class="pre">SELECT</span> <span class="pre">&#64;&#64;SQL_AUTO_IS_NULL</span></code>
+doesn’t return a result (<a href="#id1"><span class="problematic" id="id2">:ticket:`26991`</span></a>).</li>
+<li>Allowed <code class="docutils literal"><span class="pre">User.is_authenticated</span></code> and <code class="docutils literal"><span class="pre">User.is_anonymous</span></code> properties to be
+compared using <code class="docutils literal"><span class="pre">==</span></code>, <code class="docutils literal"><span class="pre">!=</span></code>, and <code class="docutils literal"><span class="pre">|</span></code> (<a href="#id3"><span class="problematic" id="id4">:ticket:`26988`</span></a>, <a href="#id5"><span class="problematic" id="id6">:ticket:`27154`</span></a>).</li>
+<li>Removed the broken <code class="docutils literal"><span class="pre">BaseCommand.usage()</span></code> method which was for
+<code class="docutils literal"><span class="pre">optparse</span></code> support (<a href="#id7"><span class="problematic" id="id8">:ticket:`27000`</span></a>).</li>
+<li>Fixed a checks framework crash with an empty <code class="docutils literal"><span class="pre">Meta.default_permissions</span></code>
+(<a href="#id9"><span class="problematic" id="id10">:ticket:`26997`</span></a>).</li>
+<li>Fixed a regression in the number of queries when using <code class="docutils literal"><span class="pre">RadioSelect</span></code> with a
+<code class="docutils literal"><span class="pre">ModelChoiceField</span></code> form field (<a href="#id11"><span class="problematic" id="id12">:ticket:`27001`</span></a>).</li>
+<li>Fixed a crash if <code class="docutils literal"><span class="pre">request.META['CONTENT_LENGTH']</span></code> is an empty string
+(<a href="#id13"><span class="problematic" id="id14">:ticket:`27005`</span></a>).</li>
+<li>Fixed the <code class="docutils literal"><span class="pre">isnull</span></code> lookup on a <code class="docutils literal"><span class="pre">ForeignKey</span></code> with its <code class="docutils literal"><span class="pre">to_field</span></code>
+pointing to a <code class="docutils literal"><span class="pre">CharField</span></code> or pointing to a <code class="docutils literal"><span class="pre">CharField</span></code> defined with
+<code class="docutils literal"><span class="pre">primary_key=True</span></code> (<a href="#id15"><span class="problematic" id="id16">:ticket:`26983`</span></a>).</li>
+<li>Prevented the <code class="docutils literal"><span class="pre">migrate</span></code> command from raising
+<code class="docutils literal"><span class="pre">InconsistentMigrationHistory</span></code> in the presence of unapplied squashed
+migrations (<a href="#id17"><span class="problematic" id="id18">:ticket:`27004`</span></a>).</li>
+<li>Fixed a regression in <code class="docutils literal"><span class="pre">Client.force_login()</span></code> which required specifying a
+<code class="docutils literal"><span class="pre">backend</span></code> rather than automatically using the first one if multiple
+backends are configured (<a href="#id19"><span class="problematic" id="id20">:ticket:`27027`</span></a>).</li>
+<li>Made <code class="docutils literal"><span class="pre">QuerySet.bulk_create()</span></code> properly initialize model instances on
+backends, such as PostgreSQL, that support returning the IDs of the created
+records so that many-to-many relationships can be used on the new objects
+(<a href="#id21"><span class="problematic" id="id22">:ticket:`27026`</span></a>).</li>
+<li>Fixed crash of <code class="docutils literal"><span class="pre">django.views.static.serve()</span></code> with <code class="docutils literal"><span class="pre">show_indexes</span></code> enabled
+(<a href="#id23"><span class="problematic" id="id24">:ticket:`26973`</span></a>).</li>
+<li>Fixed <code class="docutils literal"><span class="pre">ClearableFileInput</span></code> to avoid the <code class="docutils literal"><span class="pre">required</span></code> HTML attribute when
+initial data exists (<a href="#id25"><span class="problematic" id="id26">:ticket:`27037`</span></a>).</li>
+<li>Fixed annotations with database functions when combined with lookups on
+PostGIS (<a href="#id27"><span class="problematic" id="id28">:ticket:`27014`</span></a>).</li>
+<li>Reallowed the <code class="docutils literal"><span class="pre">{%</span> <span class="pre">for</span> <span class="pre">%}</span></code> tag to unpack any iterable (<a href="#id29"><span class="problematic" id="id30">:ticket:`27058`</span></a>).</li>
+<li>Made <code class="docutils literal"><span class="pre">makemigrations</span></code> skip inconsistent history checks on non-default
+databases if database routers aren’t in use or if no apps can be migrated
+to the database (<a href="#id31"><span class="problematic" id="id32">:ticket:`27054`</span></a>, <a href="#id33"><span class="problematic" id="id34">:ticket:`27110`</span></a>, <a href="#id35"><span class="problematic" id="id36">:ticket:`27142`</span></a>).</li>
+<li>Removed duplicated managers in <code class="docutils literal"><span class="pre">Model._meta.managers</span></code> (<a href="#id37"><span class="problematic" id="id38">:ticket:`27073`</span></a>).</li>
+<li>Fixed <code class="docutils literal"><span class="pre">contrib.admindocs</span></code> crash when a view is in a class, such as some of
+the admin views (<a href="#id39"><span class="problematic" id="id40">:ticket:`27018`</span></a>).</li>
+<li>Reverted a few admin checks that checked <code class="docutils literal"><span class="pre">field.many_to_many</span></code> back to
+<code class="docutils literal"><span class="pre">isinstance(field,</span> <span class="pre">models.ManyToManyField)</span></code> since it turned out the checks
+weren’t suitable to be generalized like that (<a href="#id41"><span class="problematic" id="id42">:ticket:`26998`</span></a>).</li>
+<li>Added the database alias to the <code class="docutils literal"><span class="pre">InconsistentMigrationHistory</span></code> message
+raised by <code class="docutils literal"><span class="pre">makemigrations</span></code> and <code class="docutils literal"><span class="pre">migrate</span></code> (<a href="#id43"><span class="problematic" id="id44">:ticket:`27089`</span></a>).</li>
+<li>Fixed the creation of <code class="docutils literal"><span class="pre">ContentType</span></code> and <code class="docutils literal"><span class="pre">Permission</span></code> objects for models
+of applications without migrations when calling the <code class="docutils literal"><span class="pre">migrate</span></code> command with
+no migrations to apply (<a href="#id45"><span class="problematic" id="id46">:ticket:`27044`</span></a>).</li>
+<li>Included the already applied migration state changes in the <code class="docutils literal"><span class="pre">Apps</span></code> instance
+provided to the <code class="docutils literal"><span class="pre">pre_migrate</span></code> signal receivers to allow <code class="docutils literal"><span class="pre">ContentType</span></code>
+renaming to be performed on model rename (<a href="#id47"><span class="problematic" id="id48">:ticket:`27100`</span></a>).</li>
+<li>Reallowed subclassing <code class="docutils literal"><span class="pre">UserCreationForm</span></code> without <code class="docutils literal"><span class="pre">USERNAME_FIELD</span></code> in
+<code class="docutils literal"><span class="pre">Meta.fields</span></code> (<a href="#id49"><span class="problematic" id="id50">:ticket:`27111`</span></a>).</li>
+<li>Fixed a regression in model forms where model fields with a <code class="docutils literal"><span class="pre">default</span></code> that
+didn’t appear in POST data no longer used the <code class="docutils literal"><span class="pre">default</span></code> (<a href="#id51"><span class="problematic" id="id52">:ticket:`27039`</span></a>).</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

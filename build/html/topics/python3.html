@@ -1,0 +1,582 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Porting to Python 3 &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Porting to Python 3</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/topics/python3.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="porting-to-python-3">
+<h1>Porting to Python 3<a class="headerlink" href="#porting-to-python-3" title="永久链接至标题">¶</a></h1>
+<p>Django 1.5 is the first version of Django to support Python 3. The same code
+runs both on Python 2 (≥&nbsp;2.6.5) and Python 3 (≥&nbsp;3.2), thanks to the <a class="reference external" href="https://pythonhosted.org/six/">six</a>
+compatibility layer.</p>
+<p>This document is primarily targeted at authors of pluggable applications
+who want to support both Python 2 and 3. It also describes guidelines that
+apply to Django’s code.</p>
+<div class="section" id="philosophy">
+<h2>Philosophy<a class="headerlink" href="#philosophy" title="永久链接至标题">¶</a></h2>
+<p>This document assumes that you are familiar with the changes between Python 2
+and Python 3. If you aren’t, read <span class="xref std std-ref">Python’s official porting guide</span> first. Refreshing your knowledge of unicode handling on
+Python 2 and 3 will help; the <a class="reference external" href="http://nedbatchelder.com/text/unipain.html">Pragmatic Unicode</a> presentation is a good
+resource.</p>
+<p>Django uses the <em>Python 2/3 Compatible Source</em> strategy. Of course, you’re
+free to chose another strategy for your own code, especially if you don’t need
+to stay compatible with Python 2. But authors of pluggable applications are
+encouraged to use the same porting strategy as Django itself.</p>
+<p>Writing compatible code is much easier if you target Python ≥ 2.6. Django 1.5
+introduces compatibility tools such as <a class="reference internal" href="#module-django.utils.six" title="django.utils.six"><code class="xref py py-mod docutils literal"><span class="pre">django.utils.six</span></code></a>, which is a
+customized version of the <code class="xref py py-mod docutils literal"><span class="pre">six</span> <span class="pre">module</span></code>. For convenience,
+forwards-compatible aliases were introduced in Django 1.4.2. If your
+application takes advantage of these tools, it will require Django ≥ 1.4.2.</p>
+<p>Obviously, writing compatible source code adds some overhead, and that can
+cause frustration. Django’s developers have found that attempting to write
+Python 3 code that’s compatible with Python 2 is much more rewarding than the
+opposite. Not only does that make your code more future-proof, but Python 3’s
+advantages (like the saner string handling) start shining quickly. Dealing
+with Python 2 becomes a backwards compatibility requirement, and we as
+developers are used to dealing with such constraints.</p>
+<p>Porting tools provided by Django are inspired by this philosophy, and it’s
+reflected throughout this guide.</p>
+</div>
+<div class="section" id="porting-tips">
+<h2>Porting tips<a class="headerlink" href="#porting-tips" title="永久链接至标题">¶</a></h2>
+<div class="section" id="unicode-literals">
+<h3>Unicode literals<a class="headerlink" href="#unicode-literals" title="永久链接至标题">¶</a></h3>
+<p>This step consists in:</p>
+<ul class="simple">
+<li>Adding <code class="docutils literal"><span class="pre">from</span> <span class="pre">__future__</span> <span class="pre">import</span> <span class="pre">unicode_literals</span></code> at the top of your Python
+modules – it’s best to put it in each and every module, otherwise you’ll
+keep checking the top of your files to see which mode is in effect;</li>
+<li>Removing the <code class="docutils literal"><span class="pre">u</span></code> prefix before unicode strings;</li>
+<li>Adding a <code class="docutils literal"><span class="pre">b</span></code> prefix before bytestrings.</li>
+</ul>
+<p>Performing these changes systematically guarantees backwards compatibility.</p>
+<p>However, Django applications generally don’t need bytestrings, since Django
+only exposes unicode interfaces to the programmer. Python 3 discourages using
+bytestrings, except for binary data or byte-oriented interfaces. Python 2
+makes bytestrings and unicode strings effectively interchangeable, as long as
+they only contain ASCII data. Take advantage of this to use unicode strings
+wherever possible and avoid the <code class="docutils literal"><span class="pre">b</span></code> prefixes.</p>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last">Python 2’s <code class="docutils literal"><span class="pre">u</span></code> prefix is a syntax error in Python 3.2 but it will be
+allowed again in Python 3.3 thanks to <span class="target" id="index-0"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0414"><strong>PEP 414</strong></a>. Thus, this
+transformation is optional if you target Python ≥ 3.3. It’s still
+recommended, per the “write Python 3 code” philosophy.</p>
+</div>
+</div>
+<div class="section" id="string-handling">
+<h3>String handling<a class="headerlink" href="#string-handling" title="永久链接至标题">¶</a></h3>
+<p>Python 2’s <a class="reference external" href="https://docs.python.org/2/library/functions.html#unicode">unicode</a> type was renamed <code class="xref py py-class docutils literal"><span class="pre">str</span></code> in Python 3,
+<code class="docutils literal"><span class="pre">str()</span></code> was renamed <code class="xref py py-class docutils literal"><span class="pre">bytes</span></code>, and <a class="reference external" href="https://docs.python.org/2/library/functions.html#basestring">basestring</a> disappeared.
+<a class="reference external" href="https://pythonhosted.org/six/">six</a> provides <a class="reference internal" href="#string-handling-with-six"><span class="std std-ref">tools</span></a> to deal with these
+changes.</p>
+<p>Django also contains several string related classes and functions in the
+<a class="reference internal" href="../ref/utils.html#module-django.utils.encoding" title="django.utils.encoding: A series of helper functions to manage character encoding."><code class="xref py py-mod docutils literal"><span class="pre">django.utils.encoding</span></code></a> and <a class="reference internal" href="../ref/utils.html#module-django.utils.safestring" title="django.utils.safestring: Functions and classes for working with strings that can be displayed safely without further escaping in HTML."><code class="xref py py-mod docutils literal"><span class="pre">django.utils.safestring</span></code></a> modules. Their
+names used the words <code class="docutils literal"><span class="pre">str</span></code>, which doesn’t mean the same thing in Python 2
+and Python 3, and <code class="docutils literal"><span class="pre">unicode</span></code>, which doesn’t exist in Python 3. In order to
+avoid ambiguity and confusion these concepts were renamed <code class="docutils literal"><span class="pre">bytes</span></code> and
+<code class="docutils literal"><span class="pre">text</span></code>.</p>
+<p>Here are the name changes in <a class="reference internal" href="../ref/utils.html#module-django.utils.encoding" title="django.utils.encoding: A series of helper functions to manage character encoding."><code class="xref py py-mod docutils literal"><span class="pre">django.utils.encoding</span></code></a>:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Old name</th>
+<th class="head">New name</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">smart_str</span></code></td>
+<td><code class="docutils literal"><span class="pre">smart_bytes</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">smart_unicode</span></code></td>
+<td><code class="docutils literal"><span class="pre">smart_text</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">force_unicode</span></code></td>
+<td><code class="docutils literal"><span class="pre">force_text</span></code></td>
+</tr>
+</tbody>
+</table>
+<p>For backwards compatibility, the old names still work on Python 2. Under
+Python 3, <code class="docutils literal"><span class="pre">smart_str</span></code> is an alias for <code class="docutils literal"><span class="pre">smart_text</span></code>.</p>
+<p>For forwards compatibility, the new names work as of Django 1.4.2.</p>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last"><a class="reference internal" href="../ref/utils.html#module-django.utils.encoding" title="django.utils.encoding: A series of helper functions to manage character encoding."><code class="xref py py-mod docutils literal"><span class="pre">django.utils.encoding</span></code></a> was deeply refactored in Django 1.5 to
+provide a more consistent API. Check its documentation for more
+information.</p>
+</div>
+<p><a class="reference internal" href="../ref/utils.html#module-django.utils.safestring" title="django.utils.safestring: Functions and classes for working with strings that can be displayed safely without further escaping in HTML."><code class="xref py py-mod docutils literal"><span class="pre">django.utils.safestring</span></code></a> is mostly used via the
+<a class="reference internal" href="../ref/utils.html#django.utils.safestring.mark_safe" title="django.utils.safestring.mark_safe"><code class="xref py py-func docutils literal"><span class="pre">mark_safe()</span></code></a> and
+<a class="reference internal" href="../ref/utils.html#django.utils.safestring.mark_for_escaping" title="django.utils.safestring.mark_for_escaping"><code class="xref py py-func docutils literal"><span class="pre">mark_for_escaping()</span></code></a> functions, which didn’t
+change. In case you’re using the internals, here are the name changes:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Old name</th>
+<th class="head">New name</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">EscapeString</span></code></td>
+<td><code class="docutils literal"><span class="pre">EscapeBytes</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">EscapeUnicode</span></code></td>
+<td><code class="docutils literal"><span class="pre">EscapeText</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SafeString</span></code></td>
+<td><code class="docutils literal"><span class="pre">SafeBytes</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">SafeUnicode</span></code></td>
+<td><code class="docutils literal"><span class="pre">SafeText</span></code></td>
+</tr>
+</tbody>
+</table>
+<p>For backwards compatibility, the old names still work on Python 2. Under
+Python 3, <code class="docutils literal"><span class="pre">EscapeString</span></code> and <code class="docutils literal"><span class="pre">SafeString</span></code> are aliases for <code class="docutils literal"><span class="pre">EscapeText</span></code>
+and <code class="docutils literal"><span class="pre">SafeText</span></code> respectively.</p>
+<p>For forwards compatibility, the new names work as of Django 1.4.2.</p>
+</div>
+<div class="section" id="str-and-unicode-methods">
+<h3><code class="docutils literal"><span class="pre">__str__()</span></code> and <code class="docutils literal"><span class="pre">__unicode__()</span></code> methods<a class="headerlink" href="#str-and-unicode-methods" title="永久链接至标题">¶</a></h3>
+<p>In Python 2, the object model specifies <code class="xref py py-meth docutils literal"><span class="pre">__str__()</span></code> and
+`&nbsp;__unicode__()`_ methods. If these methods exist, they must return
+<code class="docutils literal"><span class="pre">str</span></code> (bytes) and <code class="docutils literal"><span class="pre">unicode</span></code> (text) respectively.</p>
+<p>The <code class="docutils literal"><span class="pre">print</span></code> statement and the <code class="xref py py-class docutils literal"><span class="pre">str</span></code> built-in call
+<code class="xref py py-meth docutils literal"><span class="pre">__str__()</span></code> to determine the human-readable representation of an
+object. The <code class="docutils literal"><span class="pre">unicode</span></code> built-in calls `&nbsp;__unicode__()`_ if it
+exists, and otherwise falls back to <code class="xref py py-meth docutils literal"><span class="pre">__str__()</span></code> and decodes the
+result with the system encoding. Conversely, the
+<a class="reference internal" href="../ref/models/instances.html#django.db.models.Model" title="django.db.models.Model"><code class="xref py py-class docutils literal"><span class="pre">Model</span></code></a> base class automatically derives
+<code class="xref py py-meth docutils literal"><span class="pre">__str__()</span></code> from `&nbsp;__unicode__()`_ by encoding to UTF-8.</p>
+<p>In Python 3, there’s simply <code class="xref py py-meth docutils literal"><span class="pre">__str__()</span></code>, which must return <code class="docutils literal"><span class="pre">str</span></code>
+(text).</p>
+<p>(It is also possible to define <code class="xref py py-meth docutils literal"><span class="pre">__bytes__()</span></code>, but Django applications
+have little use for that method, because they hardly ever deal with <code class="docutils literal"><span class="pre">bytes</span></code>.)</p>
+<p>Django provides a simple way to define <code class="xref py py-meth docutils literal"><span class="pre">__str__()</span></code> and
+`&nbsp;__unicode__()`_ methods that work on Python 2 and 3: you must
+define a <code class="xref py py-meth docutils literal"><span class="pre">__str__()</span></code> method returning text and to apply the
+<a class="reference internal" href="../ref/utils.html#django.utils.encoding.python_2_unicode_compatible" title="django.utils.encoding.python_2_unicode_compatible"><code class="xref py py-func docutils literal"><span class="pre">python_2_unicode_compatible()</span></code></a> decorator.</p>
+<p>On Python 3, the decorator is a no-op. On Python 2, it defines appropriate
+`&nbsp;__unicode__()`_ and <code class="xref py py-meth docutils literal"><span class="pre">__str__()</span></code> methods (replacing the
+original <code class="xref py py-meth docutils literal"><span class="pre">__str__()</span></code> method in the process). Here’s an example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">django.utils.encoding</span> <span class="k">import</span> <span class="n">python_2_unicode_compatible</span>
+
+<span class="nd">@python_2_unicode_compatible</span>
+<span class="k">class</span> <span class="nc">MyClass</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;Instance of my class&quot;</span>
+</pre></div>
+</div>
+<p>This technique is the best match for Django’s porting philosophy.</p>
+<p>For forwards compatibility, this decorator is available as of Django 1.4.2.</p>
+<p>Finally, note that <code class="xref py py-meth docutils literal"><span class="pre">__repr__()</span></code> must return a <code class="docutils literal"><span class="pre">str</span></code> on all
+versions of Python.</p>
+</div>
+<div class="section" id="dict-and-dict-like-classes">
+<h3><code class="xref py py-class docutils literal"><span class="pre">dict</span></code> and <code class="xref py py-class docutils literal"><span class="pre">dict</span></code>-like classes<a class="headerlink" href="#dict-and-dict-like-classes" title="永久链接至标题">¶</a></h3>
+<p><code class="xref py py-meth docutils literal"><span class="pre">dict.keys()</span></code>, <code class="xref py py-meth docutils literal"><span class="pre">dict.items()</span></code> and <code class="xref py py-meth docutils literal"><span class="pre">dict.values()</span></code> return lists in
+Python 2 and iterators in Python 3. <a class="reference internal" href="../ref/request-response.html#django.http.QueryDict" title="django.http.QueryDict"><code class="xref py py-class docutils literal"><span class="pre">QueryDict</span></code></a> and the
+<code class="xref py py-class docutils literal"><span class="pre">dict</span></code>-like classes defined in <code class="docutils literal"><span class="pre">django.utils.datastructures</span></code>
+behave likewise in Python 3.</p>
+<p><a class="reference external" href="https://pythonhosted.org/six/">six</a> provides compatibility functions to work around this change:
+<code class="xref py py-func docutils literal"><span class="pre">iterkeys()</span></code>, <code class="xref py py-func docutils literal"><span class="pre">iteritems()</span></code>, and <code class="xref py py-func docutils literal"><span class="pre">itervalues()</span></code>.
+It also contains an undocumented <code class="docutils literal"><span class="pre">iterlists</span></code> function that works well for
+<code class="docutils literal"><span class="pre">django.utils.datastructures.MultiValueDict</span></code> and its subclasses.</p>
+</div>
+<div class="section" id="httprequest-and-httpresponse-objects">
+<h3><a class="reference internal" href="../ref/request-response.html#django.http.HttpRequest" title="django.http.HttpRequest"><code class="xref py py-class docutils literal"><span class="pre">HttpRequest</span></code></a> and <a class="reference internal" href="../ref/request-response.html#django.http.HttpResponse" title="django.http.HttpResponse"><code class="xref py py-class docutils literal"><span class="pre">HttpResponse</span></code></a> objects<a class="headerlink" href="#httprequest-and-httpresponse-objects" title="永久链接至标题">¶</a></h3>
+<p>According to <span class="target" id="index-1"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-3333"><strong>PEP 3333</strong></a>:</p>
+<ul class="simple">
+<li>headers are always <code class="docutils literal"><span class="pre">str</span></code> objects,</li>
+<li>input and output streams are always <code class="docutils literal"><span class="pre">bytes</span></code> objects.</li>
+</ul>
+<p>Specifically, <a class="reference internal" href="../ref/request-response.html#django.http.HttpResponse.content" title="django.http.HttpResponse.content"><code class="xref py py-attr docutils literal"><span class="pre">HttpResponse.content</span></code></a>
+contains <code class="docutils literal"><span class="pre">bytes</span></code>, which may become an issue if you compare it with a
+<code class="docutils literal"><span class="pre">str</span></code> in your tests. The preferred solution is to rely on
+<a class="reference internal" href="testing/tools.html#django.test.SimpleTestCase.assertContains" title="django.test.SimpleTestCase.assertContains"><code class="xref py py-meth docutils literal"><span class="pre">assertContains()</span></code></a> and
+<a class="reference internal" href="testing/tools.html#django.test.SimpleTestCase.assertNotContains" title="django.test.SimpleTestCase.assertNotContains"><code class="xref py py-meth docutils literal"><span class="pre">assertNotContains()</span></code></a>. These methods accept a
+response and a unicode string as arguments.</p>
+</div>
+</div>
+<div class="section" id="coding-guidelines">
+<h2>Coding guidelines<a class="headerlink" href="#coding-guidelines" title="永久链接至标题">¶</a></h2>
+<p>The following guidelines are enforced in Django’s source code. They’re also
+recommended for third-party applications that follow the same porting strategy.</p>
+<div class="section" id="syntax-requirements">
+<h3>Syntax requirements<a class="headerlink" href="#syntax-requirements" title="永久链接至标题">¶</a></h3>
+<div class="section" id="unicode">
+<h4>Unicode<a class="headerlink" href="#unicode" title="永久链接至标题">¶</a></h4>
+<p>In Python 3, all strings are considered Unicode by default. The <code class="docutils literal"><span class="pre">unicode</span></code>
+type from Python 2 is called <code class="docutils literal"><span class="pre">str</span></code> in Python 3, and <code class="docutils literal"><span class="pre">str</span></code> becomes
+<code class="docutils literal"><span class="pre">bytes</span></code>.</p>
+<p>You mustn’t use the <code class="docutils literal"><span class="pre">u</span></code> prefix before a unicode string literal because it’s
+a syntax error in Python 3.2. You must prefix byte strings with <code class="docutils literal"><span class="pre">b</span></code>.</p>
+<p>In order to enable the same behavior in Python 2, every module must import
+<code class="docutils literal"><span class="pre">unicode_literals</span></code> from <code class="docutils literal"><span class="pre">__future__</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+
+<span class="n">my_string</span> <span class="o">=</span> <span class="s">&quot;This is an unicode literal&quot;</span>
+<span class="n">my_bytestring</span> <span class="o">=</span> <span class="n">b</span><span class="s">&quot;This is a bytestring&quot;</span>
+</pre></div>
+</div>
+<p>If you need a byte string literal under Python 2 and a unicode string literal
+under Python 3, use the <code class="xref py py-class docutils literal"><span class="pre">str</span></code> builtin:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="nb">str</span><span class="p">(</span><span class="s">&#39;my string&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In Python 3, there aren’t any automatic conversions between <code class="docutils literal"><span class="pre">str</span></code> and
+<code class="docutils literal"><span class="pre">bytes</span></code>, and the <code class="xref py py-mod docutils literal"><span class="pre">codecs</span></code> module became more strict. <code class="xref py py-meth docutils literal"><span class="pre">str.encode()</span></code>
+always returns <code class="docutils literal"><span class="pre">bytes</span></code>, and <code class="docutils literal"><span class="pre">bytes.decode</span></code> always returns <code class="docutils literal"><span class="pre">str</span></code>. As a
+consequence, the following pattern is sometimes necessary:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">,</span> <span class="s">&#39;ignore&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Be cautious if you have to <a class="reference external" href="https://docs.python.org/3/howto/pyporting.html#text-versus-binary-data">index bytestrings</a>.</p>
+</div>
+<div class="section" id="exceptions">
+<h4>Exceptions<a class="headerlink" href="#exceptions" title="永久链接至标题">¶</a></h4>
+<p>When you capture exceptions, use the <code class="docutils literal"><span class="pre">as</span></code> keyword:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">try</span><span class="p">:</span>
+    <span class="o">...</span>
+<span class="k">except</span> <span class="n">MyException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>This older syntax was removed in Python 3:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">try</span><span class="p">:</span>
+    <span class="o">...</span>
+<span class="k">except</span> <span class="n">MyException</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span>    <span class="c"># Don&#39;t do that!</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>The syntax to reraise an exception with a different traceback also changed.
+Use <code class="xref py py-func docutils literal"><span class="pre">six.reraise()</span></code>.</p>
+</div>
+</div>
+<div class="section" id="magic-methods">
+<h3>Magic methods<a class="headerlink" href="#magic-methods" title="永久链接至标题">¶</a></h3>
+<p>Use the patterns below to handle magic methods renamed in Python 3.</p>
+<div class="section" id="iterators">
+<h4>Iterators<a class="headerlink" href="#iterators" title="永久链接至标题">¶</a></h4>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyIterator</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">Iterator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>             <span class="c"># implement some logic here</span>
+
+    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">StopIteration</span>     <span class="c"># implement some logic here</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="boolean-evaluation">
+<h4>Boolean evaluation<a class="headerlink" href="#boolean-evaluation" title="永久链接至标题">¶</a></h4>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyBoolean</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">True</span>             <span class="c"># implement some logic here</span>
+
+    <span class="k">def</span> <span class="nf">__nonzero__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>      <span class="c"># Python 2 compatibility</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="division">
+<h4>Division<a class="headerlink" href="#division" title="永久链接至标题">¶</a></h4>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyDivisible</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span> <span class="o">/</span> <span class="n">other</span>     <span class="c"># implement some logic here</span>
+
+    <span class="k">def</span> <span class="nf">__div__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>   <span class="c"># Python 2 compatibility</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__itruediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span> <span class="o">//</span> <span class="n">other</span>    <span class="c"># implement some logic here</span>
+
+    <span class="k">def</span> <span class="nf">__idiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>  <span class="c"># Python 2 compatibility</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__itruediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Special methods are looked up on the class and not on the instance to reflect
+the behavior of the Python interpreter.</p>
+</div>
+</div>
+<div class="section" id="writing-compatible-code-with-six">
+<h3>Writing compatible code with six<a class="headerlink" href="#writing-compatible-code-with-six" title="永久链接至标题">¶</a></h3>
+<p><a class="reference external" href="https://pythonhosted.org/six/">six</a> is the canonical compatibility library for supporting Python 2 and 3 in
+a single codebase. Read its documentation!</p>
+<p>A <a class="reference internal" href="#module-django.utils.six" title="django.utils.six"><code class="xref py py-mod docutils literal"><span class="pre">customized</span> <span class="pre">version</span> <span class="pre">of</span> <span class="pre">six</span></code></a> is bundled with Django
+as of version 1.4.2. You can import it as <code class="docutils literal"><span class="pre">django.utils.six</span></code>.</p>
+<p>Here are the most common changes required to write compatible code.</p>
+<div class="section" id="string-handling-with-six">
+<span id="id1"></span><h4>String handling<a class="headerlink" href="#string-handling-with-six" title="永久链接至标题">¶</a></h4>
+<p>The <code class="docutils literal"><span class="pre">basestring</span></code> and <code class="docutils literal"><span class="pre">unicode</span></code> types were removed in Python 3, and the
+meaning of <code class="docutils literal"><span class="pre">str</span></code> changed. To test these types, use the following idioms:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="nb">isinstance</span><span class="p">(</span><span class="n">myvalue</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span>       <span class="c"># replacement for basestring</span>
+<span class="nb">isinstance</span><span class="p">(</span><span class="n">myvalue</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">)</span>          <span class="c"># replacement for unicode</span>
+<span class="nb">isinstance</span><span class="p">(</span><span class="n">myvalue</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)</span>                  <span class="c"># replacement for str</span>
+</pre></div>
+</div>
+<p>Python ≥ 2.6 provides <code class="docutils literal"><span class="pre">bytes</span></code> as an alias for <code class="docutils literal"><span class="pre">str</span></code>, so you don’t need
+<code class="xref py py-data docutils literal"><span class="pre">six.binary_type</span></code>.</p>
+</div>
+<div class="section" id="long">
+<h4><code class="docutils literal"><span class="pre">long</span></code><a class="headerlink" href="#long" title="永久链接至标题">¶</a></h4>
+<p>The <code class="docutils literal"><span class="pre">long</span></code> type no longer exists in Python 3. <code class="docutils literal"><span class="pre">1L</span></code> is a syntax error. Use
+<code class="xref py py-data docutils literal"><span class="pre">six.integer_types</span></code> check if a value is an integer or a long:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="nb">isinstance</span><span class="p">(</span><span class="n">myvalue</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">integer_types</span><span class="p">)</span>      <span class="c"># replacement for (int, long)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="xrange">
+<h4><code class="docutils literal"><span class="pre">xrange</span></code><a class="headerlink" href="#xrange" title="永久链接至标题">¶</a></h4>
+<p>If you use <code class="docutils literal"><span class="pre">xrange</span></code> on Python 2, import <code class="docutils literal"><span class="pre">six.moves.range</span></code> and use that
+instead. You can also import <code class="docutils literal"><span class="pre">six.moves.xrange</span></code> (it’s equivalent to
+<code class="docutils literal"><span class="pre">six.moves.range</span></code>) but the first technique allows you to simply drop the
+import when dropping support for Python 2.</p>
+</div>
+<div class="section" id="moved-modules">
+<h4>Moved modules<a class="headerlink" href="#moved-modules" title="永久链接至标题">¶</a></h4>
+<p>Some modules were renamed in Python 3. The <code class="docutils literal"><span class="pre">django.utils.six.moves</span></code>
+module (based on the <code class="xref py py-mod docutils literal"><span class="pre">six.moves</span> <span class="pre">module</span></code>) provides a
+compatible location to import them.</p>
+</div>
+<div class="section" id="py2">
+<h4><code class="docutils literal"><span class="pre">PY2</span></code><a class="headerlink" href="#py2" title="永久链接至标题">¶</a></h4>
+<p>If you need different code in Python 2 and Python 3, check <code class="xref py py-data docutils literal"><span class="pre">six.PY2</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">if</span> <span class="n">six</span><span class="o">.</span><span class="n">PY2</span><span class="p">:</span>
+    <span class="c"># compatibility code for Python 2</span>
+</pre></div>
+</div>
+<p>This is a last resort solution when <code class="xref py py-mod docutils literal"><span class="pre">six</span></code> doesn’t provide an appropriate
+function.</p>
+<span class="target" id="module-django.utils.six"></span></div>
+</div>
+<div class="section" id="django-customized-version-of-six">
+<h3>Django customized version of <code class="docutils literal"><span class="pre">six</span></code><a class="headerlink" href="#django-customized-version-of-six" title="永久链接至标题">¶</a></h3>
+<p>The version of six bundled with Django (<code class="docutils literal"><span class="pre">django.utils.six</span></code>) includes a few
+customizations for internal use only.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

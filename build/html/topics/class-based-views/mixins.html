@@ -1,0 +1,859 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Using mixins with class-based views &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Using mixins with class-based views</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/topics/class-based-views/mixins.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="using-mixins-with-class-based-views">
+<h1>Using mixins with class-based views<a class="headerlink" href="#using-mixins-with-class-based-views" title="永久链接至标题">¶</a></h1>
+<div class="admonition caution">
+<p class="first admonition-title">警告</p>
+<p class="last">This is an advanced topic. A working knowledge of <a class="reference internal" href="index.html"><span class="doc">Django’s
+class-based views</span></a> is advised before exploring these
+techniques.</p>
+</div>
+<p>Django’s built-in class-based views provide a lot of functionality,
+but some of it you may want to use separately. For instance, you may
+want to write a view that renders a template to make the HTTP
+response, but you can’t use
+<a class="reference internal" href="../../ref/class-based-views/base.html#django.views.generic.base.TemplateView" title="django.views.generic.base.TemplateView"><code class="xref py py-class docutils literal"><span class="pre">TemplateView</span></code></a>; perhaps you need to
+render a template only on <code class="docutils literal"><span class="pre">POST</span></code>, with <code class="docutils literal"><span class="pre">GET</span></code> doing something else
+entirely. While you could use
+<a class="reference internal" href="../../ref/template-response.html#django.template.response.TemplateResponse" title="django.template.response.TemplateResponse"><code class="xref py py-class docutils literal"><span class="pre">TemplateResponse</span></code></a> directly, this
+will likely result in duplicate code.</p>
+<p>For this reason, Django also provides a number of mixins that provide
+more discrete functionality. Template rendering, for instance, is
+encapsulated in the
+<a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.TemplateResponseMixin" title="django.views.generic.base.TemplateResponseMixin"><code class="xref py py-class docutils literal"><span class="pre">TemplateResponseMixin</span></code></a>. The Django
+reference documentation contains <a class="reference internal" href="../../ref/class-based-views/mixins.html"><span class="doc">full documentation of all the
+mixins</span></a>.</p>
+<div class="section" id="context-and-template-responses">
+<h2>Context and template responses<a class="headerlink" href="#context-and-template-responses" title="永久链接至标题">¶</a></h2>
+<p>Two central mixins are provided that help in providing a consistent
+interface to working with templates in class-based views.</p>
+<dl class="docutils">
+<dt><a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.TemplateResponseMixin" title="django.views.generic.base.TemplateResponseMixin"><code class="xref py py-class docutils literal"><span class="pre">TemplateResponseMixin</span></code></a></dt>
+<dd><p class="first">Every built in view which returns a
+<a class="reference internal" href="../../ref/template-response.html#django.template.response.TemplateResponse" title="django.template.response.TemplateResponse"><code class="xref py py-class docutils literal"><span class="pre">TemplateResponse</span></code></a> will call the
+<a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.TemplateResponseMixin.render_to_response" title="django.views.generic.base.TemplateResponseMixin.render_to_response"><code class="xref py py-meth docutils literal"><span class="pre">render_to_response()</span></code></a>
+method that <code class="docutils literal"><span class="pre">TemplateResponseMixin</span></code> provides. Most of the time this
+will be called for you (for instance, it is called by the <code class="docutils literal"><span class="pre">get()</span></code> method
+implemented by both <a class="reference internal" href="../../ref/class-based-views/base.html#django.views.generic.base.TemplateView" title="django.views.generic.base.TemplateView"><code class="xref py py-class docutils literal"><span class="pre">TemplateView</span></code></a> and
+<a class="reference internal" href="../../ref/class-based-views/generic-display.html#django.views.generic.detail.DetailView" title="django.views.generic.detail.DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a>); similarly, it’s unlikely
+that you’ll need to override it, although if you want your response to
+return something not rendered via a Django template then you’ll want to do
+it. For an example of this, see the <a class="reference internal" href="#jsonresponsemixin-example"><span class="std std-ref">JSONResponseMixin example</span></a>.</p>
+<p class="last"><code class="docutils literal"><span class="pre">render_to_response()</span></code> itself calls
+<a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.TemplateResponseMixin.get_template_names" title="django.views.generic.base.TemplateResponseMixin.get_template_names"><code class="xref py py-meth docutils literal"><span class="pre">get_template_names()</span></code></a>,
+which by default will just look up
+<a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.TemplateResponseMixin.template_name" title="django.views.generic.base.TemplateResponseMixin.template_name"><code class="xref py py-attr docutils literal"><span class="pre">template_name</span></code></a> on
+the class-based view; two other mixins
+(<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectTemplateResponseMixin" title="django.views.generic.detail.SingleObjectTemplateResponseMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectTemplateResponseMixin</span></code></a>
+and
+<a class="reference internal" href="../../ref/class-based-views/mixins-multiple-object.html#django.views.generic.list.MultipleObjectTemplateResponseMixin" title="django.views.generic.list.MultipleObjectTemplateResponseMixin"><code class="xref py py-class docutils literal"><span class="pre">MultipleObjectTemplateResponseMixin</span></code></a>)
+override this to provide more flexible defaults when dealing with actual
+objects.</p>
+</dd>
+<dt><a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.ContextMixin" title="django.views.generic.base.ContextMixin"><code class="xref py py-class docutils literal"><span class="pre">ContextMixin</span></code></a></dt>
+<dd>Every built in view which needs context data, such as for rendering a
+template (including <code class="docutils literal"><span class="pre">TemplateResponseMixin</span></code> above), should call
+<a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.ContextMixin.get_context_data" title="django.views.generic.base.ContextMixin.get_context_data"><code class="xref py py-meth docutils literal"><span class="pre">get_context_data()</span></code></a> passing
+any data they want to ensure is in there as keyword arguments.
+<code class="docutils literal"><span class="pre">get_context_data()</span></code> returns a dictionary; in <code class="docutils literal"><span class="pre">ContextMixin</span></code> it
+simply returns its keyword arguments, but it is common to override this to
+add more members to the dictionary.</dd>
+</dl>
+</div>
+<div class="section" id="building-up-django-s-generic-class-based-views">
+<h2>Building up Django’s generic class-based views<a class="headerlink" href="#building-up-django-s-generic-class-based-views" title="永久链接至标题">¶</a></h2>
+<p>Let’s look at how two of Django’s generic class-based views are built
+out of mixins providing discrete functionality. We’ll consider
+<a class="reference internal" href="../../ref/class-based-views/generic-display.html#django.views.generic.detail.DetailView" title="django.views.generic.detail.DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a>, which renders a
+“detail” view of an object, and
+<a class="reference internal" href="../../ref/class-based-views/generic-display.html#django.views.generic.list.ListView" title="django.views.generic.list.ListView"><code class="xref py py-class docutils literal"><span class="pre">ListView</span></code></a>, which will render a list
+of objects, typically from a queryset, and optionally paginate
+them. This will introduce us to four mixins which between them provide
+useful functionality when working with either a single Django object,
+or multiple objects.</p>
+<p>There are also mixins involved in the generic edit views
+(<a class="reference internal" href="../../ref/class-based-views/generic-editing.html#django.views.generic.edit.FormView" title="django.views.generic.edit.FormView"><code class="xref py py-class docutils literal"><span class="pre">FormView</span></code></a>, and the model-specific
+views <a class="reference internal" href="../../ref/class-based-views/generic-editing.html#django.views.generic.edit.CreateView" title="django.views.generic.edit.CreateView"><code class="xref py py-class docutils literal"><span class="pre">CreateView</span></code></a>,
+<a class="reference internal" href="../../ref/class-based-views/generic-editing.html#django.views.generic.edit.UpdateView" title="django.views.generic.edit.UpdateView"><code class="xref py py-class docutils literal"><span class="pre">UpdateView</span></code></a> and
+<a class="reference internal" href="../../ref/class-based-views/generic-editing.html#django.views.generic.edit.DeleteView" title="django.views.generic.edit.DeleteView"><code class="xref py py-class docutils literal"><span class="pre">DeleteView</span></code></a>), and in the
+date-based generic views. These are
+covered in the <a class="reference internal" href="../../ref/class-based-views/mixins.html"><span class="doc">mixin reference
+documentation</span></a>.</p>
+<div class="section" id="detailview-working-with-a-single-django-object">
+<h3><code class="docutils literal"><span class="pre">DetailView</span></code>: working with a single Django object<a class="headerlink" href="#detailview-working-with-a-single-django-object" title="永久链接至标题">¶</a></h3>
+<p>To show the detail of an object, we basically need to do two things:
+we need to look up the object and then we need to make a
+<a class="reference internal" href="../../ref/template-response.html#django.template.response.TemplateResponse" title="django.template.response.TemplateResponse"><code class="xref py py-class docutils literal"><span class="pre">TemplateResponse</span></code></a> with a suitable template,
+and that object as context.</p>
+<p>To get the object, <a class="reference internal" href="../../ref/class-based-views/generic-display.html#django.views.generic.detail.DetailView" title="django.views.generic.detail.DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a>
+relies on <a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin" title="django.views.generic.detail.SingleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectMixin</span></code></a>,
+which provides a
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin.get_object" title="django.views.generic.detail.SingleObjectMixin.get_object"><code class="xref py py-meth docutils literal"><span class="pre">get_object()</span></code></a>
+method that figures out the object based on the URL of the request (it
+looks for <code class="docutils literal"><span class="pre">pk</span></code> and <code class="docutils literal"><span class="pre">slug</span></code> keyword arguments as declared in the
+URLConf, and looks the object up either from the
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin.model" title="django.views.generic.detail.SingleObjectMixin.model"><code class="xref py py-attr docutils literal"><span class="pre">model</span></code></a> attribute
+on the view, or the
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin.queryset" title="django.views.generic.detail.SingleObjectMixin.queryset"><code class="xref py py-attr docutils literal"><span class="pre">queryset</span></code></a>
+attribute if that’s provided). <code class="docutils literal"><span class="pre">SingleObjectMixin</span></code> also overrides
+<a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.ContextMixin.get_context_data" title="django.views.generic.base.ContextMixin.get_context_data"><code class="xref py py-meth docutils literal"><span class="pre">get_context_data()</span></code></a>,
+which is used across all Django’s built in class-based views to supply
+context data for template renders.</p>
+<p>To then make a <a class="reference internal" href="../../ref/template-response.html#django.template.response.TemplateResponse" title="django.template.response.TemplateResponse"><code class="xref py py-class docutils literal"><span class="pre">TemplateResponse</span></code></a>,
+<a class="reference internal" href="../../ref/class-based-views/flattened-index.html#DetailView" title="DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a> uses
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectTemplateResponseMixin" title="django.views.generic.detail.SingleObjectTemplateResponseMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectTemplateResponseMixin</span></code></a>,
+which extends <a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.TemplateResponseMixin" title="django.views.generic.base.TemplateResponseMixin"><code class="xref py py-class docutils literal"><span class="pre">TemplateResponseMixin</span></code></a>,
+overriding
+<a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.TemplateResponseMixin.get_template_names" title="django.views.generic.base.TemplateResponseMixin.get_template_names"><code class="xref py py-meth docutils literal"><span class="pre">get_template_names()</span></code></a>
+as discussed above. It actually provides a fairly sophisticated set of options,
+but the main one that most people are going to use is
+<code class="docutils literal"><span class="pre">&lt;app_label&gt;/&lt;model_name&gt;_detail.html</span></code>. The <code class="docutils literal"><span class="pre">_detail</span></code> part can be changed
+by setting
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectTemplateResponseMixin.template_name_suffix" title="django.views.generic.detail.SingleObjectTemplateResponseMixin.template_name_suffix"><code class="xref py py-attr docutils literal"><span class="pre">template_name_suffix</span></code></a>
+on a subclass to something else. (For instance, the <a class="reference internal" href="generic-editing.html"><span class="doc">generic edit
+views</span></a> use <code class="docutils literal"><span class="pre">_form</span></code> for create and update views, and
+<code class="docutils literal"><span class="pre">_confirm_delete</span></code> for delete views.)</p>
+</div>
+<div class="section" id="listview-working-with-many-django-objects">
+<h3><code class="docutils literal"><span class="pre">ListView</span></code>: working with many Django objects<a class="headerlink" href="#listview-working-with-many-django-objects" title="永久链接至标题">¶</a></h3>
+<p>Lists of objects follow roughly the same pattern: we need a (possibly
+paginated) list of objects, typically a
+<a class="reference internal" href="../../ref/models/querysets.html#django.db.models.query.QuerySet" title="django.db.models.query.QuerySet"><code class="xref py py-class docutils literal"><span class="pre">QuerySet</span></code></a>, and then we need to make a
+<a class="reference internal" href="../../ref/template-response.html#django.template.response.TemplateResponse" title="django.template.response.TemplateResponse"><code class="xref py py-class docutils literal"><span class="pre">TemplateResponse</span></code></a> with a suitable template
+using that list of objects.</p>
+<p>To get the objects, <a class="reference internal" href="../../ref/class-based-views/generic-display.html#django.views.generic.list.ListView" title="django.views.generic.list.ListView"><code class="xref py py-class docutils literal"><span class="pre">ListView</span></code></a> uses
+<a class="reference internal" href="../../ref/class-based-views/mixins-multiple-object.html#django.views.generic.list.MultipleObjectMixin" title="django.views.generic.list.MultipleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">MultipleObjectMixin</span></code></a>, which
+provides both
+<a class="reference internal" href="../../ref/class-based-views/mixins-multiple-object.html#django.views.generic.list.MultipleObjectMixin.get_queryset" title="django.views.generic.list.MultipleObjectMixin.get_queryset"><code class="xref py py-meth docutils literal"><span class="pre">get_queryset()</span></code></a>
+and
+<a class="reference internal" href="../../ref/class-based-views/mixins-multiple-object.html#django.views.generic.list.MultipleObjectMixin.paginate_queryset" title="django.views.generic.list.MultipleObjectMixin.paginate_queryset"><code class="xref py py-meth docutils literal"><span class="pre">paginate_queryset()</span></code></a>. Unlike
+with <a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin" title="django.views.generic.detail.SingleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectMixin</span></code></a>, there’s no need
+to key off parts of the URL to figure out the queryset to work with, so the
+default just uses the
+<a class="reference internal" href="../../ref/class-based-views/mixins-multiple-object.html#django.views.generic.list.MultipleObjectMixin.queryset" title="django.views.generic.list.MultipleObjectMixin.queryset"><code class="xref py py-attr docutils literal"><span class="pre">queryset</span></code></a> or
+<a class="reference internal" href="../../ref/class-based-views/mixins-multiple-object.html#django.views.generic.list.MultipleObjectMixin.model" title="django.views.generic.list.MultipleObjectMixin.model"><code class="xref py py-attr docutils literal"><span class="pre">model</span></code></a> attribute
+on the view class. A common reason to override
+<a class="reference internal" href="../../ref/class-based-views/mixins-multiple-object.html#django.views.generic.list.MultipleObjectMixin.get_queryset" title="django.views.generic.list.MultipleObjectMixin.get_queryset"><code class="xref py py-meth docutils literal"><span class="pre">get_queryset()</span></code></a>
+here would be to dynamically vary the objects, such as depending on
+the current user or to exclude posts in the future for a blog.</p>
+<p><a class="reference internal" href="../../ref/class-based-views/mixins-multiple-object.html#django.views.generic.list.MultipleObjectMixin" title="django.views.generic.list.MultipleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">MultipleObjectMixin</span></code></a> also overrides
+<a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.ContextMixin.get_context_data" title="django.views.generic.base.ContextMixin.get_context_data"><code class="xref py py-meth docutils literal"><span class="pre">get_context_data()</span></code></a> to
+include appropriate context variables for pagination (providing
+dummies if pagination is disabled). It relies on <code class="docutils literal"><span class="pre">object_list</span></code> being
+passed in as a keyword argument, which <a class="reference internal" href="../../ref/class-based-views/flattened-index.html#ListView" title="ListView"><code class="xref py py-class docutils literal"><span class="pre">ListView</span></code></a> arranges for
+it.</p>
+<p>To make a <a class="reference internal" href="../../ref/template-response.html#django.template.response.TemplateResponse" title="django.template.response.TemplateResponse"><code class="xref py py-class docutils literal"><span class="pre">TemplateResponse</span></code></a>,
+<a class="reference internal" href="../../ref/class-based-views/flattened-index.html#ListView" title="ListView"><code class="xref py py-class docutils literal"><span class="pre">ListView</span></code></a> then uses
+<a class="reference internal" href="../../ref/class-based-views/mixins-multiple-object.html#django.views.generic.list.MultipleObjectTemplateResponseMixin" title="django.views.generic.list.MultipleObjectTemplateResponseMixin"><code class="xref py py-class docutils literal"><span class="pre">MultipleObjectTemplateResponseMixin</span></code></a>;
+as with <a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectTemplateResponseMixin" title="django.views.generic.detail.SingleObjectTemplateResponseMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectTemplateResponseMixin</span></code></a>
+above, this overrides <code class="docutils literal"><span class="pre">get_template_names()</span></code> to provide <a class="reference internal" href="../../ref/class-based-views/mixins-multiple-object.html#django.views.generic.list.MultipleObjectTemplateResponseMixin" title="django.views.generic.list.MultipleObjectTemplateResponseMixin"><code class="xref py py-meth docutils literal"><span class="pre">a</span> <span class="pre">range</span> <span class="pre">of</span>
+<span class="pre">options</span></code></a>,
+with the most commonly-used being
+<code class="docutils literal"><span class="pre">&lt;app_label&gt;/&lt;model_name&gt;_list.html</span></code>, with the <code class="docutils literal"><span class="pre">_list</span></code> part again
+being taken from the
+<a class="reference internal" href="../../ref/class-based-views/mixins-multiple-object.html#django.views.generic.list.MultipleObjectTemplateResponseMixin.template_name_suffix" title="django.views.generic.list.MultipleObjectTemplateResponseMixin.template_name_suffix"><code class="xref py py-attr docutils literal"><span class="pre">template_name_suffix</span></code></a>
+attribute. (The date based generic views use suffixes such as <code class="docutils literal"><span class="pre">_archive</span></code>,
+<code class="docutils literal"><span class="pre">_archive_year</span></code> and so on to use different templates for the various
+specialized date-based list views.)</p>
+</div>
+</div>
+<div class="section" id="using-django-s-class-based-view-mixins">
+<h2>Using Django’s class-based view mixins<a class="headerlink" href="#using-django-s-class-based-view-mixins" title="永久链接至标题">¶</a></h2>
+<p>Now we’ve seen how Django’s generic class-based views use the provided
+mixins, let’s look at other ways we can combine them. Of course we’re
+still going to be combining them with either built-in class-based
+views, or other generic class-based views, but there are a range of
+rarer problems you can solve than are provided for by Django out of
+the box.</p>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p>Not all mixins can be used together, and not all generic class
+based views can be used with all other mixins. Here we present a
+few examples that do work; if you want to bring together other
+functionality then you’ll have to consider interactions between
+attributes and methods that overlap between the different classes
+you’re using, and how <a class="reference external" href="https://www.python.org/download/releases/2.3/mro/">method resolution order</a> will affect which
+versions of the methods will be called in what order.</p>
+<p>The reference documentation for Django’s <a class="reference internal" href="../../ref/class-based-views/index.html"><span class="doc">class-based
+views</span></a> and <a class="reference internal" href="../../ref/class-based-views/mixins.html"><span class="doc">class-based view
+mixins</span></a> will help you in
+understanding which attributes and methods are likely to cause
+conflict between different classes and mixins.</p>
+<p class="last">If in doubt, it’s often better to back off and base your work on
+<a class="reference internal" href="../../ref/class-based-views/flattened-index.html#View" title="View"><code class="xref py py-class docutils literal"><span class="pre">View</span></code></a> or <a class="reference internal" href="../../ref/class-based-views/flattened-index.html#TemplateView" title="TemplateView"><code class="xref py py-class docutils literal"><span class="pre">TemplateView</span></code></a>, perhaps with
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin" title="django.views.generic.detail.SingleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectMixin</span></code></a> and
+<a class="reference internal" href="../../ref/class-based-views/mixins-multiple-object.html#django.views.generic.list.MultipleObjectMixin" title="django.views.generic.list.MultipleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">MultipleObjectMixin</span></code></a>. Although you
+will probably end up writing more code, it is more likely to be clearly
+understandable to someone else coming to it later, and with fewer
+interactions to worry about you will save yourself some thinking. (Of
+course, you can always dip into Django’s implementation of the generic
+class-based views for inspiration on how to tackle problems.)</p>
+</div>
+<div class="section" id="using-singleobjectmixin-with-view">
+<h3>Using <code class="docutils literal"><span class="pre">SingleObjectMixin</span></code> with View<a class="headerlink" href="#using-singleobjectmixin-with-view" title="永久链接至标题">¶</a></h3>
+<p>If we want to write a simple class-based view that responds only to
+<code class="docutils literal"><span class="pre">POST</span></code>, we’ll subclass <a class="reference internal" href="../../ref/class-based-views/base.html#django.views.generic.base.View" title="django.views.generic.base.View"><code class="xref py py-class docutils literal"><span class="pre">View</span></code></a> and
+write a <code class="docutils literal"><span class="pre">post()</span></code> method in the subclass. However if we want our
+processing to work on a particular object, identified from the URL,
+we’ll want the functionality provided by
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin" title="django.views.generic.detail.SingleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectMixin</span></code></a>.</p>
+<p>We’ll demonstrate this with the <code class="docutils literal"><span class="pre">Author</span></code> model we used in the
+<a class="reference internal" href="generic-display.html"><span class="doc">generic class-based views introduction</span></a>.</p>
+<div class="highlight-default snippet"><div class="snippet-filename">views.py</div>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpResponseForbidden</span><span class="p">,</span> <span class="n">HttpResponseRedirect</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="nn">django.views</span> <span class="k">import</span> <span class="n">View</span>
+<span class="kn">from</span> <span class="nn">django.views.generic.detail</span> <span class="k">import</span> <span class="n">SingleObjectMixin</span>
+<span class="kn">from</span> <span class="nn">books.models</span> <span class="k">import</span> <span class="n">Author</span>
+
+<span class="k">class</span> <span class="nc">RecordInterest</span><span class="p">(</span><span class="n">SingleObjectMixin</span><span class="p">,</span> <span class="n">View</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Records the current user&#39;s interest in an author.&quot;&quot;&quot;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Author</span>
+
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">()</span>
+
+        <span class="c"># Look up the author we&#39;re interested in.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
+        <span class="c"># Actually record interest somehow here!</span>
+
+        <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s">&#39;author-detail&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;pk&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">pk</span><span class="p">}))</span>
+</pre></div>
+</div>
+<p>In practice you’d probably want to record the interest in a key-value
+store rather than in a relational database, so we’ve left that bit
+out. The only bit of the view that needs to worry about using
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin" title="django.views.generic.detail.SingleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectMixin</span></code></a> is where we want to
+look up the author we’re interested in, which it just does with a simple call
+to <code class="docutils literal"><span class="pre">self.get_object()</span></code>. Everything else is taken care of for us by the
+mixin.</p>
+<p>We can hook this into our URLs easily enough:</p>
+<div class="highlight-default snippet"><div class="snippet-filename">urls.py</div>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="k">import</span> <span class="n">url</span>
+<span class="kn">from</span> <span class="nn">books.views</span> <span class="k">import</span> <span class="n">RecordInterest</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c">#...</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^author/(?P&lt;pk&gt;[0-9]+)/interest/$&#39;</span><span class="p">,</span> <span class="n">RecordInterest</span><span class="o">.</span><span class="n">as_view</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;author-interest&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>Note the <code class="docutils literal"><span class="pre">pk</span></code> named group, which
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin.get_object" title="django.views.generic.detail.SingleObjectMixin.get_object"><code class="xref py py-meth docutils literal"><span class="pre">get_object()</span></code></a> uses
+to look up the <code class="docutils literal"><span class="pre">Author</span></code> instance. You could also use a slug, or
+any of the other features of
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin" title="django.views.generic.detail.SingleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectMixin</span></code></a>.</p>
+</div>
+<div class="section" id="using-singleobjectmixin-with-listview">
+<h3>Using <code class="docutils literal"><span class="pre">SingleObjectMixin</span></code> with <code class="docutils literal"><span class="pre">ListView</span></code><a class="headerlink" href="#using-singleobjectmixin-with-listview" title="永久链接至标题">¶</a></h3>
+<p><a class="reference internal" href="../../ref/class-based-views/generic-display.html#django.views.generic.list.ListView" title="django.views.generic.list.ListView"><code class="xref py py-class docutils literal"><span class="pre">ListView</span></code></a> provides built-in
+pagination, but you might want to paginate a list of objects that are
+all linked (by a foreign key) to another object. In our publishing
+example, you might want to paginate through all the books by a
+particular publisher.</p>
+<p>One way to do this is to combine <a class="reference internal" href="../../ref/class-based-views/flattened-index.html#ListView" title="ListView"><code class="xref py py-class docutils literal"><span class="pre">ListView</span></code></a> with
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin" title="django.views.generic.detail.SingleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectMixin</span></code></a>, so that the queryset
+for the paginated list of books can hang off the publisher found as the single
+object. In order to do this, we need to have two different querysets:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">Book</span></code> queryset for use by <a class="reference internal" href="../../ref/class-based-views/generic-display.html#django.views.generic.list.ListView" title="django.views.generic.list.ListView"><code class="xref py py-class docutils literal"><span class="pre">ListView</span></code></a></dt>
+<dd>Since we have access to the <code class="docutils literal"><span class="pre">Publisher</span></code> whose books we want to list, we
+simply override <code class="docutils literal"><span class="pre">get_queryset()</span></code> and use the <code class="docutils literal"><span class="pre">Publisher</span></code>’s
+<a class="reference internal" href="../db/queries.html#backwards-related-objects"><span class="std std-ref">reverse foreign key manager</span></a>.</dd>
+<dt><code class="docutils literal"><span class="pre">Publisher</span></code> queryset for use in <a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin.get_object" title="django.views.generic.detail.SingleObjectMixin.get_object"><code class="xref py py-meth docutils literal"><span class="pre">get_object()</span></code></a></dt>
+<dd>We’ll rely on the default implementation of <code class="docutils literal"><span class="pre">get_object()</span></code> to fetch the
+correct <code class="docutils literal"><span class="pre">Publisher</span></code> object.
+However, we need to explicitly pass a <code class="docutils literal"><span class="pre">queryset</span></code> argument because
+otherwise the default implementation of <code class="docutils literal"><span class="pre">get_object()</span></code> would call
+<code class="docutils literal"><span class="pre">get_queryset()</span></code> which we have overridden to return <code class="docutils literal"><span class="pre">Book</span></code> objects
+instead of <code class="docutils literal"><span class="pre">Publisher</span></code> ones.</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last">We have to think carefully about <code class="docutils literal"><span class="pre">get_context_data()</span></code>.
+Since both <a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin" title="django.views.generic.detail.SingleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectMixin</span></code></a> and
+<a class="reference internal" href="../../ref/class-based-views/flattened-index.html#ListView" title="ListView"><code class="xref py py-class docutils literal"><span class="pre">ListView</span></code></a> will
+put things in the context data under the value of
+<code class="docutils literal"><span class="pre">context_object_name</span></code> if it’s set, we’ll instead explicitly
+ensure the <code class="docutils literal"><span class="pre">Publisher</span></code> is in the context data. <a class="reference internal" href="../../ref/class-based-views/flattened-index.html#ListView" title="ListView"><code class="xref py py-class docutils literal"><span class="pre">ListView</span></code></a>
+will add in the suitable <code class="docutils literal"><span class="pre">page_obj</span></code> and <code class="docutils literal"><span class="pre">paginator</span></code> for us
+providing we remember to call <code class="docutils literal"><span class="pre">super()</span></code>.</p>
+</div>
+<p>Now we can write a new <code class="docutils literal"><span class="pre">PublisherDetail</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">ListView</span>
+<span class="kn">from</span> <span class="nn">django.views.generic.detail</span> <span class="k">import</span> <span class="n">SingleObjectMixin</span>
+<span class="kn">from</span> <span class="nn">books.models</span> <span class="k">import</span> <span class="n">Publisher</span>
+
+<span class="k">class</span> <span class="nc">PublisherDetail</span><span class="p">(</span><span class="n">SingleObjectMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">):</span>
+    <span class="n">paginate_by</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s">&quot;books/publisher_detail.html&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">(</span><span class="n">queryset</span><span class="o">=</span><span class="n">Publisher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PublisherDetail</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PublisherDetail</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">context</span><span class="p">[</span><span class="s">&#39;publisher&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span>
+        <span class="k">return</span> <span class="n">context</span>
+
+    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">book_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Notice how we set <code class="docutils literal"><span class="pre">self.object</span></code> within <code class="docutils literal"><span class="pre">get()</span></code> so we
+can use it again later in <code class="docutils literal"><span class="pre">get_context_data()</span></code> and <code class="docutils literal"><span class="pre">get_queryset()</span></code>.
+If you don’t set <code class="docutils literal"><span class="pre">template_name</span></code>, the template will default to the normal
+<a class="reference internal" href="../../ref/class-based-views/flattened-index.html#ListView" title="ListView"><code class="xref py py-class docutils literal"><span class="pre">ListView</span></code></a> choice, which in this case would be
+<code class="docutils literal"><span class="pre">&quot;books/book_list.html&quot;</span></code> because it’s a list of books;
+<a class="reference internal" href="../../ref/class-based-views/flattened-index.html#ListView" title="ListView"><code class="xref py py-class docutils literal"><span class="pre">ListView</span></code></a> knows nothing about
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin" title="django.views.generic.detail.SingleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectMixin</span></code></a>, so it doesn’t have
+any clue this view is anything to do with a <code class="docutils literal"><span class="pre">Publisher</span></code>.</p>
+<p>The <code class="docutils literal"><span class="pre">paginate_by</span></code> is deliberately small in the example so you don’t
+have to create lots of books to see the pagination working! Here’s the
+template you’d want to use:</p>
+<div class="highlight-html+django"><div class="highlight"><pre><span class="cp">{%</span> <span class="k">extends</span> <span class="s2">&quot;base.html&quot;</span> <span class="cp">%}</span>
+
+<span class="cp">{%</span> <span class="k">block</span> <span class="nv">content</span> <span class="cp">%}</span>
+    <span class="nt">&lt;h2&gt;</span>Publisher <span class="cp">{{</span> <span class="nv">publisher.name</span> <span class="cp">}}</span><span class="nt">&lt;/h2&gt;</span>
+
+    <span class="nt">&lt;ol&gt;</span>
+      <span class="cp">{%</span> <span class="k">for</span> <span class="nv">book</span> <span class="k">in</span> <span class="nv">page_obj</span> <span class="cp">%}</span>
+        <span class="nt">&lt;li&gt;</span><span class="cp">{{</span> <span class="nv">book.title</span> <span class="cp">}}</span><span class="nt">&lt;/li&gt;</span>
+      <span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+    <span class="nt">&lt;/ol&gt;</span>
+
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;pagination&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;step-links&quot;</span><span class="nt">&gt;</span>
+            <span class="cp">{%</span> <span class="k">if</span> <span class="nv">page_obj.has_previous</span> <span class="cp">%}</span>
+                <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;?page=</span><span class="cp">{{</span> <span class="nv">page_obj.previous_page_number</span> <span class="cp">}}</span><span class="s">&quot;</span><span class="nt">&gt;</span>previous<span class="nt">&lt;/a&gt;</span>
+            <span class="cp">{%</span> <span class="k">endif</span> <span class="cp">%}</span>
+
+            <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;current&quot;</span><span class="nt">&gt;</span>
+                Page <span class="cp">{{</span> <span class="nv">page_obj.number</span> <span class="cp">}}</span> of <span class="cp">{{</span> <span class="nv">paginator.num_pages</span> <span class="cp">}}</span>.
+            <span class="nt">&lt;/span&gt;</span>
+
+            <span class="cp">{%</span> <span class="k">if</span> <span class="nv">page_obj.has_next</span> <span class="cp">%}</span>
+                <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;?page=</span><span class="cp">{{</span> <span class="nv">page_obj.next_page_number</span> <span class="cp">}}</span><span class="s">&quot;</span><span class="nt">&gt;</span>next<span class="nt">&lt;/a&gt;</span>
+            <span class="cp">{%</span> <span class="k">endif</span> <span class="cp">%}</span>
+        <span class="nt">&lt;/span&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+<span class="cp">{%</span> <span class="k">endblock</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="avoid-anything-more-complex">
+<h2>Avoid anything more complex<a class="headerlink" href="#avoid-anything-more-complex" title="永久链接至标题">¶</a></h2>
+<p>Generally you can use
+<a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.TemplateResponseMixin" title="django.views.generic.base.TemplateResponseMixin"><code class="xref py py-class docutils literal"><span class="pre">TemplateResponseMixin</span></code></a> and
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin" title="django.views.generic.detail.SingleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectMixin</span></code></a> when you need
+their functionality. As shown above, with a bit of care you can even
+combine <code class="docutils literal"><span class="pre">SingleObjectMixin</span></code> with
+<a class="reference internal" href="../../ref/class-based-views/generic-display.html#django.views.generic.list.ListView" title="django.views.generic.list.ListView"><code class="xref py py-class docutils literal"><span class="pre">ListView</span></code></a>. However things get
+increasingly complex as you try to do so, and a good rule of thumb is:</p>
+<div class="admonition hint">
+<p class="first admonition-title">提示</p>
+<p class="last">Each of your views should use only mixins or views from one of the
+groups of generic class-based views: <a class="reference internal" href="generic-display.html"><span class="doc">detail,
+list</span></a>, <a class="reference internal" href="generic-editing.html"><span class="doc">editing</span></a> and
+date. For example it’s fine to combine
+<a class="reference internal" href="../../ref/class-based-views/flattened-index.html#TemplateView" title="TemplateView"><code class="xref py py-class docutils literal"><span class="pre">TemplateView</span></code></a> (built in view) with
+<a class="reference internal" href="../../ref/class-based-views/mixins-multiple-object.html#django.views.generic.list.MultipleObjectMixin" title="django.views.generic.list.MultipleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">MultipleObjectMixin</span></code></a> (generic list), but
+you’re likely to have problems combining <code class="docutils literal"><span class="pre">SingleObjectMixin</span></code> (generic
+detail) with <code class="docutils literal"><span class="pre">MultipleObjectMixin</span></code> (generic list).</p>
+</div>
+<p>To show what happens when you try to get more sophisticated, we show
+an example that sacrifices readability and maintainability when there
+is a simpler solution. First, let’s look at a naive attempt to combine
+<a class="reference internal" href="../../ref/class-based-views/generic-display.html#django.views.generic.detail.DetailView" title="django.views.generic.detail.DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a> with
+<a class="reference internal" href="../../ref/class-based-views/mixins-editing.html#django.views.generic.edit.FormMixin" title="django.views.generic.edit.FormMixin"><code class="xref py py-class docutils literal"><span class="pre">FormMixin</span></code></a> to enable us to
+<code class="docutils literal"><span class="pre">POST</span></code> a Django <a class="reference internal" href="../../ref/forms/api.html#django.forms.Form" title="django.forms.Form"><code class="xref py py-class docutils literal"><span class="pre">Form</span></code></a> to the same URL as we’re
+displaying an object using <a class="reference internal" href="../../ref/class-based-views/flattened-index.html#DetailView" title="DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a>.</p>
+<div class="section" id="using-formmixin-with-detailview">
+<h3>Using <code class="docutils literal"><span class="pre">FormMixin</span></code> with <code class="docutils literal"><span class="pre">DetailView</span></code><a class="headerlink" href="#using-formmixin-with-detailview" title="永久链接至标题">¶</a></h3>
+<p>Think back to our earlier example of using <a class="reference internal" href="../../ref/class-based-views/flattened-index.html#View" title="View"><code class="xref py py-class docutils literal"><span class="pre">View</span></code></a> and
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin" title="django.views.generic.detail.SingleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectMixin</span></code></a> together. We were
+recording a user’s interest in a particular author; say now that we want to
+let them leave a message saying why they like them. Again, let’s assume we’re
+not going to store this in a relational database but instead in
+something more esoteric that we won’t worry about here.</p>
+<p>At this point it’s natural to reach for a <a class="reference internal" href="../../ref/forms/api.html#django.forms.Form" title="django.forms.Form"><code class="xref py py-class docutils literal"><span class="pre">Form</span></code></a> to
+encapsulate the information sent from the user’s browser to Django. Say also
+that we’re heavily invested in <a class="reference external" href="https://en.wikipedia.org/wiki/Representational_state_transfer">REST</a>, so we want to use the same URL for
+displaying the author as for capturing the message from the
+user. Let’s rewrite our <code class="docutils literal"><span class="pre">AuthorDetailView</span></code> to do that.</p>
+<p>We’ll keep the <code class="docutils literal"><span class="pre">GET</span></code> handling from <a class="reference internal" href="../../ref/class-based-views/flattened-index.html#DetailView" title="DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a>, although
+we’ll have to add a <a class="reference internal" href="../../ref/forms/api.html#django.forms.Form" title="django.forms.Form"><code class="xref py py-class docutils literal"><span class="pre">Form</span></code></a> into the context data so we can
+render it in the template. We’ll also want to pull in form processing
+from <a class="reference internal" href="../../ref/class-based-views/mixins-editing.html#django.views.generic.edit.FormMixin" title="django.views.generic.edit.FormMixin"><code class="xref py py-class docutils literal"><span class="pre">FormMixin</span></code></a>, and write a bit of
+code so that on <code class="docutils literal"><span class="pre">POST</span></code> the form gets called appropriately.</p>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last">We use <a class="reference internal" href="../../ref/class-based-views/mixins-editing.html#django.views.generic.edit.FormMixin" title="django.views.generic.edit.FormMixin"><code class="xref py py-class docutils literal"><span class="pre">FormMixin</span></code></a> and implement
+<code class="docutils literal"><span class="pre">post()</span></code> ourselves rather than try to mix <a class="reference internal" href="../../ref/class-based-views/flattened-index.html#DetailView" title="DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a> with
+<a class="reference internal" href="../../ref/class-based-views/flattened-index.html#FormView" title="FormView"><code class="xref py py-class docutils literal"><span class="pre">FormView</span></code></a> (which provides a suitable <code class="docutils literal"><span class="pre">post()</span></code> already) because
+both of the views implement <code class="docutils literal"><span class="pre">get()</span></code>, and things would get much more
+confusing.</p>
+</div>
+<p>Our new <code class="docutils literal"><span class="pre">AuthorDetail</span></code> looks like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="c"># CAUTION: you almost certainly do not want to do this.</span>
+<span class="c"># It is provided as part of a discussion of problems you can</span>
+<span class="c"># run into when combining different generic class-based view</span>
+<span class="c"># functionality that is not designed to be used together.</span>
+
+<span class="kn">from</span> <span class="nn">django</span> <span class="k">import</span> <span class="n">forms</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpResponseForbidden</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">DetailView</span>
+<span class="kn">from</span> <span class="nn">django.views.generic.edit</span> <span class="k">import</span> <span class="n">FormMixin</span>
+<span class="kn">from</span> <span class="nn">books.models</span> <span class="k">import</span> <span class="n">Author</span>
+
+<span class="k">class</span> <span class="nc">AuthorInterestForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">AuthorDetail</span><span class="p">(</span><span class="n">FormMixin</span><span class="p">,</span> <span class="n">DetailView</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Author</span>
+    <span class="n">form_class</span> <span class="o">=</span> <span class="n">AuthorInterestForm</span>
+
+    <span class="k">def</span> <span class="nf">get_success_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">reverse</span><span class="p">(</span><span class="s">&#39;author-detail&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;pk&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">pk</span><span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">AuthorDetail</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">context</span><span class="p">[</span><span class="s">&#39;form&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_form</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">context</span>
+
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_form</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_valid</span><span class="p">(</span><span class="n">form</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_invalid</span><span class="p">(</span><span class="n">form</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">form_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">):</span>
+        <span class="c"># Here, we would record the user&#39;s interest using the message</span>
+        <span class="c"># passed in form.cleaned_data[&#39;message&#39;]</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">AuthorDetail</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">form_valid</span><span class="p">(</span><span class="n">form</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">get_success_url()</span></code> is just providing somewhere to redirect to,
+which gets used in the default implementation of
+<code class="docutils literal"><span class="pre">form_valid()</span></code>. We have to provide our own <code class="docutils literal"><span class="pre">post()</span></code> as
+noted earlier, and override <code class="docutils literal"><span class="pre">get_context_data()</span></code> to make the
+<a class="reference internal" href="../../ref/forms/api.html#django.forms.Form" title="django.forms.Form"><code class="xref py py-class docutils literal"><span class="pre">Form</span></code></a> available in the context data.</p>
+</div>
+<div class="section" id="a-better-solution">
+<h3>A better solution<a class="headerlink" href="#a-better-solution" title="永久链接至标题">¶</a></h3>
+<p>It should be obvious that the number of subtle interactions between
+<a class="reference internal" href="../../ref/class-based-views/mixins-editing.html#django.views.generic.edit.FormMixin" title="django.views.generic.edit.FormMixin"><code class="xref py py-class docutils literal"><span class="pre">FormMixin</span></code></a> and <a class="reference internal" href="../../ref/class-based-views/flattened-index.html#DetailView" title="DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a> is
+already testing our ability to manage things. It’s unlikely you’d want to
+write this kind of class yourself.</p>
+<p>In this case, it would be fairly easy to just write the <code class="docutils literal"><span class="pre">post()</span></code>
+method yourself, keeping <a class="reference internal" href="../../ref/class-based-views/flattened-index.html#DetailView" title="DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a> as the only generic
+functionality, although writing <a class="reference internal" href="../../ref/forms/api.html#django.forms.Form" title="django.forms.Form"><code class="xref py py-class docutils literal"><span class="pre">Form</span></code></a> handling code
+involves a lot of duplication.</p>
+<p>Alternatively, it would still be easier than the above approach to
+have a separate view for processing the form, which could use
+<a class="reference internal" href="../../ref/class-based-views/generic-editing.html#django.views.generic.edit.FormView" title="django.views.generic.edit.FormView"><code class="xref py py-class docutils literal"><span class="pre">FormView</span></code></a> distinct from
+<a class="reference internal" href="../../ref/class-based-views/flattened-index.html#DetailView" title="DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a> without concerns.</p>
+</div>
+<div class="section" id="an-alternative-better-solution">
+<h3>An alternative better solution<a class="headerlink" href="#an-alternative-better-solution" title="永久链接至标题">¶</a></h3>
+<p>What we’re really trying to do here is to use two different class
+based views from the same URL. So why not do just that? We have a very
+clear division here: <code class="docutils literal"><span class="pre">GET</span></code> requests should get the
+<a class="reference internal" href="../../ref/class-based-views/flattened-index.html#DetailView" title="DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a> (with the <a class="reference internal" href="../../ref/forms/api.html#django.forms.Form" title="django.forms.Form"><code class="xref py py-class docutils literal"><span class="pre">Form</span></code></a> added to the context
+data), and <code class="docutils literal"><span class="pre">POST</span></code> requests should get the <a class="reference internal" href="../../ref/class-based-views/flattened-index.html#FormView" title="FormView"><code class="xref py py-class docutils literal"><span class="pre">FormView</span></code></a>. Let’s
+set up those views first.</p>
+<p>The <code class="docutils literal"><span class="pre">AuthorDisplay</span></code> view is almost the same as <a class="reference internal" href="generic-display.html#generic-views-extra-work"><span class="std std-ref">when we
+first introduced AuthorDetail</span></a>; we have to
+write our own <code class="docutils literal"><span class="pre">get_context_data()</span></code> to make the
+<code class="docutils literal"><span class="pre">AuthorInterestForm</span></code> available to the template. We’ll skip the
+<code class="docutils literal"><span class="pre">get_object()</span></code> override from before for clarity:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">DetailView</span>
+<span class="kn">from</span> <span class="nn">django</span> <span class="k">import</span> <span class="n">forms</span>
+<span class="kn">from</span> <span class="nn">books.models</span> <span class="k">import</span> <span class="n">Author</span>
+
+<span class="k">class</span> <span class="nc">AuthorInterestForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">AuthorDisplay</span><span class="p">(</span><span class="n">DetailView</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Author</span>
+
+    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">AuthorDisplay</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">context</span><span class="p">[</span><span class="s">&#39;form&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AuthorInterestForm</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">context</span>
+</pre></div>
+</div>
+<p>Then the <code class="docutils literal"><span class="pre">AuthorInterest</span></code> is a simple <a class="reference internal" href="../../ref/class-based-views/flattened-index.html#FormView" title="FormView"><code class="xref py py-class docutils literal"><span class="pre">FormView</span></code></a>, but we
+have to bring in <a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectMixin" title="django.views.generic.detail.SingleObjectMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectMixin</span></code></a> so we
+can find the author we’re talking about, and we have to remember to set
+<code class="docutils literal"><span class="pre">template_name</span></code> to ensure that form errors will render the same
+template as <code class="docutils literal"><span class="pre">AuthorDisplay</span></code> is using on <code class="docutils literal"><span class="pre">GET</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpResponseForbidden</span>
+<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">FormView</span>
+<span class="kn">from</span> <span class="nn">django.views.generic.detail</span> <span class="k">import</span> <span class="n">SingleObjectMixin</span>
+
+<span class="k">class</span> <span class="nc">AuthorInterest</span><span class="p">(</span><span class="n">SingleObjectMixin</span><span class="p">,</span> <span class="n">FormView</span><span class="p">):</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s">&#39;books/author_detail.html&#39;</span>
+    <span class="n">form_class</span> <span class="o">=</span> <span class="n">AuthorInterestForm</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Author</span>
+
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">AuthorInterest</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_success_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">reverse</span><span class="p">(</span><span class="s">&#39;author-detail&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;pk&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">pk</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Finally we bring this together in a new <code class="docutils literal"><span class="pre">AuthorDetail</span></code> view. We
+already know that calling <a class="reference internal" href="../../ref/class-based-views/base.html#django.views.generic.base.View.as_view" title="django.views.generic.base.View.as_view"><code class="xref py py-meth docutils literal"><span class="pre">as_view()</span></code></a> on
+a class-based view gives us something that behaves exactly like a function
+based view, so we can do that at the point we choose between the two subviews.</p>
+<p>You can of course pass through keyword arguments to
+<a class="reference internal" href="../../ref/class-based-views/base.html#django.views.generic.base.View.as_view" title="django.views.generic.base.View.as_view"><code class="xref py py-meth docutils literal"><span class="pre">as_view()</span></code></a> in the same way you
+would in your URLconf, such as if you wanted the <code class="docutils literal"><span class="pre">AuthorInterest</span></code> behavior
+to also appear at another URL but using a different template:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.views</span> <span class="k">import</span> <span class="n">View</span>
+
+<span class="k">class</span> <span class="nc">AuthorDetail</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="n">AuthorDisplay</span><span class="o">.</span><span class="n">as_view</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="n">AuthorInterest</span><span class="o">.</span><span class="n">as_view</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This approach can also be used with any other generic class-based
+views or your own class-based views inheriting directly from
+<a class="reference internal" href="../../ref/class-based-views/flattened-index.html#View" title="View"><code class="xref py py-class docutils literal"><span class="pre">View</span></code></a> or <a class="reference internal" href="../../ref/class-based-views/flattened-index.html#TemplateView" title="TemplateView"><code class="xref py py-class docutils literal"><span class="pre">TemplateView</span></code></a>, as it keeps the different
+views as separate as possible.</p>
+</div>
+</div>
+<div class="section" id="more-than-just-html">
+<span id="jsonresponsemixin-example"></span><h2>More than just HTML<a class="headerlink" href="#more-than-just-html" title="永久链接至标题">¶</a></h2>
+<p>Where class-based views shine is when you want to do the same thing many times.
+Suppose you’re writing an API, and every view should return JSON instead of
+rendered HTML.</p>
+<p>We can create a mixin class to use in all of our views, handling the
+conversion to JSON once.</p>
+<p>For example, a simple JSON mixin might look something like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">JsonResponse</span>
+
+<span class="k">class</span> <span class="nc">JSONResponseMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A mixin that can be used to render a JSON response.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">render_to_json_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">response_kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a JSON response, transforming &#39;context&#39; to make the payload.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">context</span><span class="p">),</span>
+            <span class="o">**</span><span class="n">response_kwargs</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an object that will be serialized as JSON by json.dumps().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Note: This is *EXTREMELY* naive; in reality, you&#39;ll need</span>
+        <span class="c"># to do much more complex handling to ensure that arbitrary</span>
+        <span class="c"># objects -- such as Django model instances or querysets</span>
+        <span class="c"># -- can be serialized as JSON.</span>
+        <span class="k">return</span> <span class="n">context</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last">Check out the <a class="reference internal" href="../serialization.html"><span class="doc">Serializing Django objects</span></a> documentation for more
+information on how to correctly transform Django models and querysets into
+JSON.</p>
+</div>
+<p>This mixin provides a <code class="docutils literal"><span class="pre">render_to_json_response()</span></code> method with the same signature
+as <a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.TemplateResponseMixin.render_to_response" title="django.views.generic.base.TemplateResponseMixin.render_to_response"><code class="xref py py-func docutils literal"><span class="pre">render_to_response()</span></code></a>.
+To use it, we simply need to mix it into a <code class="docutils literal"><span class="pre">TemplateView</span></code> for example,
+and override <code class="docutils literal"><span class="pre">render_to_response()</span></code> to call <code class="docutils literal"><span class="pre">render_to_json_response()</span></code> instead:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">TemplateView</span>
+
+<span class="k">class</span> <span class="nc">JSONView</span><span class="p">(</span><span class="n">JSONResponseMixin</span><span class="p">,</span> <span class="n">TemplateView</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">render_to_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">response_kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_to_json_response</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">response_kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Equally we could use our mixin with one of the generic views. We can make our
+own version of <a class="reference internal" href="../../ref/class-based-views/generic-display.html#django.views.generic.detail.DetailView" title="django.views.generic.detail.DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a> by mixing
+<code class="docutils literal"><span class="pre">JSONResponseMixin</span></code> with the
+<code class="docutils literal"><span class="pre">django.views.generic.detail.BaseDetailView</span></code> – (the
+<a class="reference internal" href="../../ref/class-based-views/generic-display.html#django.views.generic.detail.DetailView" title="django.views.generic.detail.DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a> before template
+rendering behavior has been mixed in):</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.views.generic.detail</span> <span class="k">import</span> <span class="n">BaseDetailView</span>
+
+<span class="k">class</span> <span class="nc">JSONDetailView</span><span class="p">(</span><span class="n">JSONResponseMixin</span><span class="p">,</span> <span class="n">BaseDetailView</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">render_to_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">response_kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_to_json_response</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">response_kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This view can then be deployed in the same way as any other
+<a class="reference internal" href="../../ref/class-based-views/generic-display.html#django.views.generic.detail.DetailView" title="django.views.generic.detail.DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a>, with exactly the
+same behavior – except for the format of the response.</p>
+<p>If you want to be really adventurous, you could even mix a
+<a class="reference internal" href="../../ref/class-based-views/generic-display.html#django.views.generic.detail.DetailView" title="django.views.generic.detail.DetailView"><code class="xref py py-class docutils literal"><span class="pre">DetailView</span></code></a> subclass that is able
+to return <em>both</em> HTML and JSON content, depending on some property of
+the HTTP request, such as a query argument or a HTTP header. Just mix
+in both the <code class="docutils literal"><span class="pre">JSONResponseMixin</span></code> and a
+<a class="reference internal" href="../../ref/class-based-views/mixins-single-object.html#django.views.generic.detail.SingleObjectTemplateResponseMixin" title="django.views.generic.detail.SingleObjectTemplateResponseMixin"><code class="xref py py-class docutils literal"><span class="pre">SingleObjectTemplateResponseMixin</span></code></a>,
+and override the implementation of
+<a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.TemplateResponseMixin.render_to_response" title="django.views.generic.base.TemplateResponseMixin.render_to_response"><code class="xref py py-func docutils literal"><span class="pre">render_to_response()</span></code></a>
+to defer to the appropriate rendering method depending on the type of response
+that the user requested:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.views.generic.detail</span> <span class="k">import</span> <span class="n">SingleObjectTemplateResponseMixin</span>
+
+<span class="k">class</span> <span class="nc">HybridDetailView</span><span class="p">(</span><span class="n">JSONResponseMixin</span><span class="p">,</span> <span class="n">SingleObjectTemplateResponseMixin</span><span class="p">,</span> <span class="n">BaseDetailView</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">render_to_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="c"># Look for a &#39;format=json&#39; GET argument</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;format&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;json&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_to_json_response</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">HybridDetailView</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">render_to_response</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Because of the way that Python resolves method overloading, the call to
+<code class="docutils literal"><span class="pre">super(HybridDetailView,</span> <span class="pre">self).render_to_response(context)</span></code> ends up
+calling the
+<a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.TemplateResponseMixin.render_to_response" title="django.views.generic.base.TemplateResponseMixin.render_to_response"><code class="xref py py-meth docutils literal"><span class="pre">render_to_response()</span></code></a>
+implementation of <a class="reference internal" href="../../ref/class-based-views/mixins-simple.html#django.views.generic.base.TemplateResponseMixin" title="django.views.generic.base.TemplateResponseMixin"><code class="xref py py-class docutils literal"><span class="pre">TemplateResponseMixin</span></code></a>.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

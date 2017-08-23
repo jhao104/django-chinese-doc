@@ -1,0 +1,289 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>GeoJSON Serializer &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="docutils literal"><span class="pre">GeoJSON</span></code> Serializer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/ref/contrib/gis/serializers.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-django.contrib.gis.serializers.geojson">
+<span id="geojson-serializer"></span><h1><code class="docutils literal"><span class="pre">GeoJSON</span></code> Serializer<a class="headerlink" href="#module-django.contrib.gis.serializers.geojson" title="永久链接至标题">¶</a></h1>
+<p>GeoDjango provides a specific serializer for the <a class="reference external" href="http://geojson.org/">GeoJSON</a> format. See
+<a class="reference internal" href="../../../topics/serialization.html"><span class="doc">Serializing Django objects</span></a> for more information on serialization.</p>
+<p>The GDAL library is required if any of the serialized geometries need
+coordinate transformations (that is if the geometry’s spatial reference system
+differs from the <code class="docutils literal"><span class="pre">srid</span></code> serializer option).</p>
+<div class="versionchanged">
+<p>The GeoJSON serializer no longer needs GDAL if all geometries are in the
+same coordinate system as the <code class="docutils literal"><span class="pre">srid</span></code> serializer option.</p>
+</div>
+<p>The <code class="docutils literal"><span class="pre">geojson</span></code> serializer is not meant for round-tripping data, as it has no
+deserializer equivalent. For example, you cannot use <a class="reference internal" href="../../django-admin.html#django-admin-loaddata"><code class="xref std std-djadmin docutils literal"><span class="pre">loaddata</span></code></a> to
+reload the output produced by this serializer. If you plan to reload the
+outputted data, use the plain <a class="reference internal" href="../../../topics/serialization.html#serialization-formats-json"><span class="std std-ref">json serializer</span></a>
+instead.</p>
+<p>In addition to the options of the <code class="docutils literal"><span class="pre">json</span></code> serializer, the <code class="docutils literal"><span class="pre">geojson</span></code>
+serializer accepts the following additional option when it is called by
+<code class="docutils literal"><span class="pre">serializers.serialize()</span></code>:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">geometry_field</span></code>: A string containing the name of a geometry field to use
+for the <code class="docutils literal"><span class="pre">geometry</span></code> key of the GeoJSON feature. This is only needed when you
+have a model with more than one geometry field and you don’t want to use the
+first defined geometry field (by default, the first geometry field is picked).</li>
+<li><code class="docutils literal"><span class="pre">srid</span></code>: The SRID to use for the <code class="docutils literal"><span class="pre">geometry</span></code> content. Defaults to 4326
+(WGS 84).</li>
+</ul>
+<p>The <a class="reference internal" href="../../../topics/serialization.html#subset-of-fields"><span class="std std-ref">fields</span></a> option can be used to limit fields that
+will be present in the <code class="docutils literal"><span class="pre">properties</span></code> key, as it works with all other
+serializers.</p>
+<p>Example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.core.serializers</span> <span class="k">import</span> <span class="n">serialize</span>
+<span class="kn">from</span> <span class="nn">my_app.models</span> <span class="k">import</span> <span class="n">City</span>
+
+<span class="n">serialize</span><span class="p">(</span><span class="s">&#39;geojson&#39;</span><span class="p">,</span> <span class="n">City</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+          <span class="n">geometry_field</span><span class="o">=</span><span class="s">&#39;point&#39;</span><span class="p">,</span>
+          <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,))</span>
+</pre></div>
+</div>
+<p>Would output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;FeatureCollection&#39;</span><span class="p">,</span>
+  <span class="s">&#39;crs&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;name&#39;</span><span class="p">,</span>
+    <span class="s">&#39;properties&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;EPSG:4326&#39;</span><span class="p">}</span>
+  <span class="p">},</span>
+  <span class="s">&#39;features&#39;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;Feature&#39;</span><span class="p">,</span>
+      <span class="s">&#39;geometry&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;Point&#39;</span><span class="p">,</span>
+        <span class="s">&#39;coordinates&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">87.650175</span><span class="p">,</span> <span class="mf">41.850385</span><span class="p">]</span>
+      <span class="p">},</span>
+      <span class="s">&#39;properties&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Chicago&#39;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>When the <code class="docutils literal"><span class="pre">fields</span></code> parameter is not specified, the <code class="docutils literal"><span class="pre">geojson</span></code> serializer adds
+a <code class="docutils literal"><span class="pre">pk</span></code> key to the <code class="docutils literal"><span class="pre">properties</span></code> dictionary with the primary key of the
+object as the value.</p>
+<div class="versionchanged">
+<p>The <code class="docutils literal"><span class="pre">pk</span></code> key was added to the <code class="docutils literal"><span class="pre">properties</span></code> dictionary.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

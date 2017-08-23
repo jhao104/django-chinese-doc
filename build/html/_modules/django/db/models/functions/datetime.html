@@ -1,0 +1,476 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.db.models.functions.datetime &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../../../index.html"/>
+        <link rel="up" title="django" href="../../../../django.html"/> 
+
+  
+  <script src="../../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../../../django.html">django</a> &raquo;</li>
+        
+      <li>django.db.models.functions.datetime</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.db.models.functions.datetime 源代码</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">DateField</span><span class="p">,</span> <span class="n">DateTimeField</span><span class="p">,</span> <span class="n">IntegerField</span><span class="p">,</span> <span class="n">TimeField</span><span class="p">,</span> <span class="n">Transform</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">django.db.models.lookups</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">YearExact</span><span class="p">,</span> <span class="n">YearGt</span><span class="p">,</span> <span class="n">YearGte</span><span class="p">,</span> <span class="n">YearLt</span><span class="p">,</span> <span class="n">YearLte</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">timezone</span>
+<span class="kn">from</span> <span class="nn">django.utils.functional</span> <span class="k">import</span> <span class="n">cached_property</span>
+
+
+<span class="k">class</span> <span class="nc">TimezoneMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">tzinfo</span> <span class="o">=</span> <span class="k">None</span>
+
+    <span class="k">def</span> <span class="nf">get_tzname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Timezone conversions must happen to the input datetime *before*</span>
+        <span class="c"># applying a function. 2015-12-31 23:00:00 -02:00 is stored in the</span>
+        <span class="c"># database as 2016-01-01 01:00:00 +00:00. Any results should be</span>
+        <span class="c"># based on the input datetime not the stored datetime.</span>
+        <span class="n">tzname</span> <span class="o">=</span> <span class="k">None</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">USE_TZ</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+                <span class="n">tzname</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">get_current_timezone_name</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tzname</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">_get_timezone_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tzname</span>
+
+
+<div class="viewcode-block" id="Extract"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.Extract">[文档]</a><span class="k">class</span> <span class="nc">Extract</span><span class="p">(</span><span class="n">TimezoneMixin</span><span class="p">,</span> <span class="n">Transform</span><span class="p">):</span>
+    <span class="n">lookup_name</span> <span class="o">=</span> <span class="k">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">lookup_name</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_name</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lookup_name</span> <span class="o">=</span> <span class="n">lookup_name</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_name</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;lookup_name must be provided&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tzinfo</span> <span class="o">=</span> <span class="n">tzinfo</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Extract</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">as_sql</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">connection</span><span class="p">):</span>
+        <span class="n">sql</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lhs</span><span class="p">)</span>
+        <span class="n">lhs_output_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lhs</span><span class="o">.</span><span class="n">output_field</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lhs_output_field</span><span class="p">,</span> <span class="n">DateTimeField</span><span class="p">):</span>
+            <span class="n">tzname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tzname</span><span class="p">()</span>
+            <span class="n">sql</span><span class="p">,</span> <span class="n">tz_params</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">datetime_extract_sql</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lookup_name</span><span class="p">,</span> <span class="n">sql</span><span class="p">,</span> <span class="n">tzname</span><span class="p">)</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tz_params</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lhs_output_field</span><span class="p">,</span> <span class="n">DateField</span><span class="p">):</span>
+            <span class="n">sql</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">date_extract_sql</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lookup_name</span><span class="p">,</span> <span class="n">sql</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lhs_output_field</span><span class="p">,</span> <span class="n">TimeField</span><span class="p">):</span>
+            <span class="n">sql</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">time_extract_sql</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lookup_name</span><span class="p">,</span> <span class="n">sql</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># resolve_expression has already validated the output_field so this</span>
+            <span class="c"># assert should never be hit.</span>
+            <span class="k">assert</span> <span class="k">False</span><span class="p">,</span> <span class="s">&quot;Tried to Extract from an invalid type.&quot;</span>
+        <span class="k">return</span> <span class="n">sql</span><span class="p">,</span> <span class="n">params</span>
+
+    <span class="k">def</span> <span class="nf">resolve_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">allow_joins</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="n">reuse</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">summarize</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">for_save</span><span class="o">=</span><span class="k">False</span><span class="p">):</span>
+        <span class="n">copy</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Extract</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">resolve_expression</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">allow_joins</span><span class="p">,</span> <span class="n">reuse</span><span class="p">,</span> <span class="n">summarize</span><span class="p">,</span> <span class="n">for_save</span><span class="p">)</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">lhs</span><span class="o">.</span><span class="n">output_field</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="p">(</span><span class="n">DateField</span><span class="p">,</span> <span class="n">DateTimeField</span><span class="p">,</span> <span class="n">TimeField</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Extract input expression must be DateField, DateTimeField, or TimeField.&#39;</span><span class="p">)</span>
+        <span class="c"># Passing dates to functions expecting datetimes is most likely a mistake.</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">field</span><span class="p">)</span> <span class="o">==</span> <span class="n">DateField</span> <span class="ow">and</span> <span class="n">copy</span><span class="o">.</span><span class="n">lookup_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;hour&#39;</span><span class="p">,</span> <span class="s">&#39;minute&#39;</span><span class="p">,</span> <span class="s">&#39;second&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s">&quot;Cannot extract time component &#39;%s&#39; from DateField &#39;%s&#39;. &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">lookup_name</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">copy</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">IntegerField</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ExtractYear"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.ExtractYear">[文档]</a><span class="k">class</span> <span class="nc">ExtractYear</span><span class="p">(</span><span class="n">Extract</span><span class="p">):</span>
+    <span class="n">lookup_name</span> <span class="o">=</span> <span class="s">&#39;year&#39;</span></div>
+
+
+<div class="viewcode-block" id="ExtractMonth"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.ExtractMonth">[文档]</a><span class="k">class</span> <span class="nc">ExtractMonth</span><span class="p">(</span><span class="n">Extract</span><span class="p">):</span>
+    <span class="n">lookup_name</span> <span class="o">=</span> <span class="s">&#39;month&#39;</span></div>
+
+
+<div class="viewcode-block" id="ExtractDay"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.ExtractDay">[文档]</a><span class="k">class</span> <span class="nc">ExtractDay</span><span class="p">(</span><span class="n">Extract</span><span class="p">):</span>
+    <span class="n">lookup_name</span> <span class="o">=</span> <span class="s">&#39;day&#39;</span></div>
+
+
+<div class="viewcode-block" id="ExtractWeekDay"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.ExtractWeekDay">[文档]</a><span class="k">class</span> <span class="nc">ExtractWeekDay</span><span class="p">(</span><span class="n">Extract</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return Sunday=1 through Saturday=7.</span>
+
+<span class="sd">    To replicate this in Python: (mydatetime.isoweekday() % 7) + 1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lookup_name</span> <span class="o">=</span> <span class="s">&#39;week_day&#39;</span></div>
+
+
+<div class="viewcode-block" id="ExtractHour"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.ExtractHour">[文档]</a><span class="k">class</span> <span class="nc">ExtractHour</span><span class="p">(</span><span class="n">Extract</span><span class="p">):</span>
+    <span class="n">lookup_name</span> <span class="o">=</span> <span class="s">&#39;hour&#39;</span></div>
+
+
+<div class="viewcode-block" id="ExtractMinute"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.ExtractMinute">[文档]</a><span class="k">class</span> <span class="nc">ExtractMinute</span><span class="p">(</span><span class="n">Extract</span><span class="p">):</span>
+    <span class="n">lookup_name</span> <span class="o">=</span> <span class="s">&#39;minute&#39;</span></div>
+
+
+<div class="viewcode-block" id="ExtractSecond"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.ExtractSecond">[文档]</a><span class="k">class</span> <span class="nc">ExtractSecond</span><span class="p">(</span><span class="n">Extract</span><span class="p">):</span>
+    <span class="n">lookup_name</span> <span class="o">=</span> <span class="s">&#39;second&#39;</span></div>
+
+
+<span class="n">DateField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">ExtractYear</span><span class="p">)</span>
+<span class="n">DateField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">ExtractMonth</span><span class="p">)</span>
+<span class="n">DateField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">ExtractDay</span><span class="p">)</span>
+<span class="n">DateField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">ExtractWeekDay</span><span class="p">)</span>
+
+<span class="n">TimeField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">ExtractHour</span><span class="p">)</span>
+<span class="n">TimeField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">ExtractMinute</span><span class="p">)</span>
+<span class="n">TimeField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">ExtractSecond</span><span class="p">)</span>
+
+<span class="n">DateTimeField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">ExtractYear</span><span class="p">)</span>
+<span class="n">DateTimeField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">ExtractMonth</span><span class="p">)</span>
+<span class="n">DateTimeField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">ExtractDay</span><span class="p">)</span>
+<span class="n">DateTimeField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">ExtractWeekDay</span><span class="p">)</span>
+<span class="n">DateTimeField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">ExtractHour</span><span class="p">)</span>
+<span class="n">DateTimeField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">ExtractMinute</span><span class="p">)</span>
+<span class="n">DateTimeField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">ExtractSecond</span><span class="p">)</span>
+
+<span class="n">ExtractYear</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">YearExact</span><span class="p">)</span>
+<span class="n">ExtractYear</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">YearGt</span><span class="p">)</span>
+<span class="n">ExtractYear</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">YearGte</span><span class="p">)</span>
+<span class="n">ExtractYear</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">YearLt</span><span class="p">)</span>
+<span class="n">ExtractYear</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">YearLte</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">TruncBase</span><span class="p">(</span><span class="n">TimezoneMixin</span><span class="p">,</span> <span class="n">Transform</span><span class="p">):</span>
+    <span class="n">arity</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="k">None</span>
+    <span class="n">tzinfo</span> <span class="o">=</span> <span class="k">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">output_field</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tzinfo</span> <span class="o">=</span> <span class="n">tzinfo</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TruncBase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">output_field</span><span class="o">=</span><span class="n">output_field</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">as_sql</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">connection</span><span class="p">):</span>
+        <span class="n">inner_sql</span><span class="p">,</span> <span class="n">inner_params</span> <span class="o">=</span> <span class="n">compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lhs</span><span class="p">)</span>
+        <span class="c"># Escape any params because trunc_sql will format the string.</span>
+        <span class="n">inner_sql</span> <span class="o">=</span> <span class="n">inner_sql</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;%s&#39;</span><span class="p">,</span> <span class="s">&#39;%%s&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_field</span><span class="p">,</span> <span class="n">DateTimeField</span><span class="p">):</span>
+            <span class="n">tzname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tzname</span><span class="p">()</span>
+            <span class="n">sql</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">datetime_trunc_sql</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">inner_sql</span><span class="p">,</span> <span class="n">tzname</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_field</span><span class="p">,</span> <span class="n">DateField</span><span class="p">):</span>
+            <span class="n">sql</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">date_trunc_sql</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">inner_sql</span><span class="p">)</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Trunc only valid on DateField or DateTimeField.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sql</span><span class="p">,</span> <span class="n">inner_params</span> <span class="o">+</span> <span class="n">params</span>
+
+    <span class="k">def</span> <span class="nf">resolve_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">allow_joins</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="n">reuse</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">summarize</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">for_save</span><span class="o">=</span><span class="k">False</span><span class="p">):</span>
+        <span class="n">copy</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">TruncBase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">resolve_expression</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">allow_joins</span><span class="p">,</span> <span class="n">reuse</span><span class="p">,</span> <span class="n">summarize</span><span class="p">,</span> <span class="n">for_save</span><span class="p">)</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">lhs</span><span class="o">.</span><span class="n">output_field</span>
+        <span class="c"># DateTimeField is a subclass of DateField so this works for both.</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">DateField</span><span class="p">),</span> <span class="p">(</span>
+            <span class="s">&quot;%r isn&#39;t a DateField or DateTimeField.&quot;</span> <span class="o">%</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span>
+        <span class="p">)</span>
+        <span class="c"># If self.output_field was None, then accessing the field will trigger</span>
+        <span class="c"># the resolver to assign it to self.lhs.output_field.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">output_field</span><span class="p">,</span> <span class="p">(</span><span class="n">DateField</span><span class="p">,</span> <span class="n">DateTimeField</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;output_field must be either DateField or DateTimeField&#39;</span><span class="p">)</span>
+        <span class="c"># Passing dates to functions expecting datetimes is most likely a</span>
+        <span class="c"># mistake.</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">field</span><span class="p">)</span> <span class="o">==</span> <span class="n">DateField</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">output_field</span><span class="p">,</span> <span class="n">DateTimeField</span><span class="p">)</span> <span class="ow">or</span> <span class="n">copy</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;hour&#39;</span><span class="p">,</span> <span class="s">&#39;minute&#39;</span><span class="p">,</span> <span class="s">&#39;second&#39;</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Cannot truncate DateField &#39;%s&#39; to DateTimeField. &quot;</span> <span class="o">%</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">copy</span>
+
+    <span class="k">def</span> <span class="nf">convert_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_field</span><span class="p">,</span> <span class="n">DateTimeField</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">USE_TZ</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s">&quot;Database returned an invalid datetime value. &quot;</span>
+                        <span class="s">&quot;Are time zone definitions for your database and pytz installed?&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="k">None</span><span class="p">)</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">make_aware</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
+            <span class="c"># self.output_field is definitely a DateField here.</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+
+<div class="viewcode-block" id="Trunc"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.Trunc">[文档]</a><span class="k">class</span> <span class="nc">Trunc</span><span class="p">(</span><span class="n">TruncBase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">output_field</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">=</span> <span class="n">kind</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Trunc</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">output_field</span><span class="o">=</span><span class="n">output_field</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">tzinfo</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TruncYear"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.TruncYear">[文档]</a><span class="k">class</span> <span class="nc">TruncYear</span><span class="p">(</span><span class="n">TruncBase</span><span class="p">):</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="s">&#39;year&#39;</span></div>
+
+
+<div class="viewcode-block" id="TruncMonth"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.TruncMonth">[文档]</a><span class="k">class</span> <span class="nc">TruncMonth</span><span class="p">(</span><span class="n">TruncBase</span><span class="p">):</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="s">&#39;month&#39;</span></div>
+
+
+<div class="viewcode-block" id="TruncDay"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.TruncDay">[文档]</a><span class="k">class</span> <span class="nc">TruncDay</span><span class="p">(</span><span class="n">TruncBase</span><span class="p">):</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="s">&#39;day&#39;</span></div>
+
+
+<div class="viewcode-block" id="TruncDate"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.TruncDate">[文档]</a><span class="k">class</span> <span class="nc">TruncDate</span><span class="p">(</span><span class="n">TruncBase</span><span class="p">):</span>
+    <span class="n">lookup_name</span> <span class="o">=</span> <span class="s">&#39;date&#39;</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">DateField</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">as_sql</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">connection</span><span class="p">):</span>
+        <span class="c"># Cast to date rather than truncate to date.</span>
+        <span class="n">lhs</span><span class="p">,</span> <span class="n">lhs_params</span> <span class="o">=</span> <span class="n">compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lhs</span><span class="p">)</span>
+        <span class="n">tzname</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">get_current_timezone_name</span><span class="p">()</span> <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">USE_TZ</span> <span class="k">else</span> <span class="k">None</span>
+        <span class="n">sql</span><span class="p">,</span> <span class="n">tz_params</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">datetime_cast_date_sql</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">tzname</span><span class="p">)</span>
+        <span class="n">lhs_params</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tz_params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sql</span><span class="p">,</span> <span class="n">lhs_params</span></div>
+
+
+<div class="viewcode-block" id="TruncHour"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.TruncHour">[文档]</a><span class="k">class</span> <span class="nc">TruncHour</span><span class="p">(</span><span class="n">TruncBase</span><span class="p">):</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="s">&#39;hour&#39;</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">DateTimeField</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="TruncMinute"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.TruncMinute">[文档]</a><span class="k">class</span> <span class="nc">TruncMinute</span><span class="p">(</span><span class="n">TruncBase</span><span class="p">):</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="s">&#39;minute&#39;</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">DateTimeField</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="TruncSecond"><a class="viewcode-back" href="../../../../../ref/models/database-functions.html#django.db.models.functions.datetime.TruncSecond">[文档]</a><span class="k">class</span> <span class="nc">TruncSecond</span><span class="p">(</span><span class="n">TruncBase</span><span class="p">):</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="s">&#39;second&#39;</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">DateTimeField</span><span class="p">()</span></div>
+
+
+<span class="n">DateTimeField</span><span class="o">.</span><span class="n">register_lookup</span><span class="p">(</span><span class="n">TruncDate</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

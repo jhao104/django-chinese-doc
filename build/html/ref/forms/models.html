@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Model Form Functions &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Model Form Functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/ref/forms/models.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="model-form-functions">
+<h1>Model Form Functions<a class="headerlink" href="#model-form-functions" title="永久链接至标题">¶</a></h1>
+<p>Model Form API reference. For introductory material about model forms, see the
+<a class="reference internal" href="../../topics/forms/modelforms.html"><span class="doc">Creating forms from models</span></a> topic guide.</p>
+<span class="target" id="module-django.forms.models"></span><div class="section" id="modelform-factory">
+<h2><code class="docutils literal"><span class="pre">modelform_factory</span></code><a class="headerlink" href="#modelform-factory" title="永久链接至标题">¶</a></h2>
+<dl class="function">
+<dt id="django.forms.models.modelform_factory">
+<code class="descclassname">django.forms.models.</code><code class="descname">modelform_factory</code><span class="sig-paren">(</span><em>model</em>, <em>form=ModelForm</em>, <em>fields=None</em>, <em>exclude=None</em>, <em>formfield_callback=None</em>, <em>widgets=None</em>, <em>localized_fields=None</em>, <em>labels=None</em>, <em>help_texts=None</em>, <em>error_messages=None</em>, <em>field_classes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/forms/models.html#modelform_factory"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.forms.models.modelform_factory" title="永久链接至目标">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="../../topics/forms/modelforms.html#django.forms.ModelForm" title="django.forms.ModelForm"><code class="xref py py-class docutils literal"><span class="pre">ModelForm</span></code></a> class for the given <code class="docutils literal"><span class="pre">model</span></code>.
+You can optionally pass a <code class="docutils literal"><span class="pre">form</span></code> argument to use as a starting point for
+constructing the <code class="docutils literal"><span class="pre">ModelForm</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">fields</span></code> is an optional list of field names. If provided, only the named
+fields will be included in the returned fields.</p>
+<p><code class="docutils literal"><span class="pre">exclude</span></code> is an optional list of field names. If provided, the named
+fields will be excluded from the returned fields, even if they are listed
+in the <code class="docutils literal"><span class="pre">fields</span></code> argument.</p>
+<p><code class="docutils literal"><span class="pre">formfield_callback</span></code> is a callable that takes a model field and returns
+a form field.</p>
+<p><code class="docutils literal"><span class="pre">widgets</span></code> is a dictionary of model field names mapped to a widget.</p>
+<p><code class="docutils literal"><span class="pre">localized_fields</span></code> is a list of names of fields which should be localized.</p>
+<p><code class="docutils literal"><span class="pre">labels</span></code> is a dictionary of model field names mapped to a label.</p>
+<p><code class="docutils literal"><span class="pre">help_texts</span></code> is a dictionary of model field names mapped to a help text.</p>
+<p><code class="docutils literal"><span class="pre">error_messages</span></code> is a dictionary of model field names mapped to a
+dictionary of error messages.</p>
+<p><code class="docutils literal"><span class="pre">field_classes</span></code> is a dictionary of model field names mapped to a form
+field class.</p>
+<p>See <a class="reference internal" href="../../topics/forms/modelforms.html#modelforms-factory"><span class="std std-ref">ModelForm factory function</span></a> for example usage.</p>
+<p>You must provide the list of fields explicitly, either via keyword arguments
+<code class="docutils literal"><span class="pre">fields</span></code> or <code class="docutils literal"><span class="pre">exclude</span></code>, or the corresponding attributes on the form’s
+inner <code class="docutils literal"><span class="pre">Meta</span></code> class. See <a class="reference internal" href="../../topics/forms/modelforms.html#modelforms-selecting-fields"><span class="std std-ref">Selecting the fields to use</span></a> for more
+information. Omitting any definition of the fields to use will result in
+an <a class="reference internal" href="../exceptions.html#django.core.exceptions.ImproperlyConfigured" title="django.core.exceptions.ImproperlyConfigured"><code class="xref py py-exc docutils literal"><span class="pre">ImproperlyConfigured</span></code></a> exception.</p>
+<div class="versionadded">
+<p>The <code class="docutils literal"><span class="pre">field_classes</span></code> keyword argument was added.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="modelformset-factory">
+<h2><code class="docutils literal"><span class="pre">modelformset_factory</span></code><a class="headerlink" href="#modelformset-factory" title="永久链接至标题">¶</a></h2>
+<dl class="function">
+<dt id="django.forms.models.modelformset_factory">
+<code class="descclassname">django.forms.models.</code><code class="descname">modelformset_factory</code><span class="sig-paren">(</span><em>model</em>, <em>form=ModelForm</em>, <em>formfield_callback=None</em>, <em>formset=BaseModelFormSet</em>, <em>extra=1</em>, <em>can_delete=False</em>, <em>can_order=False</em>, <em>max_num=None</em>, <em>fields=None</em>, <em>exclude=None</em>, <em>widgets=None</em>, <em>validate_max=False</em>, <em>localized_fields=None</em>, <em>labels=None</em>, <em>help_texts=None</em>, <em>error_messages=None</em>, <em>min_num=None</em>, <em>validate_min=False</em>, <em>field_classes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/forms/models.html#modelformset_factory"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.forms.models.modelformset_factory" title="永久链接至目标">¶</a></dt>
+<dd><p>Returns a <code class="docutils literal"><span class="pre">FormSet</span></code> class for the given <code class="docutils literal"><span class="pre">model</span></code> class.</p>
+<p>Arguments <code class="docutils literal"><span class="pre">model</span></code>, <code class="docutils literal"><span class="pre">form</span></code>, <code class="docutils literal"><span class="pre">fields</span></code>, <code class="docutils literal"><span class="pre">exclude</span></code>,
+<code class="docutils literal"><span class="pre">formfield_callback</span></code>, <code class="docutils literal"><span class="pre">widgets</span></code>, <code class="docutils literal"><span class="pre">localized_fields</span></code>, <code class="docutils literal"><span class="pre">labels</span></code>,
+<code class="docutils literal"><span class="pre">help_texts</span></code>, <code class="docutils literal"><span class="pre">error_messages</span></code>, and <code class="docutils literal"><span class="pre">field_classes</span></code> are all passed
+through to <a class="reference internal" href="#django.forms.models.modelform_factory" title="django.forms.models.modelform_factory"><code class="xref py py-func docutils literal"><span class="pre">modelform_factory()</span></code></a>.</p>
+<p>Arguments <code class="docutils literal"><span class="pre">formset</span></code>, <code class="docutils literal"><span class="pre">extra</span></code>, <code class="docutils literal"><span class="pre">max_num</span></code>, <code class="docutils literal"><span class="pre">can_order</span></code>,
+<code class="docutils literal"><span class="pre">can_delete</span></code> and <code class="docutils literal"><span class="pre">validate_max</span></code> are passed through to
+<a class="reference internal" href="formsets.html#django.forms.formsets.formset_factory" title="django.forms.formsets.formset_factory"><code class="xref py py-func docutils literal"><span class="pre">formset_factory()</span></code></a>. See <a class="reference internal" href="../../topics/forms/formsets.html"><span class="doc">formsets</span></a> for details.</p>
+<p>See <a class="reference internal" href="../../topics/forms/modelforms.html#model-formsets"><span class="std std-ref">Model formsets</span></a> for example usage.</p>
+<div class="versionadded">
+<p>The <code class="docutils literal"><span class="pre">field_classes</span></code> keyword argument was added.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="inlineformset-factory">
+<h2><code class="docutils literal"><span class="pre">inlineformset_factory</span></code><a class="headerlink" href="#inlineformset-factory" title="永久链接至标题">¶</a></h2>
+<dl class="function">
+<dt id="django.forms.models.inlineformset_factory">
+<code class="descclassname">django.forms.models.</code><code class="descname">inlineformset_factory</code><span class="sig-paren">(</span><em>parent_model</em>, <em>model</em>, <em>form=ModelForm</em>, <em>formset=BaseInlineFormSet</em>, <em>fk_name=None</em>, <em>fields=None</em>, <em>exclude=None</em>, <em>extra=3</em>, <em>can_order=False</em>, <em>can_delete=True</em>, <em>max_num=None</em>, <em>formfield_callback=None</em>, <em>widgets=None</em>, <em>validate_max=False</em>, <em>localized_fields=None</em>, <em>labels=None</em>, <em>help_texts=None</em>, <em>error_messages=None</em>, <em>min_num=None</em>, <em>validate_min=False</em>, <em>field_classes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/forms/models.html#inlineformset_factory"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.forms.models.inlineformset_factory" title="永久链接至目标">¶</a></dt>
+<dd><p>Returns an <code class="docutils literal"><span class="pre">InlineFormSet</span></code> using <a class="reference internal" href="#django.forms.models.modelformset_factory" title="django.forms.models.modelformset_factory"><code class="xref py py-func docutils literal"><span class="pre">modelformset_factory()</span></code></a> with
+defaults of <code class="docutils literal"><span class="pre">formset=</span></code><a class="reference internal" href="../../topics/forms/modelforms.html#django.forms.models.BaseInlineFormSet" title="django.forms.models.BaseInlineFormSet"><code class="xref py py-class docutils literal"><span class="pre">BaseInlineFormSet</span></code></a>,
+<code class="docutils literal"><span class="pre">can_delete=True</span></code>, and <code class="docutils literal"><span class="pre">extra=3</span></code>.</p>
+<p>If your model has more than one <a class="reference internal" href="../models/fields.html#django.db.models.ForeignKey" title="django.db.models.ForeignKey"><code class="xref py py-class docutils literal"><span class="pre">ForeignKey</span></code></a> to
+the <code class="docutils literal"><span class="pre">parent_model</span></code>, you must specify a <code class="docutils literal"><span class="pre">fk_name</span></code>.</p>
+<p>See <a class="reference internal" href="../../topics/forms/modelforms.html#inline-formsets"><span class="std std-ref">Inline formsets</span></a> for example usage.</p>
+<div class="versionadded">
+<p>The <code class="docutils literal"><span class="pre">field_classes</span></code> keyword argument was added.</p>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

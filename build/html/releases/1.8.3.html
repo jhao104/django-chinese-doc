@@ -1,0 +1,340 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Django 1.8.3 release notes &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Django 1.8.3 release notes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/releases/1.8.3.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="django-1-8-3-release-notes">
+<h1>Django 1.8.3 release notes<a class="headerlink" href="#django-1-8-3-release-notes" title="永久链接至标题">¶</a></h1>
+<p><em>July 8, 2015</em></p>
+<p>Django 1.8.3 fixes several security issues and bugs in 1.8.2.</p>
+<p>Also, <code class="docutils literal"><span class="pre">django.utils.deprecation.RemovedInDjango20Warning</span></code> was renamed to
+<code class="docutils literal"><span class="pre">RemovedInDjango110Warning</span></code> as the version roadmap was revised to 1.9, 1.10,
+1.11 (LTS), 2.0 (drops Python 2 support). For backwards compatibility,
+<code class="docutils literal"><span class="pre">RemovedInDjango20Warning</span></code> remains as an importable alias.</p>
+<div class="section" id="denial-of-service-possibility-by-filling-session-store">
+<h2>Denial-of-service possibility by filling session store<a class="headerlink" href="#denial-of-service-possibility-by-filling-session-store" title="永久链接至标题">¶</a></h2>
+<p>In previous versions of Django, the session backends created a new empty record
+in the session storage anytime <code class="docutils literal"><span class="pre">request.session</span></code> was accessed and there was a
+session key provided in the request cookies that didn’t already have a session
+record. This could allow an attacker to easily create many new session records
+simply by sending repeated requests with unknown session keys, potentially
+filling up the session store or causing other users’ session records to be
+evicted.</p>
+<p>The built-in session backends now create a session record only if the session
+is actually modified; empty session records are not created. Thus this
+potential DoS is now only possible if the site chooses to expose a
+session-modifying view to anonymous users.</p>
+<p>As each built-in session backend was fixed separately (rather than a fix in the
+core sessions framework), maintainers of third-party session backends should
+check whether the same vulnerability is present in their backend and correct
+it if so.</p>
+</div>
+<div class="section" id="header-injection-possibility-since-validators-accept-newlines-in-input">
+<h2>Header injection possibility since validators accept newlines in input<a class="headerlink" href="#header-injection-possibility-since-validators-accept-newlines-in-input" title="永久链接至标题">¶</a></h2>
+<p>Some of Django’s built-in validators
+(<a class="reference internal" href="../ref/validators.html#django.core.validators.EmailValidator" title="django.core.validators.EmailValidator"><code class="xref py py-class docutils literal"><span class="pre">EmailValidator</span></code></a>, most seriously) didn’t
+prohibit newline characters (due to the usage of <code class="docutils literal"><span class="pre">$</span></code> instead of <code class="docutils literal"><span class="pre">\Z</span></code> in the
+regular expressions). If you use values with newlines in HTTP response or email
+headers, you can suffer from header injection attacks. Django itself isn’t
+vulnerable because <a class="reference internal" href="../ref/request-response.html#django.http.HttpResponse" title="django.http.HttpResponse"><code class="xref py py-class docutils literal"><span class="pre">HttpResponse</span></code></a> and the mail sending
+utilities in <a class="reference internal" href="../topics/email.html#module-django.core.mail" title="django.core.mail: Helpers to easily send email."><code class="xref py py-mod docutils literal"><span class="pre">django.core.mail</span></code></a> prohibit newlines in HTTP and SMTP
+headers, respectively. While the validators have been fixed in Django, if
+you’re creating HTTP responses or email messages in other ways, it’s a good
+idea to ensure that those methods prohibit newlines as well. You might also
+want to validate that any existing data in your application doesn’t contain
+unexpected newlines.</p>
+<p><a class="reference internal" href="../ref/validators.html#django.core.validators.validate_ipv4_address" title="django.core.validators.validate_ipv4_address"><code class="xref py py-func docutils literal"><span class="pre">validate_ipv4_address()</span></code></a>,
+<a class="reference internal" href="../ref/validators.html#django.core.validators.validate_slug" title="django.core.validators.validate_slug"><code class="xref py py-func docutils literal"><span class="pre">validate_slug()</span></code></a>, and
+<a class="reference internal" href="../ref/validators.html#django.core.validators.URLValidator" title="django.core.validators.URLValidator"><code class="xref py py-class docutils literal"><span class="pre">URLValidator</span></code></a> are also affected, however, as
+of Django 1.6 the <code class="docutils literal"><span class="pre">GenericIPAddresseField</span></code>, <code class="docutils literal"><span class="pre">IPAddressField</span></code>, <code class="docutils literal"><span class="pre">SlugField</span></code>,
+and <code class="docutils literal"><span class="pre">URLField</span></code> form fields which use these validators all strip the input, so
+the possibility of newlines entering your data only exists if you are using
+these validators outside of the form fields.</p>
+<p>The undocumented, internally unused <code class="docutils literal"><span class="pre">validate_integer()</span></code> function is now
+stricter as it validates using a regular expression instead of simply casting
+the value using <code class="docutils literal"><span class="pre">int()</span></code> and checking if an exception was raised.</p>
+</div>
+<div class="section" id="denial-of-service-possibility-in-url-validation">
+<h2>Denial-of-service possibility in URL validation<a class="headerlink" href="#denial-of-service-possibility-in-url-validation" title="永久链接至标题">¶</a></h2>
+<p><a class="reference internal" href="../ref/validators.html#django.core.validators.URLValidator" title="django.core.validators.URLValidator"><code class="xref py py-class docutils literal"><span class="pre">URLValidator</span></code></a> included a regular expression
+that was extremely slow to evaluate against certain invalid inputs. This regular
+expression has been simplified and optimized.</p>
+</div>
+<div class="section" id="bugfixes">
+<h2>Bugfixes<a class="headerlink" href="#bugfixes" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li>Fixed <code class="docutils literal"><span class="pre">BaseRangeField.prepare_value()</span></code> to use each <code class="docutils literal"><span class="pre">base_field</span></code>’s
+<code class="docutils literal"><span class="pre">prepare_value()</span></code> method (<a href="#id1"><span class="problematic" id="id2">:ticket:`24841`</span></a>).</li>
+<li>Fixed crash during <a class="reference internal" href="../ref/django-admin.html#django-admin-makemigrations"><code class="xref std std-djadmin docutils literal"><span class="pre">makemigrations</span></code></a> if a migrations module either
+is missing <code class="docutils literal"><span class="pre">__init__.py</span></code> or is a file (<a href="#id3"><span class="problematic" id="id4">:ticket:`24848`</span></a>).</li>
+<li>Fixed <code class="docutils literal"><span class="pre">QuerySet.exists()</span></code> returning incorrect results after annotation with
+<code class="docutils literal"><span class="pre">Count()</span></code> (<a href="#id5"><span class="problematic" id="id6">:ticket:`24835`</span></a>).</li>
+<li>Corrected <code class="docutils literal"><span class="pre">HStoreField.has_changed()</span></code> (<a href="#id7"><span class="problematic" id="id8">:ticket:`24844`</span></a>).</li>
+<li>Reverted an optimization to the CSRF template context processor which caused
+a regression (<a href="#id9"><span class="problematic" id="id10">:ticket:`24836`</span></a>).</li>
+<li>Fixed a regression which caused template context processors to overwrite
+variables set on a <code class="docutils literal"><span class="pre">RequestContext</span></code> after it’s created (<a href="#id11"><span class="problematic" id="id12">:ticket:`24847`</span></a>).</li>
+<li>Prevented the loss of <code class="docutils literal"><span class="pre">null</span></code>/<code class="docutils literal"><span class="pre">not</span> <span class="pre">null</span></code> column properties during field
+renaming of MySQL databases (<a href="#id13"><span class="problematic" id="id14">:ticket:`24817`</span></a>).</li>
+<li>Fixed a crash when using a reverse one-to-one relation in
+<code class="docutils literal"><span class="pre">ModelAdmin.list_display</span></code> (<a href="#id15"><span class="problematic" id="id16">:ticket:`24851`</span></a>).</li>
+<li>Fixed quoting of SQL when renaming a field to <code class="docutils literal"><span class="pre">AutoField</span></code> in PostgreSQL
+(<a href="#id17"><span class="problematic" id="id18">:ticket:`24892`</span></a>).</li>
+<li>Fixed lack of unique constraint when changing a field from
+<code class="docutils literal"><span class="pre">primary_key=True</span></code> to <code class="docutils literal"><span class="pre">unique=True</span></code> (<a href="#id19"><span class="problematic" id="id20">:ticket:`24893`</span></a>).</li>
+<li>Fixed queryset pickling when using <code class="docutils literal"><span class="pre">prefetch_related()</span></code> after deleting
+objects (<a href="#id21"><span class="problematic" id="id22">:ticket:`24831`</span></a>).</li>
+<li>Allowed using <code class="docutils literal"><span class="pre">choices</span></code> longer than 1 day with <code class="docutils literal"><span class="pre">DurationField</span></code>
+(<a href="#id23"><span class="problematic" id="id24">:ticket:`24897`</span></a>).</li>
+<li>Fixed a crash when loading squashed migrations from two apps with a
+dependency between them, where the dependent app’s replaced migrations are
+partially applied (<a href="#id25"><span class="problematic" id="id26">:ticket:`24895`</span></a>).</li>
+<li>Fixed recording of applied status for squashed (replacement) migrations
+(<a href="#id27"><span class="problematic" id="id28">:ticket:`24628`</span></a>).</li>
+<li>Fixed queryset annotations when using <code class="docutils literal"><span class="pre">Case</span></code> expressions with <code class="docutils literal"><span class="pre">exclude()</span></code>
+(<a href="#id29"><span class="problematic" id="id30">:ticket:`24833`</span></a>).</li>
+<li>Corrected join promotion for multiple <code class="docutils literal"><span class="pre">Case</span></code> expressions. Annotating a
+query with multiple  <code class="docutils literal"><span class="pre">Case</span></code> expressions could unexpectedly filter out
+results (<a href="#id31"><span class="problematic" id="id32">:ticket:`24924`</span></a>).</li>
+<li>Fixed usage of transforms in subqueries (<a href="#id33"><span class="problematic" id="id34">:ticket:`24744`</span></a>).</li>
+<li>Fixed <code class="docutils literal"><span class="pre">SimpleTestCase.assertRaisesMessage()</span></code> on Python 2.7.10
+(<a href="#id35"><span class="problematic" id="id36">:ticket:`24903`</span></a>).</li>
+<li>Provided better backwards compatibility for the <code class="docutils literal"><span class="pre">verbosity</span></code> argument in
+<code class="docutils literal"><span class="pre">optparse</span></code> management commands by casting it to an integer
+(<a href="#id37"><span class="problematic" id="id38">:ticket:`24769`</span></a>).</li>
+<li>Fixed <code class="docutils literal"><span class="pre">prefetch_related()</span></code> on databases other than PostgreSQL for models
+using UUID primary keys (<a href="#id39"><span class="problematic" id="id40">:ticket:`24912`</span></a>).</li>
+<li>Fixed removing <code class="docutils literal"><span class="pre">unique_together</span></code> constraints on MySQL (<a href="#id41"><span class="problematic" id="id42">:ticket:`24972`</span></a>).</li>
+<li>Fixed crash when uploading images with MIME types that Pillow doesn’t detect,
+such as bitmap, in <code class="docutils literal"><span class="pre">forms.ImageField</span></code> (<a href="#id43"><span class="problematic" id="id44">:ticket:`24948`</span></a>).</li>
+<li>Fixed a regression when deleting a model through the admin that has a
+<code class="docutils literal"><span class="pre">GenericRelation</span></code> with a <code class="docutils literal"><span class="pre">related_query_name</span></code> (<a href="#id45"><span class="problematic" id="id46">:ticket:`24940`</span></a>).</li>
+<li>Reallowed non-ASCII values for <code class="docutils literal"><span class="pre">ForeignKey.related_name</span></code> on Python 3 by
+fixing the false positive system check (<a href="#id47"><span class="problematic" id="id48">:ticket:`25016`</span></a>).</li>
+<li>Fixed inline forms that use a parent object that has a <code class="docutils literal"><span class="pre">UUIDField</span></code> primary
+key and a child object that has an <code class="docutils literal"><span class="pre">AutoField</span></code> primary key
+(<a href="#id49"><span class="problematic" id="id50">:ticket:`24958`</span></a>).</li>
+<li>Fixed a regression in the <code class="docutils literal"><span class="pre">unordered_list</span></code> template filter on certain
+inputs (<a href="#id51"><span class="problematic" id="id52">:ticket:`25031`</span></a>).</li>
+<li>Fixed a regression in <code class="docutils literal"><span class="pre">URLValidator</span></code> that invalidated Punycode TLDs
+(<a href="#id53"><span class="problematic" id="id54">:ticket:`25059`</span></a>).</li>
+<li>Improved <cite>pyinotify</cite> <code class="docutils literal"><span class="pre">runserver</span></code> polling (<a href="#id55"><span class="problematic" id="id56">:ticket:`23882`</span></a>).</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.conf.urls &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/>
+        <link rel="up" title="django" href="../../django.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../django.html">django</a> &raquo;</li>
+        
+      <li>django.conf.urls</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.conf.urls 源代码</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">importlib</span> <span class="k">import</span> <span class="n">import_module</span>
+
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">ImproperlyConfigured</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">LocaleRegexURLResolver</span><span class="p">,</span> <span class="n">RegexURLPattern</span><span class="p">,</span> <span class="n">RegexURLResolver</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">six</span>
+<span class="kn">from</span> <span class="nn">django.utils.deprecation</span> <span class="k">import</span> <span class="n">RemovedInDjango20Warning</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;handler400&#39;</span><span class="p">,</span> <span class="s">&#39;handler403&#39;</span><span class="p">,</span> <span class="s">&#39;handler404&#39;</span><span class="p">,</span> <span class="s">&#39;handler500&#39;</span><span class="p">,</span> <span class="s">&#39;include&#39;</span><span class="p">,</span> <span class="s">&#39;url&#39;</span><span class="p">]</span>
+
+<span class="n">handler400</span> <span class="o">=</span> <span class="s">&#39;django.views.defaults.bad_request&#39;</span>
+<span class="n">handler403</span> <span class="o">=</span> <span class="s">&#39;django.views.defaults.permission_denied&#39;</span>
+<span class="n">handler404</span> <span class="o">=</span> <span class="s">&#39;django.views.defaults.page_not_found&#39;</span>
+<span class="n">handler500</span> <span class="o">=</span> <span class="s">&#39;django.views.defaults.server_error&#39;</span>
+
+
+<div class="viewcode-block" id="include"><a class="viewcode-back" href="../../../ref/urls.html#django.conf.urls.include">[文档]</a><span class="k">def</span> <span class="nf">include</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">app_name</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">app_name</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">namespace</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Must specify a namespace if specifying app_name.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">app_name</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s">&#39;The app_name argument to django.conf.urls.include() is deprecated. &#39;</span>
+            <span class="s">&#39;Set the app_name in the included URLconf instead.&#39;</span><span class="p">,</span>
+            <span class="n">RemovedInDjango20Warning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="c"># callable returning a namespace hint</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">urlconf_module</span><span class="p">,</span> <span class="n">app_name</span> <span class="o">=</span> <span class="n">arg</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">namespace</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ImproperlyConfigured</span><span class="p">(</span>
+                    <span class="s">&#39;Cannot override the namespace for a dynamic module that provides a namespace&#39;</span>
+                <span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s">&#39;Passing a 3-tuple to django.conf.urls.include() is deprecated. &#39;</span>
+                <span class="s">&#39;Pass a 2-tuple containing the list of patterns and app_name, &#39;</span>
+                <span class="s">&#39;and provide the namespace argument to include() instead.&#39;</span><span class="p">,</span>
+                <span class="n">RemovedInDjango20Warning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span>
+            <span class="p">)</span>
+            <span class="n">urlconf_module</span><span class="p">,</span> <span class="n">app_name</span><span class="p">,</span> <span class="n">namespace</span> <span class="o">=</span> <span class="n">arg</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># No namespace hint - use manually provided namespace</span>
+        <span class="n">urlconf_module</span> <span class="o">=</span> <span class="n">arg</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">urlconf_module</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="n">urlconf_module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">urlconf_module</span><span class="p">)</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">urlconf_module</span><span class="p">,</span> <span class="s">&#39;urlpatterns&#39;</span><span class="p">,</span> <span class="n">urlconf_module</span><span class="p">)</span>
+    <span class="n">app_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">urlconf_module</span><span class="p">,</span> <span class="s">&#39;app_name&#39;</span><span class="p">,</span> <span class="n">app_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">namespace</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">app_name</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s">&#39;Specifying a namespace in django.conf.urls.include() without &#39;</span>
+            <span class="s">&#39;providing an app_name is deprecated. Set the app_name attribute &#39;</span>
+            <span class="s">&#39;in the included module, or pass a 2-tuple containing the list of &#39;</span>
+            <span class="s">&#39;patterns and app_name instead.&#39;</span><span class="p">,</span>
+            <span class="n">RemovedInDjango20Warning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span>
+        <span class="p">)</span>
+
+    <span class="n">namespace</span> <span class="o">=</span> <span class="n">namespace</span> <span class="ow">or</span> <span class="n">app_name</span>
+
+    <span class="c"># Make sure we can iterate through the patterns (without this, some</span>
+    <span class="c"># testcases will break).</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">patterns</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">url_pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
+            <span class="c"># Test if the LocaleRegexURLResolver is used within the include;</span>
+            <span class="c"># this should throw an error since this is not allowed!</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">url_pattern</span><span class="p">,</span> <span class="n">LocaleRegexURLResolver</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ImproperlyConfigured</span><span class="p">(</span>
+                    <span class="s">&#39;Using i18n_patterns in an included URLconf is not allowed.&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">urlconf_module</span><span class="p">,</span> <span class="n">app_name</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="url"><a class="viewcode-back" href="../../../ref/urls.html#django.conf.urls.url">[文档]</a><span class="k">def</span> <span class="nf">url</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">view</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="c"># For include(...) processing.</span>
+        <span class="n">urlconf_module</span><span class="p">,</span> <span class="n">app_name</span><span class="p">,</span> <span class="n">namespace</span> <span class="o">=</span> <span class="n">view</span>
+        <span class="k">return</span> <span class="n">RegexURLResolver</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">urlconf_module</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">app_name</span><span class="o">=</span><span class="n">app_name</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="n">namespace</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">view</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">RegexURLPattern</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">view</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;view must be a callable or a list/tuple in the case of include().&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

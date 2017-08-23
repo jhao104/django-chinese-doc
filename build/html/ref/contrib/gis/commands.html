@@ -1,0 +1,327 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>GeoDjango Management Commands &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>GeoDjango Management Commands</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/ref/contrib/gis/commands.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="geodjango-management-commands">
+<h1>GeoDjango Management Commands<a class="headerlink" href="#geodjango-management-commands" title="永久链接至标题">¶</a></h1>
+<div class="section" id="inspectdb">
+<h2><code class="docutils literal"><span class="pre">inspectdb</span></code><a class="headerlink" href="#inspectdb" title="永久链接至标题">¶</a></h2>
+<dl class="describe">
+<dt>
+<code class="descname">django-admin inspectdb</code></dt>
+<dd></dd></dl>
+
+<p>When <a class="reference internal" href="index.html#module-django.contrib.gis" title="django.contrib.gis: Geographic Information System (GIS) extensions for Django"><code class="xref py py-mod docutils literal"><span class="pre">django.contrib.gis</span></code></a> is in your <a class="reference internal" href="../../settings.html#std:setting-INSTALLED_APPS"><code class="xref std std-setting docutils literal"><span class="pre">INSTALLED_APPS</span></code></a>, the
+<a class="reference internal" href="../../django-admin.html#django-admin-inspectdb"><code class="xref std std-djadmin docutils literal"><span class="pre">inspectdb</span></code></a> management command is overridden with one from GeoDjango.
+The overridden command is spatially-aware, and places geometry fields in the
+auto-generated model definition, where appropriate.</p>
+</div>
+<div class="section" id="ogrinspect">
+<h2><code class="docutils literal"><span class="pre">ogrinspect</span></code><a class="headerlink" href="#ogrinspect" title="永久链接至标题">¶</a></h2>
+<dl class="django-admin">
+<dt id="django-admin-ogrinspect">
+<code class="descname">django-admin ogrinspect data_source model_name</code><a class="headerlink" href="#django-admin-ogrinspect" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>The <code class="docutils literal"><span class="pre">ogrinspect</span></code> management command will inspect the given OGR-compatible
+<a class="reference internal" href="gdal.html#django.contrib.gis.gdal.DataSource" title="django.contrib.gis.gdal.DataSource"><code class="xref py py-class docutils literal"><span class="pre">DataSource</span></code></a> (e.g., a shapefile) and will
+output a GeoDjango model with the given model name.  There’s a detailed example
+of using <code class="docutils literal"><span class="pre">ogrinspect</span></code> <a class="reference internal" href="tutorial.html#ogrinspect-intro"><span class="std std-ref">in the tutorial</span></a>.</p>
+<dl class="django-admin-option">
+<dt id="cmdoption-ogrinspect-blank">
+<code class="descname">--blank</code><code class="descclassname"> BLANK</code><a class="headerlink" href="#cmdoption-ogrinspect-blank" title="永久链接至目标">¶</a></dt>
+<dd><p>Use a comma separated list of OGR field names to add the <code class="docutils literal"><span class="pre">blank=True</span></code>
+keyword option to the field definition.  Set with <code class="docutils literal"><span class="pre">true</span></code> to apply
+to all applicable fields.</p>
+</dd></dl>
+
+<dl class="django-admin-option">
+<dt id="cmdoption-ogrinspect-decimal">
+<code class="descname">--decimal</code><code class="descclassname"> DECIMAL</code><a class="headerlink" href="#cmdoption-ogrinspect-decimal" title="永久链接至目标">¶</a></dt>
+<dd><p>Use a comma separated list of OGR float fields to generate
+<a class="reference internal" href="../../models/fields.html#django.db.models.DecimalField" title="django.db.models.DecimalField"><code class="xref py py-class docutils literal"><span class="pre">DecimalField</span></code></a> instead of the default
+<a class="reference internal" href="../../models/fields.html#django.db.models.FloatField" title="django.db.models.FloatField"><code class="xref py py-class docutils literal"><span class="pre">FloatField</span></code></a>. Set to <code class="docutils literal"><span class="pre">true</span></code> to apply to all
+OGR float fields.</p>
+</dd></dl>
+
+<dl class="django-admin-option">
+<dt id="cmdoption-ogrinspect-geom-name">
+<code class="descname">--geom-name</code><code class="descclassname"> GEOM_NAME</code><a class="headerlink" href="#cmdoption-ogrinspect-geom-name" title="永久链接至目标">¶</a></dt>
+<dd><p>Specifies the model attribute name to use for the geometry field.
+Defaults to <code class="docutils literal"><span class="pre">'geom'</span></code>.</p>
+</dd></dl>
+
+<dl class="django-admin-option">
+<dt id="cmdoption-ogrinspect-layer">
+<code class="descname">--layer</code><code class="descclassname"> LAYER_KEY</code><a class="headerlink" href="#cmdoption-ogrinspect-layer" title="永久链接至目标">¶</a></dt>
+<dd><p>The key for specifying which layer in the OGR
+<a class="reference internal" href="gdal.html#django.contrib.gis.gdal.DataSource" title="django.contrib.gis.gdal.DataSource"><code class="xref py py-class docutils literal"><span class="pre">DataSource</span></code></a> source to use.
+Defaults to 0 (the first layer). May be an integer or a string identifier
+for the <a class="reference internal" href="gdal.html#django.contrib.gis.gdal.Layer" title="django.contrib.gis.gdal.Layer"><code class="xref py py-class docutils literal"><span class="pre">Layer</span></code></a>. When inspecting databases,
+<code class="docutils literal"><span class="pre">layer</span></code> is generally the table name you want to inspect.</p>
+</dd></dl>
+
+<dl class="django-admin-option">
+<dt id="cmdoption-ogrinspect-mapping">
+<code class="descname">--mapping</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-ogrinspect-mapping" title="永久链接至目标">¶</a></dt>
+<dd><p>Automatically generate a mapping dictionary for use with
+<a class="reference internal" href="layermapping.html#django.contrib.gis.utils.LayerMapping" title="django.contrib.gis.utils.LayerMapping"><code class="xref py py-class docutils literal"><span class="pre">LayerMapping</span></code></a>.</p>
+</dd></dl>
+
+<dl class="django-admin-option">
+<dt id="cmdoption-ogrinspect-multi-geom">
+<code class="descname">--multi-geom</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-ogrinspect-multi-geom" title="永久链接至目标">¶</a></dt>
+<dd><p>When generating the geometry field, treat it as a geometry collection.
+For example, if this setting is enabled then a
+<a class="reference internal" href="model-api.html#django.contrib.gis.db.models.MultiPolygonField" title="django.contrib.gis.db.models.MultiPolygonField"><code class="xref py py-class docutils literal"><span class="pre">MultiPolygonField</span></code></a> will be placed
+in the generated model rather than
+<a class="reference internal" href="model-api.html#django.contrib.gis.db.models.PolygonField" title="django.contrib.gis.db.models.PolygonField"><code class="xref py py-class docutils literal"><span class="pre">PolygonField</span></code></a>.</p>
+</dd></dl>
+
+<dl class="django-admin-option">
+<dt id="cmdoption-ogrinspect-name-field">
+<code class="descname">--name-field</code><code class="descclassname"> NAME_FIELD</code><a class="headerlink" href="#cmdoption-ogrinspect-name-field" title="永久链接至目标">¶</a></dt>
+<dd><p>Generates a <code class="docutils literal"><span class="pre">__str__</span></code> routine (<code class="docutils literal"><span class="pre">__unicode__</span></code> on Python 2) on the model
+that will return the given field name.</p>
+</dd></dl>
+
+<dl class="django-admin-option">
+<dt id="cmdoption-ogrinspect-no-imports">
+<code class="descname">--no-imports</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-ogrinspect-no-imports" title="永久链接至目标">¶</a></dt>
+<dd><p>Suppresses the <code class="docutils literal"><span class="pre">from</span> <span class="pre">django.contrib.gis.db</span> <span class="pre">import</span> <span class="pre">models</span></code> import statement.</p>
+</dd></dl>
+
+<dl class="django-admin-option">
+<dt id="cmdoption-ogrinspect-null">
+<code class="descname">--null</code><code class="descclassname"> NULL</code><a class="headerlink" href="#cmdoption-ogrinspect-null" title="永久链接至目标">¶</a></dt>
+<dd><p>Use a comma separated list of OGR field names to add the <code class="docutils literal"><span class="pre">null=True</span></code>
+keyword option to the field definition.  Set with <code class="docutils literal"><span class="pre">true</span></code> to apply to
+all applicable fields.</p>
+</dd></dl>
+
+<dl class="django-admin-option">
+<dt id="cmdoption-ogrinspect-srid">
+<code class="descname">--srid</code><code class="descclassname"> SRID</code><a class="headerlink" href="#cmdoption-ogrinspect-srid" title="永久链接至目标">¶</a></dt>
+<dd><p>The SRID to use for the geometry field.  If not set, <code class="docutils literal"><span class="pre">ogrinspect</span></code> attempts
+to automatically determine of the SRID of the data source.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

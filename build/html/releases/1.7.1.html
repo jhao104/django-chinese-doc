@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Django 1.7.1 release notes &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Django 1.7.1 release notes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/releases/1.7.1.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="django-1-7-1-release-notes">
+<h1>Django 1.7.1 release notes<a class="headerlink" href="#django-1-7-1-release-notes" title="永久链接至标题">¶</a></h1>
+<p><em>October 22, 2014</em></p>
+<p>Django 1.7.1 fixes several bugs in 1.7.</p>
+<div class="section" id="bugfixes">
+<h2>Bugfixes<a class="headerlink" href="#bugfixes" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li>Allowed related many-to-many fields to be referenced in the admin
+(<a href="#id1"><span class="problematic" id="id2">:ticket:`23604`</span></a>).</li>
+<li>Added a more helpful error message if you try to migrate an app without first
+creating the <code class="docutils literal"><span class="pre">contenttypes</span></code> table (<a href="#id3"><span class="problematic" id="id4">:ticket:`22411`</span></a>).</li>
+<li>Modified migrations dependency algorithm to avoid possible infinite recursion.</li>
+<li>Fixed a <code class="docutils literal"><span class="pre">UnicodeDecodeError</span></code> when the <code class="docutils literal"><span class="pre">flush</span></code> error message contained
+Unicode characters (<a href="#id5"><span class="problematic" id="id6">:ticket:`22882`</span></a>).</li>
+<li>Reinstated missing <code class="docutils literal"><span class="pre">CHECK</span></code> SQL clauses which were omitted on some backends
+when not using migrations (<a href="#id7"><span class="problematic" id="id8">:ticket:`23416`</span></a>).</li>
+<li>Fixed serialization of <code class="docutils literal"><span class="pre">type</span></code> objects in migrations (<a href="#id9"><span class="problematic" id="id10">:ticket:`22951`</span></a>).</li>
+<li>Allowed inline and hidden references to admin fields (<a href="#id11"><span class="problematic" id="id12">:ticket:`23431`</span></a>).</li>
+<li>The <code class="docutils literal"><span class="pre">&#64;deconstructible</span></code> decorator now fails with a <code class="docutils literal"><span class="pre">ValueError</span></code> if the
+decorated object cannot automatically be imported (<a href="#id13"><span class="problematic" id="id14">:ticket:`23418`</span></a>).</li>
+<li>Fixed a typo in an <code class="docutils literal"><span class="pre">inlineformset_factory()</span></code> error message that caused a
+crash (<a href="#id15"><span class="problematic" id="id16">:ticket:`23451`</span></a>).</li>
+<li>Restored the ability to use <a class="reference internal" href="../ref/settings.html#std:setting-ABSOLUTE_URL_OVERRIDES"><code class="xref std std-setting docutils literal"><span class="pre">ABSOLUTE_URL_OVERRIDES</span></code></a> with the
+<code class="docutils literal"><span class="pre">'auth.User'</span></code> model (<a href="#id17"><span class="problematic" id="id18">:ticket:`11775`</span></a>). As a side effect, the setting now
+adds a <code class="docutils literal"><span class="pre">get_absolute_url()</span></code> method to any model that appears in
+<code class="docutils literal"><span class="pre">ABSOLUTE_URL_OVERRIDES</span></code> but doesn’t define <code class="docutils literal"><span class="pre">get_absolute_url()</span></code>.</li>
+<li>Avoided masking some <cite>ImportError</cite> exceptions during application loading
+(<a href="#id19"><span class="problematic" id="id20">:ticket:`22920`</span></a>).</li>
+<li>Empty <code class="docutils literal"><span class="pre">index_together</span></code> or <code class="docutils literal"><span class="pre">unique_together</span></code> model options no longer
+results in infinite migrations (<a href="#id21"><span class="problematic" id="id22">:ticket:`23452`</span></a>).</li>
+<li>Fixed crash in <code class="docutils literal"><span class="pre">contrib.sitemaps</span></code> if <code class="docutils literal"><span class="pre">lastmod</span></code> returned a <code class="docutils literal"><span class="pre">date</span></code> rather
+than a <code class="docutils literal"><span class="pre">datetime</span></code> (<a href="#id23"><span class="problematic" id="id24">:ticket:`23403`</span></a>).</li>
+<li>Allowed migrations to work with <code class="docutils literal"><span class="pre">app_label</span></code>s that have the same last
+part (e.g. <code class="docutils literal"><span class="pre">django.contrib.auth</span></code> and <code class="docutils literal"><span class="pre">vendor.auth</span></code>) (<a href="#id25"><span class="problematic" id="id26">:ticket:`23483`</span></a>).</li>
+<li>Restored the ability to deepcopy <code class="docutils literal"><span class="pre">F</span></code> objects (<a href="#id27"><span class="problematic" id="id28">:ticket:`23492`</span></a>).</li>
+<li>Formats for Welsh (<code class="docutils literal"><span class="pre">cy</span></code>) and several Chinese locales (<code class="docutils literal"><span class="pre">zh_CN</span></code>,
+<code class="docutils literal"><span class="pre">zh_Hans</span></code>, <code class="docutils literal"><span class="pre">zh_Hant</span></code> and <code class="docutils literal"><span class="pre">zh_TW</span></code>) have been added. Formats for
+Macedonian have been fixed (trailing dot removed, <a href="#id29"><span class="problematic" id="id30">:ticket:`23532`</span></a>).</li>
+<li>Added quoting of constraint names in the SQL generated by migrations to
+prevent crash with uppercase characters in the name (<a href="#id31"><span class="problematic" id="id32">:ticket:`23065`</span></a>).</li>
+<li>Fixed renaming of models with a self-referential many-to-many field
+(<code class="docutils literal"><span class="pre">ManyToManyField('self')</span></code>) (<a href="#id33"><span class="problematic" id="id34">:ticket:`23503`</span></a>).</li>
+<li>Added the <a class="reference internal" href="../ref/contrib/admin/index.html#django.contrib.admin.InlineModelAdmin.get_extra" title="django.contrib.admin.InlineModelAdmin.get_extra"><code class="xref py py-meth docutils literal"><span class="pre">get_extra()</span></code></a>,
+<a class="reference internal" href="../ref/contrib/admin/index.html#django.contrib.admin.InlineModelAdmin.get_max_num" title="django.contrib.admin.InlineModelAdmin.get_max_num"><code class="xref py py-meth docutils literal"><span class="pre">get_max_num()</span></code></a>, and
+<a class="reference internal" href="../ref/contrib/admin/index.html#django.contrib.admin.InlineModelAdmin.get_min_num" title="django.contrib.admin.InlineModelAdmin.get_min_num"><code class="xref py py-meth docutils literal"><span class="pre">get_min_num()</span></code></a> hooks to
+<a class="reference internal" href="../ref/contrib/contenttypes.html#django.contrib.contenttypes.admin.GenericInlineModelAdmin" title="django.contrib.contenttypes.admin.GenericInlineModelAdmin"><code class="xref py py-class docutils literal"><span class="pre">GenericInlineModelAdmin</span></code></a>
+(<a href="#id35"><span class="problematic" id="id36">:ticket:`23539`</span></a>).</li>
+<li>Made <code class="docutils literal"><span class="pre">migrations.RunSQL</span></code> no longer require percent sign escaping. This is
+now consistent with <code class="docutils literal"><span class="pre">cursor.execute()</span></code> (<a href="#id37"><span class="problematic" id="id38">:ticket:`23426`</span></a>).</li>
+<li>Made the <a class="reference internal" href="../ref/settings.html#std:setting-TEST_SERIALIZE"><code class="xref std std-setting docutils literal"><span class="pre">SERIALIZE</span></code></a> entry in the
+<a class="reference internal" href="../ref/settings.html#std:setting-DATABASE-TEST"><code class="xref std std-setting docutils literal"><span class="pre">TEST</span></code></a> dictionary usable (<a href="#id39"><span class="problematic" id="id40">:ticket:`23421`</span></a>).</li>
+<li>Fixed bug in migrations that prevented foreign key constraints to unmanaged
+models with a custom primary key (<a href="#id41"><span class="problematic" id="id42">:ticket:`23415`</span></a>).</li>
+<li>Added <code class="docutils literal"><span class="pre">SchemaEditor</span></code> for MySQL GIS backend so that spatial indexes will be
+created for apps with migrations (<a href="#id43"><span class="problematic" id="id44">:ticket:`23538`</span></a>).</li>
+<li>Added <code class="docutils literal"><span class="pre">SchemaEditor</span></code> for Oracle GIS backend so that spatial metadata and
+indexes will be created for apps with migrations (<a href="#id45"><span class="problematic" id="id46">:ticket:`23537`</span></a>).</li>
+<li>Coerced the <code class="docutils literal"><span class="pre">related_name</span></code> model field option to unicode during migration
+generation to generate migrations that work with both Python 2 and 3
+(<a href="#id47"><span class="problematic" id="id48">:ticket:`23455`</span></a>).</li>
+<li>Fixed <code class="docutils literal"><span class="pre">MigrationWriter</span></code> to handle builtin types without imports
+(<a href="#id49"><span class="problematic" id="id50">:ticket:`23560`</span></a>).</li>
+<li>Fixed <code class="docutils literal"><span class="pre">deepcopy</span></code> on <code class="docutils literal"><span class="pre">ErrorList</span></code> (<a href="#id51"><span class="problematic" id="id52">:ticket:`23594`</span></a>).</li>
+<li>Made the <a class="reference internal" href="../ref/contrib/admin/admindocs.html#module-django.contrib.admindocs" title="django.contrib.admindocs: Django's admin documentation generator."><code class="xref py py-mod docutils literal"><span class="pre">admindocs</span></code></a> view to browse view details check
+if the view specified in the URL exists in the URLconf. Previously it was
+possible to import arbitrary packages from the Python path. This was not
+considered a security issue because <code class="docutils literal"><span class="pre">admindocs</span></code> is only accessible to staff
+users (<a href="#id53"><span class="problematic" id="id54">:ticket:`23601`</span></a>).</li>
+<li>Fixed <code class="docutils literal"><span class="pre">UnicodeDecodeError</span></code> crash in <code class="docutils literal"><span class="pre">AdminEmailHandler</span></code> with non-ASCII
+characters in the request (<a href="#id55"><span class="problematic" id="id56">:ticket:`23593`</span></a>).</li>
+<li>Fixed missing <code class="docutils literal"><span class="pre">get_or_create</span></code> and <code class="docutils literal"><span class="pre">update_or_create</span></code> on related managers
+causing <code class="docutils literal"><span class="pre">IntegrityError</span></code> (<a href="#id57"><span class="problematic" id="id58">:ticket:`23611`</span></a>).</li>
+<li>Made <a class="reference internal" href="../ref/utils.html#django.utils.http.urlsafe_base64_decode" title="django.utils.http.urlsafe_base64_decode"><code class="xref py py-func docutils literal"><span class="pre">urlsafe_base64_decode()</span></code></a> return the proper
+type (byte string) on Python 3 (<a href="#id59"><span class="problematic" id="id60">:ticket:`23333`</span></a>).</li>
+<li><a class="reference internal" href="../ref/django-admin.html#django-admin-makemigrations"><code class="xref std std-djadmin docutils literal"><span class="pre">makemigrations</span></code></a> can now serialize timezone-aware values
+(<a href="#id61"><span class="problematic" id="id62">:ticket:`23365`</span></a>).</li>
+<li>Added a prompt to the migrations questioner when removing the null constraint
+from a field to prevent an IntegrityError on existing NULL rows
+(<a href="#id63"><span class="problematic" id="id64">:ticket:`23609`</span></a>).</li>
+<li>Fixed generic relations in <code class="docutils literal"><span class="pre">ModelAdmin.list_filter</span></code> (<a href="#id65"><span class="problematic" id="id66">:ticket:`23616`</span></a>).</li>
+<li>Restored RFC compliance for the SMTP backend on Python 3 (<a href="#id67"><span class="problematic" id="id68">:ticket:`23063`</span></a>).</li>
+<li>Fixed a crash while parsing cookies containing invalid content
+(<a href="#id69"><span class="problematic" id="id70">:ticket:`23638`</span></a>).</li>
+<li>The system check framework now raises error <strong>models.E020</strong> when the
+class method <code class="docutils literal"><span class="pre">Model.check()</span></code> is unreachable (<a href="#id71"><span class="problematic" id="id72">:ticket:`23615`</span></a>).</li>
+<li>Made the Oracle test database creation drop the test user in the event of an
+unclean exit of a previous test run (<a href="#id73"><span class="problematic" id="id74">:ticket:`23649`</span></a>).</li>
+<li>Fixed <a class="reference internal" href="../ref/django-admin.html#django-admin-makemigrations"><code class="xref std std-djadmin docutils literal"><span class="pre">makemigrations</span></code></a> to detect changes to
+<a class="reference internal" href="../ref/models/options.html#django.db.models.Options.db_table" title="django.db.models.Options.db_table"><code class="xref py py-attr docutils literal"><span class="pre">Meta.db_table</span></code></a> (<a href="#id75"><span class="problematic" id="id76">:ticket:`23629`</span></a>).</li>
+<li>Fixed a regression when feeding the Django test client with an empty data
+string (<a href="#id77"><span class="problematic" id="id78">:ticket:`21740`</span></a>).</li>
+<li>Fixed a regression in <a class="reference internal" href="../ref/django-admin.html#django-admin-makemessages"><code class="xref std std-djadmin docutils literal"><span class="pre">makemessages</span></code></a> where static files were
+unexpectedly ignored (<a href="#id79"><span class="problematic" id="id80">:ticket:`23583`</span></a>).</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

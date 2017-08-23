@@ -1,0 +1,604 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Form and field validation &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Form and field validation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/ref/forms/validation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="form-and-field-validation">
+<h1>Form and field validation<a class="headerlink" href="#form-and-field-validation" title="永久链接至标题">¶</a></h1>
+<p>Form validation happens when the data is cleaned. If you want to customize
+this process, there are various places to make changes, each one serving a
+different purpose. Three types of cleaning methods are run during form
+processing. These are normally executed when you call the <code class="docutils literal"><span class="pre">is_valid()</span></code>
+method on a form. There are other things that can also trigger cleaning and
+validation (accessing the <code class="docutils literal"><span class="pre">errors</span></code> attribute or calling <code class="docutils literal"><span class="pre">full_clean()</span></code>
+directly), but normally they won’t be needed.</p>
+<p>In general, any cleaning method can raise <code class="docutils literal"><span class="pre">ValidationError</span></code> if there is a
+problem with the data it is processing, passing the relevant information to
+the <code class="docutils literal"><span class="pre">ValidationError</span></code> constructor. <a class="reference internal" href="#raising-validation-error"><span class="std std-ref">See below</span></a>
+for the best practice in raising <code class="docutils literal"><span class="pre">ValidationError</span></code>. If no <code class="docutils literal"><span class="pre">ValidationError</span></code>
+is raised, the method should return the cleaned (normalized) data as a Python
+object.</p>
+<p>Most validation can be done using <a class="reference internal" href="#validators">validators</a> - simple helpers that can be
+reused easily. Validators are simple functions (or callables) that take a single
+argument and raise <code class="docutils literal"><span class="pre">ValidationError</span></code> on invalid input. Validators are run
+after the field’s <code class="docutils literal"><span class="pre">to_python</span></code> and <code class="docutils literal"><span class="pre">validate</span></code> methods have been called.</p>
+<p>Validation of a form is split into several steps, which can be customized or
+overridden:</p>
+<ul>
+<li><p class="first">The <code class="docutils literal"><span class="pre">to_python()</span></code> method on a <code class="docutils literal"><span class="pre">Field</span></code> is the first step in every
+validation. It coerces the value to a correct datatype and raises
+<code class="docutils literal"><span class="pre">ValidationError</span></code> if that is not possible. This method accepts the raw
+value from the widget and returns the converted value. For example, a
+<code class="docutils literal"><span class="pre">FloatField</span></code> will turn the data into a Python <code class="docutils literal"><span class="pre">float</span></code> or raise a
+<code class="docutils literal"><span class="pre">ValidationError</span></code>.</p>
+</li>
+<li><p class="first">The <code class="docutils literal"><span class="pre">validate()</span></code> method on a <code class="docutils literal"><span class="pre">Field</span></code> handles field-specific validation
+that is not suitable for a validator. It takes a value that has been
+coerced to a correct datatype and raises <code class="docutils literal"><span class="pre">ValidationError</span></code> on any error.
+This method does not return anything and shouldn’t alter the value. You
+should override it to handle validation logic that you can’t or don’t
+want to put in a validator.</p>
+</li>
+<li><p class="first">The <code class="docutils literal"><span class="pre">run_validators()</span></code> method on a <code class="docutils literal"><span class="pre">Field</span></code> runs all of the field’s
+validators and aggregates all the errors into a single
+<code class="docutils literal"><span class="pre">ValidationError</span></code>. You shouldn’t need to override this method.</p>
+</li>
+<li><p class="first">The <code class="docutils literal"><span class="pre">clean()</span></code> method on a <code class="docutils literal"><span class="pre">Field</span></code> subclass is responsible for running
+<code class="docutils literal"><span class="pre">to_python()</span></code>, <code class="docutils literal"><span class="pre">validate()</span></code>, and <code class="docutils literal"><span class="pre">run_validators()</span></code> in the correct
+order and propagating their errors. If, at any time, any of the methods
+raise <code class="docutils literal"><span class="pre">ValidationError</span></code>, the validation stops and that error is raised.
+This method returns the clean data, which is then inserted into the
+<code class="docutils literal"><span class="pre">cleaned_data</span></code> dictionary of the form.</p>
+</li>
+<li><p class="first">The <code class="docutils literal"><span class="pre">clean_&lt;fieldname&gt;()</span></code> method is called on a form subclass – where
+<code class="docutils literal"><span class="pre">&lt;fieldname&gt;</span></code> is replaced with the name of the form field attribute.
+This method does any cleaning that is specific to that particular
+attribute, unrelated to the type of field that it is. This method is not
+passed any parameters. You will need to look up the value of the field
+in <code class="docutils literal"><span class="pre">self.cleaned_data</span></code> and remember that it will be a Python object
+at this point, not the original string submitted in the form (it will be
+in <code class="docutils literal"><span class="pre">cleaned_data</span></code> because the general field <code class="docutils literal"><span class="pre">clean()</span></code> method, above,
+has already cleaned the data once).</p>
+<p>For example, if you wanted to validate that the contents of a
+<code class="docutils literal"><span class="pre">CharField</span></code> called <code class="docutils literal"><span class="pre">serialnumber</span></code> was unique,
+<code class="docutils literal"><span class="pre">clean_serialnumber()</span></code> would be the right place to do this. You don’t
+need a specific field (it’s just a <code class="docutils literal"><span class="pre">CharField</span></code>), but you want a
+formfield-specific piece of validation and, possibly,
+cleaning/normalizing the data.</p>
+<p>The return value of this method replaces the existing value in
+<code class="docutils literal"><span class="pre">cleaned_data</span></code>, so it must be the field’s value from <code class="docutils literal"><span class="pre">cleaned_data</span></code> (even
+if this method didn’t change it) or a new cleaned value.</p>
+</li>
+<li><p class="first">The form subclass’s <code class="docutils literal"><span class="pre">clean()</span></code> method can perform validation that requires
+access to multiple form fields. This is where you might put in checks such as
+“if field <code class="docutils literal"><span class="pre">A</span></code> is supplied, field <code class="docutils literal"><span class="pre">B</span></code> must contain a valid email address”.
+This method can return a completely different dictionary if it wishes, which
+will be used as the <code class="docutils literal"><span class="pre">cleaned_data</span></code>.</p>
+<p>Since the field validation methods have been run by the time <code class="docutils literal"><span class="pre">clean()</span></code> is
+called, you also have access to the form’s <code class="docutils literal"><span class="pre">errors</span></code> attribute which
+contains all the errors raised by cleaning of individual fields.</p>
+<p>Note that any errors raised by your <a class="reference internal" href="api.html#django.forms.Form.clean" title="django.forms.Form.clean"><code class="xref py py-meth docutils literal"><span class="pre">Form.clean()</span></code></a> override will not
+be associated with any field in particular. They go into a special
+“field” (called <code class="docutils literal"><span class="pre">__all__</span></code>), which you can access via the
+<a class="reference internal" href="api.html#django.forms.Form.non_field_errors" title="django.forms.Form.non_field_errors"><code class="xref py py-meth docutils literal"><span class="pre">non_field_errors()</span></code></a> method if you need to. If you
+want to attach errors to a specific field in the form, you need to call
+<a class="reference internal" href="api.html#django.forms.Form.add_error" title="django.forms.Form.add_error"><code class="xref py py-meth docutils literal"><span class="pre">add_error()</span></code></a>.</p>
+<p>Also note that there are special considerations when overriding
+the <code class="docutils literal"><span class="pre">clean()</span></code> method of a <code class="docutils literal"><span class="pre">ModelForm</span></code> subclass. (see the
+<a class="reference internal" href="../../topics/forms/modelforms.html#overriding-modelform-clean-method"><span class="std std-ref">ModelForm documentation</span></a> for more information)</p>
+</li>
+</ul>
+<p>These methods are run in the order given above, one field at a time.  That is,
+for each field in the form (in the order they are declared in the form
+definition), the <code class="docutils literal"><span class="pre">Field.clean()</span></code> method (or its override) is run, then
+<code class="docutils literal"><span class="pre">clean_&lt;fieldname&gt;()</span></code>. Finally, once those two methods are run for every
+field, the <a class="reference internal" href="api.html#django.forms.Form.clean" title="django.forms.Form.clean"><code class="xref py py-meth docutils literal"><span class="pre">Form.clean()</span></code></a> method, or its override, is executed whether
+or not the previous methods have raised errors.</p>
+<p>Examples of each of these methods are provided below.</p>
+<p>As mentioned, any of these methods can raise a <code class="docutils literal"><span class="pre">ValidationError</span></code>. For any
+field, if the <code class="docutils literal"><span class="pre">Field.clean()</span></code> method raises a <code class="docutils literal"><span class="pre">ValidationError</span></code>, any
+field-specific cleaning method is not called. However, the cleaning methods
+for all remaining fields are still executed.</p>
+<div class="section" id="raising-validationerror">
+<span id="raising-validation-error"></span><h2>Raising <code class="docutils literal"><span class="pre">ValidationError</span></code><a class="headerlink" href="#raising-validationerror" title="永久链接至标题">¶</a></h2>
+<p>In order to make error messages flexible and easy to override, consider the
+following guidelines:</p>
+<ul>
+<li><p class="first">Provide a descriptive error <code class="docutils literal"><span class="pre">code</span></code> to the constructor:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="c"># Good</span>
+<span class="n">ValidationError</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Invalid value&#39;</span><span class="p">),</span> <span class="n">code</span><span class="o">=</span><span class="s">&#39;invalid&#39;</span><span class="p">)</span>
+
+<span class="c"># Bad</span>
+<span class="n">ValidationError</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Invalid value&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Don’t coerce variables into the message; use placeholders and the <code class="docutils literal"><span class="pre">params</span></code>
+argument of the constructor:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="c"># Good</span>
+<span class="n">ValidationError</span><span class="p">(</span>
+    <span class="n">_</span><span class="p">(</span><span class="s">&#39;Invalid value: %(value)s&#39;</span><span class="p">),</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="s">&#39;42&#39;</span><span class="p">},</span>
+<span class="p">)</span>
+
+<span class="c"># Bad</span>
+<span class="n">ValidationError</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Invalid value: %s&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Use mapping keys instead of positional formatting. This enables putting
+the variables in any order or omitting them altogether when rewriting the
+message:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="c"># Good</span>
+<span class="n">ValidationError</span><span class="p">(</span>
+    <span class="n">_</span><span class="p">(</span><span class="s">&#39;Invalid value: %(value)s&#39;</span><span class="p">),</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="s">&#39;42&#39;</span><span class="p">},</span>
+<span class="p">)</span>
+
+<span class="c"># Bad</span>
+<span class="n">ValidationError</span><span class="p">(</span>
+    <span class="n">_</span><span class="p">(</span><span class="s">&#39;Invalid value: %s&#39;</span><span class="p">),</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;42&#39;</span><span class="p">,),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Wrap the message with <code class="docutils literal"><span class="pre">gettext</span></code> to enable translation:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="c"># Good</span>
+<span class="n">ValidationError</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Invalid value&#39;</span><span class="p">))</span>
+
+<span class="c"># Bad</span>
+<span class="n">ValidationError</span><span class="p">(</span><span class="s">&#39;Invalid value&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>Putting it all together:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+    <span class="n">_</span><span class="p">(</span><span class="s">&#39;Invalid value: %(value)s&#39;</span><span class="p">),</span>
+    <span class="n">code</span><span class="o">=</span><span class="s">&#39;invalid&#39;</span><span class="p">,</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="s">&#39;42&#39;</span><span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Following these guidelines is particularly necessary if you write reusable
+forms, form fields, and model fields.</p>
+<p>While not recommended, if you are at the end of the validation chain
+(i.e. your form <code class="docutils literal"><span class="pre">clean()</span></code> method) and you know you will <em>never</em> need
+to override your error message you can still opt for the less verbose:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">ValidationError</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Invalid value: %s&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="api.html#django.forms.Form.errors.as_data" title="django.forms.Form.errors.as_data"><code class="xref py py-meth docutils literal"><span class="pre">Form.errors.as_data()</span></code></a> and
+<a class="reference internal" href="api.html#django.forms.Form.errors.as_json" title="django.forms.Form.errors.as_json"><code class="xref py py-meth docutils literal"><span class="pre">Form.errors.as_json()</span></code></a> methods
+greatly benefit from fully featured <code class="docutils literal"><span class="pre">ValidationError</span></code>s (with a <code class="docutils literal"><span class="pre">code</span></code> name
+and a <code class="docutils literal"><span class="pre">params</span></code> dictionary).</p>
+<div class="section" id="raising-multiple-errors">
+<h3>Raising multiple errors<a class="headerlink" href="#raising-multiple-errors" title="永久链接至标题">¶</a></h3>
+<p>If you detect multiple errors during a cleaning method and wish to signal all
+of them to the form submitter, it is possible to pass a list of errors to the
+<code class="docutils literal"><span class="pre">ValidationError</span></code> constructor.</p>
+<p>As above, it is recommended to pass a list of <code class="docutils literal"><span class="pre">ValidationError</span></code> instances
+with <code class="docutils literal"><span class="pre">code</span></code>s and <code class="docutils literal"><span class="pre">params</span></code> but a list of strings will also work:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="c"># Good</span>
+<span class="k">raise</span> <span class="n">ValidationError</span><span class="p">([</span>
+    <span class="n">ValidationError</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Error 1&#39;</span><span class="p">),</span> <span class="n">code</span><span class="o">=</span><span class="s">&#39;error1&#39;</span><span class="p">),</span>
+    <span class="n">ValidationError</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Error 2&#39;</span><span class="p">),</span> <span class="n">code</span><span class="o">=</span><span class="s">&#39;error2&#39;</span><span class="p">),</span>
+<span class="p">])</span>
+
+<span class="c"># Bad</span>
+<span class="k">raise</span> <span class="n">ValidationError</span><span class="p">([</span>
+    <span class="n">_</span><span class="p">(</span><span class="s">&#39;Error 1&#39;</span><span class="p">),</span>
+    <span class="n">_</span><span class="p">(</span><span class="s">&#39;Error 2&#39;</span><span class="p">),</span>
+<span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="using-validation-in-practice">
+<h2>Using validation in practice<a class="headerlink" href="#using-validation-in-practice" title="永久链接至标题">¶</a></h2>
+<p>The previous sections explained how validation works in general for forms.
+Since it can sometimes be easier to put things into place by seeing each
+feature in use, here are a series of small examples that use each of the
+previous features.</p>
+<div class="section" id="using-validators">
+<span id="validators"></span><h3>Using validators<a class="headerlink" href="#using-validators" title="永久链接至标题">¶</a></h3>
+<p>Django’s form (and model) fields support use of simple utility functions and
+classes known as validators. A validator is merely a callable object or
+function that takes a value and simply returns nothing if the value is valid or
+raises a <a class="reference internal" href="../exceptions.html#django.core.exceptions.ValidationError" title="django.core.exceptions.ValidationError"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code></a> if not. These can be
+passed to a field’s constructor, via the field’s <code class="docutils literal"><span class="pre">validators</span></code> argument, or
+defined on the <a class="reference internal" href="fields.html#django.forms.Field" title="django.forms.Field"><code class="xref py py-class docutils literal"><span class="pre">Field</span></code></a> class itself with the
+<code class="docutils literal"><span class="pre">default_validators</span></code> attribute.</p>
+<p>Simple validators can be used to validate values inside the field, let’s have
+a look at Django’s <code class="docutils literal"><span class="pre">SlugField</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.forms</span> <span class="k">import</span> <span class="n">CharField</span>
+<span class="kn">from</span> <span class="nn">django.core</span> <span class="k">import</span> <span class="n">validators</span>
+
+<span class="k">class</span> <span class="nc">SlugField</span><span class="p">(</span><span class="n">CharField</span><span class="p">):</span>
+    <span class="n">default_validators</span> <span class="o">=</span> <span class="p">[</span><span class="n">validators</span><span class="o">.</span><span class="n">validate_slug</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>As you can see, <code class="docutils literal"><span class="pre">SlugField</span></code> is just a <code class="docutils literal"><span class="pre">CharField</span></code> with a customized
+validator that validates that submitted text obeys to some character rules.
+This can also be done on field definition so:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">slug</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">SlugField</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>is equivalent to:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">slug</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">validators</span><span class="o">.</span><span class="n">validate_slug</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Common cases such as validating against an email or a regular expression can be
+handled using existing validator classes available in Django. For example,
+<code class="docutils literal"><span class="pre">validators.validate_slug</span></code> is an instance of
+a <a class="reference internal" href="../validators.html#django.core.validators.RegexValidator" title="django.core.validators.RegexValidator"><code class="xref py py-class docutils literal"><span class="pre">RegexValidator</span></code></a> constructed with the first
+argument being the pattern: <code class="docutils literal"><span class="pre">^[-a-zA-Z0-9_]+$</span></code>. See the section on
+<a class="reference internal" href="../validators.html"><span class="doc">writing validators</span></a> to see a list of what is already
+available and for an example of how to write a validator.</p>
+</div>
+<div class="section" id="form-field-default-cleaning">
+<h3>Form field default cleaning<a class="headerlink" href="#form-field-default-cleaning" title="永久链接至标题">¶</a></h3>
+<p>Let’s first create a custom form field that validates its input is a string
+containing comma-separated email addresses. The full class looks like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django</span> <span class="k">import</span> <span class="n">forms</span>
+<span class="kn">from</span> <span class="nn">django.core.validators</span> <span class="k">import</span> <span class="n">validate_email</span>
+
+<span class="k">class</span> <span class="nc">MultiEmailField</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Field</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_python</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Normalize data to a list of strings.&quot;&quot;&quot;</span>
+        <span class="c"># Return an empty list if no input was given.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if value consists only of valid emails.&quot;&quot;&quot;</span>
+        <span class="c"># Use the parent&#39;s handling of required fields, etc.</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MultiEmailField</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">email</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">validate_email</span><span class="p">(</span><span class="n">email</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Every form that uses this field will have these methods run before anything
+else can be done with the field’s data. This is cleaning that is specific to
+this type of field, regardless of how it is subsequently used.</p>
+<p>Let’s create a simple <code class="docutils literal"><span class="pre">ContactForm</span></code> to demonstrate how you’d use this
+field:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">class</span> <span class="nc">ContactForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="n">subject</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">sender</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">EmailField</span><span class="p">()</span>
+    <span class="n">recipients</span> <span class="o">=</span> <span class="n">MultiEmailField</span><span class="p">()</span>
+    <span class="n">cc_myself</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Simply use <code class="docutils literal"><span class="pre">MultiEmailField</span></code> like any other form field. When the
+<code class="docutils literal"><span class="pre">is_valid()</span></code> method is called on the form, the <code class="docutils literal"><span class="pre">MultiEmailField.clean()</span></code>
+method will be run as part of the cleaning process and it will, in turn, call
+the custom <code class="docutils literal"><span class="pre">to_python()</span></code> and <code class="docutils literal"><span class="pre">validate()</span></code> methods.</p>
+</div>
+<div class="section" id="cleaning-a-specific-field-attribute">
+<h3>Cleaning a specific field attribute<a class="headerlink" href="#cleaning-a-specific-field-attribute" title="永久链接至标题">¶</a></h3>
+<p>Continuing on from the previous example, suppose that in our <code class="docutils literal"><span class="pre">ContactForm</span></code>,
+we want to make sure that the <code class="docutils literal"><span class="pre">recipients</span></code> field always contains the address
+<code class="docutils literal"><span class="pre">&quot;fred&#64;example.com&quot;</span></code>. This is validation that is specific to our form, so we
+don’t want to put it into the general <code class="docutils literal"><span class="pre">MultiEmailField</span></code> class. Instead, we
+write a cleaning method that operates on the <code class="docutils literal"><span class="pre">recipients</span></code> field, like so:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django</span> <span class="k">import</span> <span class="n">forms</span>
+
+<span class="k">class</span> <span class="nc">ContactForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="c"># Everything as before.</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">clean_recipients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;recipients&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s">&quot;fred@example.com&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s">&quot;You have forgotten about Fred!&quot;</span><span class="p">)</span>
+
+        <span class="c"># Always return a value to use as the new cleaned data, even if</span>
+        <span class="c"># this method didn&#39;t change it.</span>
+        <span class="k">return</span> <span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="cleaning-and-validating-fields-that-depend-on-each-other">
+<span id="validating-fields-with-clean"></span><h3>Cleaning and validating fields that depend on each other<a class="headerlink" href="#cleaning-and-validating-fields-that-depend-on-each-other" title="永久链接至标题">¶</a></h3>
+<p>Suppose we add another requirement to our contact form: if the <code class="docutils literal"><span class="pre">cc_myself</span></code>
+field is <code class="docutils literal"><span class="pre">True</span></code>, the <code class="docutils literal"><span class="pre">subject</span></code> must contain the word <code class="docutils literal"><span class="pre">&quot;help&quot;</span></code>. We are
+performing validation on more than one field at a time, so the form’s
+<a class="reference internal" href="api.html#django.forms.Form.clean" title="django.forms.Form.clean"><code class="xref py py-meth docutils literal"><span class="pre">clean()</span></code></a> method is a good spot to do this. Notice that we are
+talking about the <code class="docutils literal"><span class="pre">clean()</span></code> method on the form here, whereas earlier we were
+writing a <code class="docutils literal"><span class="pre">clean()</span></code> method on a field. It’s important to keep the field and
+form difference clear when working out where to validate things. Fields are
+single data points, forms are a collection of fields.</p>
+<p>By the time the form’s <code class="docutils literal"><span class="pre">clean()</span></code> method is called, all the individual field
+clean methods will have been run (the previous two sections), so
+<code class="docutils literal"><span class="pre">self.cleaned_data</span></code> will be populated with any data that has survived so
+far. So you also need to remember to allow for the fact that the fields you
+are wanting to validate might not have survived the initial individual field
+checks.</p>
+<p>There are two ways to report any errors from this step. Probably the most
+common method is to display the error at the top of the form. To create such
+an error, you can raise a <code class="docutils literal"><span class="pre">ValidationError</span></code> from the <code class="docutils literal"><span class="pre">clean()</span></code> method. For
+example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django</span> <span class="k">import</span> <span class="n">forms</span>
+
+<span class="k">class</span> <span class="nc">ContactForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="c"># Everything as before.</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cleaned_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ContactForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="n">cc_myself</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;cc_myself&quot;</span><span class="p">)</span>
+        <span class="n">subject</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;subject&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cc_myself</span> <span class="ow">and</span> <span class="n">subject</span><span class="p">:</span>
+            <span class="c"># Only do something if both fields are valid so far.</span>
+            <span class="k">if</span> <span class="s">&quot;help&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subject</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                    <span class="s">&quot;Did not send for &#39;help&#39; in the subject despite &quot;</span>
+                    <span class="s">&quot;CC&#39;ing yourself.&quot;</span>
+                <span class="p">)</span>
+</pre></div>
+</div>
+<p>In this code, if the validation error is raised, the form will display an
+error message at the top of the form (normally) describing the problem.</p>
+<p>The call to <code class="docutils literal"><span class="pre">super(ContactForm,</span> <span class="pre">self).clean()</span></code> in the example code ensures
+that any validation logic in parent classes is maintained. If your form
+inherits another that doesn’t return a <code class="docutils literal"><span class="pre">cleaned_data</span></code> dictionary in its
+<code class="docutils literal"><span class="pre">clean()</span></code> method (doing so is optional), then don’t assign <code class="docutils literal"><span class="pre">cleaned_data</span></code>
+to the result of the <code class="docutils literal"><span class="pre">super()</span></code> call and use <code class="docutils literal"><span class="pre">self.cleaned_data</span></code> instead:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">ContactForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+    <span class="n">cc_myself</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;cc_myself&quot;</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>The second approach for reporting validation errors might involve assigning the
+error message to one of the fields. In this case, let’s assign an error message
+to both the “subject” and “cc_myself” rows in the form display. Be careful when
+doing this in practice, since it can lead to confusing form output. We’re
+showing what is possible here and leaving it up to you and your designers to
+work out what works effectively in your particular situation. Our new code
+(replacing the previous sample) looks like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django</span> <span class="k">import</span> <span class="n">forms</span>
+
+<span class="k">class</span> <span class="nc">ContactForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="c"># Everything as before.</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cleaned_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ContactForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="n">cc_myself</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;cc_myself&quot;</span><span class="p">)</span>
+        <span class="n">subject</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;subject&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cc_myself</span> <span class="ow">and</span> <span class="n">subject</span> <span class="ow">and</span> <span class="s">&quot;help&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subject</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Must put &#39;help&#39; in subject when cc&#39;ing yourself.&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_error</span><span class="p">(</span><span class="s">&#39;cc_myself&#39;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_error</span><span class="p">(</span><span class="s">&#39;subject&#39;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The second argument of <code class="docutils literal"><span class="pre">add_error()</span></code> can be a simple string, or preferably
+an instance of <code class="docutils literal"><span class="pre">ValidationError</span></code>. See <a class="reference internal" href="#raising-validation-error"><span class="std std-ref">Raising ValidationError</span></a> for
+more details. Note that <code class="docutils literal"><span class="pre">add_error()</span></code> automatically removes the field
+from <code class="docutils literal"><span class="pre">cleaned_data</span></code>.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

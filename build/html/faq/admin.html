@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>FAQ: The admin &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>FAQ: The admin</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/faq/admin.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="faq-the-admin">
+<h1>FAQ: The admin<a class="headerlink" href="#faq-the-admin" title="永久链接至标题">¶</a></h1>
+<div class="section" id="i-can-t-log-in-when-i-enter-a-valid-username-and-password-it-just-brings-up-the-login-page-again-with-no-error-messages">
+<h2>I can’t log in. When I enter a valid username and password, it just brings up the login page again, with no error messages.<a class="headerlink" href="#i-can-t-log-in-when-i-enter-a-valid-username-and-password-it-just-brings-up-the-login-page-again-with-no-error-messages" title="永久链接至标题">¶</a></h2>
+<p>The login cookie isn’t being set correctly, because the domain of the cookie
+sent out by Django doesn’t match the domain in your browser. Try setting the
+<a class="reference internal" href="../ref/settings.html#std:setting-SESSION_COOKIE_DOMAIN"><code class="xref std std-setting docutils literal"><span class="pre">SESSION_COOKIE_DOMAIN</span></code></a> setting to match your domain. For example, if
+you’re going to “<a class="reference external" href="https://www.example.com/admin/">https://www.example.com/admin/</a>” in your browser, set
+<code class="docutils literal"><span class="pre">SESSION_COOKIE_DOMAIN</span> <span class="pre">=</span> <span class="pre">'www.example.com'</span></code>.</p>
+</div>
+<div class="section" id="i-can-t-log-in-when-i-enter-a-valid-username-and-password-it-brings-up-the-login-page-again-with-a-please-enter-a-correct-username-and-password-error">
+<h2>I can’t log in. When I enter a valid username and password, it brings up the login page again, with a “Please enter a correct username and password” error.<a class="headerlink" href="#i-can-t-log-in-when-i-enter-a-valid-username-and-password-it-brings-up-the-login-page-again-with-a-please-enter-a-correct-username-and-password-error" title="永久链接至标题">¶</a></h2>
+<p>If you’re sure your username and password are correct, make sure your user
+account has <a class="reference internal" href="../ref/contrib/auth.html#django.contrib.auth.models.User.is_active" title="django.contrib.auth.models.User.is_active"><code class="xref py py-attr docutils literal"><span class="pre">is_active</span></code></a> and
+<a class="reference internal" href="../ref/contrib/auth.html#django.contrib.auth.models.User.is_staff" title="django.contrib.auth.models.User.is_staff"><code class="xref py py-attr docutils literal"><span class="pre">is_staff</span></code></a> set to True. The admin site
+only allows access to users with those two fields both set to True.</p>
+</div>
+<div class="section" id="how-do-i-automatically-set-a-field-s-value-to-the-user-who-last-edited-the-object-in-the-admin">
+<h2>How do I automatically set a field’s value to the user who last edited the object in the admin?<a class="headerlink" href="#how-do-i-automatically-set-a-field-s-value-to-the-user-who-last-edited-the-object-in-the-admin" title="永久链接至标题">¶</a></h2>
+<p>The <a class="reference internal" href="../ref/contrib/admin/index.html#django.contrib.admin.ModelAdmin" title="django.contrib.admin.ModelAdmin"><code class="xref py py-class docutils literal"><span class="pre">ModelAdmin</span></code></a> class provides customization hooks
+that allow you to transform an object as it saved, using details from the
+request. By extracting the current user from the request, and customizing the
+<a class="reference internal" href="../ref/contrib/admin/index.html#django.contrib.admin.ModelAdmin.save_model" title="django.contrib.admin.ModelAdmin.save_model"><code class="xref py py-meth docutils literal"><span class="pre">save_model()</span></code></a> hook, you can update an
+object to reflect the user that edited it. See <a class="reference internal" href="../ref/contrib/admin/index.html#model-admin-methods"><span class="std std-ref">the documentation on
+ModelAdmin methods</span></a> for an example.</p>
+</div>
+<div class="section" id="how-do-i-limit-admin-access-so-that-objects-can-only-be-edited-by-the-users-who-created-them">
+<h2>How do I limit admin access so that objects can only be edited by the users who created them?<a class="headerlink" href="#how-do-i-limit-admin-access-so-that-objects-can-only-be-edited-by-the-users-who-created-them" title="永久链接至标题">¶</a></h2>
+<p>The <a class="reference internal" href="../ref/contrib/admin/index.html#django.contrib.admin.ModelAdmin" title="django.contrib.admin.ModelAdmin"><code class="xref py py-class docutils literal"><span class="pre">ModelAdmin</span></code></a> class also provides customization
+hooks that allow you to control the visibility and editability of objects in the
+admin. Using the same trick of extracting the user from the request, the
+<a class="reference internal" href="../ref/contrib/admin/index.html#django.contrib.admin.ModelAdmin.get_queryset" title="django.contrib.admin.ModelAdmin.get_queryset"><code class="xref py py-meth docutils literal"><span class="pre">get_queryset()</span></code></a> and
+<a class="reference internal" href="../ref/contrib/admin/index.html#django.contrib.admin.ModelAdmin.has_change_permission" title="django.contrib.admin.ModelAdmin.has_change_permission"><code class="xref py py-meth docutils literal"><span class="pre">has_change_permission()</span></code></a> can be used to
+control the visibility and editability of objects in the admin.</p>
+</div>
+<div class="section" id="my-admin-site-css-and-images-showed-up-fine-using-the-development-server-but-they-re-not-displaying-when-using-mod-wsgi">
+<h2>My admin-site CSS and images showed up fine using the development server, but they’re not displaying when using mod_wsgi.<a class="headerlink" href="#my-admin-site-css-and-images-showed-up-fine-using-the-development-server-but-they-re-not-displaying-when-using-mod-wsgi" title="永久链接至标题">¶</a></h2>
+<p>See <a class="reference internal" href="../howto/deployment/wsgi/modwsgi.html#serving-the-admin-files"><span class="std std-ref">serving the admin files</span></a>
+in the “How to use Django with mod_wsgi” documentation.</p>
+</div>
+<div class="section" id="my-list-filter-contains-a-manytomanyfield-but-the-filter-doesn-t-display">
+<h2>My “list_filter” contains a ManyToManyField, but the filter doesn’t display.<a class="headerlink" href="#my-list-filter-contains-a-manytomanyfield-but-the-filter-doesn-t-display" title="永久链接至标题">¶</a></h2>
+<p>Django won’t bother displaying the filter for a <code class="docutils literal"><span class="pre">ManyToManyField</span></code> if there
+are fewer than two related objects.</p>
+<p>For example, if your <a class="reference internal" href="../ref/contrib/admin/index.html#django.contrib.admin.ModelAdmin.list_filter" title="django.contrib.admin.ModelAdmin.list_filter"><code class="xref py py-attr docutils literal"><span class="pre">list_filter</span></code></a>
+includes <a class="reference internal" href="../ref/contrib/sites.html"><span class="doc">sites</span></a>, and there’s only one site in your
+database, it won’t display a “Site” filter. In that case, filtering by site
+would be meaningless.</p>
+</div>
+<div class="section" id="some-objects-aren-t-appearing-in-the-admin">
+<h2>Some objects aren’t appearing in the admin.<a class="headerlink" href="#some-objects-aren-t-appearing-in-the-admin" title="永久链接至标题">¶</a></h2>
+<p>Inconsistent row counts may be caused by missing foreign key values or a
+foreign key field incorrectly set to <a class="reference internal" href="../ref/models/fields.html#django.db.models.Field.null" title="django.db.models.Field.null"><code class="xref py py-attr docutils literal"><span class="pre">null=False</span></code></a>. If you have a record with a
+<a class="reference internal" href="../ref/models/fields.html#django.db.models.ForeignKey" title="django.db.models.ForeignKey"><code class="xref py py-class docutils literal"><span class="pre">ForeignKey</span></code></a> pointing to a non-existent object and
+that foreign key is included is
+<a class="reference internal" href="../ref/contrib/admin/index.html#django.contrib.admin.ModelAdmin.list_display" title="django.contrib.admin.ModelAdmin.list_display"><code class="xref py py-attr docutils literal"><span class="pre">list_display</span></code></a>, the record will not be
+shown in the admin changelist because the Django model is declaring an
+integrity constraint that is not implemented at the database level.</p>
+</div>
+<div class="section" id="how-can-i-customize-the-functionality-of-the-admin-interface">
+<h2>How can I customize the functionality of the admin interface?<a class="headerlink" href="#how-can-i-customize-the-functionality-of-the-admin-interface" title="永久链接至标题">¶</a></h2>
+<p>You’ve got several options. If you want to piggyback on top of an add/change
+form that Django automatically generates, you can attach arbitrary JavaScript
+modules to the page via the model’s class Admin <a class="reference internal" href="../ref/contrib/admin/index.html#modeladmin-asset-definitions"><span class="std std-ref">js parameter</span></a>. That parameter is a list of URLs, as strings,
+pointing to JavaScript modules that will be included within the admin form via
+a <code class="docutils literal"><span class="pre">&lt;script&gt;</span></code> tag.</p>
+<p>If you want more flexibility than simply tweaking the auto-generated forms,
+feel free to write custom views for the admin. The admin is powered by Django
+itself, and you can write custom views that hook into the authentication
+system, check permissions and do whatever else they need to do.</p>
+<p>If you want to customize the look-and-feel of the admin interface, read the
+next question.</p>
+</div>
+<div class="section" id="the-dynamically-generated-admin-site-is-ugly-how-can-i-change-it">
+<h2>The dynamically-generated admin site is ugly! How can I change it?<a class="headerlink" href="#the-dynamically-generated-admin-site-is-ugly-how-can-i-change-it" title="永久链接至标题">¶</a></h2>
+<p>We like it, but if you don’t agree, you can modify the admin site’s
+presentation by editing the CSS stylesheet and/or associated image files. The
+site is built using semantic HTML and plenty of CSS hooks, so any changes you’d
+like to make should be possible by editing the stylesheet.</p>
+</div>
+<div class="section" id="what-browsers-are-supported-for-using-the-admin">
+<h2>What browsers are supported for using the admin?<a class="headerlink" href="#what-browsers-are-supported-for-using-the-admin" title="永久链接至标题">¶</a></h2>
+<p>The admin provides a fully-functional experience to <a class="reference external" href="https://github.com/yui/yui3/wiki/Graded-Browser-Support">YUI’s A-grade</a> browsers,
+with the notable exception of IE6, which is not supported.</p>
+<p>There <em>may</em> be minor stylistic differences between supported browsers—for
+example, some browsers may not support rounded corners. These are considered
+acceptable variations in rendering.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

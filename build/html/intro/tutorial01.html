@@ -1,0 +1,586 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>开发第一个Django应用,Part1 &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/>
+        <link rel="up" title="入门教程" href="index.html"/>
+        <link rel="next" title="Writing your first Django app, part 2" href="tutorial02.html"/>
+        <link rel="prev" title="快速安装" href="install.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">入门教程</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Django概览</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html">快速安装</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">开发第一个Django应用,Part1</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#project">创建project</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-development-server">The development server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-the-polls-app">Creating the Polls app</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#write-your-first-view">Write your first view</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#url-argument-regex"><code class="docutils literal"><span class="pre">url()</span></code> argument: regex</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#url-argument-view"><code class="docutils literal"><span class="pre">url()</span></code> argument: view</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#url-argument-kwargs"><code class="docutils literal"><span class="pre">url()</span></code> argument: kwargs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#url-argument-name"><code class="docutils literal"><span class="pre">url()</span></code> argument: name</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial02.html">Writing your first Django app, part 2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial03.html">Writing your first Django app, part 3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial04.html">Writing your first Django app, part 4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial05.html">Writing your first Django app, part 5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial06.html">Writing your first Django app, part 6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial07.html">Writing your first Django app, part 7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reusable-apps.html">Advanced tutorial: How to write reusable apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="whatsnext.html">What to read next</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html">Writing your first patch for Django</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">入门教程</a> &raquo;</li>
+        
+      <li>开发第一个Django应用,Part1</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/intro/tutorial01.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="django-part1">
+<h1>开发第一个Django应用,Part1<a class="headerlink" href="#django-part1" title="永久链接至标题">¶</a></h1>
+<p>通过例子学习。在本教程中，将介绍创建一个简单的投票应用程序。</p>
+<p>它包含下面两部分：</p>
+<ul class="simple">
+<li>一个可以进行投票和查看结果的公开站点；</li>
+<li>一个可以进行增删改查的后台admin管理界面；</li>
+</ul>
+<p>如果你已经 <a class="reference internal" href="install.html"><span class="doc">安装</span></a> 了Django。您可以通过运行以下命令来查看Django版本以及验证是否安装：</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python -m django --version
+</pre></div>
+</div>
+<p>如果安装了Django，您应该将看到安装的版本。如果没有安装，你会得到一个错误，提示 <code class="docutils literal"><span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">django</span></code> 。</p>
+<p>本教程是为Django 1.10 和Python3.4或更高版本编写的。如果Django版本不匹配，
+您可以去官网参考您的对应Django版本的教程，或者将Django更新到最新版本。</p>
+<p>如果你仍然在使用Python 2.7，你需要稍微调整代码，注意代码中的注释。</p>
+<div class="section" id="project">
+<h2>创建project<a class="headerlink" href="#project" title="永久链接至标题">¶</a></h2>
+<p>如果这是你第一次使用Django，你将需要处理一些初始设置。也就是说，这会自动生成一些建立Django项目的代码，
+但是你需要设置一些配置，包括数据库配置，Django特定的选项和应用程序特定的设置等等。</p>
+<p>从命令行，<code class="docutils literal"><span class="pre">cd</span></code>进入您将存放项目代码的目录，然后运行以下命令:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> django-admin startproject mysite
+</pre></div>
+</div>
+<p>如果运行出错，请参见 <a class="reference internal" href="../faq/troubleshooting.html#troubleshooting-django-admin"><span class="std std-ref">Problems running django-admin</span></a> 。这将在当前目录下生成一个 <code class="docutils literal"><span class="pre">mysite</span></code> 目录，
+也就是你的这个Django项目的根目录。它包含了一系列自动生成的目录和文件，具备各自专有的用途。</p>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last">在给项目命名的时候必须避开Django和Python的保留关键字。
+比如 <a href="#id1"><span class="problematic" id="id2">``</span></a>django``（它会与Django本身冲突）或 <a href="#id3"><span class="problematic" id="id4">``</span></a>test``（它与一个内置的Python包冲突）。</p>
+</div>
+<div class="admonition- admonition">
+<p class="first admonition-title">这些代码应该放在哪儿？</p>
+<blockquote>
+<div>如果你曾经学过普通的旧式的PHP（没有使用过现代的框架），
+你可能习惯于将代码放在Web服务器的文档根目录下（例如 <code class="docutils literal"><span class="pre">/var/www</span></code>）。
+使用Django时，建议你不要这么做。将Python代码放在你的Web服务器的根目录不是个好主意，
+因为这可能会有让其他人看到你的代码的风险。
+你可以将你的代码放在根目录的 <strong>外部</strong>，比如
+<code class="file docutils literal"><span class="pre">/home/mycode</span></code>.</div></blockquote>
+<p><a class="reference internal" href="../ref/django-admin.html#django-admin-startproject"><code class="xref std std-djadmin docutils literal"><span class="pre">startproject</span></code></a> 会创建如下目录结构:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span class="n">mysite</span><span class="o">/</span>
+    <span class="n">manage</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">mysite</span><span class="o">/</span>
+        <span class="n">__init__</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">urls</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">wsgi</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</div>
+<p>These files are:</p>
+<ul class="simple">
+<li>The outer <code class="file docutils literal"><span class="pre">mysite/</span></code> root directory is just a container for your
+project. Its name doesn’t matter to Django; you can rename it to anything
+you like.</li>
+<li><code class="file docutils literal"><span class="pre">manage.py</span></code>: A command-line utility that lets you interact with this
+Django project in various ways. You can read all the details about
+<code class="file docutils literal"><span class="pre">manage.py</span></code> in <a class="reference internal" href="../ref/django-admin.html"><span class="doc">django-admin and manage.py</span></a>.</li>
+<li>The inner <code class="file docutils literal"><span class="pre">mysite/</span></code> directory is the actual Python package for your
+project. Its name is the Python package name you’ll need to use to import
+anything inside it (e.g. <code class="docutils literal"><span class="pre">mysite.urls</span></code>).</li>
+<li><code class="file docutils literal"><span class="pre">mysite/__init__.py</span></code>: An empty file that tells Python that this
+directory should be considered a Python package. If you’re a Python beginner,
+read <span class="xref std std-ref">more about packages</span> in the official Python docs.</li>
+<li><code class="file docutils literal"><span class="pre">mysite/settings.py</span></code>: Settings/configuration for this Django
+project.  <a class="reference internal" href="../topics/settings.html"><span class="doc">Django settings</span></a> will tell you all about how settings
+work.</li>
+<li><code class="file docutils literal"><span class="pre">mysite/urls.py</span></code>: The URL declarations for this Django project; a
+“table of contents” of your Django-powered site. You can read more about
+URLs in <a class="reference internal" href="../topics/http/urls.html"><span class="doc">URL dispatcher</span></a>.</li>
+<li><code class="file docutils literal"><span class="pre">mysite/wsgi.py</span></code>: An entry-point for WSGI-compatible web servers to
+serve your project. See <a class="reference internal" href="../howto/deployment/wsgi/index.html"><span class="doc">How to deploy with WSGI</span></a> for more details.</li>
+</ul>
+<p>这些文件分别是:</p>
+<ul class="simple">
+<li>外层的 <code class="file docutils literal"><span class="pre">mysite/</span></code> 根目录仅仅是项目的一个容器。它的命名对Django无关紧要；你可以把它重新命名为任何你喜欢的名字;</li>
+<li><code class="file docutils literal"><span class="pre">manage.py</span></code> ：一个命令行工具，可以使你用多种方式对Django项目进行交互。
+你可以在 <a class="reference internal" href="../ref/django-admin.html"><span class="doc">django-admin and manage.py</span></a> 中读到关于 <code class="file docutils literal"><span class="pre">manage.py</span></code> 的所有细节;</li>
+<li>内层的mysite/目录是你的项目的真正的Python包。它的名字是你引用内部文件的包名（例如
+mysite.urls）;</li>
+<li><code class="file docutils literal"><span class="pre">mysite/__init__.py</span></code> ：一个空文件，它告诉Python这个目录应该被看做一个Python包;</li>
+<li><code class="file docutils literal"><span class="pre">mysite/settings.py</span></code> ：该Django项目的配置文件。具体内容可以参见 <a class="reference internal" href="../topics/settings.html"><span class="doc">Django settings</span></a> ;</li>
+<li><code class="file docutils literal"><span class="pre">mysite/urls.py</span></code> : 路由文件,相当于你的Django站点的“目录”。
+你可以在 <a class="reference internal" href="../topics/http/urls.html"><span class="doc">URL dispatcher</span></a> 中阅读到关于URL的更多内容;</li>
+<li><code class="file docutils literal"><span class="pre">mysite/wsgi.py</span></code> ：用于你的项目的与WSGI兼容的Web服务器入口。用作服务部署，更多细节请参见 <a class="reference internal" href="../howto/deployment/wsgi/index.html"><span class="doc">How to deploy with WSGI</span></a> 。</li>
+</ul>
+</div>
+<div class="section" id="the-development-server">
+<h2>The development server<a class="headerlink" href="#the-development-server" title="永久链接至标题">¶</a></h2>
+<p>Let’s verify your Django project works. Change into the outer <code class="file docutils literal"><span class="pre">mysite</span></code> directory, if
+you haven’t already, and run the following commands:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python manage.py runserver
+</pre></div>
+</div>
+<p>You’ll see the following output on the command line:</p>
+<pre class="literal-block">
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have unapplied migrations; your app may not work properly until they are applied.
+Run 'python manage.py migrate' to apply them.
+
+2017 年 08 月 22 日 - 15:50:53
+Django version 1.10, using settings 'mysite.settings'
+Starting development server at <a class="reference external" href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a>
+Quit the server with CONTROL-C.
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last">Ignore the warning about unapplied database migrations for now; we’ll deal
+with the database shortly.</p>
+</div>
+<p>You’ve started the Django development server, a lightweight Web server written
+purely in Python. We’ve included this with Django so you can develop things
+rapidly, without having to deal with configuring a production server – such as
+Apache – until you’re ready for production.</p>
+<p>Now’s a good time to note: <strong>don’t</strong> use this server in anything resembling a
+production environment. It’s intended only for use while developing. (We’re in
+the business of making Web frameworks, not Web servers.)</p>
+<p>Now that the server’s running, visit <a class="reference external" href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a> with your Web
+browser. You’ll see a “Welcome to Django” page, in pleasant, light-blue pastel.
+It worked!</p>
+<div class="admonition-changing-the-port admonition">
+<p class="first admonition-title">Changing the port</p>
+<p>By default, the <a class="reference internal" href="../ref/django-admin.html#django-admin-runserver"><code class="xref std std-djadmin docutils literal"><span class="pre">runserver</span></code></a> command starts the development server
+on the internal IP at port 8000.</p>
+<p>If you want to change the server’s port, pass
+it as a command-line argument. For instance, this command starts the server
+on port 8080:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python manage.py runserver 8080
+</pre></div>
+</div>
+<p>If you want to change the server’s IP, pass it along with the port. So to
+listen on all public IPs (useful if you want to show off your work on other
+computers on your network), use:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python manage.py runserver 0.0.0.0:8000
+</pre></div>
+</div>
+<p class="last">Full docs for the development server can be found in the
+<a class="reference internal" href="../ref/django-admin.html#django-admin-runserver"><code class="xref std std-djadmin docutils literal"><span class="pre">runserver</span></code></a> reference.</p>
+</div>
+<div class="admonition-automatic-reloading-of-djadmin-runserver admonition">
+<p class="first admonition-title">Automatic reloading of <a class="reference internal" href="../ref/django-admin.html#django-admin-runserver"><code class="xref std std-djadmin docutils literal"><span class="pre">runserver</span></code></a></p>
+<p class="last">The development server automatically reloads Python code for each request
+as needed. You don’t need to restart the server for code changes to take
+effect. However, some actions like adding files don’t trigger a restart,
+so you’ll have to restart the server in these cases.</p>
+</div>
+</div>
+<div class="section" id="creating-the-polls-app">
+<h2>Creating the Polls app<a class="headerlink" href="#creating-the-polls-app" title="永久链接至标题">¶</a></h2>
+<p>Now that your environment – a “project” – is set up, you’re set to start
+doing work.</p>
+<p>Each application you write in Django consists of a Python package that follows
+a certain convention. Django comes with a utility that automatically generates
+the basic directory structure of an app, so you can focus on writing code
+rather than creating directories.</p>
+<div class="admonition-projects-vs-apps admonition">
+<p class="first admonition-title">Projects vs. apps</p>
+<p class="last">What’s the difference between a project and an app? An app is a Web
+application that does something – e.g., a Weblog system, a database of
+public records or a simple poll app. A project is a collection of
+configuration and apps for a particular website. A project can contain
+multiple apps. An app can be in multiple projects.</p>
+</div>
+<p>Your apps can live anywhere on your <span class="xref std std-ref">Python path</span>. In
+this tutorial, we’ll create our poll app right next to your <code class="file docutils literal"><span class="pre">manage.py</span></code>
+file so that it can be imported as its own top-level module, rather than a
+submodule of <code class="docutils literal"><span class="pre">mysite</span></code>.</p>
+<p>To create your app, make sure you’re in the same directory as <code class="file docutils literal"><span class="pre">manage.py</span></code>
+and type this command:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python manage.py startapp polls
+</pre></div>
+</div>
+<p>That’ll create a directory <code class="file docutils literal"><span class="pre">polls</span></code>, which is laid out like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">polls</span><span class="o">/</span>
+    <span class="n">__init__</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">admin</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">apps</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">migrations</span><span class="o">/</span>
+        <span class="n">__init__</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">models</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">tests</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">views</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>This directory structure will house the poll application.</p>
+</div>
+<div class="section" id="write-your-first-view">
+<h2>Write your first view<a class="headerlink" href="#write-your-first-view" title="永久链接至标题">¶</a></h2>
+<p>Let’s write the first view. Open the file <code class="docutils literal"><span class="pre">polls/views.py</span></code>
+and put the following Python code in it:</p>
+<div class="highlight-default snippet"><div class="snippet-filename">polls/views.py</div>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpResponse</span>
+
+
+<span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s">&quot;Hello, world. You&#39;re at the polls index.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is the simplest view possible in Django. To call the view, we need to map
+it to a URL - and for this we need a URLconf.</p>
+<p>To create a URLconf in the polls directory, create a file called <code class="docutils literal"><span class="pre">urls.py</span></code>.
+Your app directory should now look like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">polls</span><span class="o">/</span>
+    <span class="n">__init__</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">admin</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">apps</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">migrations</span><span class="o">/</span>
+        <span class="n">__init__</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">models</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">tests</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">urls</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">views</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>In the <code class="docutils literal"><span class="pre">polls/urls.py</span></code> file include the following code:</p>
+<div class="highlight-default snippet"><div class="snippet-filename">polls/urls.py</div>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="k">import</span> <span class="n">url</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">views</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^$&#39;</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;index&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>The next step is to point the root URLconf at the <code class="docutils literal"><span class="pre">polls.urls</span></code> module. In
+<code class="docutils literal"><span class="pre">mysite/urls.py</span></code>, add an import for <code class="docutils literal"><span class="pre">django.conf.urls.include</span></code> and insert
+an <a class="reference internal" href="../ref/urls.html#django.conf.urls.include" title="django.conf.urls.include"><code class="xref py py-func docutils literal"><span class="pre">include()</span></code></a> in the <code class="docutils literal"><span class="pre">urlpatterns</span></code> list, so you have:</p>
+<div class="highlight-default snippet"><div class="snippet-filename">mysite/urls.py</div>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="k">import</span> <span class="n">include</span><span class="p">,</span> <span class="n">url</span>
+<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="k">import</span> <span class="n">admin</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^polls/&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="s">&#39;polls.urls&#39;</span><span class="p">)),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^admin/&#39;</span><span class="p">,</span> <span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../ref/urls.html#django.conf.urls.include" title="django.conf.urls.include"><code class="xref py py-func docutils literal"><span class="pre">include()</span></code></a> function allows referencing other
+URLconfs. Note that the regular expressions for the
+<a class="reference internal" href="../ref/urls.html#django.conf.urls.include" title="django.conf.urls.include"><code class="xref py py-func docutils literal"><span class="pre">include()</span></code></a> function doesn’t have a <code class="docutils literal"><span class="pre">$</span></code> (end-of-string
+match character) but rather a trailing slash. Whenever Django encounters
+<a class="reference internal" href="../ref/urls.html#django.conf.urls.include" title="django.conf.urls.include"><code class="xref py py-func docutils literal"><span class="pre">include()</span></code></a>, it chops off whatever part of the URL
+matched up to that point and sends the remaining string to the included URLconf
+for further processing.</p>
+<p>The idea behind <a class="reference internal" href="../ref/urls.html#django.conf.urls.include" title="django.conf.urls.include"><code class="xref py py-func docutils literal"><span class="pre">include()</span></code></a> is to make it easy to
+plug-and-play URLs. Since polls are in their own URLconf
+(<code class="docutils literal"><span class="pre">polls/urls.py</span></code>), they can be placed under “/polls/”, or under
+“/fun_polls/”, or under “/content/polls/”, or any other path root, and the
+app will still work.</p>
+<div class="admonition-when-to-use-func-django-conf-urls-include admonition">
+<p class="first admonition-title">When to use <a class="reference internal" href="../ref/urls.html#django.conf.urls.include" title="django.conf.urls.include"><code class="xref py py-func docutils literal"><span class="pre">include()</span></code></a></p>
+<p class="last">You should always use <code class="docutils literal"><span class="pre">include()</span></code> when you include other URL patterns.
+<code class="docutils literal"><span class="pre">admin.site.urls</span></code> is the only exception to this.</p>
+</div>
+<div class="admonition-doesn-t-match-what-you-see admonition">
+<p class="first admonition-title">Doesn’t match what you see?</p>
+<p class="last">If you’re seeing <code class="docutils literal"><span class="pre">include(admin.site.urls)</span></code> instead of just
+<code class="docutils literal"><span class="pre">admin.site.urls</span></code>, you’re probably using a version of Django that
+doesn’t match this tutorial version.  You’ll want to either switch to the
+older tutorial or the newer Django version.</p>
+</div>
+<p>You have now wired an <code class="docutils literal"><span class="pre">index</span></code> view into the URLconf. Lets verify it’s
+working, run the following command:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> python manage.py runserver
+</pre></div>
+</div>
+<p>Go to <a class="reference external" href="http://localhost:8000/polls/">http://localhost:8000/polls/</a> in your browser, and you should see the
+text “<em>Hello, world. You’re at the polls index.</em>”, which you defined in the
+<code class="docutils literal"><span class="pre">index</span></code> view.</p>
+<p>The <a class="reference internal" href="../ref/urls.html#django.conf.urls.url" title="django.conf.urls.url"><code class="xref py py-func docutils literal"><span class="pre">url()</span></code></a> function is passed four arguments, two
+required: <code class="docutils literal"><span class="pre">regex</span></code> and <code class="docutils literal"><span class="pre">view</span></code>, and two optional: <code class="docutils literal"><span class="pre">kwargs</span></code>, and <code class="docutils literal"><span class="pre">name</span></code>.
+At this point, it’s worth reviewing what these arguments are for.</p>
+<div class="section" id="url-argument-regex">
+<h3><a class="reference internal" href="../ref/urls.html#django.conf.urls.url" title="django.conf.urls.url"><code class="xref py py-func docutils literal"><span class="pre">url()</span></code></a> argument: regex<a class="headerlink" href="#url-argument-regex" title="永久链接至标题">¶</a></h3>
+<p>The term “regex” is a commonly used short form meaning “regular expression”,
+which is a syntax for matching patterns in strings, or in this case, url
+patterns. Django starts at the first regular expression and makes its way down
+the list,  comparing the requested URL against each regular expression until it
+finds one that matches.</p>
+<p>Note that these regular expressions do not search GET and POST parameters, or
+the domain name. For example, in a request to
+<code class="docutils literal"><span class="pre">https://www.example.com/myapp/</span></code>, the URLconf will look for <code class="docutils literal"><span class="pre">myapp/</span></code>. In a
+request to <code class="docutils literal"><span class="pre">https://www.example.com/myapp/?page=3</span></code>, the URLconf will also
+look for <code class="docutils literal"><span class="pre">myapp/</span></code>.</p>
+<p>If you need help with regular expressions, see <a class="reference external" href="https://en.wikipedia.org/wiki/Regular_expression">Wikipedia’s entry</a> and the
+documentation of the <code class="xref py py-mod docutils literal"><span class="pre">re</span></code> module. Also, the O’Reilly book “Mastering
+Regular Expressions” by Jeffrey Friedl is fantastic. In practice, however,
+you don’t need to be an expert on regular expressions, as you really only need
+to know how to capture simple patterns. In fact, complex regexes can have poor
+lookup performance, so you probably shouldn’t rely on the full power of regexes.</p>
+<p>Finally, a performance note: these regular expressions are compiled the first
+time the URLconf module is loaded. They’re super fast (as long as the lookups
+aren’t too complex as noted above).</p>
+</div>
+<div class="section" id="url-argument-view">
+<h3><a class="reference internal" href="../ref/urls.html#django.conf.urls.url" title="django.conf.urls.url"><code class="xref py py-func docutils literal"><span class="pre">url()</span></code></a> argument: view<a class="headerlink" href="#url-argument-view" title="永久链接至标题">¶</a></h3>
+<p>When Django finds a regular expression match, Django calls the specified view
+function, with an <a class="reference internal" href="../ref/request-response.html#django.http.HttpRequest" title="django.http.HttpRequest"><code class="xref py py-class docutils literal"><span class="pre">HttpRequest</span></code></a> object as the first
+argument and any “captured” values from the regular expression as other
+arguments. If the regex uses simple captures, values are passed as positional
+arguments; if it uses named captures, values are passed as keyword arguments.
+We’ll give an example of this in a bit.</p>
+</div>
+<div class="section" id="url-argument-kwargs">
+<h3><a class="reference internal" href="../ref/urls.html#django.conf.urls.url" title="django.conf.urls.url"><code class="xref py py-func docutils literal"><span class="pre">url()</span></code></a> argument: kwargs<a class="headerlink" href="#url-argument-kwargs" title="永久链接至标题">¶</a></h3>
+<p>Arbitrary keyword arguments can be passed in a dictionary to the target view. We
+aren’t going to use this feature of Django in the tutorial.</p>
+</div>
+<div class="section" id="url-argument-name">
+<h3><a class="reference internal" href="../ref/urls.html#django.conf.urls.url" title="django.conf.urls.url"><code class="xref py py-func docutils literal"><span class="pre">url()</span></code></a> argument: name<a class="headerlink" href="#url-argument-name" title="永久链接至标题">¶</a></h3>
+<p>Naming your URL lets you refer to it unambiguously from elsewhere in Django,
+especially from within templates. This powerful feature allows you to make
+global changes to the URL patterns of your project while only touching a single
+file.</p>
+<p>When you’re comfortable with the basic request and response flow, read
+<a class="reference internal" href="tutorial02.html"><span class="doc">part 2 of this tutorial</span></a> to start working with the
+database.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorial02.html" class="btn btn-neutral float-right" title="Writing your first Django app, part 2" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="install.html" class="btn btn-neutral" title="快速安装" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

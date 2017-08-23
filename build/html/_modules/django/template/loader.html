@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.template.loader &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/>
+        <link rel="up" title="django" href="../../django.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../django.html">django</a> &raquo;</li>
+        
+      <li>django.template.loader</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.template.loader 源代码</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">six</span>
+<span class="kn">from</span> <span class="nn">django.utils.deprecation</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">DeprecationInstanceCheck</span><span class="p">,</span> <span class="n">RemovedInDjango20Warning</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">engines</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">Origin</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="k">import</span> <span class="n">TemplateDoesNotExist</span>
+
+
+<div class="viewcode-block" id="get_template"><a class="viewcode-back" href="../../../topics/templates.html#django.template.loader.get_template">[文档]</a><span class="k">def</span> <span class="nf">get_template</span><span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="n">using</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads and returns a template for the given name.</span>
+
+<span class="sd">    Raises TemplateDoesNotExist if no such template exists.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">chain</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">engines</span> <span class="o">=</span> <span class="n">_engine_list</span><span class="p">(</span><span class="n">using</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">engine</span> <span class="ow">in</span> <span class="n">engines</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">engine</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="n">template_name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">TemplateDoesNotExist</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">chain</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">raise</span> <span class="n">TemplateDoesNotExist</span><span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="n">chain</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="select_template"><a class="viewcode-back" href="../../../topics/templates.html#django.template.loader.select_template">[文档]</a><span class="k">def</span> <span class="nf">select_template</span><span class="p">(</span><span class="n">template_name_list</span><span class="p">,</span> <span class="n">using</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads and returns a template for one of the given names.</span>
+
+<span class="sd">    Tries names in order and returns the first template found.</span>
+
+<span class="sd">    Raises TemplateDoesNotExist if no such template exists.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_name_list</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s">&#39;select_template() takes an iterable of template names but got a &#39;</span>
+            <span class="s">&#39;string: %r. Use get_template() if you want to load a single &#39;</span>
+            <span class="s">&#39;template by name.&#39;</span> <span class="o">%</span> <span class="n">template_name_list</span>
+        <span class="p">)</span>
+
+    <span class="n">chain</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">engines</span> <span class="o">=</span> <span class="n">_engine_list</span><span class="p">(</span><span class="n">using</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">template_name</span> <span class="ow">in</span> <span class="n">template_name_list</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">engine</span> <span class="ow">in</span> <span class="n">engines</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">engine</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="n">template_name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">TemplateDoesNotExist</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">chain</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">template_name_list</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">TemplateDoesNotExist</span><span class="p">(</span><span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">template_name_list</span><span class="p">),</span> <span class="n">chain</span><span class="o">=</span><span class="n">chain</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">TemplateDoesNotExist</span><span class="p">(</span><span class="s">&quot;No template names provided&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="render_to_string"><a class="viewcode-back" href="../../../topics/templates.html#django.template.loader.render_to_string">[文档]</a><span class="k">def</span> <span class="nf">render_to_string</span><span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">using</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads a template and renders it with a context. Returns a string.</span>
+
+<span class="sd">    template_name may be a string or a list of strings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">select_template</span><span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="n">using</span><span class="o">=</span><span class="n">using</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">get_template</span><span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="n">using</span><span class="o">=</span><span class="n">using</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_engine_list</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">engines</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="k">if</span> <span class="n">using</span> <span class="ow">is</span> <span class="k">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">engines</span><span class="p">[</span><span class="n">using</span><span class="p">]]</span>
+
+
+<span class="k">class</span> <span class="nc">LoaderOrigin</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">DeprecationInstanceCheck</span><span class="p">,</span> <span class="n">Origin</span><span class="p">)):</span>
+    <span class="n">alternative</span> <span class="o">=</span> <span class="s">&#39;django.template.Origin&#39;</span>
+    <span class="n">deprecation_warning</span> <span class="o">=</span> <span class="n">RemovedInDjango20Warning</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

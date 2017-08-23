@@ -1,0 +1,286 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Internationalization and localization &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Internationalization and localization</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/topics/i18n/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="internationalization-and-localization">
+<h1>Internationalization and localization<a class="headerlink" href="#internationalization-and-localization" title="永久链接至标题">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="永久链接至标题">¶</a></h2>
+<p>The goal of internationalization and localization is to allow a single Web
+application to offer its content in languages and formats tailored to the
+audience.</p>
+<p>Django has full support for <a class="reference internal" href="translation.html"><span class="doc">translation of text</span></a>, <a class="reference internal" href="formatting.html"><span class="doc">formatting of dates, times and numbers</span></a>, and <a class="reference internal" href="timezones.html"><span class="doc">time zones</span></a>.</p>
+<p>Essentially, Django does two things:</p>
+<ul class="simple">
+<li>It allows developers and template authors to specify which parts of their apps
+should be translated or formatted for local languages and cultures.</li>
+<li>It uses these hooks to localize Web apps for particular users according to
+their preferences.</li>
+</ul>
+<p>Obviously, translation depends on the target language, and formatting usually
+depends on the target country. This information is provided by browsers in
+the <code class="docutils literal"><span class="pre">Accept-Language</span></code> header. However, the time zone isn’t readily available.</p>
+</div>
+<div class="section" id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="永久链接至标题">¶</a></h2>
+<p>The words “internationalization” and “localization” often cause confusion;
+here’s a simplified definition:</p>
+<dl class="glossary docutils">
+<dt id="term-internationalization">internationalization</dt>
+<dd>Preparing the software for localization. Usually done by developers.</dd>
+<dt id="term-localization">localization</dt>
+<dd>Writing the translations and local formats. Usually done by translators.</dd>
+</dl>
+<p>More details can be found in the <a class="reference external" href="http://www.w3.org/International/questions/qa-i18n">W3C Web Internationalization FAQ</a>, the <a class="reference external" href="https://en.wikipedia.org/wiki/Internationalization_and_localization">Wikipedia article</a> or the <a class="reference external" href="https://www.gnu.org/software/gettext/manual/gettext.html#Concepts">GNU gettext documentation</a>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p class="last">Translation and formatting are controlled by <a class="reference internal" href="../../ref/settings.html#std:setting-USE_I18N"><code class="xref std std-setting docutils literal"><span class="pre">USE_I18N</span></code></a> and
+<a class="reference internal" href="../../ref/settings.html#std:setting-USE_L10N"><code class="xref std std-setting docutils literal"><span class="pre">USE_L10N</span></code></a> settings respectively. However, both features involve
+internationalization and localization. The names of the settings are an
+unfortunate result of Django’s history.</p>
+</div>
+<p>Here are some other terms that will help us to handle a common language:</p>
+<dl class="glossary docutils">
+<dt id="term-locale-name">locale name</dt>
+<dd>A locale name, either a language specification of the form <code class="docutils literal"><span class="pre">ll</span></code> or a
+combined language and country specification of the form <code class="docutils literal"><span class="pre">ll_CC</span></code>.
+Examples: <code class="docutils literal"><span class="pre">it</span></code>, <code class="docutils literal"><span class="pre">de_AT</span></code>, <code class="docutils literal"><span class="pre">es</span></code>, <code class="docutils literal"><span class="pre">pt_BR</span></code>. The language part is
+always in lower case and the country part in upper case. The separator
+is an underscore.</dd>
+<dt id="term-language-code">language code</dt>
+<dd>Represents the name of a language. Browsers send the names of the
+languages they accept in the <code class="docutils literal"><span class="pre">Accept-Language</span></code> HTTP header using this
+format. Examples: <code class="docutils literal"><span class="pre">it</span></code>, <code class="docutils literal"><span class="pre">de-at</span></code>, <code class="docutils literal"><span class="pre">es</span></code>, <code class="docutils literal"><span class="pre">pt-br</span></code>. Language codes
+are generally represented in lower-case, but the HTTP <code class="docutils literal"><span class="pre">Accept-Language</span></code>
+header is case-insensitive. The separator is a dash.</dd>
+<dt id="term-message-file">message file</dt>
+<dd>A message file is a plain-text file, representing a single language,
+that contains all available <a class="reference internal" href="#term-translation-string"><span class="xref std std-term">translation strings</span></a> and how they should be represented in the given
+language. Message files have a <code class="docutils literal"><span class="pre">.po</span></code> file extension.</dd>
+<dt id="term-translation-string">translation string</dt>
+<dd>A literal that can be translated.</dd>
+<dt id="term-format-file">format file</dt>
+<dd>A format file is a Python module that defines the data formats for a given
+locale.</dd>
+</dl>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

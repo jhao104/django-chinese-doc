@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Installing SpatiaLite &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../../index.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Installing SpatiaLite</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../../_sources/ref/contrib/gis/install/spatialite.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="installing-spatialite">
+<h1>Installing SpatiaLite<a class="headerlink" href="#installing-spatialite" title="永久链接至标题">¶</a></h1>
+<p><a class="reference external" href="https://www.gaia-gis.it/fossil/libspatialite">SpatiaLite</a> adds spatial support to SQLite, turning it into a full-featured
+spatial database.</p>
+<p>First, check if you can install SpatiaLite from system packages or binaries.</p>
+<p>For example, on Debian-based distributions, try to install the
+<code class="docutils literal"><span class="pre">spatialite-bin</span></code> package. For distributions that package SpatiaLite 4.2+,
+install <code class="docutils literal"><span class="pre">libsqlite3-mod-spatialite</span></code>.</p>
+<p>For Mac OS X, follow the <a class="reference internal" href="#spatialite-macosx"><span class="std std-ref">instructions below</span></a>.</p>
+<p>For Windows, you may find binaries on the <a class="reference external" href="http://www.gaia-gis.it/gaia-sins/">Gaia-SINS</a> home page.</p>
+<p>In any case, you should always be able to <a class="reference internal" href="#spatialite-source"><span class="std std-ref">install from source</span></a>.</p>
+<div class="admonition-spatialite-library-path-setting-required-for-spatialite-4-2 admonition" id="spatialite-source">
+<p class="first admonition-title"><code class="docutils literal"><span class="pre">SPATIALITE_LIBRARY_PATH</span></code> setting required for SpatiaLite 4.2+</p>
+<p>If you’re using SpatiaLite 4.2+, you must put this in your settings:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span class="n">SPATIALITE_LIBRARY_PATH</span> <span class="o">=</span> <span class="s">&#39;mod_spatialite&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="installing-from-source">
+<h2>Installing from source<a class="headerlink" href="#installing-from-source" title="永久链接至标题">¶</a></h2>
+<p><a class="reference internal" href="geolibs.html"><span class="doc">GEOS and PROJ.4</span></a> should be installed
+prior to building SpatiaLite.</p>
+<div class="section" id="sqlite">
+<h3>SQLite<a class="headerlink" href="#sqlite" title="永久链接至标题">¶</a></h3>
+<p>Check first if SQLite is compiled with the <a class="reference external" href="https://www.sqlite.org/rtree.html">R*Tree module</a>. Run the sqlite3
+command line interface and enter the following query:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="n">CREATE</span> <span class="n">VIRTUAL</span> <span class="n">TABLE</span> <span class="n">testrtree</span> <span class="n">USING</span> <span class="n">rtree</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span><span class="n">minX</span><span class="p">,</span><span class="n">maxX</span><span class="p">,</span><span class="n">minY</span><span class="p">,</span><span class="n">maxY</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>If you obtain an error, you will have to recompile SQLite from source. Otherwise,
+just skip this section.</p>
+<p>To install from sources, download the latest amalgamation source archive from
+the <a class="reference external" href="https://www.sqlite.org/download.html">SQLite download page</a>, and extract:</p>
+<div class="highlight-default"><div class="highlight"><pre>$ wget https://sqlite.org/sqlite-amalgamation-3.6.23.1.tar.gz
+$ tar xzf sqlite-amalgamation-3.6.23.1.tar.gz
+$ cd sqlite-3.6.23.1
+</pre></div>
+</div>
+<p>Next, run the <code class="docutils literal"><span class="pre">configure</span></code> script – however the <code class="docutils literal"><span class="pre">CFLAGS</span></code> environment variable
+needs to be customized so that SQLite knows to build the R*Tree module:</p>
+<div class="highlight-default"><div class="highlight"><pre>$ CFLAGS=&quot;-DSQLITE_ENABLE_RTREE=1&quot; ./configure
+$ make
+$ sudo make install
+$ cd ..
+</pre></div>
+</div>
+</div>
+<div class="section" id="spatialite-library-libspatialite">
+<span id="spatialitebuild"></span><h3>SpatiaLite library (<code class="docutils literal"><span class="pre">libspatialite</span></code>)<a class="headerlink" href="#spatialite-library-libspatialite" title="永久链接至标题">¶</a></h3>
+<p>Get the latest SpatiaLite library source bundle from the
+<a class="reference external" href="http://www.gaia-gis.it/gaia-sins/libspatialite-sources/">download page</a>:</p>
+<div class="highlight-default"><div class="highlight"><pre>$ wget http://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-4.1.0.tar.gz
+$ tar xaf libspatialite-4.1.0.tar.gz
+$ cd libspatialite-4.1.0
+$ ./configure
+$ make
+$ sudo make install
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p>For Mac OS X users building from source, the SpatiaLite library <em>and</em> tools
+need to have their <code class="docutils literal"><span class="pre">target</span></code> configured:</p>
+<div class="last highlight-default"><div class="highlight"><pre>$ ./configure --target=macosx
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="mac-os-x-specific-instructions">
+<span id="spatialite-macosx"></span><h2>Mac OS X-specific instructions<a class="headerlink" href="#mac-os-x-specific-instructions" title="永久链接至标题">¶</a></h2>
+<p>To install the SpatiaLite library and tools, Mac OS X users can choose between
+<a class="reference internal" href="index.html#kyngchaos"><span class="std std-ref">KyngChaos packages</span></a> and <a class="reference external" href="http://brew.sh/">Homebrew</a>.</p>
+<div class="section" id="kyngchaos">
+<h3>KyngChaos<a class="headerlink" href="#kyngchaos" title="永久链接至标题">¶</a></h3>
+<p>First, follow the instructions in the <a class="reference internal" href="index.html#kyngchaos"><span class="std std-ref">KyngChaos packages</span></a> section.</p>
+<p>When creating a SpatiaLite database, the <code class="docutils literal"><span class="pre">spatialite</span></code> program is required.
+However, instead of attempting to compile the SpatiaLite tools from source,
+download the <a class="reference external" href="http://www.gaia-gis.it/spatialite-2.3.1/binaries.html">SpatiaLite Binaries</a> for OS X, and install <code class="docutils literal"><span class="pre">spatialite</span></code> in a
+location available in your <code class="docutils literal"><span class="pre">PATH</span></code>.  For example:</p>
+<div class="highlight-default"><div class="highlight"><pre>$ curl -O http://www.gaia-gis.it/spatialite/spatialite-tools-osx-x86-2.3.1.tar.gz
+$ tar xzf spatialite-tools-osx-x86-2.3.1.tar.gz
+$ cd spatialite-tools-osx-x86-2.3.1/bin
+$ sudo cp spatialite /Library/Frameworks/SQLite3.framework/Programs
+</pre></div>
+</div>
+<p>Finally, for GeoDjango to be able to find the KyngChaos SpatiaLite library,
+add the following to your <code class="docutils literal"><span class="pre">settings.py</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">SPATIALITE_LIBRARY_PATH</span><span class="o">=</span><span class="s">&#39;/Library/Frameworks/SQLite3.framework/SQLite3&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="homebrew">
+<h3>Homebrew<a class="headerlink" href="#homebrew" title="永久链接至标题">¶</a></h3>
+<p><a class="reference external" href="http://brew.sh/">Homebrew</a> handles all the SpatiaLite related packages on your behalf,
+including SQLite3, SpatiaLite, PROJ, and GEOS. Install them like this:</p>
+<div class="highlight-default"><div class="highlight"><pre>$ brew update
+$ brew install spatialite-tools
+$ brew install gdal
+</pre></div>
+</div>
+<p>Finally, for GeoDjango to be able to find the SpatiaLite library, add the
+following to your <code class="docutils literal"><span class="pre">settings.py</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">SPATIALITE_LIBRARY_PATH</span><span class="o">=</span><span class="s">&#39;/usr/local/lib/mod_spatialite.dylib&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

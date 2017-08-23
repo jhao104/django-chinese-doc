@@ -1,0 +1,420 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.utils.log &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/>
+        <link rel="up" title="django" href="../../django.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../django.html">django</a> &raquo;</li>
+        
+      <li>django.utils.log</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.utils.log 源代码</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">logging.config</span>  <span class="c"># needed when logging_config doesn&#39;t start with logging.config</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span>
+
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.core</span> <span class="k">import</span> <span class="n">mail</span>
+<span class="kn">from</span> <span class="nn">django.core.mail</span> <span class="k">import</span> <span class="n">get_connection</span>
+<span class="kn">from</span> <span class="nn">django.core.management.color</span> <span class="k">import</span> <span class="n">color_style</span>
+<span class="kn">from</span> <span class="nn">django.utils.module_loading</span> <span class="k">import</span> <span class="n">import_string</span>
+<span class="kn">from</span> <span class="nn">django.views.debug</span> <span class="k">import</span> <span class="n">ExceptionReporter</span>
+
+<span class="c"># Default logging for Django. This sends an email to the site admins on every</span>
+<span class="c"># HTTP 500 error. Depending on DEBUG, all other log records are either sent to</span>
+<span class="c"># the console (DEBUG=True) or discarded (DEBUG=False) by means of the</span>
+<span class="c"># require_debug_true filter.</span>
+<span class="n">DEFAULT_LOGGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;version&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s">&#39;disable_existing_loggers&#39;</span><span class="p">:</span> <span class="k">False</span><span class="p">,</span>
+    <span class="s">&#39;filters&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;require_debug_false&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;()&#39;</span><span class="p">:</span> <span class="s">&#39;django.utils.log.RequireDebugFalse&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s">&#39;require_debug_true&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;()&#39;</span><span class="p">:</span> <span class="s">&#39;django.utils.log.RequireDebugTrue&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s">&#39;formatters&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;django.server&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;()&#39;</span><span class="p">:</span> <span class="s">&#39;django.utils.log.ServerFormatter&#39;</span><span class="p">,</span>
+            <span class="s">&#39;format&#39;</span><span class="p">:</span> <span class="s">&#39;[%(server_time)s] %(message)s&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;console&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;level&#39;</span><span class="p">:</span> <span class="s">&#39;INFO&#39;</span><span class="p">,</span>
+            <span class="s">&#39;filters&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;require_debug_true&#39;</span><span class="p">],</span>
+            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;logging.StreamHandler&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s">&#39;django.server&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;level&#39;</span><span class="p">:</span> <span class="s">&#39;INFO&#39;</span><span class="p">,</span>
+            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;logging.StreamHandler&#39;</span><span class="p">,</span>
+            <span class="s">&#39;formatter&#39;</span><span class="p">:</span> <span class="s">&#39;django.server&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s">&#39;mail_admins&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;level&#39;</span><span class="p">:</span> <span class="s">&#39;ERROR&#39;</span><span class="p">,</span>
+            <span class="s">&#39;filters&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;require_debug_false&#39;</span><span class="p">],</span>
+            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;django.utils.log.AdminEmailHandler&#39;</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s">&#39;loggers&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;django&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;console&#39;</span><span class="p">,</span> <span class="s">&#39;mail_admins&#39;</span><span class="p">],</span>
+            <span class="s">&#39;level&#39;</span><span class="p">:</span> <span class="s">&#39;INFO&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s">&#39;django.server&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;django.server&#39;</span><span class="p">],</span>
+            <span class="s">&#39;level&#39;</span><span class="p">:</span> <span class="s">&#39;INFO&#39;</span><span class="p">,</span>
+            <span class="s">&#39;propagate&#39;</span><span class="p">:</span> <span class="k">False</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">configure_logging</span><span class="p">(</span><span class="n">logging_config</span><span class="p">,</span> <span class="n">logging_settings</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">logging_config</span><span class="p">:</span>
+        <span class="c"># First find the logging configuration function ...</span>
+        <span class="n">logging_config_func</span> <span class="o">=</span> <span class="n">import_string</span><span class="p">(</span><span class="n">logging_config</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">dictConfig</span><span class="p">(</span><span class="n">DEFAULT_LOGGING</span><span class="p">)</span>
+
+        <span class="c"># ... then invoke it with the logging settings</span>
+        <span class="k">if</span> <span class="n">logging_settings</span><span class="p">:</span>
+            <span class="n">logging_config_func</span><span class="p">(</span><span class="n">logging_settings</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AdminEmailHandler"><a class="viewcode-back" href="../../../topics/logging.html#django.utils.log.AdminEmailHandler">[文档]</a><span class="k">class</span> <span class="nc">AdminEmailHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An exception log handler that emails log entries to site admins.</span>
+
+<span class="sd">    If the request is passed as the first argument to the log record,</span>
+<span class="sd">    request data will be provided in the email report.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_html</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">email_backend</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_html</span> <span class="o">=</span> <span class="n">include_html</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">email_backend</span> <span class="o">=</span> <span class="n">email_backend</span>
+
+    <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">request</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">request</span>
+            <span class="n">subject</span> <span class="o">=</span> <span class="s">&#39;%s (%s IP): %s&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">record</span><span class="o">.</span><span class="n">levelname</span><span class="p">,</span>
+                <span class="p">(</span><span class="s">&#39;internal&#39;</span> <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;REMOTE_ADDR&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">INTERNAL_IPS</span>
+                 <span class="k">else</span> <span class="s">&#39;EXTERNAL&#39;</span><span class="p">),</span>
+                <span class="n">record</span><span class="o">.</span><span class="n">getMessage</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">subject</span> <span class="o">=</span> <span class="s">&#39;%s: %s&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">record</span><span class="o">.</span><span class="n">levelname</span><span class="p">,</span>
+                <span class="n">record</span><span class="o">.</span><span class="n">getMessage</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="n">request</span> <span class="o">=</span> <span class="k">None</span>
+        <span class="n">subject</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_subject</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
+
+        <span class="c"># Since we add a nicely formatted traceback on our own, create a copy</span>
+        <span class="c"># of the log record without the exception data.</span>
+        <span class="n">no_exc_record</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+        <span class="n">no_exc_record</span><span class="o">.</span><span class="n">exc_info</span> <span class="o">=</span> <span class="k">None</span>
+        <span class="n">no_exc_record</span><span class="o">.</span><span class="n">exc_text</span> <span class="o">=</span> <span class="k">None</span>
+
+        <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">exc_info</span><span class="p">:</span>
+            <span class="n">exc_info</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">exc_info</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">exc_info</span> <span class="o">=</span> <span class="p">(</span><span class="k">None</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">getMessage</span><span class="p">(),</span> <span class="k">None</span><span class="p">)</span>
+
+        <span class="n">reporter</span> <span class="o">=</span> <span class="n">ExceptionReporter</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">is_email</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="o">*</span><span class="n">exc_info</span><span class="p">)</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="s">&quot;%s</span><span class="se">\n\n</span><span class="s">%s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">no_exc_record</span><span class="p">),</span> <span class="n">reporter</span><span class="o">.</span><span class="n">get_traceback_text</span><span class="p">())</span>
+        <span class="n">html_message</span> <span class="o">=</span> <span class="n">reporter</span><span class="o">.</span><span class="n">get_traceback_html</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_html</span> <span class="k">else</span> <span class="k">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_mail</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">fail_silently</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="n">html_message</span><span class="o">=</span><span class="n">html_message</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AdminEmailHandler.send_mail"><a class="viewcode-back" href="../../../topics/logging.html#django.utils.log.AdminEmailHandler.send_mail">[文档]</a>    <span class="k">def</span> <span class="nf">send_mail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">mail</span><span class="o">.</span><span class="n">mail_admins</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">connection</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">get_connection</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">email_backend</span><span class="p">,</span> <span class="n">fail_silently</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">format_subject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Escape CR and LF characters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">subject</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">n&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\r</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">r&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CallbackFilter"><a class="viewcode-back" href="../../../topics/logging.html#django.utils.log.CallbackFilter">[文档]</a><span class="k">class</span> <span class="nc">CallbackFilter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Filter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A logging filter that checks the return value of a given callable (which</span>
+<span class="sd">    takes the record-to-be-logged as its only parameter) to decide whether to</span>
+<span class="sd">    log a record.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
+
+    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="n">record</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="RequireDebugFalse"><a class="viewcode-back" href="../../../topics/logging.html#django.utils.log.RequireDebugFalse">[文档]</a><span class="k">class</span> <span class="nc">RequireDebugFalse</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Filter</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">DEBUG</span></div>
+
+
+<div class="viewcode-block" id="RequireDebugTrue"><a class="viewcode-back" href="../../../topics/logging.html#django.utils.log.RequireDebugTrue">[文档]</a><span class="k">class</span> <span class="nc">RequireDebugTrue</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Filter</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">DEBUG</span></div>
+
+
+<span class="k">class</span> <span class="nc">ServerFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">style</span> <span class="o">=</span> <span class="n">color_style</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ServerFormatter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">msg</span>
+        <span class="n">status_code</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s">&#39;status_code&#39;</span><span class="p">,</span> <span class="k">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">status_code</span><span class="p">:</span>
+            <span class="k">if</span> <span class="mi">200</span> <span class="o">&lt;=</span> <span class="n">status_code</span> <span class="o">&lt;</span> <span class="mi">300</span><span class="p">:</span>
+                <span class="c"># Put 2XX first, since it should be the common case</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">HTTP_SUCCESS</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="mi">100</span> <span class="o">&lt;=</span> <span class="n">status_code</span> <span class="o">&lt;</span> <span class="mi">200</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">HTTP_INFO</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">status_code</span> <span class="o">==</span> <span class="mi">304</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">HTTP_NOT_MODIFIED</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="mi">300</span> <span class="o">&lt;=</span> <span class="n">status_code</span> <span class="o">&lt;</span> <span class="mi">400</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">HTTP_REDIRECT</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">HTTP_NOT_FOUND</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="mi">400</span> <span class="o">&lt;=</span> <span class="n">status_code</span> <span class="o">&lt;</span> <span class="mi">500</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">HTTP_BAD_REQUEST</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># Any 5XX, or any other status code</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">HTTP_SERVER_ERROR</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses_server_time</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s">&#39;server_time&#39;</span><span class="p">):</span>
+            <span class="n">record</span><span class="o">.</span><span class="n">server_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">formatTime</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">datefmt</span><span class="p">)</span>
+
+        <span class="n">record</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ServerFormatter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">uses_server_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;%(server_time)&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.db.models.aggregates &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../../index.html"/>
+        <link rel="up" title="django" href="../../../django.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../../django.html">django</a> &raquo;</li>
+        
+      <li>django.db.models.aggregates</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.db.models.aggregates 源代码</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Classes to represent the definitions of aggregate functions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">FieldError</span>
+<span class="kn">from</span> <span class="nn">django.db.models.expressions</span> <span class="k">import</span> <span class="n">Func</span><span class="p">,</span> <span class="n">Star</span>
+<span class="kn">from</span> <span class="nn">django.db.models.fields</span> <span class="k">import</span> <span class="n">DecimalField</span><span class="p">,</span> <span class="n">FloatField</span><span class="p">,</span> <span class="n">IntegerField</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&#39;Aggregate&#39;</span><span class="p">,</span> <span class="s">&#39;Avg&#39;</span><span class="p">,</span> <span class="s">&#39;Count&#39;</span><span class="p">,</span> <span class="s">&#39;Max&#39;</span><span class="p">,</span> <span class="s">&#39;Min&#39;</span><span class="p">,</span> <span class="s">&#39;StdDev&#39;</span><span class="p">,</span> <span class="s">&#39;Sum&#39;</span><span class="p">,</span> <span class="s">&#39;Variance&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="Aggregate"><a class="viewcode-back" href="../../../../ref/models/expressions.html#django.db.models.Aggregate">[文档]</a><span class="k">class</span> <span class="nc">Aggregate</span><span class="p">(</span><span class="n">Func</span><span class="p">):</span>
+    <span class="n">contains_aggregate</span> <span class="o">=</span> <span class="k">True</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="k">None</span>
+
+    <span class="k">def</span> <span class="nf">resolve_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">allow_joins</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="n">reuse</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">summarize</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">for_save</span><span class="o">=</span><span class="k">False</span><span class="p">):</span>
+        <span class="c"># Aggregates are not allowed in UPDATE queries, so ignore for_save</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Aggregate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">resolve_expression</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">allow_joins</span><span class="p">,</span> <span class="n">reuse</span><span class="p">,</span> <span class="n">summarize</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">summarize</span><span class="p">:</span>
+            <span class="n">expressions</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get_source_expressions</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">expr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">expressions</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">expr</span><span class="o">.</span><span class="n">contains_aggregate</span><span class="p">:</span>
+                    <span class="n">before_resolved</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_source_expressions</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">before_resolved</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">before_resolved</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">repr</span><span class="p">(</span><span class="n">before_resolved</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">FieldError</span><span class="p">(</span><span class="s">&quot;Cannot compute %s(&#39;%s&#39;): &#39;%s&#39; is an aggregate&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">c</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default_alias</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">expressions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_source_expressions</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">expressions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">expressions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&#39;name&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s">&#39;%s__%s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">expressions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;Complex expressions require an alias&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_group_by_cols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="Avg"><a class="viewcode-back" href="../../../../ref/models/querysets.html#django.db.models.Avg">[文档]</a><span class="k">class</span> <span class="nc">Avg</span><span class="p">(</span><span class="n">Aggregate</span><span class="p">):</span>
+    <span class="n">function</span> <span class="o">=</span> <span class="s">&#39;AVG&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;Avg&#39;</span>
+
+    <span class="k">def</span> <span class="nf">_resolve_output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">source_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_source_fields</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_field</span><span class="p">,</span> <span class="p">(</span><span class="n">IntegerField</span><span class="p">,</span> <span class="n">DecimalField</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_output_field</span> <span class="o">=</span> <span class="n">FloatField</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Avg</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_resolve_output_field</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">as_oracle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">connection</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_field</span><span class="o">.</span><span class="n">get_internal_type</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;DurationField&#39;</span><span class="p">:</span>
+            <span class="n">expression</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_source_expressions</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="kn">from</span> <span class="nn">django.db.backends.oracle.functions</span> <span class="k">import</span> <span class="n">IntervalToSeconds</span><span class="p">,</span> <span class="n">SecondsToInterval</span>
+            <span class="k">return</span> <span class="n">compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+                <span class="n">SecondsToInterval</span><span class="p">(</span><span class="n">Avg</span><span class="p">(</span><span class="n">IntervalToSeconds</span><span class="p">(</span><span class="n">expression</span><span class="p">)))</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Avg</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">as_sql</span><span class="p">(</span><span class="n">compiler</span><span class="p">,</span> <span class="n">connection</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Count"><a class="viewcode-back" href="../../../../ref/models/querysets.html#django.db.models.Count">[文档]</a><span class="k">class</span> <span class="nc">Count</span><span class="p">(</span><span class="n">Aggregate</span><span class="p">):</span>
+    <span class="n">function</span> <span class="o">=</span> <span class="s">&#39;COUNT&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;Count&#39;</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="s">&#39;%(function)s(%(distinct)s%(expressions)s)&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">distinct</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">expression</span> <span class="o">==</span> <span class="s">&#39;*&#39;</span><span class="p">:</span>
+            <span class="n">expression</span> <span class="o">=</span> <span class="n">Star</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Count</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="n">expression</span><span class="p">,</span> <span class="n">distinct</span><span class="o">=</span><span class="s">&#39;DISTINCT &#39;</span> <span class="k">if</span> <span class="n">distinct</span> <span class="k">else</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">output_field</span><span class="o">=</span><span class="n">IntegerField</span><span class="p">(),</span> <span class="o">**</span><span class="n">extra</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;{}({}, distinct={})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arg_joiner</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_expressions</span><span class="p">),</span>
+            <span class="s">&#39;False&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s">&#39;distinct&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;&#39;</span> <span class="k">else</span> <span class="s">&#39;True&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">convert_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Max"><a class="viewcode-back" href="../../../../ref/models/querysets.html#django.db.models.Max">[文档]</a><span class="k">class</span> <span class="nc">Max</span><span class="p">(</span><span class="n">Aggregate</span><span class="p">):</span>
+    <span class="n">function</span> <span class="o">=</span> <span class="s">&#39;MAX&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;Max&#39;</span></div>
+
+
+<div class="viewcode-block" id="Min"><a class="viewcode-back" href="../../../../ref/models/querysets.html#django.db.models.Min">[文档]</a><span class="k">class</span> <span class="nc">Min</span><span class="p">(</span><span class="n">Aggregate</span><span class="p">):</span>
+    <span class="n">function</span> <span class="o">=</span> <span class="s">&#39;MIN&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;Min&#39;</span></div>
+
+
+<div class="viewcode-block" id="StdDev"><a class="viewcode-back" href="../../../../ref/models/querysets.html#django.db.models.StdDev">[文档]</a><span class="k">class</span> <span class="nc">StdDev</span><span class="p">(</span><span class="n">Aggregate</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;StdDev&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">sample</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="s">&#39;STDDEV_SAMP&#39;</span> <span class="k">if</span> <span class="n">sample</span> <span class="k">else</span> <span class="s">&#39;STDDEV_POP&#39;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">StdDev</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">output_field</span><span class="o">=</span><span class="n">FloatField</span><span class="p">(),</span> <span class="o">**</span><span class="n">extra</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;{}({}, sample={})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arg_joiner</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_expressions</span><span class="p">),</span>
+            <span class="s">&#39;False&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">==</span> <span class="s">&#39;STDDEV_POP&#39;</span> <span class="k">else</span> <span class="s">&#39;True&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">convert_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Sum"><a class="viewcode-back" href="../../../../ref/models/querysets.html#django.db.models.Sum">[文档]</a><span class="k">class</span> <span class="nc">Sum</span><span class="p">(</span><span class="n">Aggregate</span><span class="p">):</span>
+    <span class="n">function</span> <span class="o">=</span> <span class="s">&#39;SUM&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;Sum&#39;</span>
+
+    <span class="k">def</span> <span class="nf">as_oracle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">connection</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_field</span><span class="o">.</span><span class="n">get_internal_type</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;DurationField&#39;</span><span class="p">:</span>
+            <span class="n">expression</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_source_expressions</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="kn">from</span> <span class="nn">django.db.backends.oracle.functions</span> <span class="k">import</span> <span class="n">IntervalToSeconds</span><span class="p">,</span> <span class="n">SecondsToInterval</span>
+            <span class="k">return</span> <span class="n">compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+                <span class="n">SecondsToInterval</span><span class="p">(</span><span class="n">Sum</span><span class="p">(</span><span class="n">IntervalToSeconds</span><span class="p">(</span><span class="n">expression</span><span class="p">)))</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Sum</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">as_sql</span><span class="p">(</span><span class="n">compiler</span><span class="p">,</span> <span class="n">connection</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Variance"><a class="viewcode-back" href="../../../../ref/models/querysets.html#django.db.models.Variance">[文档]</a><span class="k">class</span> <span class="nc">Variance</span><span class="p">(</span><span class="n">Aggregate</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;Variance&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">sample</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="s">&#39;VAR_SAMP&#39;</span> <span class="k">if</span> <span class="n">sample</span> <span class="k">else</span> <span class="s">&#39;VAR_POP&#39;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Variance</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">output_field</span><span class="o">=</span><span class="n">FloatField</span><span class="p">(),</span> <span class="o">**</span><span class="n">extra</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;{}({}, sample={})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arg_joiner</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_expressions</span><span class="p">),</span>
+            <span class="s">&#39;False&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">==</span> <span class="s">&#39;VAR_POP&#39;</span> <span class="k">else</span> <span class="s">&#39;True&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">convert_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,439 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Many-to-one relationships &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Many-to-one relationships</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/topics/db/examples/many_to_one.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="many-to-one-relationships">
+<h1>Many-to-one relationships<a class="headerlink" href="#many-to-one-relationships" title="永久链接至标题">¶</a></h1>
+<p>To define a many-to-one relationship, use <a class="reference internal" href="../../../ref/models/fields.html#django.db.models.ForeignKey" title="django.db.models.ForeignKey"><code class="xref py py-class docutils literal"><span class="pre">ForeignKey</span></code></a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
+
+<span class="k">class</span> <span class="nc">Reporter</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">first_name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">last_name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">email</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">EmailField</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>              <span class="c"># __unicode__ on Python 2</span>
+        <span class="k">return</span> <span class="s">&quot;%s %s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_name</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Article</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">headline</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">pub_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">()</span>
+    <span class="n">reporter</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Reporter</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>              <span class="c"># __unicode__ on Python 2</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">headline</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;headline&#39;</span><span class="p">,)</span>
+</pre></div>
+</div>
+<p>What follows are examples of operations that can be performed using the Python
+API facilities.</p>
+<p>Create a few Reporters:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s">&#39;John&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s">&#39;Smith&#39;</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="s">&#39;john@example.com&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r2</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s">&#39;Paul&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s">&#39;Jones&#39;</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="s">&#39;paul@example.com&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r2</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Create an Article:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Article</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">headline</span><span class="o">=</span><span class="s">&quot;This is a test&quot;</span><span class="p">,</span> <span class="n">pub_date</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2005</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">27</span><span class="p">),</span> <span class="n">reporter</span><span class="o">=</span><span class="n">r</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">id</span>
+<span class="go">1</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">reporter</span>
+<span class="go">&lt;Reporter: John Smith&gt;</span>
+</pre></div>
+</div>
+<p>Note that you must save an object before it can be assigned to a foreign key
+relationship. For example, creating an <code class="docutils literal"><span class="pre">Article</span></code> with unsaved <code class="docutils literal"><span class="pre">Reporter</span></code>
+raises <code class="docutils literal"><span class="pre">ValueError</span></code>:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">r3</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s">&#39;John&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s">&#39;Smith&#39;</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="s">&#39;john@example.com&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">headline</span><span class="o">=</span><span class="s">&quot;This is a test&quot;</span><span class="p">,</span> <span class="n">pub_date</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2005</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">27</span><span class="p">),</span> <span class="n">reporter</span><span class="o">=</span><span class="n">r3</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">save() prohibited to prevent data loss due to unsaved related object &#39;reporter&#39;.</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">save() prohibited to prevent data loss due to unsaved related object &#39;reporter&#39;.</span>
+</pre></div>
+</div>
+<p>Article objects have access to their related Reporter objects:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">reporter</span>
+</pre></div>
+</div>
+<p>On Python 2, these are strings of type <code class="docutils literal"><span class="pre">str</span></code> instead of unicode strings
+because that’s what was used in the creation of this reporter (and we haven’t
+refreshed the data from the database, which always returns unicode strings):</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">last_name</span>
+<span class="go">(&#39;John&#39;, &#39;Smith&#39;)</span>
+</pre></div>
+</div>
+<p>Create an Article via the Reporter object:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">new_article</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">article_set</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">headline</span><span class="o">=</span><span class="s">&quot;John&#39;s second story&quot;</span><span class="p">,</span> <span class="n">pub_date</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2005</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">29</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_article</span>
+<span class="go">&lt;Article: John&#39;s second story&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_article</span><span class="o">.</span><span class="n">reporter</span>
+<span class="go">&lt;Reporter: John Smith&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_article</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">id</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+<p>Create a new article, and add it to the article set:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">new_article2</span> <span class="o">=</span> <span class="n">Article</span><span class="p">(</span><span class="n">headline</span><span class="o">=</span><span class="s">&quot;Paul&#39;s story&quot;</span><span class="p">,</span> <span class="n">pub_date</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">17</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">article_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_article2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_article2</span><span class="o">.</span><span class="n">reporter</span>
+<span class="go">&lt;Reporter: John Smith&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_article2</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">id</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">article_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="go">&lt;QuerySet [&lt;Article: John&#39;s second story&gt;, &lt;Article: Paul&#39;s story&gt;, &lt;Article: This is a test&gt;]&gt;</span>
+</pre></div>
+</div>
+<p>Add the same article to a different article set - check that it moves:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">r2</span><span class="o">.</span><span class="n">article_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_article2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_article2</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">id</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_article2</span><span class="o">.</span><span class="n">reporter</span>
+<span class="go">&lt;Reporter: Paul Jones&gt;</span>
+</pre></div>
+</div>
+<p>Adding an object of the wrong type raises TypeError:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">article_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">r2</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">TypeError</span>: <span class="n">&#39;Article&#39; instance expected</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">article_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="go">&lt;QuerySet [&lt;Article: John&#39;s second story&gt;, &lt;Article: This is a test&gt;]&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r2</span><span class="o">.</span><span class="n">article_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="go">&lt;QuerySet [&lt;Article: Paul&#39;s story&gt;]&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">article_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">2</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r2</span><span class="o">.</span><span class="n">article_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">1</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">TypeError</span>: <span class="n">&#39;Article&#39; instance expected</span>
+</pre></div>
+</div>
+<p>Note that in the last example the article has moved from John to Paul.</p>
+<p>Related managers support field lookups as well.
+The API automatically follows relationships as far as you need.
+Use double underscores to separate relationships.
+This works as many levels deep as you want. There’s no limit. For example:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">r</span><span class="o">.</span><span class="n">article_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">headline__startswith</span><span class="o">=</span><span class="s">&#39;This&#39;</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Article: This is a test&gt;]&gt;</span>
+
+<span class="go"># Find all Articles for any Reporter whose first name is &quot;John&quot;.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">reporter__first_name</span><span class="o">=</span><span class="s">&#39;John&#39;</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Article: John&#39;s second story&gt;, &lt;Article: This is a test&gt;]&gt;</span>
+</pre></div>
+</div>
+<p>Exact match is implied here:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">reporter__first_name</span><span class="o">=</span><span class="s">&#39;John&#39;</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Article: John&#39;s second story&gt;, &lt;Article: This is a test&gt;]&gt;</span>
+</pre></div>
+</div>
+<p>Query twice over the related field. This translates to an AND condition in the
+WHERE clause:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">reporter__first_name</span><span class="o">=</span><span class="s">&#39;John&#39;</span><span class="p">,</span> <span class="n">reporter__last_name</span><span class="o">=</span><span class="s">&#39;Smith&#39;</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Article: John&#39;s second story&gt;, &lt;Article: This is a test&gt;]&gt;</span>
+</pre></div>
+</div>
+<p>For the related lookup you can supply a primary key value or pass the related
+object explicitly:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">reporter__pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Article: John&#39;s second story&gt;, &lt;Article: This is a test&gt;]&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">reporter</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Article: John&#39;s second story&gt;, &lt;Article: This is a test&gt;]&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">reporter</span><span class="o">=</span><span class="n">r</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Article: John&#39;s second story&gt;, &lt;Article: This is a test&gt;]&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">reporter__in</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+<span class="go">&lt;QuerySet [&lt;Article: John&#39;s second story&gt;, &lt;Article: Paul&#39;s story&gt;, &lt;Article: This is a test&gt;]&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">reporter__in</span><span class="o">=</span><span class="p">[</span><span class="n">r</span><span class="p">,</span><span class="n">r2</span><span class="p">])</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+<span class="go">&lt;QuerySet [&lt;Article: John&#39;s second story&gt;, &lt;Article: Paul&#39;s story&gt;, &lt;Article: This is a test&gt;]&gt;</span>
+</pre></div>
+</div>
+<p>You can also use a queryset instead of a literal list of instances:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">reporter__in</span><span class="o">=</span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s">&#39;John&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+<span class="go">&lt;QuerySet [&lt;Article: John&#39;s second story&gt;, &lt;Article: This is a test&gt;]&gt;</span>
+</pre></div>
+</div>
+<p>Querying in the opposite direction:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">article__pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Reporter: John Smith&gt;]&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Reporter: John Smith&gt;]&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="n">a</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Reporter: John Smith&gt;]&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">article__headline__startswith</span><span class="o">=</span><span class="s">&#39;This&#39;</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Reporter: John Smith&gt;, &lt;Reporter: John Smith&gt;, &lt;Reporter: John Smith&gt;]&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">article__headline__startswith</span><span class="o">=</span><span class="s">&#39;This&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+<span class="go">&lt;QuerySet [&lt;Reporter: John Smith&gt;]&gt;</span>
+</pre></div>
+</div>
+<p>Counting in the opposite direction works in conjunction with distinct():</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">article__headline__startswith</span><span class="o">=</span><span class="s">&#39;This&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">article__headline__startswith</span><span class="o">=</span><span class="s">&#39;This&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+<p>Queries can go round in circles:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">article__reporter__first_name__startswith</span><span class="o">=</span><span class="s">&#39;John&#39;</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Reporter: John Smith&gt;, &lt;Reporter: John Smith&gt;, &lt;Reporter: John Smith&gt;, &lt;Reporter: John Smith&gt;]&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">article__reporter__first_name__startswith</span><span class="o">=</span><span class="s">&#39;John&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+<span class="go">&lt;QuerySet [&lt;Reporter: John Smith&gt;]&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">article__reporter</span><span class="o">=</span><span class="n">r</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+<span class="go">&lt;QuerySet [&lt;Reporter: John Smith&gt;]&gt;</span>
+</pre></div>
+</div>
+<p>If you delete a reporter, his articles will be deleted (assuming that the
+ForeignKey was defined with <a class="reference internal" href="../../../ref/models/fields.html#django.db.models.ForeignKey.on_delete" title="django.db.models.ForeignKey.on_delete"><code class="xref py py-attr docutils literal"><span class="pre">django.db.models.ForeignKey.on_delete</span></code></a> set to
+<code class="docutils literal"><span class="pre">CASCADE</span></code>, which is the default):</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="go">&lt;QuerySet [&lt;Article: John&#39;s second story&gt;, &lt;Article: Paul&#39;s story&gt;, &lt;Article: This is a test&gt;]&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s">&#39;first_name&#39;</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Reporter: John Smith&gt;, &lt;Reporter: Paul Jones&gt;]&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r2</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="go">&lt;QuerySet [&lt;Article: John&#39;s second story&gt;, &lt;Article: This is a test&gt;]&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s">&#39;first_name&#39;</span><span class="p">)</span>
+<span class="go">&lt;QuerySet [&lt;Reporter: John Smith&gt;]&gt;</span>
+</pre></div>
+</div>
+<p>You can delete using a JOIN in the query:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">article__headline__startswith</span><span class="o">=</span><span class="s">&#39;This&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Reporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="go">&lt;QuerySet []&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="go">&lt;QuerySet []&gt;</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

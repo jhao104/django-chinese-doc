@@ -1,0 +1,500 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Django settings &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Django settings</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/topics/settings.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="django-settings">
+<h1>Django settings<a class="headerlink" href="#django-settings" title="永久链接至标题">¶</a></h1>
+<p>A Django settings file contains all the configuration of your Django
+installation. This document explains how settings work and which settings are
+available.</p>
+<div class="section" id="the-basics">
+<h2>The basics<a class="headerlink" href="#the-basics" title="永久链接至标题">¶</a></h2>
+<p>A settings file is just a Python module with module-level variables.</p>
+<p>Here are a couple of example settings:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">ALLOWED_HOSTS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;www.example.com&#39;</span><span class="p">]</span>
+<span class="n">DEBUG</span> <span class="o">=</span> <span class="k">False</span>
+<span class="n">DEFAULT_FROM_EMAIL</span> <span class="o">=</span> <span class="s">&#39;webmaster@example.com&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last">If you set <a class="reference internal" href="../ref/settings.html#std:setting-DEBUG"><code class="xref std std-setting docutils literal"><span class="pre">DEBUG</span></code></a> to <code class="docutils literal"><span class="pre">False</span></code>, you also need to properly set
+the <a class="reference internal" href="../ref/settings.html#std:setting-ALLOWED_HOSTS"><code class="xref std std-setting docutils literal"><span class="pre">ALLOWED_HOSTS</span></code></a> setting.</p>
+</div>
+<p>Because a settings file is a Python module, the following apply:</p>
+<ul>
+<li><p class="first">It doesn’t allow for Python syntax errors.</p>
+</li>
+<li><p class="first">It can assign settings dynamically using normal Python syntax.
+For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">MY_SETTING</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">)]</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">It can import values from other settings files.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="designating-the-settings">
+<span id="django-settings-module"></span><h2>Designating the settings<a class="headerlink" href="#designating-the-settings" title="永久链接至标题">¶</a></h2>
+<dl class="envvar">
+<dt id="envvar-DJANGO_SETTINGS_MODULE">
+<code class="descname">DJANGO_SETTINGS_MODULE</code><a class="headerlink" href="#envvar-DJANGO_SETTINGS_MODULE" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>When you use Django, you have to tell it which settings you’re using. Do this
+by using an environment variable, <code class="docutils literal"><span class="pre">DJANGO_SETTINGS_MODULE</span></code>.</p>
+<p>The value of <code class="docutils literal"><span class="pre">DJANGO_SETTINGS_MODULE</span></code> should be in Python path syntax, e.g.
+<code class="docutils literal"><span class="pre">mysite.settings</span></code>. Note that the settings module should be on the
+Python <a class="reference external" href="http://www.diveintopython.net/getting_to_know_python/everything_is_an_object.html">import search path</a>.</p>
+<div class="section" id="the-django-admin-utility">
+<h3>The <code class="docutils literal"><span class="pre">django-admin</span></code> utility<a class="headerlink" href="#the-django-admin-utility" title="永久链接至标题">¶</a></h3>
+<p>When using <a class="reference internal" href="../ref/django-admin.html"><span class="doc">django-admin</span></a>, you can either set the
+environment variable once, or explicitly pass in the settings module each time
+you run the utility.</p>
+<p>Example (Unix Bash shell):</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">export</span> <span class="n">DJANGO_SETTINGS_MODULE</span><span class="o">=</span><span class="n">mysite</span><span class="o">.</span><span class="n">settings</span>
+<span class="n">django</span><span class="o">-</span><span class="n">admin</span> <span class="n">runserver</span>
+</pre></div>
+</div>
+<p>Example (Windows shell):</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="nb">set</span> <span class="n">DJANGO_SETTINGS_MODULE</span><span class="o">=</span><span class="n">mysite</span><span class="o">.</span><span class="n">settings</span>
+<span class="n">django</span><span class="o">-</span><span class="n">admin</span> <span class="n">runserver</span>
+</pre></div>
+</div>
+<p>Use the <code class="docutils literal"><span class="pre">--settings</span></code> command-line argument to specify the settings manually:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">django</span><span class="o">-</span><span class="n">admin</span> <span class="n">runserver</span> <span class="o">--</span><span class="n">settings</span><span class="o">=</span><span class="n">mysite</span><span class="o">.</span><span class="n">settings</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="on-the-server-mod-wsgi">
+<h3>On the server (<code class="docutils literal"><span class="pre">mod_wsgi</span></code>)<a class="headerlink" href="#on-the-server-mod-wsgi" title="永久链接至标题">¶</a></h3>
+<p>In your live server environment, you’ll need to tell your WSGI
+application what settings file to use. Do that with <code class="docutils literal"><span class="pre">os.environ</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;DJANGO_SETTINGS_MODULE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;mysite.settings&#39;</span>
+</pre></div>
+</div>
+<p>Read the <a class="reference internal" href="../howto/deployment/wsgi/modwsgi.html"><span class="doc">Django mod_wsgi documentation</span></a> for more information and other common
+elements to a Django WSGI application.</p>
+</div>
+</div>
+<div class="section" id="default-settings">
+<h2>Default settings<a class="headerlink" href="#default-settings" title="永久链接至标题">¶</a></h2>
+<p>A Django settings file doesn’t have to define any settings if it doesn’t need
+to. Each setting has a sensible default value. These defaults live in the
+module <code class="file docutils literal"><span class="pre">django/conf/global_settings.py</span></code>.</p>
+<p>Here’s the algorithm Django uses in compiling settings:</p>
+<ul class="simple">
+<li>Load settings from <code class="docutils literal"><span class="pre">global_settings.py</span></code>.</li>
+<li>Load settings from the specified settings file, overriding the global
+settings as necessary.</li>
+</ul>
+<p>Note that a settings file should <em>not</em> import from <code class="docutils literal"><span class="pre">global_settings</span></code>, because
+that’s redundant.</p>
+<div class="section" id="seeing-which-settings-you-ve-changed">
+<h3>Seeing which settings you’ve changed<a class="headerlink" href="#seeing-which-settings-you-ve-changed" title="永久链接至标题">¶</a></h3>
+<p>There’s an easy way to view which of your settings deviate from the default
+settings. The command <code class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">diffsettings</span></code> displays differences
+between the current settings file and Django’s default settings.</p>
+<p>For more, see the <a class="reference internal" href="../ref/django-admin.html#django-admin-diffsettings"><code class="xref std std-djadmin docutils literal"><span class="pre">diffsettings</span></code></a> documentation.</p>
+</div>
+</div>
+<div class="section" id="using-settings-in-python-code">
+<h2>Using settings in Python code<a class="headerlink" href="#using-settings-in-python-code" title="永久链接至标题">¶</a></h2>
+<p>In your Django apps, use settings by importing the object
+<code class="docutils literal"><span class="pre">django.conf.settings</span></code>. Example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+
+<span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+    <span class="c"># Do something</span>
+</pre></div>
+</div>
+<p>Note that <code class="docutils literal"><span class="pre">django.conf.settings</span></code> isn’t a module – it’s an object. So
+importing individual settings is not possible:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.conf.settings</span> <span class="k">import</span> <span class="n">DEBUG</span>  <span class="c"># This won&#39;t work.</span>
+</pre></div>
+</div>
+<p>Also note that your code should <em>not</em> import from either <code class="docutils literal"><span class="pre">global_settings</span></code> or
+your own settings file. <code class="docutils literal"><span class="pre">django.conf.settings</span></code> abstracts the concepts of
+default settings and site-specific settings; it presents a single interface.
+It also decouples the code that uses settings from the location of your
+settings.</p>
+</div>
+<div class="section" id="altering-settings-at-runtime">
+<h2>Altering settings at runtime<a class="headerlink" href="#altering-settings-at-runtime" title="永久链接至标题">¶</a></h2>
+<p>You shouldn’t alter settings in your applications at runtime. For example,
+don’t do this in a view:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+
+<span class="n">settings</span><span class="o">.</span><span class="n">DEBUG</span> <span class="o">=</span> <span class="k">True</span>   <span class="c"># Don&#39;t do this!</span>
+</pre></div>
+</div>
+<p>The only place you should assign to settings is in a settings file.</p>
+</div>
+<div class="section" id="security">
+<h2>Security<a class="headerlink" href="#security" title="永久链接至标题">¶</a></h2>
+<p>Because a settings file contains sensitive information, such as the database
+password, you should make every attempt to limit access to it. For example,
+change its file permissions so that only you and your Web server’s user can
+read it. This is especially important in a shared-hosting environment.</p>
+</div>
+<div class="section" id="available-settings">
+<h2>Available settings<a class="headerlink" href="#available-settings" title="永久链接至标题">¶</a></h2>
+<p>For a full list of available settings, see the <a class="reference internal" href="../ref/settings.html"><span class="doc">settings reference</span></a>.</p>
+</div>
+<div class="section" id="creating-your-own-settings">
+<h2>Creating your own settings<a class="headerlink" href="#creating-your-own-settings" title="永久链接至标题">¶</a></h2>
+<p>There’s nothing stopping you from creating your own settings, for your own
+Django apps. Just follow these guidelines:</p>
+<ul class="simple">
+<li>Setting names must be all uppercase.</li>
+<li>Don’t reinvent an already-existing setting.</li>
+</ul>
+<p>For settings that are sequences, Django itself uses lists, but this is only
+a convention.</p>
+</div>
+<div class="section" id="using-settings-without-setting-django-settings-module">
+<span id="settings-without-django-settings-module"></span><h2>Using settings without setting <code class="docutils literal"><span class="pre">DJANGO_SETTINGS_MODULE</span></code><a class="headerlink" href="#using-settings-without-setting-django-settings-module" title="永久链接至标题">¶</a></h2>
+<p>In some cases, you might want to bypass the <code class="docutils literal"><span class="pre">DJANGO_SETTINGS_MODULE</span></code>
+environment variable. For example, if you’re using the template system by
+itself, you likely don’t want to have to set up an environment variable
+pointing to a settings module.</p>
+<p>In these cases, you can configure Django’s settings manually. Do this by
+calling:</p>
+<dl class="function">
+<dt id="django.conf.settings.configure">
+<code class="descclassname">django.conf.settings.</code><code class="descname">configure</code><span class="sig-paren">(</span><em>default_settings</em>, <em>**settings</em><span class="sig-paren">)</span><a class="headerlink" href="#django.conf.settings.configure" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>Example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+
+<span class="n">settings</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">DEBUG</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Pass <code class="docutils literal"><span class="pre">configure()</span></code> as many keyword arguments as you’d like, with each keyword
+argument representing a setting and its value. Each argument name should be all
+uppercase, with the same name as the settings described above. If a particular
+setting is not passed to <code class="docutils literal"><span class="pre">configure()</span></code> and is needed at some later point,
+Django will use the default setting value.</p>
+<p>Configuring Django in this fashion is mostly necessary – and, indeed,
+recommended – when you’re using a piece of the framework inside a larger
+application.</p>
+<p>Consequently, when configured via <code class="docutils literal"><span class="pre">settings.configure()</span></code>, Django will not
+make any modifications to the process environment variables (see the
+documentation of <a class="reference internal" href="../ref/settings.html#std:setting-TIME_ZONE"><code class="xref std std-setting docutils literal"><span class="pre">TIME_ZONE</span></code></a> for why this would normally occur). It’s
+assumed that you’re already in full control of your environment in these
+cases.</p>
+<div class="section" id="custom-default-settings">
+<h3>Custom default settings<a class="headerlink" href="#custom-default-settings" title="永久链接至标题">¶</a></h3>
+<p>If you’d like default values to come from somewhere other than
+<code class="docutils literal"><span class="pre">django.conf.global_settings</span></code>, you can pass in a module or class that
+provides the default settings as the <code class="docutils literal"><span class="pre">default_settings</span></code> argument (or as the
+first positional argument) in the call to <code class="docutils literal"><span class="pre">configure()</span></code>.</p>
+<p>In this example, default settings are taken from <code class="docutils literal"><span class="pre">myapp_defaults</span></code>, and the
+<a class="reference internal" href="../ref/settings.html#std:setting-DEBUG"><code class="xref std std-setting docutils literal"><span class="pre">DEBUG</span></code></a> setting is set to <code class="docutils literal"><span class="pre">True</span></code>, regardless of its value in
+<code class="docutils literal"><span class="pre">myapp_defaults</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">myapp</span> <span class="k">import</span> <span class="n">myapp_defaults</span>
+
+<span class="n">settings</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">default_settings</span><span class="o">=</span><span class="n">myapp_defaults</span><span class="p">,</span> <span class="n">DEBUG</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The following example, which uses <code class="docutils literal"><span class="pre">myapp_defaults</span></code> as a positional argument,
+is equivalent:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">settings</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">myapp_defaults</span><span class="p">,</span> <span class="n">DEBUG</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Normally, you will not need to override the defaults in this fashion. The
+Django defaults are sufficiently tame that you can safely use them. Be aware
+that if you do pass in a new default module, it entirely <em>replaces</em> the Django
+defaults, so you must specify a value for every possible setting that might be
+used in that code you are importing. Check in
+<code class="docutils literal"><span class="pre">django.conf.settings.global_settings</span></code> for the full list.</p>
+</div>
+<div class="section" id="either-configure-or-django-settings-module-is-required">
+<h3>Either <code class="docutils literal"><span class="pre">configure()</span></code> or <code class="docutils literal"><span class="pre">DJANGO_SETTINGS_MODULE</span></code> is required<a class="headerlink" href="#either-configure-or-django-settings-module-is-required" title="永久链接至标题">¶</a></h3>
+<p>If you’re not setting the <code class="docutils literal"><span class="pre">DJANGO_SETTINGS_MODULE</span></code> environment variable, you
+<em>must</em> call <code class="docutils literal"><span class="pre">configure()</span></code> at some point before using any code that reads
+settings.</p>
+<p>If you don’t set <code class="docutils literal"><span class="pre">DJANGO_SETTINGS_MODULE</span></code> and don’t call <code class="docutils literal"><span class="pre">configure()</span></code>,
+Django will raise an <code class="docutils literal"><span class="pre">ImportError</span></code> exception the first time a setting
+is accessed.</p>
+<p>If you set <code class="docutils literal"><span class="pre">DJANGO_SETTINGS_MODULE</span></code>, access settings values somehow, <em>then</em>
+call <code class="docutils literal"><span class="pre">configure()</span></code>, Django will raise a <code class="docutils literal"><span class="pre">RuntimeError</span></code> indicating
+that settings have already been configured. There is a property just for this
+purpose:</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">configured</span><span class="p">:</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">myapp_defaults</span><span class="p">,</span> <span class="n">DEBUG</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Also, it’s an error to call <code class="docutils literal"><span class="pre">configure()</span></code> more than once, or to call
+<code class="docutils literal"><span class="pre">configure()</span></code> after any setting has been accessed.</p>
+<p>It boils down to this: Use exactly one of either <code class="docutils literal"><span class="pre">configure()</span></code> or
+<code class="docutils literal"><span class="pre">DJANGO_SETTINGS_MODULE</span></code>. Not both, and not neither.</p>
+</div>
+<div class="section" id="calling-django-setup-is-required-for-standalone-django-usage">
+<h3>Calling <code class="docutils literal"><span class="pre">django.setup()</span></code> is required for “standalone” Django usage<a class="headerlink" href="#calling-django-setup-is-required-for-standalone-django-usage" title="永久链接至标题">¶</a></h3>
+<p>If you’re using components of Django “standalone” – for example, writing a
+Python script which loads some Django templates and renders them, or uses the
+ORM to fetch some data – there’s one more step you’ll need in addition to
+configuring settings.</p>
+<p>After you’ve either set <span class="target" id="index-0"></span><a class="reference internal" href="#envvar-DJANGO_SETTINGS_MODULE"><code class="xref std std-envvar docutils literal"><span class="pre">DJANGO_SETTINGS_MODULE</span></code></a> or called
+<code class="docutils literal"><span class="pre">configure()</span></code>, you’ll need to call <a class="reference internal" href="../ref/applications.html#django.setup" title="django.setup"><code class="xref py py-func docutils literal"><span class="pre">django.setup()</span></code></a> to load your
+settings and populate Django’s application registry. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">django</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">myapp</span> <span class="k">import</span> <span class="n">myapp_defaults</span>
+
+<span class="n">settings</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">default_settings</span><span class="o">=</span><span class="n">myapp_defaults</span><span class="p">,</span> <span class="n">DEBUG</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+<span class="n">django</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+
+<span class="c"># Now this script or any imported module can use any part of Django it needs.</span>
+<span class="kn">from</span> <span class="nn">myapp</span> <span class="k">import</span> <span class="n">models</span>
+</pre></div>
+</div>
+<p>Note that calling <code class="docutils literal"><span class="pre">django.setup()</span></code> is only necessary if your code is truly
+standalone. When invoked by your Web server, or through <a class="reference internal" href="../ref/django-admin.html"><span class="doc">django-admin</span></a>, Django will handle this for you.</p>
+<div class="admonition-django-setup-may-only-be-called-once admonition">
+<p class="first admonition-title"><code class="docutils literal"><span class="pre">django.setup()</span></code> may only be called once.</p>
+<p>Therefore, avoid putting reusable application logic in standalone scripts
+so that you have to import from the script elsewhere in your application.
+If you can’t avoid that, put the call to <code class="docutils literal"><span class="pre">django.setup()</span></code> inside an
+<code class="docutils literal"><span class="pre">if</span></code> block:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">django</span>
+    <span class="n">django</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">参见</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="../ref/settings.html"><span class="doc">The Settings Reference</span></a></dt>
+<dd>Contains the complete list of core and contrib app settings.</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
