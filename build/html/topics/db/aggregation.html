@@ -1,0 +1,721 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Aggregation &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Aggregation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/topics/db/aggregation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="aggregation">
+<h1>Aggregation<a class="headerlink" href="#aggregation" title="永久链接至标题">¶</a></h1>
+<p>The topic guide on <a class="reference internal" href="queries.html"><span class="doc">Django’s database-abstraction API</span></a>
+described the way that you can use Django queries that create,
+retrieve, update and delete individual objects. However, sometimes you will
+need to retrieve values that are derived by summarizing or <em>aggregating</em> a
+collection of objects. This topic guide describes the ways that aggregate values
+can be generated and returned using Django queries.</p>
+<p>Throughout this guide, we’ll refer to the following models. These models are
+used to track the inventory for a series of online bookstores:</p>
+<div class="highlight-python" id="queryset-model-example"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+
+<span class="k">class</span> <span class="nc">Author</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">age</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">Publisher</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">num_awards</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">Book</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">pages</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+    <span class="n">price</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">rating</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">()</span>
+    <span class="n">authors</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Author</span><span class="p">)</span>
+    <span class="n">publisher</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Publisher</span><span class="p">)</span>
+    <span class="n">pubdate</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">Store</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">books</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Book</span><span class="p">)</span>
+    <span class="n">registered_users</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="section" id="cheat-sheet">
+<h2>Cheat sheet<a class="headerlink" href="#cheat-sheet" title="永久链接至标题">¶</a></h2>
+<p>In a hurry? Here’s how to do common aggregate queries, assuming the models above:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Total number of books.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="mi">2452</span>
+
+<span class="c"># Total number of books with publisher=BaloneyPress</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">publisher__name</span><span class="o">=</span><span class="s">&#39;BaloneyPress&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="mi">73</span>
+
+<span class="c"># Average price across all books.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Avg</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Avg</span><span class="p">(</span><span class="s">&#39;price&#39;</span><span class="p">))</span>
+<span class="p">{</span><span class="s">&#39;price__avg&#39;</span><span class="p">:</span> <span class="mf">34.35</span><span class="p">}</span>
+
+<span class="c"># Max price across all books.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Max</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Max</span><span class="p">(</span><span class="s">&#39;price&#39;</span><span class="p">))</span>
+<span class="p">{</span><span class="s">&#39;price__max&#39;</span><span class="p">:</span> <span class="n">Decimal</span><span class="p">(</span><span class="s">&#39;81.20&#39;</span><span class="p">)}</span>
+
+<span class="c"># Cost per page</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">F</span><span class="p">,</span> <span class="n">FloatField</span><span class="p">,</span> <span class="n">Sum</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span>
+<span class="o">...</span>    <span class="n">price_per_page</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="s">&#39;price&#39;</span><span class="p">)</span><span class="o">/</span><span class="n">F</span><span class="p">(</span><span class="s">&#39;pages&#39;</span><span class="p">),</span> <span class="n">output_field</span><span class="o">=</span><span class="n">FloatField</span><span class="p">()))</span>
+<span class="p">{</span><span class="s">&#39;price_per_page&#39;</span><span class="p">:</span> <span class="mf">0.4470664529184653</span><span class="p">}</span>
+
+<span class="c"># All the following queries involve traversing the Book&lt;-&gt;Publisher</span>
+<span class="c"># foreign key relationship backwards.</span>
+
+<span class="c"># Each publisher, each with a count of books as a &quot;num_books&quot; attribute.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Count</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pubs</span> <span class="o">=</span> <span class="n">Publisher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">num_books</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s">&#39;book&#39;</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pubs</span>
+<span class="o">&lt;</span><span class="n">QuerySet</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">Publisher</span><span class="p">:</span> <span class="n">BaloneyPress</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">Publisher</span><span class="p">:</span> <span class="n">SalamiPress</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pubs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">num_books</span>
+<span class="mi">73</span>
+
+<span class="c"># The top 5 publishers, in order by number of books.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pubs</span> <span class="o">=</span> <span class="n">Publisher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">num_books</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s">&#39;book&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s">&#39;-num_books&#39;</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pubs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">num_books</span>
+<span class="mi">1323</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="generating-aggregates-over-a-queryset">
+<h2>Generating aggregates over a <code class="docutils literal"><span class="pre">QuerySet</span></code><a class="headerlink" href="#generating-aggregates-over-a-queryset" title="永久链接至标题">¶</a></h2>
+<p>Django provides two ways to generate aggregates. The first way is to generate
+summary values over an entire <code class="docutils literal"><span class="pre">QuerySet</span></code>. For example, say you wanted to
+calculate the average price of all books available for sale. Django’s query
+syntax provides a means for describing the set of all books:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>What we need is a way to calculate summary values over the objects that
+belong to this <code class="docutils literal"><span class="pre">QuerySet</span></code>. This is done by appending an <code class="docutils literal"><span class="pre">aggregate()</span></code>
+clause onto the <code class="docutils literal"><span class="pre">QuerySet</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Avg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Avg</span><span class="p">(</span><span class="s">&#39;price&#39;</span><span class="p">))</span>
+<span class="go">{&#39;price__avg&#39;: 34.35}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">all()</span></code> is redundant in this example, so this could be simplified to:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Avg</span><span class="p">(</span><span class="s">&#39;price&#39;</span><span class="p">))</span>
+<span class="go">{&#39;price__avg&#39;: 34.35}</span>
+</pre></div>
+</div>
+<p>The argument to the <code class="docutils literal"><span class="pre">aggregate()</span></code> clause describes the aggregate value that
+we want to compute - in this case, the average of the <code class="docutils literal"><span class="pre">price</span></code> field on the
+<code class="docutils literal"><span class="pre">Book</span></code> model. A list of the aggregate functions that are available can be
+found in the <a class="reference internal" href="../../ref/models/querysets.html#aggregation-functions"><span class="std std-ref">QuerySet reference</span></a>.</p>
+<p><code class="docutils literal"><span class="pre">aggregate()</span></code> is a terminal clause for a <code class="docutils literal"><span class="pre">QuerySet</span></code> that, when invoked,
+returns a dictionary of name-value pairs. The name is an identifier for the
+aggregate value; the value is the computed aggregate. The name is
+automatically generated from the name of the field and the aggregate function.
+If you want to manually specify a name for the aggregate value, you can do so
+by providing that name when you specify the aggregate clause:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">average_price</span><span class="o">=</span><span class="n">Avg</span><span class="p">(</span><span class="s">&#39;price&#39;</span><span class="p">))</span>
+<span class="go">{&#39;average_price&#39;: 34.35}</span>
+</pre></div>
+</div>
+<p>If you want to generate more than one aggregate, you just add another
+argument to the <code class="docutils literal"><span class="pre">aggregate()</span></code> clause. So, if we also wanted to know
+the maximum and minimum price of all books, we would issue the query:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Avg</span><span class="p">,</span> <span class="n">Max</span><span class="p">,</span> <span class="n">Min</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Avg</span><span class="p">(</span><span class="s">&#39;price&#39;</span><span class="p">),</span> <span class="n">Max</span><span class="p">(</span><span class="s">&#39;price&#39;</span><span class="p">),</span> <span class="n">Min</span><span class="p">(</span><span class="s">&#39;price&#39;</span><span class="p">))</span>
+<span class="go">{&#39;price__avg&#39;: 34.35, &#39;price__max&#39;: Decimal(&#39;81.20&#39;), &#39;price__min&#39;: Decimal(&#39;12.99&#39;)}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="generating-aggregates-for-each-item-in-a-queryset">
+<h2>Generating aggregates for each item in a <code class="docutils literal"><span class="pre">QuerySet</span></code><a class="headerlink" href="#generating-aggregates-for-each-item-in-a-queryset" title="永久链接至标题">¶</a></h2>
+<p>The second way to generate summary values is to generate an independent
+summary for each object in a <code class="docutils literal"><span class="pre">QuerySet</span></code>. For example, if you are retrieving
+a list of books, you may want to know how many authors contributed to
+each book. Each Book has a many-to-many relationship with the Author; we
+want to summarize this relationship for each book in the <code class="docutils literal"><span class="pre">QuerySet</span></code>.</p>
+<p>Per-object summaries can be generated using the <code class="docutils literal"><span class="pre">annotate()</span></code> clause.
+When an <code class="docutils literal"><span class="pre">annotate()</span></code> clause is specified, each object in the <code class="docutils literal"><span class="pre">QuerySet</span></code>
+will be annotated with the specified values.</p>
+<p>The syntax for these annotations is identical to that used for the
+<code class="docutils literal"><span class="pre">aggregate()</span></code> clause. Each argument to <code class="docutils literal"><span class="pre">annotate()</span></code> describes an
+aggregate that is to be calculated. For example, to annotate books with
+the number of authors:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Build an annotated queryset</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Count</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">q</span> <span class="o">=</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">Count</span><span class="p">(</span><span class="s">&#39;authors&#39;</span><span class="p">))</span>
+<span class="c"># Interrogate the first object in the queryset</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="o">&lt;</span><span class="n">Book</span><span class="p">:</span> <span class="n">The</span> <span class="n">Definitive</span> <span class="n">Guide</span> <span class="n">to</span> <span class="n">Django</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">authors__count</span>
+<span class="mi">2</span>
+<span class="c"># Interrogate the second object in the queryset</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="o">&lt;</span><span class="n">Book</span><span class="p">:</span> <span class="n">Practical</span> <span class="n">Django</span> <span class="n">Projects</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">authors__count</span>
+<span class="mi">1</span>
+</pre></div>
+</div>
+<p>As with <code class="docutils literal"><span class="pre">aggregate()</span></code>, the name for the annotation is automatically derived
+from the name of the aggregate function and the name of the field being
+aggregated. You can override this default name by providing an alias when you
+specify the annotation:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">q</span> <span class="o">=</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">num_authors</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s">&#39;authors&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">num_authors</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">num_authors</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+<p>Unlike <code class="docutils literal"><span class="pre">aggregate()</span></code>, <code class="docutils literal"><span class="pre">annotate()</span></code> is <em>not</em> a terminal clause. The output
+of the <code class="docutils literal"><span class="pre">annotate()</span></code> clause is a <code class="docutils literal"><span class="pre">QuerySet</span></code>; this <code class="docutils literal"><span class="pre">QuerySet</span></code> can be
+modified using any other <code class="docutils literal"><span class="pre">QuerySet</span></code> operation, including <code class="docutils literal"><span class="pre">filter()</span></code>,
+<code class="docutils literal"><span class="pre">order_by()</span></code>, or even additional calls to <code class="docutils literal"><span class="pre">annotate()</span></code>.</p>
+<div class="section" id="combining-multiple-aggregations">
+<span id="id1"></span><h3>Combining multiple aggregations<a class="headerlink" href="#combining-multiple-aggregations" title="永久链接至标题">¶</a></h3>
+<p>Combining multiple aggregations with <code class="docutils literal"><span class="pre">annotate()</span></code> will <a class="reference external" href="https://code.djangoproject.com/ticket/10060">yield the wrong
+results</a> because joins are used
+instead of subqueries:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">book</span> <span class="o">=</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">book</span><span class="o">.</span><span class="n">authors</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">book</span><span class="o">.</span><span class="n">store_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q</span> <span class="o">=</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">Count</span><span class="p">(</span><span class="s">&#39;authors&#39;</span><span class="p">),</span> <span class="n">Count</span><span class="p">(</span><span class="s">&#39;store&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">authors__count</span>
+<span class="go">6</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">store__count</span>
+<span class="go">6</span>
+</pre></div>
+</div>
+<p>For most aggregates, there is no way to avoid this problem, however, the
+<a class="reference internal" href="../../ref/models/querysets.html#django.db.models.Count" title="django.db.models.Count"><code class="xref py py-class docutils literal"><span class="pre">Count</span></code></a> aggregate has a <code class="docutils literal"><span class="pre">distinct</span></code> parameter that
+may help:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">q</span> <span class="o">=</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">Count</span><span class="p">(</span><span class="s">&#39;authors&#39;</span><span class="p">,</span> <span class="n">distinct</span><span class="o">=</span><span class="k">True</span><span class="p">),</span> <span class="n">Count</span><span class="p">(</span><span class="s">&#39;store&#39;</span><span class="p">,</span> <span class="n">distinct</span><span class="o">=</span><span class="k">True</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">authors__count</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">store__count</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<div class="admonition-if-in-doubt-inspect-the-sql-query admonition">
+<p class="first admonition-title">If in doubt, inspect the SQL query!</p>
+<p class="last">In order to understand what happens in your query, consider inspecting the
+<code class="docutils literal"><span class="pre">query</span></code> property of your <code class="docutils literal"><span class="pre">QuerySet</span></code>.</p>
+</div>
+</div>
+</div>
+<div class="section" id="joins-and-aggregates">
+<h2>Joins and aggregates<a class="headerlink" href="#joins-and-aggregates" title="永久链接至标题">¶</a></h2>
+<p>So far, we have dealt with aggregates over fields that belong to the
+model being queried. However, sometimes the value you want to aggregate
+will belong to a model that is related to the model you are querying.</p>
+<p>When specifying the field to be aggregated in an aggregate function, Django
+will allow you to use the same <a class="reference internal" href="queries.html#field-lookups-intro"><span class="std std-ref">double underscore notation</span></a> that is used when referring to related fields in
+filters. Django will then handle any table joins that are required to retrieve
+and aggregate the related value.</p>
+<p>For example, to find the price range of books offered in each store,
+you could use the annotation:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Max</span><span class="p">,</span> <span class="n">Min</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Store</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">min_price</span><span class="o">=</span><span class="n">Min</span><span class="p">(</span><span class="s">&#39;books__price&#39;</span><span class="p">),</span> <span class="n">max_price</span><span class="o">=</span><span class="n">Max</span><span class="p">(</span><span class="s">&#39;books__price&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This tells Django to retrieve the <code class="docutils literal"><span class="pre">Store</span></code> model, join (through the
+many-to-many relationship) with the <code class="docutils literal"><span class="pre">Book</span></code> model, and aggregate on the
+price field of the book model to produce a minimum and maximum value.</p>
+<p>The same rules apply to the <code class="docutils literal"><span class="pre">aggregate()</span></code> clause. If you wanted to
+know the lowest and highest price of any book that is available for sale
+in any of the stores, you could use the aggregate:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Store</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">min_price</span><span class="o">=</span><span class="n">Min</span><span class="p">(</span><span class="s">&#39;books__price&#39;</span><span class="p">),</span> <span class="n">max_price</span><span class="o">=</span><span class="n">Max</span><span class="p">(</span><span class="s">&#39;books__price&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Join chains can be as deep as you require. For example, to extract the
+age of the youngest author of any book available for sale, you could
+issue the query:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Store</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">youngest_age</span><span class="o">=</span><span class="n">Min</span><span class="p">(</span><span class="s">&#39;books__authors__age&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="section" id="following-relationships-backwards">
+<h3>Following relationships backwards<a class="headerlink" href="#following-relationships-backwards" title="永久链接至标题">¶</a></h3>
+<p>In a way similar to <a class="reference internal" href="queries.html#lookups-that-span-relationships"><span class="std std-ref">Lookups that span relationships</span></a>, aggregations and
+annotations on fields of models or models that are related to the one you are
+querying can include traversing “reverse” relationships. The lowercase name
+of related models and double-underscores are used here too.</p>
+<p>For example, we can ask for all publishers, annotated with their respective
+total book stock counters (note how we use <code class="docutils literal"><span class="pre">'book'</span></code> to specify the
+<code class="docutils literal"><span class="pre">Publisher</span></code> -&gt; <code class="docutils literal"><span class="pre">Book</span></code> reverse foreign key hop):</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Count</span><span class="p">,</span> <span class="n">Min</span><span class="p">,</span> <span class="n">Sum</span><span class="p">,</span> <span class="n">Avg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Publisher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">Count</span><span class="p">(</span><span class="s">&#39;book&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>(Every <code class="docutils literal"><span class="pre">Publisher</span></code> in the resulting <code class="docutils literal"><span class="pre">QuerySet</span></code> will have an extra attribute
+called <code class="docutils literal"><span class="pre">book__count</span></code>.)</p>
+<p>We can also ask for the oldest book of any of those managed by every publisher:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Publisher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">oldest_pubdate</span><span class="o">=</span><span class="n">Min</span><span class="p">(</span><span class="s">&#39;book__pubdate&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>(The resulting dictionary will have a key called <code class="docutils literal"><span class="pre">'oldest_pubdate'</span></code>. If no
+such alias were specified, it would be the rather long <code class="docutils literal"><span class="pre">'book__pubdate__min'</span></code>.)</p>
+<p>This doesn’t apply just to foreign keys. It also works with many-to-many
+relations. For example, we can ask for every author, annotated with the total
+number of pages considering all the books the author has (co-)authored (note how we
+use <code class="docutils literal"><span class="pre">'book'</span></code> to specify the <code class="docutils literal"><span class="pre">Author</span></code> -&gt; <code class="docutils literal"><span class="pre">Book</span></code> reverse many-to-many hop):</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">total_pages</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="s">&#39;book__pages&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>(Every <code class="docutils literal"><span class="pre">Author</span></code> in the resulting <code class="docutils literal"><span class="pre">QuerySet</span></code> will have an extra attribute
+called <code class="docutils literal"><span class="pre">total_pages</span></code>. If no such alias were specified, it would be the rather
+long <code class="docutils literal"><span class="pre">book__pages__sum</span></code>.)</p>
+<p>Or ask for the average rating of all the books written by author(s) we have on
+file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">average_rating</span><span class="o">=</span><span class="n">Avg</span><span class="p">(</span><span class="s">&#39;book__rating&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>(The resulting dictionary will have a key called <code class="docutils literal"><span class="pre">'average_rating'</span></code>. If no
+such alias were specified, it would be the rather long <code class="docutils literal"><span class="pre">'book__rating__avg'</span></code>.)</p>
+</div>
+</div>
+<div class="section" id="aggregations-and-other-queryset-clauses">
+<h2>Aggregations and other <code class="docutils literal"><span class="pre">QuerySet</span></code> clauses<a class="headerlink" href="#aggregations-and-other-queryset-clauses" title="永久链接至标题">¶</a></h2>
+<div class="section" id="filter-and-exclude">
+<h3><code class="docutils literal"><span class="pre">filter()</span></code> and <code class="docutils literal"><span class="pre">exclude()</span></code><a class="headerlink" href="#filter-and-exclude" title="永久链接至标题">¶</a></h3>
+<p>Aggregates can also participate in filters. Any <code class="docutils literal"><span class="pre">filter()</span></code> (or
+<code class="docutils literal"><span class="pre">exclude()</span></code>) applied to normal model fields will have the effect of
+constraining the objects that are considered for aggregation.</p>
+<p>When used with an <code class="docutils literal"><span class="pre">annotate()</span></code> clause, a filter has the effect of
+constraining the objects for which an annotation is calculated. For example,
+you can generate an annotated list of all books that have a title starting
+with “Django” using the query:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Count</span><span class="p">,</span> <span class="n">Avg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__startswith</span><span class="o">=</span><span class="s">&quot;Django&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">num_authors</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s">&#39;authors&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>When used with an <code class="docutils literal"><span class="pre">aggregate()</span></code> clause, a filter has the effect of
+constraining the objects over which the aggregate is calculated.
+For example, you can generate the average price of all books with a
+title that starts with “Django” using the query:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__startswith</span><span class="o">=</span><span class="s">&quot;Django&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Avg</span><span class="p">(</span><span class="s">&#39;price&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="section" id="filtering-on-annotations">
+<h4>Filtering on annotations<a class="headerlink" href="#filtering-on-annotations" title="永久链接至标题">¶</a></h4>
+<p>Annotated values can also be filtered. The alias for the annotation can be
+used in <code class="docutils literal"><span class="pre">filter()</span></code> and <code class="docutils literal"><span class="pre">exclude()</span></code> clauses in the same way as any other
+model field.</p>
+<p>For example, to generate a list of books that have more than one author,
+you can issue the query:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">num_authors</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s">&#39;authors&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">num_authors__gt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This query generates an annotated result set, and then generates a filter
+based upon that annotation.</p>
+</div>
+<div class="section" id="order-of-annotate-and-filter-clauses">
+<h4>Order of <code class="docutils literal"><span class="pre">annotate()</span></code> and <code class="docutils literal"><span class="pre">filter()</span></code> clauses<a class="headerlink" href="#order-of-annotate-and-filter-clauses" title="永久链接至标题">¶</a></h4>
+<p>When developing a complex query that involves both <code class="docutils literal"><span class="pre">annotate()</span></code> and
+<code class="docutils literal"><span class="pre">filter()</span></code> clauses, pay particular attention to the order in which the
+clauses are applied to the <code class="docutils literal"><span class="pre">QuerySet</span></code>.</p>
+<p>When an <code class="docutils literal"><span class="pre">annotate()</span></code> clause is applied to a query, the annotation is computed
+over the state of the query up to the point where the annotation is requested.
+The practical implication of this is that <code class="docutils literal"><span class="pre">filter()</span></code> and <code class="docutils literal"><span class="pre">annotate()</span></code> are
+not commutative operations.</p>
+<p>Given:</p>
+<ul class="simple">
+<li>Publisher A has two books with ratings 4 and 5.</li>
+<li>Publisher B has two books with ratings 1 and 4.</li>
+<li>Publisher C has one book with rating 1.</li>
+</ul>
+<p>Here’s an example with the <code class="docutils literal"><span class="pre">Count</span></code> aggregate:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">Publisher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">num_books</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s">&#39;book&#39;</span><span class="p">,</span> <span class="n">distinct</span><span class="o">=</span><span class="k">True</span><span class="p">))</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">book__rating__gt</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">num_books</span>
+<span class="go">(&lt;Publisher: A&gt;, 2)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">num_books</span>
+<span class="go">(&lt;Publisher: B&gt;, 2)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">Publisher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">book__rating__gt</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">num_books</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s">&#39;book&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">num_books</span>
+<span class="go">(&lt;Publisher: A&gt;, 2)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">num_books</span>
+<span class="go">(&lt;Publisher: B&gt;, 1)</span>
+</pre></div>
+</div>
+<p>Both queries return a list of publishers that have at least one book with a
+rating exceeding 3.0, hence publisher C is excluded.</p>
+<p>In the first query, the annotation precedes the filter, so the filter has no
+effect on the annotation. <code class="docutils literal"><span class="pre">distinct=True</span></code> is required to avoid a <a class="reference internal" href="#combining-multiple-aggregations"><span class="std std-ref">query
+bug</span></a>.</p>
+<p>The second query counts the number of books that have a rating exceeding 3.0
+for each publisher. The filter precedes the annotation, so the filter
+constrains the objects considered when calculating the annotation.</p>
+<p>Here’s another example with the <code class="docutils literal"><span class="pre">Avg</span></code> aggregate:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">Publisher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">avg_rating</span><span class="o">=</span><span class="n">Avg</span><span class="p">(</span><span class="s">&#39;book__rating&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">book__rating__gt</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">avg_rating</span>
+<span class="go">(&lt;Publisher: A&gt;, 4.5)  # (5+4)/2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">avg_rating</span>
+<span class="go">(&lt;Publisher: B&gt;, 2.5)  # (1+4)/2</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">Publisher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">book__rating__gt</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">avg_rating</span><span class="o">=</span><span class="n">Avg</span><span class="p">(</span><span class="s">&#39;book__rating&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">avg_rating</span>
+<span class="go">(&lt;Publisher: A&gt;, 4.5)  # (5+4)/2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">avg_rating</span>
+<span class="go">(&lt;Publisher: B&gt;, 4.0)  # 4/1 (book with rating 1 excluded)</span>
+</pre></div>
+</div>
+<p>The first query asks for the average rating of all a publisher’s books for
+publisher’s that have at least one book with a rating exceeding 3.0. The second
+query asks for the average of a publisher’s book’s ratings for only those
+ratings exceeding 3.0.</p>
+<p>It’s difficult to intuit how the ORM will translate complex querysets into SQL
+queries so when in doubt, inspect the SQL with <code class="docutils literal"><span class="pre">str(queryset.query)</span></code> and
+write plenty of tests.</p>
+</div>
+</div>
+<div class="section" id="order-by">
+<h3><code class="docutils literal"><span class="pre">order_by()</span></code><a class="headerlink" href="#order-by" title="永久链接至标题">¶</a></h3>
+<p>Annotations can be used as a basis for ordering. When you
+define an <code class="docutils literal"><span class="pre">order_by()</span></code> clause, the aggregates you provide can reference
+any alias defined as part of an <code class="docutils literal"><span class="pre">annotate()</span></code> clause in the query.</p>
+<p>For example, to order a <code class="docutils literal"><span class="pre">QuerySet</span></code> of books by the number of authors
+that have contributed to the book, you could use the following query:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">num_authors</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s">&#39;authors&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s">&#39;num_authors&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="values">
+<h3><code class="docutils literal"><span class="pre">values()</span></code><a class="headerlink" href="#values" title="永久链接至标题">¶</a></h3>
+<p>Ordinarily, annotations are generated on a per-object basis - an annotated
+<code class="docutils literal"><span class="pre">QuerySet</span></code> will return one result for each object in the original
+<code class="docutils literal"><span class="pre">QuerySet</span></code>. However, when a <code class="docutils literal"><span class="pre">values()</span></code> clause is used to constrain the
+columns that are returned in the result set, the method for evaluating
+annotations is slightly different. Instead of returning an annotated result
+for each result in the original <code class="docutils literal"><span class="pre">QuerySet</span></code>, the original results are
+grouped according to the unique combinations of the fields specified in the
+<code class="docutils literal"><span class="pre">values()</span></code> clause. An annotation is then provided for each unique group;
+the annotation is computed over all members of the group.</p>
+<p>For example, consider an author query that attempts to find out the average
+rating of books written by each author:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">average_rating</span><span class="o">=</span><span class="n">Avg</span><span class="p">(</span><span class="s">&#39;book__rating&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This will return one result for each author in the database, annotated with
+their average book rating.</p>
+<p>However, the result will be slightly different if you use a <code class="docutils literal"><span class="pre">values()</span></code> clause:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">average_rating</span><span class="o">=</span><span class="n">Avg</span><span class="p">(</span><span class="s">&#39;book__rating&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>In this example, the authors will be grouped by name, so you will only get
+an annotated result for each <em>unique</em> author name. This means if you have
+two authors with the same name, their results will be merged into a single
+result in the output of the query; the average will be computed as the
+average over the books written by both authors.</p>
+<div class="section" id="order-of-annotate-and-values-clauses">
+<h4>Order of <code class="docutils literal"><span class="pre">annotate()</span></code> and <code class="docutils literal"><span class="pre">values()</span></code> clauses<a class="headerlink" href="#order-of-annotate-and-values-clauses" title="永久链接至标题">¶</a></h4>
+<p>As with the <code class="docutils literal"><span class="pre">filter()</span></code> clause, the order in which <code class="docutils literal"><span class="pre">annotate()</span></code> and
+<code class="docutils literal"><span class="pre">values()</span></code> clauses are applied to a query is significant. If the
+<code class="docutils literal"><span class="pre">values()</span></code> clause precedes the <code class="docutils literal"><span class="pre">annotate()</span></code>, the annotation will be
+computed using the grouping described by the <code class="docutils literal"><span class="pre">values()</span></code> clause.</p>
+<p>However, if the <code class="docutils literal"><span class="pre">annotate()</span></code> clause precedes the <code class="docutils literal"><span class="pre">values()</span></code> clause,
+the annotations will be generated over the entire query set. In this case,
+the <code class="docutils literal"><span class="pre">values()</span></code> clause only constrains the fields that are generated on
+output.</p>
+<p>For example, if we reverse the order of the <code class="docutils literal"><span class="pre">values()</span></code> and <code class="docutils literal"><span class="pre">annotate()</span></code>
+clause from our previous example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">average_rating</span><span class="o">=</span><span class="n">Avg</span><span class="p">(</span><span class="s">&#39;book__rating&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;average_rating&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will now yield one unique result for each author; however, only
+the author’s name and the <code class="docutils literal"><span class="pre">average_rating</span></code> annotation will be returned
+in the output data.</p>
+<p>You should also note that <code class="docutils literal"><span class="pre">average_rating</span></code> has been explicitly included
+in the list of values to be returned. This is required because of the
+ordering of the <code class="docutils literal"><span class="pre">values()</span></code> and <code class="docutils literal"><span class="pre">annotate()</span></code> clause.</p>
+<p>If the <code class="docutils literal"><span class="pre">values()</span></code> clause precedes the <code class="docutils literal"><span class="pre">annotate()</span></code> clause, any annotations
+will be automatically added to the result set. However, if the <code class="docutils literal"><span class="pre">values()</span></code>
+clause is applied after the <code class="docutils literal"><span class="pre">annotate()</span></code> clause, you need to explicitly
+include the aggregate column.</p>
+</div>
+<div class="section" id="interaction-with-default-ordering-or-order-by">
+<span id="aggregation-ordering-interaction"></span><h4>Interaction with default ordering or <code class="docutils literal"><span class="pre">order_by()</span></code><a class="headerlink" href="#interaction-with-default-ordering-or-order-by" title="永久链接至标题">¶</a></h4>
+<p>Fields that are mentioned in the <code class="docutils literal"><span class="pre">order_by()</span></code> part of a queryset (or which
+are used in the default ordering on a model) are used when selecting the
+output data, even if they are not otherwise specified in the <code class="docutils literal"><span class="pre">values()</span></code>
+call. These extra fields are used to group “like” results together and they
+can make otherwise identical result rows appear to be separate. This shows up,
+particularly, when counting things.</p>
+<p>By way of example, suppose you have a model like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
+
+<span class="k">class</span> <span class="nc">Item</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The important part here is the default ordering on the <code class="docutils literal"><span class="pre">name</span></code> field. If you
+want to count how many times each distinct <code class="docutils literal"><span class="pre">data</span></code> value appears, you might
+try this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="c"># Warning: not quite correct!</span>
+<span class="n">Item</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s">&quot;data&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">Count</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>…which will group the <code class="docutils literal"><span class="pre">Item</span></code> objects by their common <code class="docutils literal"><span class="pre">data</span></code> values and
+then count the number of <code class="docutils literal"><span class="pre">id</span></code> values in each group. Except that it won’t
+quite work. The default ordering by <code class="docutils literal"><span class="pre">name</span></code> will also play a part in the
+grouping, so this query will group by distinct <code class="docutils literal"><span class="pre">(data,</span> <span class="pre">name)</span></code> pairs, which
+isn’t what you want. Instead, you should construct this queryset:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">Item</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s">&quot;data&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">Count</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">order_by</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>…clearing any ordering in the query. You could also order by, say, <code class="docutils literal"><span class="pre">data</span></code>
+without any harmful effects, since that is already playing a role in the
+query.</p>
+<p>This behavior is the same as that noted in the queryset documentation for
+<a class="reference internal" href="../../ref/models/querysets.html#django.db.models.query.QuerySet.distinct" title="django.db.models.query.QuerySet.distinct"><code class="xref py py-meth docutils literal"><span class="pre">distinct()</span></code></a> and the general rule is the
+same: normally you won’t want extra columns playing a part in the result, so
+clear out the ordering, or at least make sure it’s restricted only to those
+fields you also select in a <code class="docutils literal"><span class="pre">values()</span></code> call.</p>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last">You might reasonably ask why Django doesn’t remove the extraneous columns
+for you. The main reason is consistency with <code class="docutils literal"><span class="pre">distinct()</span></code> and other
+places: Django <strong>never</strong> removes ordering constraints that you have
+specified (and we can’t change those other methods’ behavior, as that
+would violate our <a class="reference internal" href="../../misc/api-stability.html"><span class="doc">API stability</span></a> policy).</p>
+</div>
+</div>
+</div>
+<div class="section" id="aggregating-annotations">
+<h3>Aggregating annotations<a class="headerlink" href="#aggregating-annotations" title="永久链接至标题">¶</a></h3>
+<p>You can also generate an aggregate on the result of an annotation. When you
+define an <code class="docutils literal"><span class="pre">aggregate()</span></code> clause, the aggregates you provide can reference
+any alias defined as part of an <code class="docutils literal"><span class="pre">annotate()</span></code> clause in the query.</p>
+<p>For example, if you wanted to calculate the average number of authors per
+book you first annotate the set of books with the author count, then
+aggregate that author count, referencing the annotation field:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Count</span><span class="p">,</span> <span class="n">Avg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">num_authors</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s">&#39;authors&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Avg</span><span class="p">(</span><span class="s">&#39;num_authors&#39;</span><span class="p">))</span>
+<span class="go">{&#39;num_authors__avg&#39;: 1.66}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

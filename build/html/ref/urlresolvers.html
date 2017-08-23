@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.urls utility functions &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="docutils literal"><span class="pre">django.urls</span></code> utility functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/ref/urlresolvers.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-django.urls">
+<span id="django-urls-utility-functions"></span><h1><code class="docutils literal"><span class="pre">django.urls</span></code> utility functions<a class="headerlink" href="#module-django.urls" title="永久链接至标题">¶</a></h1>
+<div class="deprecated">
+<p><span class="versionmodified">1.10 版后已移除: </span>In older versions, these functions are located in
+<code class="docutils literal"><span class="pre">django.core.urlresolvers</span></code>. Importing from the old location will continue
+to work until Django 2.0.</p>
+</div>
+<div class="section" id="reverse">
+<h2><code class="docutils literal"><span class="pre">reverse()</span></code><a class="headerlink" href="#reverse" title="永久链接至标题">¶</a></h2>
+<p>If you need to use something similar to the <a class="reference internal" href="templates/builtins.html#std:templatetag-url"><code class="xref std std-ttag docutils literal"><span class="pre">url</span></code></a> template tag in
+your code, Django provides the following function:</p>
+<dl class="function">
+<dt id="django.urls.reverse">
+<code class="descclassname">django.urls.</code><code class="descname">reverse</code><span class="sig-paren">(</span><em>viewname</em>, <em>urlconf=None</em>, <em>args=None</em>, <em>kwargs=None</em>, <em>current_app=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/urls/base.html#reverse"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.urls.reverse" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><code class="docutils literal"><span class="pre">viewname</span></code> can be a <a class="reference internal" href="../topics/http/urls.html#naming-url-patterns"><span class="std std-ref">URL pattern name</span></a> or the
+callable view object. For example, given the following <code class="docutils literal"><span class="pre">url</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">news</span> <span class="k">import</span> <span class="n">views</span>
+
+<span class="n">url</span><span class="p">(</span><span class="s">r&#39;^archive/$&#39;</span><span class="p">,</span> <span class="n">views</span><span class="o">.</span><span class="n">archive</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;news-archive&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>you can use any of the following to reverse the URL:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="c"># using the named URL</span>
+<span class="n">reverse</span><span class="p">(</span><span class="s">&#39;news-archive&#39;</span><span class="p">)</span>
+
+<span class="c"># passing a callable object</span>
+<span class="c"># (This is discouraged because you can&#39;t reverse namespaced views this way.)</span>
+<span class="kn">from</span> <span class="nn">news</span> <span class="k">import</span> <span class="n">views</span>
+<span class="n">reverse</span><span class="p">(</span><span class="n">views</span><span class="o">.</span><span class="n">archive</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If the URL accepts arguments, you may pass them in <code class="docutils literal"><span class="pre">args</span></code>. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
+
+<span class="k">def</span> <span class="nf">myview</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s">&#39;arch-summary&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="mi">1945</span><span class="p">]))</span>
+</pre></div>
+</div>
+<p>You can also pass <code class="docutils literal"><span class="pre">kwargs</span></code> instead of <code class="docutils literal"><span class="pre">args</span></code>. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">reverse</span><span class="p">(</span><span class="s">&#39;admin:app_list&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;app_label&#39;</span><span class="p">:</span> <span class="s">&#39;auth&#39;</span><span class="p">})</span>
+<span class="go">&#39;/admin/auth/&#39;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">args</span></code> and <code class="docutils literal"><span class="pre">kwargs</span></code> cannot be passed to <code class="docutils literal"><span class="pre">reverse()</span></code> at the same time.</p>
+<p>If no match can be made, <code class="docutils literal"><span class="pre">reverse()</span></code> raises a
+<a class="reference internal" href="exceptions.html#django.urls.NoReverseMatch" title="django.urls.NoReverseMatch"><code class="xref py py-class docutils literal"><span class="pre">NoReverseMatch</span></code></a> exception.</p>
+<p>The <code class="docutils literal"><span class="pre">reverse()</span></code> function can reverse a large variety of regular expression
+patterns for URLs, but not every possible one. The main restriction at the
+moment is that the pattern cannot contain alternative choices using the
+vertical bar (<code class="docutils literal"><span class="pre">&quot;|&quot;</span></code>) character. You can quite happily use such patterns for
+matching against incoming URLs and sending them off to views, but you cannot
+reverse such patterns.</p>
+<p>The <code class="docutils literal"><span class="pre">current_app</span></code> argument allows you to provide a hint to the resolver
+indicating the application to which the currently executing view belongs.
+This <code class="docutils literal"><span class="pre">current_app</span></code> argument is used as a hint to resolve application
+namespaces into URLs on specific application instances, according to the
+<a class="reference internal" href="../topics/http/urls.html#topics-http-reversing-url-namespaces"><span class="std std-ref">namespaced URL resolution strategy</span></a>.</p>
+<p>The <code class="docutils literal"><span class="pre">urlconf</span></code> argument is the URLconf module containing the URL patterns to
+use for reversing. By default, the root URLconf for the current thread is used.</p>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p>The string returned by <code class="docutils literal"><span class="pre">reverse()</span></code> is already
+<a class="reference internal" href="unicode.html#uri-and-iri-handling"><span class="std std-ref">urlquoted</span></a>. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">reverse</span><span class="p">(</span><span class="s">&#39;cities&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;Orléans&#39;</span><span class="p">])</span>
+<span class="go">&#39;.../Orl%C3%A9ans/&#39;</span>
+</pre></div>
+</div>
+<p class="last">Applying further encoding (such as <a class="reference internal" href="utils.html#django.utils.http.urlquote" title="django.utils.http.urlquote"><code class="xref py py-meth docutils literal"><span class="pre">urlquote()</span></code></a> or
+<code class="docutils literal"><span class="pre">urllib.quote</span></code>) to the output of <code class="docutils literal"><span class="pre">reverse()</span></code> may produce undesirable
+results.</p>
+</div>
+</div>
+<div class="section" id="reverse-lazy">
+<h2><code class="docutils literal"><span class="pre">reverse_lazy()</span></code><a class="headerlink" href="#reverse-lazy" title="永久链接至标题">¶</a></h2>
+<p>A lazily evaluated version of <a class="reference internal" href="#reverse">reverse()</a>.</p>
+<dl class="function">
+<dt id="django.urls.reverse_lazy">
+<code class="descclassname">django.urls.</code><code class="descname">reverse_lazy</code><span class="sig-paren">(</span><em>viewname</em>, <em>urlconf=None</em>, <em>args=None</em>, <em>kwargs=None</em>, <em>current_app=None</em><span class="sig-paren">)</span><a class="headerlink" href="#django.urls.reverse_lazy" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>It is useful for when you need to use a URL reversal before your project’s
+URLConf is loaded. Some common cases where this function is necessary are:</p>
+<ul class="simple">
+<li>providing a reversed URL as the <code class="docutils literal"><span class="pre">url</span></code> attribute of a generic class-based
+view.</li>
+<li>providing a reversed URL to a decorator (such as the <code class="docutils literal"><span class="pre">login_url</span></code> argument
+for the <a class="reference internal" href="../topics/auth/default.html#django.contrib.auth.decorators.permission_required" title="django.contrib.auth.decorators.permission_required"><code class="xref py py-func docutils literal"><span class="pre">django.contrib.auth.decorators.permission_required()</span></code></a>
+decorator).</li>
+<li>providing a reversed URL as a default value for a parameter in a function’s
+signature.</li>
+</ul>
+</div>
+<div class="section" id="resolve">
+<h2><code class="docutils literal"><span class="pre">resolve()</span></code><a class="headerlink" href="#resolve" title="永久链接至标题">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">resolve()</span></code> function can be used for resolving URL paths to the
+corresponding view functions. It has the following signature:</p>
+<dl class="function">
+<dt id="django.urls.resolve">
+<code class="descclassname">django.urls.</code><code class="descname">resolve</code><span class="sig-paren">(</span><em>path</em>, <em>urlconf=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/urls/base.html#resolve"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.urls.resolve" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><code class="docutils literal"><span class="pre">path</span></code> is the URL path you want to resolve. As with
+<a class="reference internal" href="#django.urls.reverse" title="django.urls.reverse"><code class="xref py py-func docutils literal"><span class="pre">reverse()</span></code></a>, you don’t need to worry about the <code class="docutils literal"><span class="pre">urlconf</span></code>
+parameter. The function returns a <a class="reference internal" href="#django.urls.ResolverMatch" title="django.urls.ResolverMatch"><code class="xref py py-class docutils literal"><span class="pre">ResolverMatch</span></code></a> object that allows you
+to access various metadata about the resolved URL.</p>
+<p>If the URL does not resolve, the function raises a
+<a class="reference internal" href="exceptions.html#django.urls.Resolver404" title="django.urls.Resolver404"><code class="xref py py-exc docutils literal"><span class="pre">Resolver404</span></code></a> exception (a subclass of
+<a class="reference internal" href="../topics/http/views.html#django.http.Http404" title="django.http.Http404"><code class="xref py py-class docutils literal"><span class="pre">Http404</span></code></a>) .</p>
+<dl class="class">
+<dt id="django.urls.ResolverMatch">
+<em class="property">class </em><code class="descclassname">django.urls.</code><code class="descname">ResolverMatch</code><a class="reference internal" href="../_modules/django/urls/resolvers.html#ResolverMatch"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.urls.ResolverMatch" title="永久链接至目标">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="django.urls.ResolverMatch.func">
+<code class="descname">func</code><a class="headerlink" href="#django.urls.ResolverMatch.func" title="永久链接至目标">¶</a></dt>
+<dd><p>The view function that would be used to serve the URL</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.urls.ResolverMatch.args">
+<code class="descname">args</code><a class="headerlink" href="#django.urls.ResolverMatch.args" title="永久链接至目标">¶</a></dt>
+<dd><p>The arguments that would be passed to the view function, as
+parsed from the URL.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.urls.ResolverMatch.kwargs">
+<code class="descname">kwargs</code><a class="headerlink" href="#django.urls.ResolverMatch.kwargs" title="永久链接至目标">¶</a></dt>
+<dd><p>The keyword arguments that would be passed to the view
+function, as parsed from the URL.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.urls.ResolverMatch.url_name">
+<code class="descname">url_name</code><a class="headerlink" href="#django.urls.ResolverMatch.url_name" title="永久链接至目标">¶</a></dt>
+<dd><p>The name of the URL pattern that matches the URL.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.urls.ResolverMatch.app_name">
+<code class="descname">app_name</code><a class="headerlink" href="#django.urls.ResolverMatch.app_name" title="永久链接至目标">¶</a></dt>
+<dd><p>The application namespace for the URL pattern that matches the
+URL.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.urls.ResolverMatch.app_names">
+<code class="descname">app_names</code><a class="headerlink" href="#django.urls.ResolverMatch.app_names" title="永久链接至目标">¶</a></dt>
+<dd><div class="versionadded">
+</div>
+<p>The list of individual namespace components in the full
+application namespace for the URL pattern that matches the URL.
+For example, if the <code class="docutils literal"><span class="pre">app_name</span></code> is <code class="docutils literal"><span class="pre">'foo:bar'</span></code>, then <code class="docutils literal"><span class="pre">app_names</span></code>
+will be <code class="docutils literal"><span class="pre">['foo',</span> <span class="pre">'bar']</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.urls.ResolverMatch.namespace">
+<code class="descname">namespace</code><a class="headerlink" href="#django.urls.ResolverMatch.namespace" title="永久链接至目标">¶</a></dt>
+<dd><p>The instance namespace for the URL pattern that matches the
+URL.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.urls.ResolverMatch.namespaces">
+<code class="descname">namespaces</code><a class="headerlink" href="#django.urls.ResolverMatch.namespaces" title="永久链接至目标">¶</a></dt>
+<dd><p>The list of individual namespace components in the full
+instance namespace for the URL pattern that matches the URL.
+i.e., if the namespace is <code class="docutils literal"><span class="pre">foo:bar</span></code>, then namespaces will be
+<code class="docutils literal"><span class="pre">['foo',</span> <span class="pre">'bar']</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.urls.ResolverMatch.view_name">
+<code class="descname">view_name</code><a class="headerlink" href="#django.urls.ResolverMatch.view_name" title="永久链接至目标">¶</a></dt>
+<dd><p>The name of the view that matches the URL, including the namespace if
+there is one.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>A <a class="reference internal" href="#django.urls.ResolverMatch" title="django.urls.ResolverMatch"><code class="xref py py-class docutils literal"><span class="pre">ResolverMatch</span></code></a> object can then be interrogated to provide
+information about the URL pattern that matches a URL:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="c"># Resolve a URL</span>
+<span class="n">match</span> <span class="o">=</span> <span class="n">resolve</span><span class="p">(</span><span class="s">&#39;/some/path/&#39;</span><span class="p">)</span>
+<span class="c"># Print the URL pattern that matches the URL</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">url_name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A <a class="reference internal" href="#django.urls.ResolverMatch" title="django.urls.ResolverMatch"><code class="xref py py-class docutils literal"><span class="pre">ResolverMatch</span></code></a> object can also be assigned to a triple:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">resolve</span><span class="p">(</span><span class="s">&#39;/some/path/&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>One possible use of <a class="reference internal" href="#django.urls.resolve" title="django.urls.resolve"><code class="xref py py-func docutils literal"><span class="pre">resolve()</span></code></a> would be to test whether a
+view would raise a <code class="docutils literal"><span class="pre">Http404</span></code> error before redirecting to it:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">resolve</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpResponseRedirect</span><span class="p">,</span> <span class="n">Http404</span>
+<span class="kn">from</span> <span class="nn">django.utils.six.moves.urllib.parse</span> <span class="k">import</span> <span class="n">urlparse</span>
+
+<span class="k">def</span> <span class="nf">myview</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="nb">next</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;HTTP_REFERER&#39;</span><span class="p">,</span> <span class="k">None</span><span class="p">)</span> <span class="ow">or</span> <span class="s">&#39;/&#39;</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="nb">next</span><span class="p">)</span>
+
+    <span class="c"># modify the request and response as required, e.g. change locale</span>
+    <span class="c"># and set corresponding locale cookie</span>
+
+    <span class="n">view</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">resolve</span><span class="p">(</span><span class="n">urlparse</span><span class="p">(</span><span class="nb">next</span><span class="p">)[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;request&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">request</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">view</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">Http404</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">response</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-script-prefix">
+<h2><code class="docutils literal"><span class="pre">get_script_prefix()</span></code><a class="headerlink" href="#get-script-prefix" title="永久链接至标题">¶</a></h2>
+<dl class="function">
+<dt id="django.urls.get_script_prefix">
+<code class="descclassname">django.urls.</code><code class="descname">get_script_prefix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/urls/base.html#get_script_prefix"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.urls.get_script_prefix" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>Normally, you should always use <a class="reference internal" href="#django.urls.reverse" title="django.urls.reverse"><code class="xref py py-func docutils literal"><span class="pre">reverse()</span></code></a> to define URLs
+within your application. However, if your application constructs part of the
+URL hierarchy itself, you may occasionally need to generate URLs. In that
+case, you need to be able to find the base URL of the Django project within
+its Web server (normally, <a class="reference internal" href="#django.urls.reverse" title="django.urls.reverse"><code class="xref py py-func docutils literal"><span class="pre">reverse()</span></code></a> takes care of this for
+you). In that case, you can call <code class="docutils literal"><span class="pre">get_script_prefix()</span></code>, which will return
+the script prefix portion of the URL for your Django project. If your Django
+project is at the root of its web server, this is always <code class="docutils literal"><span class="pre">&quot;/&quot;</span></code>.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

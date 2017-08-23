@@ -1,0 +1,443 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.core.files.uploadhandler &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../../index.html"/>
+        <link rel="up" title="django" href="../../../django.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../../django.html">django</a> &raquo;</li>
+        
+      <li>django.core.files.uploadhandler</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.core.files.uploadhandler 源代码</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Base file upload handler classes, and the built-in concrete subclasses</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">BytesIO</span>
+
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.core.files.uploadedfile</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">InMemoryUploadedFile</span><span class="p">,</span> <span class="n">TemporaryUploadedFile</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">django.utils.encoding</span> <span class="k">import</span> <span class="n">python_2_unicode_compatible</span>
+<span class="kn">from</span> <span class="nn">django.utils.module_loading</span> <span class="k">import</span> <span class="n">import_string</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&#39;UploadFileException&#39;</span><span class="p">,</span> <span class="s">&#39;StopUpload&#39;</span><span class="p">,</span> <span class="s">&#39;SkipFile&#39;</span><span class="p">,</span> <span class="s">&#39;FileUploadHandler&#39;</span><span class="p">,</span>
+    <span class="s">&#39;TemporaryFileUploadHandler&#39;</span><span class="p">,</span> <span class="s">&#39;MemoryFileUploadHandler&#39;</span><span class="p">,</span> <span class="s">&#39;load_handler&#39;</span><span class="p">,</span>
+    <span class="s">&#39;StopFutureHandlers&#39;</span>
+<span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">UploadFileException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Any error having to do with uploading files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@python_2_unicode_compatible</span>
+<span class="k">class</span> <span class="nc">StopUpload</span><span class="p">(</span><span class="n">UploadFileException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This exception is raised when an upload must abort.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection_reset</span><span class="o">=</span><span class="k">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If ``connection_reset`` is ``True``, Django knows will halt the upload</span>
+<span class="sd">        without consuming the rest of the upload. This will cause the browser to</span>
+<span class="sd">        show a &quot;connection reset&quot; error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection_reset</span> <span class="o">=</span> <span class="n">connection_reset</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection_reset</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&#39;StopUpload: Halt current upload.&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&#39;StopUpload: Consume request data, then halt.&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">SkipFile</span><span class="p">(</span><span class="n">UploadFileException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This exception is raised by an upload handler that wants to skip a given file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">StopFutureHandlers</span><span class="p">(</span><span class="n">UploadFileException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Upload handers that have handled a file and do not want future handlers to</span>
+<span class="sd">    run should raise this exception instead of returning None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="FileUploadHandler"><a class="viewcode-back" href="../../../../ref/files/uploads.html#django.core.files.uploadhandler.FileUploadHandler">[文档]</a><span class="k">class</span> <span class="nc">FileUploadHandler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for streaming upload handlers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">chunk_size</span> <span class="o">=</span> <span class="mi">64</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">10</span>  <span class="c"># : The default chunk size is 64 KB.</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="k">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="k">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content_length</span> <span class="o">=</span> <span class="k">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">charset</span> <span class="o">=</span> <span class="k">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content_type_extra</span> <span class="o">=</span> <span class="k">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
+
+<div class="viewcode-block" id="FileUploadHandler.handle_raw_input"><a class="viewcode-back" href="../../../../ref/files/uploads.html#django.core.files.uploadhandler.FileUploadHandler.handle_raw_input">[文档]</a>    <span class="k">def</span> <span class="nf">handle_raw_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">META</span><span class="p">,</span> <span class="n">content_length</span><span class="p">,</span> <span class="n">boundary</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle the raw input from the client.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">            :input_data:</span>
+<span class="sd">                An object that supports reading via .read().</span>
+<span class="sd">            :META:</span>
+<span class="sd">                ``request.META``.</span>
+<span class="sd">            :content_length:</span>
+<span class="sd">                The (integer) value of the Content-Length header from the</span>
+<span class="sd">                client.</span>
+<span class="sd">            :boundary: The boundary from the Content-Type header. Be sure to</span>
+<span class="sd">                prepend two &#39;--&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="FileUploadHandler.new_file"><a class="viewcode-back" href="../../../../ref/files/uploads.html#django.core.files.uploadhandler.FileUploadHandler.new_file">[文档]</a>    <span class="k">def</span> <span class="nf">new_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">content_type</span><span class="p">,</span> <span class="n">content_length</span><span class="p">,</span> <span class="n">charset</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">content_type_extra</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Signal that a new file has been started.</span>
+
+<span class="sd">        Warning: As with any data from the client, you should not trust</span>
+<span class="sd">        content_length (and sometimes won&#39;t even get it).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span> <span class="o">=</span> <span class="n">field_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">file_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="n">content_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content_length</span> <span class="o">=</span> <span class="n">content_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">charset</span> <span class="o">=</span> <span class="n">charset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content_type_extra</span> <span class="o">=</span> <span class="n">content_type_extra</span></div>
+
+<div class="viewcode-block" id="FileUploadHandler.receive_data_chunk"><a class="viewcode-back" href="../../../../ref/files/uploads.html#django.core.files.uploadhandler.FileUploadHandler.receive_data_chunk">[文档]</a>    <span class="k">def</span> <span class="nf">receive_data_chunk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">,</span> <span class="n">start</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Receive data from the streamed upload parser. ``start`` is the position</span>
+<span class="sd">        in the file of the chunk.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;subclasses of FileUploadHandler must provide a receive_data_chunk() method&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FileUploadHandler.file_complete"><a class="viewcode-back" href="../../../../ref/files/uploads.html#django.core.files.uploadhandler.FileUploadHandler.file_complete">[文档]</a>    <span class="k">def</span> <span class="nf">file_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_size</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Signal that a file has completed. File size corresponds to the actual</span>
+<span class="sd">        size accumulated by all the chunks.</span>
+
+<span class="sd">        Subclasses should return a valid ``UploadedFile`` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;subclasses of FileUploadHandler must provide a file_complete() method&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FileUploadHandler.upload_complete"><a class="viewcode-back" href="../../../../ref/files/uploads.html#django.core.files.uploadhandler.FileUploadHandler.upload_complete">[文档]</a>    <span class="k">def</span> <span class="nf">upload_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Signal that the upload is complete. Subclasses should perform cleanup</span>
+<span class="sd">        that is necessary for this handler.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div></div>
+
+
+<div class="viewcode-block" id="TemporaryFileUploadHandler"><a class="viewcode-back" href="../../../../ref/files/uploads.html#django.core.files.uploadhandler.TemporaryFileUploadHandler">[文档]</a><span class="k">class</span> <span class="nc">TemporaryFileUploadHandler</span><span class="p">(</span><span class="n">FileUploadHandler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Upload handler that streams data into a temporary file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TemporaryFileUploadHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">new_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the file object to append to as data is coming in.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TemporaryFileUploadHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">new_file</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">TemporaryUploadedFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">content_type</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">charset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">content_type_extra</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">receive_data_chunk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">,</span> <span class="n">start</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">raw_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">file_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_size</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">file_size</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span></div>
+
+
+<div class="viewcode-block" id="MemoryFileUploadHandler"><a class="viewcode-back" href="../../../../ref/files/uploads.html#django.core.files.uploadhandler.MemoryFileUploadHandler">[文档]</a><span class="k">class</span> <span class="nc">MemoryFileUploadHandler</span><span class="p">(</span><span class="n">FileUploadHandler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    File upload handler to stream uploads into memory (used for small files).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">handle_raw_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">META</span><span class="p">,</span> <span class="n">content_length</span><span class="p">,</span> <span class="n">boundary</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use the content_length to signal whether or not this handler should be in use.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Check the content-length header to see if we should</span>
+        <span class="c"># If the post is too large, we cannot use the Memory handler.</span>
+        <span class="k">if</span> <span class="n">content_length</span> <span class="o">&gt;</span> <span class="n">settings</span><span class="o">.</span><span class="n">FILE_UPLOAD_MAX_MEMORY_SIZE</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">activated</span> <span class="o">=</span> <span class="k">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">activated</span> <span class="o">=</span> <span class="k">True</span>
+
+    <span class="k">def</span> <span class="nf">new_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MemoryFileUploadHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">new_file</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">activated</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">StopFutureHandlers</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">receive_data_chunk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">,</span> <span class="n">start</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the data to the BytesIO file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">activated</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">raw_data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">raw_data</span>
+
+    <span class="k">def</span> <span class="nf">file_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_size</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a file object if we&#39;re activated.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">activated</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">InMemoryUploadedFile</span><span class="p">(</span>
+            <span class="n">file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">,</span>
+            <span class="n">field_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span>
+            <span class="n">content_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">content_type</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">file_size</span><span class="p">,</span>
+            <span class="n">charset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">charset</span><span class="p">,</span>
+            <span class="n">content_type_extra</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">content_type_extra</span>
+        <span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">load_handler</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a path to a handler, return an instance of that handler.</span>
+
+<span class="sd">    E.g.::</span>
+<span class="sd">        &gt;&gt;&gt; from django.http import HttpRequest</span>
+<span class="sd">        &gt;&gt;&gt; request = HttpRequest()</span>
+<span class="sd">        &gt;&gt;&gt; load_handler(&#39;django.core.files.uploadhandler.TemporaryFileUploadHandler&#39;, request)</span>
+<span class="sd">        &lt;TemporaryFileUploadHandler object at 0x...&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">import_string</span><span class="p">(</span><span class="n">path</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

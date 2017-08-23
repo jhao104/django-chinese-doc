@@ -1,0 +1,526 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>unittest.suite &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/>
+        <link rel="up" title="模块代码" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">模块代码</a> &raquo;</li>
+        
+      <li>unittest.suite</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>unittest.suite 源代码</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;TestSuite&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">case</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">util</span>
+
+<span class="n">__unittest</span> <span class="o">=</span> <span class="k">True</span>
+
+
+<span class="k">def</span> <span class="nf">_call_if_exists</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="k">None</span><span class="p">)</span>
+    <span class="n">func</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">BaseTestSuite</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A simple test suite that doesn&#39;t provide class or module shared fixtures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tests</span><span class="o">=</span><span class="p">()):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tests</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addTests</span><span class="p">(</span><span class="n">tests</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;&lt;%s tests=%s&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">strclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
+
+    <span class="c"># Can&#39;t guarantee hash invariant, so flag as unhashable</span>
+    <span class="n">__hash__</span> <span class="o">=</span> <span class="k">None</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tests</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">countTestCases</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cases</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">cases</span> <span class="o">+=</span> <span class="n">test</span><span class="o">.</span><span class="n">countTestCases</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">cases</span>
+
+    <span class="k">def</span> <span class="nf">addTest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
+        <span class="c"># sanity checks</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="s">&#39;__call__&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;{} is not callable&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">test</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">test</span><span class="p">,</span>
+                                                 <span class="p">(</span><span class="n">case</span><span class="o">.</span><span class="n">TestCase</span><span class="p">,</span> <span class="n">TestSuite</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;TestCases and TestSuites must be instantiated &quot;</span>
+                            <span class="s">&quot;before passing them to addTest()&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tests</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">addTests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tests</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tests</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;tests must be an iterable of tests, not a string&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="n">tests</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">addTest</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">shouldStop</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">test</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run the tests without collecting errors in a TestResult&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">test</span><span class="o">.</span><span class="n">debug</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">TestSuite</span><span class="p">(</span><span class="n">BaseTestSuite</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A test suite is a composite test consisting of a number of TestCases.</span>
+
+<span class="sd">    For use, create an instance of TestSuite, then add test case instances.</span>
+<span class="sd">    When all tests have been added, the suite can be passed to a test</span>
+<span class="sd">    runner, such as TextTestRunner. It will run the individual test cases</span>
+<span class="sd">    in the order in which they were added, aggregating the results. When</span>
+<span class="sd">    subclassing, do not forget to call the base class constructor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="k">False</span><span class="p">):</span>
+        <span class="n">topLevel</span> <span class="o">=</span> <span class="k">False</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;_testRunEntered&#39;</span><span class="p">,</span> <span class="k">False</span><span class="p">)</span> <span class="ow">is</span> <span class="k">False</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">_testRunEntered</span> <span class="o">=</span> <span class="n">topLevel</span> <span class="o">=</span> <span class="k">True</span>
+
+        <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">shouldStop</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">_isnotsuite</span><span class="p">(</span><span class="n">test</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tearDownPreviousClass</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_handleModuleFixture</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_handleClassSetUp</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">_previousTestClass</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">__class__</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="s">&#39;_classSetupFailed&#39;</span><span class="p">,</span> <span class="k">False</span><span class="p">)</span> <span class="ow">or</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;_moduleSetUpFailed&#39;</span><span class="p">,</span> <span class="k">False</span><span class="p">)):</span>
+                    <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">debug</span><span class="p">:</span>
+                <span class="n">test</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">test</span><span class="o">.</span><span class="n">debug</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">topLevel</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tearDownPreviousClass</span><span class="p">(</span><span class="k">None</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_handleModuleTearDown</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">_testRunEntered</span> <span class="o">=</span> <span class="k">False</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run the tests without collecting errors in a TestResult&quot;&quot;&quot;</span>
+        <span class="n">debug</span> <span class="o">=</span> <span class="n">_DebugResult</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="p">,</span> <span class="k">True</span><span class="p">)</span>
+
+    <span class="c">################################</span>
+
+    <span class="k">def</span> <span class="nf">_handleClassSetUp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+        <span class="n">previousClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;_previousTestClass&#39;</span><span class="p">,</span> <span class="k">None</span><span class="p">)</span>
+        <span class="n">currentClass</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">__class__</span>
+        <span class="k">if</span> <span class="n">currentClass</span> <span class="o">==</span> <span class="n">previousClass</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">_moduleSetUpFailed</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">currentClass</span><span class="p">,</span> <span class="s">&quot;__unittest_skip__&quot;</span><span class="p">,</span> <span class="k">False</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">currentClass</span><span class="o">.</span><span class="n">_classSetupFailed</span> <span class="o">=</span> <span class="k">False</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="c"># test may actually be a function</span>
+            <span class="c"># so its class will be a builtin-type</span>
+            <span class="k">pass</span>
+
+        <span class="n">setUpClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">currentClass</span><span class="p">,</span> <span class="s">&#39;setUpClass&#39;</span><span class="p">,</span> <span class="k">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">setUpClass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="n">_call_if_exists</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;_setupStdout&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">setUpClass</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_DebugResult</span><span class="p">):</span>
+                    <span class="k">raise</span>
+                <span class="n">currentClass</span><span class="o">.</span><span class="n">_classSetupFailed</span> <span class="o">=</span> <span class="k">True</span>
+                <span class="n">className</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">strclass</span><span class="p">(</span><span class="n">currentClass</span><span class="p">)</span>
+                <span class="n">errorName</span> <span class="o">=</span> <span class="s">&#39;setUpClass (%s)&#39;</span> <span class="o">%</span> <span class="n">className</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_addClassOrModuleLevelException</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">errorName</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">_call_if_exists</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;_restoreStdout&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_previous_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+        <span class="n">previousModule</span> <span class="o">=</span> <span class="k">None</span>
+        <span class="n">previousClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;_previousTestClass&#39;</span><span class="p">,</span> <span class="k">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">previousClass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="n">previousModule</span> <span class="o">=</span> <span class="n">previousClass</span><span class="o">.</span><span class="n">__module__</span>
+        <span class="k">return</span> <span class="n">previousModule</span>
+
+
+    <span class="k">def</span> <span class="nf">_handleModuleFixture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+        <span class="n">previousModule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_previous_module</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">currentModule</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span>
+        <span class="k">if</span> <span class="n">currentModule</span> <span class="o">==</span> <span class="n">previousModule</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handleModuleTearDown</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="n">result</span><span class="o">.</span><span class="n">_moduleSetUpFailed</span> <span class="o">=</span> <span class="k">False</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">currentModule</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">setUpModule</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s">&#39;setUpModule&#39;</span><span class="p">,</span> <span class="k">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">setUpModule</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="n">_call_if_exists</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;_setupStdout&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">setUpModule</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_DebugResult</span><span class="p">):</span>
+                    <span class="k">raise</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">_moduleSetUpFailed</span> <span class="o">=</span> <span class="k">True</span>
+                <span class="n">errorName</span> <span class="o">=</span> <span class="s">&#39;setUpModule (%s)&#39;</span> <span class="o">%</span> <span class="n">currentModule</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_addClassOrModuleLevelException</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">errorName</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">_call_if_exists</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;_restoreStdout&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_addClassOrModuleLevelException</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">exception</span><span class="p">,</span> <span class="n">errorName</span><span class="p">):</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">_ErrorHolder</span><span class="p">(</span><span class="n">errorName</span><span class="p">)</span>
+        <span class="n">addSkip</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;addSkip&#39;</span><span class="p">,</span> <span class="k">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">addSkip</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exception</span><span class="p">,</span> <span class="n">case</span><span class="o">.</span><span class="n">SkipTest</span><span class="p">):</span>
+            <span class="n">addSkip</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exception</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">addError</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_handleModuleTearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+        <span class="n">previousModule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_previous_module</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">previousModule</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">_moduleSetUpFailed</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">previousModule</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">tearDownModule</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s">&#39;tearDownModule&#39;</span><span class="p">,</span> <span class="k">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tearDownModule</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="n">_call_if_exists</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;_setupStdout&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">tearDownModule</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_DebugResult</span><span class="p">):</span>
+                    <span class="k">raise</span>
+                <span class="n">errorName</span> <span class="o">=</span> <span class="s">&#39;tearDownModule (%s)&#39;</span> <span class="o">%</span> <span class="n">previousModule</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_addClassOrModuleLevelException</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">errorName</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">_call_if_exists</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;_restoreStdout&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_tearDownPreviousClass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+        <span class="n">previousClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;_previousTestClass&#39;</span><span class="p">,</span> <span class="k">None</span><span class="p">)</span>
+        <span class="n">currentClass</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">__class__</span>
+        <span class="k">if</span> <span class="n">currentClass</span> <span class="o">==</span> <span class="n">previousClass</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">previousClass</span><span class="p">,</span> <span class="s">&#39;_classSetupFailed&#39;</span><span class="p">,</span> <span class="k">False</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;_moduleSetUpFailed&#39;</span><span class="p">,</span> <span class="k">False</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">previousClass</span><span class="p">,</span> <span class="s">&quot;__unittest_skip__&quot;</span><span class="p">,</span> <span class="k">False</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="n">tearDownClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">previousClass</span><span class="p">,</span> <span class="s">&#39;tearDownClass&#39;</span><span class="p">,</span> <span class="k">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tearDownClass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="n">_call_if_exists</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;_setupStdout&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">tearDownClass</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_DebugResult</span><span class="p">):</span>
+                    <span class="k">raise</span>
+                <span class="n">className</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">strclass</span><span class="p">(</span><span class="n">previousClass</span><span class="p">)</span>
+                <span class="n">errorName</span> <span class="o">=</span> <span class="s">&#39;tearDownClass (%s)&#39;</span> <span class="o">%</span> <span class="n">className</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_addClassOrModuleLevelException</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">errorName</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">_call_if_exists</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s">&#39;_restoreStdout&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_ErrorHolder</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Placeholder for a TestCase inside a result. As far as a TestResult</span>
+<span class="sd">    is concerned, this looks exactly like a unit test. Used to insert</span>
+<span class="sd">    arbitrary errors into a test suite run.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Inspired by the ErrorHolder from Twisted:</span>
+    <span class="c"># http://twistedmatrix.com/trac/browser/trunk/twisted/trial/runner.py</span>
+
+    <span class="c"># attribute used by TestResult._exc_info_to_string</span>
+    <span class="n">failureException</span> <span class="o">=</span> <span class="k">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">description</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+
+    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
+
+    <span class="k">def</span> <span class="nf">shortDescription</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">None</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;&lt;ErrorHolder description=%r&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+        <span class="c"># could call result.addError(...) - but this test-like object</span>
+        <span class="c"># shouldn&#39;t be run anyway</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">countTestCases</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+<span class="k">def</span> <span class="nf">_isnotsuite</span><span class="p">(</span><span class="n">test</span><span class="p">):</span>
+    <span class="s">&quot;A crude way to tell apart testcases and suites with duck-typing&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">iter</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">True</span>
+    <span class="k">return</span> <span class="k">False</span>
+
+
+<span class="k">class</span> <span class="nc">_DebugResult</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="s">&quot;Used by the TestSuite to hold previous class when running in debug.&quot;</span>
+    <span class="n">_previousTestClass</span> <span class="o">=</span> <span class="k">None</span>
+    <span class="n">_moduleSetUpFailed</span> <span class="o">=</span> <span class="k">False</span>
+    <span class="n">shouldStop</span> <span class="o">=</span> <span class="k">False</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

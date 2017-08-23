@@ -1,0 +1,400 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>SchemaEditor &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="docutils literal"><span class="pre">SchemaEditor</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/ref/schema-editor.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-django.db.backends.base.schema">
+<span id="schemaeditor"></span><h1><code class="docutils literal"><span class="pre">SchemaEditor</span></code><a class="headerlink" href="#module-django.db.backends.base.schema" title="永久链接至标题">¶</a></h1>
+<dl class="class">
+<dt id="django.db.backends.base.schema.BaseDatabaseSchemaEditor">
+<em class="property">class </em><code class="descclassname">django.db.backends.base.schema.</code><code class="descname">BaseDatabaseSchemaEditor</code><a class="reference internal" href="../_modules/django/db/backends/base/schema.html#BaseDatabaseSchemaEditor"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.db.backends.base.schema.BaseDatabaseSchemaEditor" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>Django’s migration system is split into two parts; the logic for calculating
+and storing what operations should be run (<code class="docutils literal"><span class="pre">django.db.migrations</span></code>), and the
+database abstraction layer that turns things like “create a model” or
+“delete a field” into SQL - which is the job of the <code class="docutils literal"><span class="pre">SchemaEditor</span></code>.</p>
+<p>It’s unlikely that you will want to interact directly with <code class="docutils literal"><span class="pre">SchemaEditor</span></code> as
+a normal developer using Django, but if you want to write your own migration
+system, or have more advanced needs, it’s a lot nicer than writing SQL.</p>
+<p>Each database backend in Django supplies its own version of <code class="docutils literal"><span class="pre">SchemaEditor</span></code>,
+and it’s always accessible via the <code class="docutils literal"><span class="pre">connection.schema_editor()</span></code> context
+manager:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">schema_editor</span><span class="p">()</span> <span class="k">as</span> <span class="n">schema_editor</span><span class="p">:</span>
+    <span class="n">schema_editor</span><span class="o">.</span><span class="n">delete_model</span><span class="p">(</span><span class="n">MyModel</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It must be used via the context manager as this allows it to manage things
+like transactions and deferred SQL (like creating <code class="docutils literal"><span class="pre">ForeignKey</span></code> constraints).</p>
+<p>It exposes all possible operations as methods, that should be called in
+the order you wish changes to be applied. Some possible operations or types
+of change are not possible on all databases - for example, MyISAM does not
+support foreign key constraints.</p>
+<p>If you are writing or maintaining a third-party database backend for Django,
+you will need to provide a <code class="docutils literal"><span class="pre">SchemaEditor</span></code> implementation in order to work with
+1.7’s migration functionality - however, as long as your database is relatively
+standard in its use of SQL and relational design, you should be able to
+subclass one of the built-in Django <code class="docutils literal"><span class="pre">SchemaEditor</span></code> classes and just tweak the
+syntax a little. Also note that there are a few new database features that
+migrations will look for: <code class="docutils literal"><span class="pre">can_rollback_ddl</span></code> and
+<code class="docutils literal"><span class="pre">supports_combined_alters</span></code> are the most important.</p>
+<div class="section" id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="永久链接至标题">¶</a></h2>
+<div class="section" id="execute">
+<h3><code class="docutils literal"><span class="pre">execute()</span></code><a class="headerlink" href="#execute" title="永久链接至标题">¶</a></h3>
+<dl class="method">
+<dt id="django.db.backends.base.schema.BaseDatabaseSchemaEditor.execute">
+<code class="descclassname">BaseDatabaseSchemaEditor.</code><code class="descname">execute</code><span class="sig-paren">(</span><em>sql</em>, <em>params=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/db/backends/base/schema.html#BaseDatabaseSchemaEditor.execute"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.db.backends.base.schema.BaseDatabaseSchemaEditor.execute" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>Executes the SQL statement passed in, with parameters if supplied. This
+is a simple wrapper around the normal database cursors that allows
+capture of the SQL to a <code class="docutils literal"><span class="pre">.sql</span></code> file if the user wishes.</p>
+</div>
+<div class="section" id="create-model">
+<h3><code class="docutils literal"><span class="pre">create_model()</span></code><a class="headerlink" href="#create-model" title="永久链接至标题">¶</a></h3>
+<dl class="method">
+<dt id="django.db.backends.base.schema.BaseDatabaseSchemaEditor.create_model">
+<code class="descclassname">BaseDatabaseSchemaEditor.</code><code class="descname">create_model</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/db/backends/base/schema.html#BaseDatabaseSchemaEditor.create_model"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.db.backends.base.schema.BaseDatabaseSchemaEditor.create_model" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>Creates a new table in the database for the provided model, along with any
+unique constraints or indexes it requires.</p>
+</div>
+<div class="section" id="delete-model">
+<h3><code class="docutils literal"><span class="pre">delete_model()</span></code><a class="headerlink" href="#delete-model" title="永久链接至标题">¶</a></h3>
+<dl class="method">
+<dt id="django.db.backends.base.schema.BaseDatabaseSchemaEditor.delete_model">
+<code class="descclassname">BaseDatabaseSchemaEditor.</code><code class="descname">delete_model</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/db/backends/base/schema.html#BaseDatabaseSchemaEditor.delete_model"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.db.backends.base.schema.BaseDatabaseSchemaEditor.delete_model" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>Drops the model’s table in the database along with any unique constraints
+or indexes it has.</p>
+</div>
+<div class="section" id="alter-unique-together">
+<h3><code class="docutils literal"><span class="pre">alter_unique_together()</span></code><a class="headerlink" href="#alter-unique-together" title="永久链接至标题">¶</a></h3>
+<dl class="method">
+<dt id="django.db.backends.base.schema.BaseDatabaseSchemaEditor.alter_unique_together">
+<code class="descclassname">BaseDatabaseSchemaEditor.</code><code class="descname">alter_unique_together</code><span class="sig-paren">(</span><em>model</em>, <em>old_unique_together</em>, <em>new_unique_together</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/db/backends/base/schema.html#BaseDatabaseSchemaEditor.alter_unique_together"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.db.backends.base.schema.BaseDatabaseSchemaEditor.alter_unique_together" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>Changes a model’s <a class="reference internal" href="models/options.html#django.db.models.Options.unique_together" title="django.db.models.Options.unique_together"><code class="xref py py-attr docutils literal"><span class="pre">unique_together</span></code></a> value; this
+will add or remove unique constraints from the model’s table until they match
+the new value.</p>
+</div>
+<div class="section" id="alter-index-together">
+<h3><code class="docutils literal"><span class="pre">alter_index_together()</span></code><a class="headerlink" href="#alter-index-together" title="永久链接至标题">¶</a></h3>
+<dl class="method">
+<dt id="django.db.backends.base.schema.BaseDatabaseSchemaEditor.alter_index_together">
+<code class="descclassname">BaseDatabaseSchemaEditor.</code><code class="descname">alter_index_together</code><span class="sig-paren">(</span><em>model</em>, <em>old_index_together</em>, <em>new_index_together</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/db/backends/base/schema.html#BaseDatabaseSchemaEditor.alter_index_together"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.db.backends.base.schema.BaseDatabaseSchemaEditor.alter_index_together" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>Changes a model’s <a class="reference internal" href="models/options.html#django.db.models.Options.index_together" title="django.db.models.Options.index_together"><code class="xref py py-attr docutils literal"><span class="pre">index_together</span></code></a> value; this
+will add or remove indexes from the model’s table until they match the new
+value.</p>
+</div>
+<div class="section" id="alter-db-table">
+<h3><code class="docutils literal"><span class="pre">alter_db_table()</span></code><a class="headerlink" href="#alter-db-table" title="永久链接至标题">¶</a></h3>
+<dl class="method">
+<dt id="django.db.backends.base.schema.BaseDatabaseSchemaEditor.alter_db_table">
+<code class="descclassname">BaseDatabaseSchemaEditor.</code><code class="descname">alter_db_table</code><span class="sig-paren">(</span><em>model</em>, <em>old_db_table</em>, <em>new_db_table</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/db/backends/base/schema.html#BaseDatabaseSchemaEditor.alter_db_table"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.db.backends.base.schema.BaseDatabaseSchemaEditor.alter_db_table" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>Renames the model’s table from <code class="docutils literal"><span class="pre">old_db_table</span></code> to <code class="docutils literal"><span class="pre">new_db_table</span></code>.</p>
+</div>
+<div class="section" id="alter-db-tablespace">
+<h3><code class="docutils literal"><span class="pre">alter_db_tablespace()</span></code><a class="headerlink" href="#alter-db-tablespace" title="永久链接至标题">¶</a></h3>
+<dl class="method">
+<dt id="django.db.backends.base.schema.BaseDatabaseSchemaEditor.alter_db_tablespace">
+<code class="descclassname">BaseDatabaseSchemaEditor.</code><code class="descname">alter_db_tablespace</code><span class="sig-paren">(</span><em>model</em>, <em>old_db_tablespace</em>, <em>new_db_tablespace</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/db/backends/base/schema.html#BaseDatabaseSchemaEditor.alter_db_tablespace"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.db.backends.base.schema.BaseDatabaseSchemaEditor.alter_db_tablespace" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>Moves the model’s table from one tablespace to another.</p>
+</div>
+<div class="section" id="add-field">
+<h3><code class="docutils literal"><span class="pre">add_field()</span></code><a class="headerlink" href="#add-field" title="永久链接至标题">¶</a></h3>
+<dl class="method">
+<dt id="django.db.backends.base.schema.BaseDatabaseSchemaEditor.add_field">
+<code class="descclassname">BaseDatabaseSchemaEditor.</code><code class="descname">add_field</code><span class="sig-paren">(</span><em>model</em>, <em>field</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/db/backends/base/schema.html#BaseDatabaseSchemaEditor.add_field"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.db.backends.base.schema.BaseDatabaseSchemaEditor.add_field" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>Adds a column (or sometimes multiple) to the model’s table to represent the
+field. This will also add indexes or a unique constraint
+if the field has <code class="docutils literal"><span class="pre">db_index=True</span></code> or <code class="docutils literal"><span class="pre">unique=True</span></code>.</p>
+<p>If the field is a <code class="docutils literal"><span class="pre">ManyToManyField</span></code> without a value for <code class="docutils literal"><span class="pre">through</span></code>, instead
+of creating a column, it will make a table to represent the relationship. If
+<code class="docutils literal"><span class="pre">through</span></code> is provided, it is a no-op.</p>
+<p>If the field is a <code class="docutils literal"><span class="pre">ForeignKey</span></code>, this will also add the foreign key
+constraint to the column.</p>
+</div>
+<div class="section" id="remove-field">
+<h3><code class="docutils literal"><span class="pre">remove_field()</span></code><a class="headerlink" href="#remove-field" title="永久链接至标题">¶</a></h3>
+<dl class="method">
+<dt id="django.db.backends.base.schema.BaseDatabaseSchemaEditor.remove_field">
+<code class="descclassname">BaseDatabaseSchemaEditor.</code><code class="descname">remove_field</code><span class="sig-paren">(</span><em>model</em>, <em>field</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/db/backends/base/schema.html#BaseDatabaseSchemaEditor.remove_field"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.db.backends.base.schema.BaseDatabaseSchemaEditor.remove_field" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>Removes the column(s) representing the field from the model’s table, along
+with any unique constraints, foreign key constraints, or indexes caused by
+that field.</p>
+<p>If the field is a ManyToManyField without a value for <code class="docutils literal"><span class="pre">through</span></code>, it will
+remove the table created to track the relationship. If
+<code class="docutils literal"><span class="pre">through</span></code> is provided, it is a no-op.</p>
+</div>
+<div class="section" id="alter-field">
+<h3><code class="docutils literal"><span class="pre">alter_field()</span></code><a class="headerlink" href="#alter-field" title="永久链接至标题">¶</a></h3>
+<dl class="method">
+<dt id="django.db.backends.base.schema.BaseDatabaseSchemaEditor.alter_field">
+<code class="descclassname">BaseDatabaseSchemaEditor.</code><code class="descname">alter_field</code><span class="sig-paren">(</span><em>model</em>, <em>old_field</em>, <em>new_field</em>, <em>strict=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/db/backends/base/schema.html#BaseDatabaseSchemaEditor.alter_field"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.db.backends.base.schema.BaseDatabaseSchemaEditor.alter_field" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>This transforms the field on the model from the old field to the new one. This
+includes changing the name of the column (the
+<a class="reference internal" href="models/fields.html#django.db.models.Field.db_column" title="django.db.models.Field.db_column"><code class="xref py py-attr docutils literal"><span class="pre">db_column</span></code></a> attribute), changing the type of the
+field (if the field class changes), changing the <code class="docutils literal"><span class="pre">NULL</span></code> status of the field,
+adding or removing field-only unique constraints and indexes, changing primary
+key, and changing the destination of <code class="docutils literal"><span class="pre">ForeignKey</span></code> constraints.</p>
+<p>The most common transformation this cannot do is transforming a
+<code class="docutils literal"><span class="pre">ManyToManyField</span></code> into a normal Field or vice-versa; Django cannot do this
+without losing data, and so it will refuse to do it. Instead,
+<a class="reference internal" href="#django.db.backends.base.schema.BaseDatabaseSchemaEditor.remove_field" title="django.db.backends.base.schema.BaseDatabaseSchemaEditor.remove_field"><code class="xref py py-meth docutils literal"><span class="pre">remove_field()</span></code></a> and <a class="reference internal" href="#django.db.backends.base.schema.BaseDatabaseSchemaEditor.add_field" title="django.db.backends.base.schema.BaseDatabaseSchemaEditor.add_field"><code class="xref py py-meth docutils literal"><span class="pre">add_field()</span></code></a> should be called separately.</p>
+<p>If the database has the <code class="docutils literal"><span class="pre">supports_combined_alters</span></code>, Django will try and
+do as many of these in a single database call as possible; otherwise, it will
+issue a separate ALTER statement for each change, but will not issue ALTERs
+where no change is required (as South often did).</p>
+</div>
+</div>
+<div class="section" id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="永久链接至标题">¶</a></h2>
+<p>All attributes should be considered read-only unless stated otherwise.</p>
+<div class="section" id="connection">
+<h3><code class="docutils literal"><span class="pre">connection</span></code><a class="headerlink" href="#connection" title="永久链接至标题">¶</a></h3>
+<dl class="attribute">
+<dt id="django.db.backends.base.schema.SchemaEditor.connection">
+<code class="descclassname">SchemaEditor.</code><code class="descname">connection</code><a class="headerlink" href="#django.db.backends.base.schema.SchemaEditor.connection" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>A connection object to the database. A useful attribute of the connection is
+<code class="docutils literal"><span class="pre">alias</span></code> which can be used to determine the name of the database being
+accessed.</p>
+<p>This is useful when doing data migrations for <a class="reference internal" href="../howto/writing-migrations.html#data-migrations-and-multiple-databases"><span class="std std-ref">migrations with multiple
+databases</span></a>.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,269 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Django 1.1.2 release notes &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Django 1.1.2 release notes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/releases/1.1.2.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="django-1-1-2-release-notes">
+<h1>Django 1.1.2 release notes<a class="headerlink" href="#django-1-1-2-release-notes" title="永久链接至标题">¶</a></h1>
+<p>Welcome to Django 1.1.2!</p>
+<p>This is the second “bugfix” release in the Django 1.1 series,
+improving the stability and performance of the Django 1.1 codebase.</p>
+<p>Django 1.1.2 maintains backwards compatibility with Django
+1.1.0, but contain a number of fixes and other
+improvements. Django 1.1.2 is a recommended upgrade for any
+development or deployment currently using or targeting Django 1.1.</p>
+<p>For full details on the new features, backwards incompatibilities, and
+deprecated features in the 1.1 branch, see the <a class="reference internal" href="1.1.html"><span class="doc">Django 1.1 release notes</span></a>.</p>
+<div class="section" id="backwards-incompatible-changes-in-1-1-2">
+<h2>Backwards-incompatible changes in 1.1.2<a class="headerlink" href="#backwards-incompatible-changes-in-1-1-2" title="永久链接至标题">¶</a></h2>
+<div class="section" id="test-runner-exit-status-code">
+<h3>Test runner exit status code<a class="headerlink" href="#test-runner-exit-status-code" title="永久链接至标题">¶</a></h3>
+<p>The exit status code of the test runners (<code class="docutils literal"><span class="pre">tests/runtests.py</span></code> and <code class="docutils literal"><span class="pre">python</span>
+<span class="pre">manage.py</span> <span class="pre">test</span></code>) no longer represents the number of failed tests, since a
+failure of 256 or more tests resulted in a wrong exit status code.  The exit
+status code for the test runner is now 0 for success (no failing tests) and 1
+for any number of test failures.  If needed, the number of test failures can be
+found at the end of the test runner’s output.</p>
+</div>
+<div class="section" id="cookie-encoding">
+<h3>Cookie encoding<a class="headerlink" href="#cookie-encoding" title="永久链接至标题">¶</a></h3>
+<p>To fix bugs with cookies in Internet Explorer, Safari, and possibly other
+browsers, our encoding of cookie values was changed so that the characters
+comma and semi-colon are treated as non-safe characters, and are therefore
+encoded as <code class="docutils literal"><span class="pre">\054</span></code> and <code class="docutils literal"><span class="pre">\073</span></code> respectively.  This could produce backwards
+incompatibilities, especially if you are storing comma or semi-colon in
+cookies and have JavaScript code that parses and manipulates cookie values
+client-side.</p>
+</div>
+</div>
+<div class="section" id="one-new-feature">
+<h2>One new feature<a class="headerlink" href="#one-new-feature" title="永久链接至标题">¶</a></h2>
+<p>Ordinarily, a point release would not include new features, but in the
+case of Django 1.1.2, we have made an exception to this rule. Django
+1.2 (the next major release of Django) will contain a feature that
+will improve protection against Cross-Site Request Forgery (CSRF)
+attacks. This feature requires the use of a new <a class="reference internal" href="../ref/templates/builtins.html#std:templatetag-csrf_token"><code class="xref std std-ttag docutils literal"><span class="pre">csrf_token</span></code></a>
+template tag in all forms that Django renders.</p>
+<p>To make it easier to support both 1.1.X and 1.2.X versions of Django with
+the same templates, we have decided to introduce the <a class="reference internal" href="../ref/templates/builtins.html#std:templatetag-csrf_token"><code class="xref std std-ttag docutils literal"><span class="pre">csrf_token</span></code></a> template
+tag to the 1.1.X branch. In the 1.1.X branch, <a class="reference internal" href="../ref/templates/builtins.html#std:templatetag-csrf_token"><code class="xref std std-ttag docutils literal"><span class="pre">csrf_token</span></code></a> does nothing -
+it has no effect on templates or form processing. However, it means that the
+same template will work with Django 1.2.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

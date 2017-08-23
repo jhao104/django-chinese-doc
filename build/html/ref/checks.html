@@ -1,0 +1,883 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>System check framework &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>System check framework</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/ref/checks.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="system-check-framework">
+<h1>System check framework<a class="headerlink" href="#system-check-framework" title="永久链接至标题">¶</a></h1>
+<p>The system check framework is a set of static checks for validating Django
+projects. It detects common problems and provides hints for how to fix them.
+The framework is extensible so you can easily add your own checks.</p>
+<p>For details on how to add your own checks and integrate them with Django’s
+system checks, see the <a class="reference internal" href="../topics/checks.html"><span class="doc">System check topic guide</span></a>.</p>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="永久链接至标题">¶</a></h2>
+<div class="section" id="checkmessage">
+<h3><code class="docutils literal"><span class="pre">CheckMessage</span></code><a class="headerlink" href="#checkmessage" title="永久链接至标题">¶</a></h3>
+<dl class="class">
+<dt id="django.core.checks.CheckMessage">
+<em class="property">class </em><code class="descclassname">django.core.checks.</code><code class="descname">CheckMessage</code><span class="sig-paren">(</span><em>level</em>, <em>msg</em>, <em>hint=None</em>, <em>obj=None</em>, <em>id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/checks/messages.html#CheckMessage"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.checks.CheckMessage" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>The warnings and errors raised by system checks must be instances of
+<code class="docutils literal"><span class="pre">CheckMessage</span></code>. An instance encapsulates a single reportable error or
+warning. It also provides context and hints applicable to the message, and a
+unique identifier that is used for filtering purposes.</p>
+<p>Constructor arguments are:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">level</span></code></dt>
+<dd>The severity of the message. Use one of the predefined values: <code class="docutils literal"><span class="pre">DEBUG</span></code>,
+<code class="docutils literal"><span class="pre">INFO</span></code>, <code class="docutils literal"><span class="pre">WARNING</span></code>, <code class="docutils literal"><span class="pre">ERROR</span></code>, <code class="docutils literal"><span class="pre">CRITICAL</span></code>. If the level is greater or
+equal to <code class="docutils literal"><span class="pre">ERROR</span></code>, then Django will prevent management commands from
+executing. Messages with level lower than <code class="docutils literal"><span class="pre">ERROR</span></code> (i.e. warnings) are
+reported to the console, but can be silenced.</dd>
+<dt><code class="docutils literal"><span class="pre">msg</span></code></dt>
+<dd>A short (less than 80 characters) string describing the problem. The string
+should <em>not</em> contain newlines.</dd>
+<dt><code class="docutils literal"><span class="pre">hint</span></code></dt>
+<dd>A single-line string providing a hint for fixing the problem. If no hint
+can be provided, or the hint is self-evident from the error message, the
+hint can be omitted, or a value of <code class="docutils literal"><span class="pre">None</span></code> can be used.</dd>
+<dt><code class="docutils literal"><span class="pre">obj</span></code></dt>
+<dd>Optional. An object providing context for the message (for example, the
+model where the problem was discovered). The object should be a model,
+field, or manager or any other object that defines <code class="docutils literal"><span class="pre">__str__</span></code> method (on
+Python 2 you need to define <code class="docutils literal"><span class="pre">__unicode__</span></code> method). The method is used
+while reporting all messages and its result precedes the message.</dd>
+<dt><code class="docutils literal"><span class="pre">id</span></code></dt>
+<dd>Optional string. A unique identifier for the issue. Identifiers should
+follow the pattern <code class="docutils literal"><span class="pre">applabel.X001</span></code>, where <code class="docutils literal"><span class="pre">X</span></code> is one of the letters
+<code class="docutils literal"><span class="pre">CEWID</span></code>, indicating the message severity (<code class="docutils literal"><span class="pre">C</span></code> for criticals, <code class="docutils literal"><span class="pre">E</span></code> for
+errors and so). The number can be allocated by the application, but should
+be unique within that application.</dd>
+</dl>
+<p>There are subclasses to make creating messages with common levels easier. When
+using them you can omit the <code class="docutils literal"><span class="pre">level</span></code> argument because it is implied by the
+class name.</p>
+<dl class="class">
+<dt id="django.core.checks.Debug">
+<em class="property">class </em><code class="descclassname">django.core.checks.</code><code class="descname">Debug</code><span class="sig-paren">(</span><em>msg</em>, <em>hint=None</em>, <em>obj=None</em>, <em>id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/checks/messages.html#Debug"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.checks.Debug" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="django.core.checks.Info">
+<em class="property">class </em><code class="descclassname">django.core.checks.</code><code class="descname">Info</code><span class="sig-paren">(</span><em>msg</em>, <em>hint=None</em>, <em>obj=None</em>, <em>id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/checks/messages.html#Info"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.checks.Info" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="django.core.checks.Warning">
+<em class="property">class </em><code class="descclassname">django.core.checks.</code><code class="descname">Warning</code><span class="sig-paren">(</span><em>msg</em>, <em>hint=None obj=None</em>, <em>id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/checks/messages.html#Warning"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.checks.Warning" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="django.core.checks.Error">
+<em class="property">class </em><code class="descclassname">django.core.checks.</code><code class="descname">Error</code><span class="sig-paren">(</span><em>msg</em>, <em>hint=None</em>, <em>obj=None</em>, <em>id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/checks/messages.html#Error"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.checks.Error" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="django.core.checks.Critical">
+<em class="property">class </em><code class="descclassname">django.core.checks.</code><code class="descname">Critical</code><span class="sig-paren">(</span><em>msg</em>, <em>hint=None</em>, <em>obj=None</em>, <em>id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/django/core/checks/messages.html#Critical"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.core.checks.Critical" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+<div class="section" id="builtin-checks">
+<h2>Builtin checks<a class="headerlink" href="#builtin-checks" title="永久链接至标题">¶</a></h2>
+<div class="section" id="builtin-tags">
+<span id="system-check-builtin-tags"></span><h3>Builtin tags<a class="headerlink" href="#builtin-tags" title="永久链接至标题">¶</a></h3>
+<p>Django’s system checks are organized using the following tags:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">models</span></code>: Checks governing model, field and manager definitions.</li>
+<li><code class="docutils literal"><span class="pre">signals</span></code>: Checks on signal declarations and handler registrations.</li>
+<li><code class="docutils literal"><span class="pre">admin</span></code>: Checks of any admin site declarations.</li>
+<li><code class="docutils literal"><span class="pre">compatibility</span></code>: Flagging potential problems with version upgrades.</li>
+<li><code class="docutils literal"><span class="pre">security</span></code>: Checks security related configuration.</li>
+<li><code class="docutils literal"><span class="pre">templates</span></code>: Checks template related configuration.</li>
+<li><code class="docutils literal"><span class="pre">caches</span></code>: Checks cache related configuration.</li>
+<li><code class="docutils literal"><span class="pre">urls</span></code>: Checks URL configuration.</li>
+<li><code class="docutils literal"><span class="pre">database</span></code>: Checks database-related configuration issues. Database checks
+are not run by default because they do more than static code analysis as
+regular checks do. They are only run by the <a class="reference internal" href="django-admin.html#django-admin-migrate"><code class="xref std std-djadmin docutils literal"><span class="pre">migrate</span></code></a> command or if
+you specify the <code class="docutils literal"><span class="pre">database</span></code> tag when calling the <a class="reference internal" href="django-admin.html#django-admin-check"><code class="xref std std-djadmin docutils literal"><span class="pre">check</span></code></a> command.</li>
+</ul>
+<div class="versionadded">
+<p>The <code class="docutils literal"><span class="pre">database</span></code> tag was added.</p>
+</div>
+<p>Some checks may be registered with multiple tags.</p>
+</div>
+<div class="section" id="core-system-checks">
+<h3>Core system checks<a class="headerlink" href="#core-system-checks" title="永久链接至标题">¶</a></h3>
+<div class="section" id="models">
+<h4>Models<a class="headerlink" href="#models" title="永久链接至标题">¶</a></h4>
+<ul class="simple">
+<li><strong>models.E001</strong>: <code class="docutils literal"><span class="pre">&lt;swappable&gt;</span></code> is not of the form <code class="docutils literal"><span class="pre">app_label.app_name</span></code>.</li>
+<li><strong>models.E002</strong>: <code class="docutils literal"><span class="pre">&lt;SETTING&gt;</span></code> references <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>, which has not been
+installed, or is abstract.</li>
+<li><strong>models.E003</strong>: The model has two many-to-many relations through the
+intermediate model <code class="docutils literal"><span class="pre">&lt;app_label&gt;.&lt;model&gt;</span></code>.</li>
+<li><strong>models.E004</strong>: <code class="docutils literal"><span class="pre">id</span></code> can only be used as a field name if the field also
+sets <code class="docutils literal"><span class="pre">primary_key=True</span></code>.</li>
+<li><strong>models.E005</strong>: The field <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code> from parent model <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>
+clashes with the field <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code> from parent model <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>models.E006</strong>: The field clashes with the field <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code> from model
+<code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>models.E007</strong>: Field <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code> has column name <code class="docutils literal"><span class="pre">&lt;column</span> <span class="pre">name&gt;</span></code>
+that is used by another field.</li>
+<li><strong>models.E008</strong>: <code class="docutils literal"><span class="pre">index_together</span></code> must be a list or tuple.</li>
+<li><strong>models.E009</strong>: All <code class="docutils literal"><span class="pre">index_together</span></code> elements must be lists or tuples.</li>
+<li><strong>models.E010</strong>: <code class="docutils literal"><span class="pre">unique_together</span></code> must be a list or tuple.</li>
+<li><strong>models.E011</strong>: All <code class="docutils literal"><span class="pre">unique_together</span></code> elements must be lists or tuples.</li>
+<li><strong>models.E012</strong>: <code class="docutils literal"><span class="pre">index_together/unique_together</span></code> refers to the
+non-existent field <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>.</li>
+<li><strong>models.E013</strong>: <code class="docutils literal"><span class="pre">index_together/unique_together</span></code> refers to a
+<code class="docutils literal"><span class="pre">ManyToManyField</span></code> <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>, but <code class="docutils literal"><span class="pre">ManyToManyField</span></code>s are not
+supported for that option.</li>
+<li><strong>models.E014</strong>: <code class="docutils literal"><span class="pre">ordering</span></code> must be a tuple or list (even if you want to
+order by only one field).</li>
+<li><strong>models.E015</strong>: <code class="docutils literal"><span class="pre">ordering</span></code> refers to the non-existent field
+<code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>.</li>
+<li><strong>models.E016</strong>: <code class="docutils literal"><span class="pre">index_together/unique_together</span></code> refers to field
+<code class="docutils literal"><span class="pre">&lt;field_name&gt;</span></code> which is not local to model <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>models.E017</strong>: Proxy model <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code> contains model fields.</li>
+<li><strong>models.E018</strong>: Autogenerated column name too long for field <code class="docutils literal"><span class="pre">&lt;field&gt;</span></code>.
+Maximum length is <code class="docutils literal"><span class="pre">&lt;maximum</span> <span class="pre">length&gt;</span></code> for database <code class="docutils literal"><span class="pre">&lt;alias&gt;</span></code>.</li>
+<li><strong>models.E019</strong>: Autogenerated column name too long for M2M field
+<code class="docutils literal"><span class="pre">&lt;M2M</span> <span class="pre">field&gt;</span></code>. Maximum length is <code class="docutils literal"><span class="pre">&lt;maximum</span> <span class="pre">length&gt;</span></code> for database
+<code class="docutils literal"><span class="pre">&lt;alias&gt;</span></code>.</li>
+<li><strong>models.E020</strong>: The <code class="docutils literal"><span class="pre">&lt;model&gt;.check()</span></code> class method is currently overridden.</li>
+<li><strong>models.E021</strong>: <code class="docutils literal"><span class="pre">ordering</span></code> and <code class="docutils literal"><span class="pre">order_with_respect_to</span></code> cannot be used
+together.</li>
+<li><strong>models.E022</strong>: <code class="docutils literal"><span class="pre">&lt;function&gt;</span></code> contains a lazy reference to
+<code class="docutils literal"><span class="pre">&lt;app</span> <span class="pre">label&gt;.&lt;model&gt;</span></code>, but app <code class="docutils literal"><span class="pre">&lt;app</span> <span class="pre">label&gt;</span></code> isn’t installed or
+doesn’t provide model <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="fields">
+<h4>Fields<a class="headerlink" href="#fields" title="永久链接至标题">¶</a></h4>
+<ul class="simple">
+<li><strong>fields.E001</strong>: Field names must not end with an underscore.</li>
+<li><strong>fields.E002</strong>: Field names must not contain <code class="docutils literal"><span class="pre">&quot;__&quot;</span></code>.</li>
+<li><strong>fields.E003</strong>: <code class="docutils literal"><span class="pre">pk</span></code> is a reserved word that cannot be used as a field
+name.</li>
+<li><strong>fields.E004</strong>: <code class="docutils literal"><span class="pre">choices</span></code> must be an iterable (e.g., a list or tuple).</li>
+<li><strong>fields.E005</strong>: <code class="docutils literal"><span class="pre">choices</span></code> must be an iterable returning <code class="docutils literal"><span class="pre">(actual</span> <span class="pre">value,</span>
+<span class="pre">human</span> <span class="pre">readable</span> <span class="pre">name)</span></code> tuples.</li>
+<li><strong>fields.E006</strong>: <code class="docutils literal"><span class="pre">db_index</span></code> must be <code class="docutils literal"><span class="pre">None</span></code>, <code class="docutils literal"><span class="pre">True</span></code> or <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<li><strong>fields.E007</strong>: Primary keys must not have <code class="docutils literal"><span class="pre">null=True</span></code>.</li>
+<li><strong>fields.E100</strong>: <code class="docutils literal"><span class="pre">AutoField</span></code>s must set primary_key=True.</li>
+<li><strong>fields.E110</strong>: <code class="docutils literal"><span class="pre">BooleanField</span></code>s do not accept null values.</li>
+<li><strong>fields.E120</strong>: <code class="docutils literal"><span class="pre">CharField</span></code>s must define a <code class="docutils literal"><span class="pre">max_length</span></code> attribute.</li>
+<li><strong>fields.E121</strong>: <code class="docutils literal"><span class="pre">max_length</span></code> must be a positive integer.</li>
+<li><strong>fields.W122</strong>: <code class="docutils literal"><span class="pre">max_length</span></code> is ignored when used with <code class="docutils literal"><span class="pre">IntegerField</span></code>.</li>
+<li><strong>fields.E130</strong>: <code class="docutils literal"><span class="pre">DecimalField</span></code>s must define a <code class="docutils literal"><span class="pre">decimal_places</span></code> attribute.</li>
+<li><strong>fields.E131</strong>: <code class="docutils literal"><span class="pre">decimal_places</span></code> must be a non-negative integer.</li>
+<li><strong>fields.E132</strong>: <code class="docutils literal"><span class="pre">DecimalField</span></code>s must define a <code class="docutils literal"><span class="pre">max_digits</span></code> attribute.</li>
+<li><strong>fields.E133</strong>: <code class="docutils literal"><span class="pre">max_digits</span></code> must be a non-negative integer.</li>
+<li><strong>fields.E134</strong>: <code class="docutils literal"><span class="pre">max_digits</span></code> must be greater or equal to <code class="docutils literal"><span class="pre">decimal_places</span></code>.</li>
+<li><strong>fields.E140</strong>: <code class="docutils literal"><span class="pre">FilePathField</span></code>s must have either <code class="docutils literal"><span class="pre">allow_files</span></code> or
+<code class="docutils literal"><span class="pre">allow_folders</span></code> set to True.</li>
+<li><strong>fields.E150</strong>: <code class="docutils literal"><span class="pre">GenericIPAddressField</span></code>s cannot accept blank values if
+null values are not allowed, as blank values are stored as nulls.</li>
+<li><strong>fields.E160</strong>: The options <code class="docutils literal"><span class="pre">auto_now</span></code>, <code class="docutils literal"><span class="pre">auto_now_add</span></code>, and <code class="docutils literal"><span class="pre">default</span></code>
+are mutually exclusive. Only one of these options may be present.</li>
+<li><strong>fields.W161</strong>: Fixed default value provided.</li>
+<li><strong>fields.E900</strong>: <code class="docutils literal"><span class="pre">IPAddressField</span></code> has been removed except for support in
+historical migrations.</li>
+<li><strong>fields.W900</strong>: <code class="docutils literal"><span class="pre">IPAddressField</span></code> has been deprecated. Support for it
+(except in historical migrations) will be removed in Django 1.9. <em>This check
+appeared in Django 1.7 and 1.8</em>.</li>
+<li><strong>fields.W901</strong>: <code class="docutils literal"><span class="pre">CommaSeparatedIntegerField</span></code> has been deprecated. Support
+for it (except in historical migrations) will be removed in Django 2.0.</li>
+</ul>
+</div>
+<div class="section" id="file-fields">
+<h4>File Fields<a class="headerlink" href="#file-fields" title="永久链接至标题">¶</a></h4>
+<ul class="simple">
+<li><strong>fields.E200</strong>: <code class="docutils literal"><span class="pre">unique</span></code> is not a valid argument for a <code class="docutils literal"><span class="pre">FileField</span></code>.</li>
+<li><strong>fields.E201</strong>: <code class="docutils literal"><span class="pre">primary_key</span></code> is not a valid argument for a <code class="docutils literal"><span class="pre">FileField</span></code>.</li>
+<li><strong>fields.E210</strong>: Cannot use <code class="docutils literal"><span class="pre">ImageField</span></code> because Pillow is not installed.</li>
+</ul>
+</div>
+<div class="section" id="related-fields">
+<h4>Related Fields<a class="headerlink" href="#related-fields" title="永久链接至标题">¶</a></h4>
+<ul class="simple">
+<li><strong>fields.E300</strong>: Field defines a relation with model <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>, which is
+either not installed, or is abstract.</li>
+<li><strong>fields.E301</strong>: Field defines a relation with the model <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code> which
+has been swapped out.</li>
+<li><strong>fields.E302</strong>: Accessor for field <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code> clashes with field
+<code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>.</li>
+<li><strong>fields.E303</strong>: Reverse query name for field <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code> clashes with
+field <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>.</li>
+<li><strong>fields.E304</strong>: Field name <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code> clashes with accessor for
+<code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>.</li>
+<li><strong>fields.E305</strong>: Field name <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code> clashes with reverse query name
+for <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>.</li>
+<li><strong>fields.E306</strong>: Related name must be a valid Python identifier or end with
+a <code class="docutils literal"><span class="pre">'+'</span></code>.</li>
+<li><strong>fields.E307</strong>: The field <code class="docutils literal"><span class="pre">&lt;app</span> <span class="pre">label&gt;.&lt;model&gt;.&lt;field</span> <span class="pre">name&gt;</span></code> was declared
+with a lazy reference to <code class="docutils literal"><span class="pre">&lt;app</span> <span class="pre">label&gt;.&lt;model&gt;</span></code>, but app <code class="docutils literal"><span class="pre">&lt;app</span> <span class="pre">label&gt;</span></code>
+isn’t installed or doesn’t provide model <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>fields.E310</strong>: No subset of the fields <code class="docutils literal"><span class="pre">&lt;field1&gt;</span></code>, <code class="docutils literal"><span class="pre">&lt;field2&gt;</span></code>, … on
+model <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code> is unique. Add <code class="docutils literal"><span class="pre">unique=True</span></code> on any of those fields or
+add at least a subset of them to a unique_together constraint.</li>
+<li><strong>fields.E311</strong>: <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code> must set <code class="docutils literal"><span class="pre">unique=True</span></code> because it is
+referenced by a <code class="docutils literal"><span class="pre">ForeignKey</span></code>.</li>
+<li><strong>fields.E320</strong>: Field specifies <code class="docutils literal"><span class="pre">on_delete=SET_NULL</span></code>, but cannot be null.</li>
+<li><strong>fields.E321</strong>: The field specifies <code class="docutils literal"><span class="pre">on_delete=SET_DEFAULT</span></code>, but has no
+default value.</li>
+<li><strong>fields.E330</strong>: <code class="docutils literal"><span class="pre">ManyToManyField</span></code>s cannot be unique.</li>
+<li><strong>fields.E331</strong>: Field specifies a many-to-many relation through model
+<code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>, which has not been installed.</li>
+<li><strong>fields.E332</strong>: Many-to-many fields with intermediate tables must not be
+symmetrical.</li>
+<li><strong>fields.E333</strong>: The model is used as an intermediate model by <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>,
+but it has more than two foreign keys to <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>, which is ambiguous.
+You must specify which two foreign keys Django should use via the
+<code class="docutils literal"><span class="pre">through_fields</span></code> keyword argument.</li>
+<li><strong>fields.E334</strong>: The model is used as an intermediate model by <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>,
+but it has more than one foreign key from <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>, which is ambiguous.
+You must specify which foreign key Django should use via the
+<code class="docutils literal"><span class="pre">through_fields</span></code> keyword argument.</li>
+<li><strong>fields.E335</strong>: The model is used as an intermediate model by <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>,
+but it has more than one foreign key to <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>, which is ambiguous.
+You must specify which foreign key Django should use via the
+<code class="docutils literal"><span class="pre">through_fields</span></code> keyword argument.</li>
+<li><strong>fields.E336</strong>: The model is used as an intermediary model by <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>,
+but it does not have foreign key to <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code> or <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>fields.E337</strong>: Field specifies <code class="docutils literal"><span class="pre">through_fields</span></code> but does not provide the
+names of the two link fields that should be used for the relation through
+<code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>fields.E338</strong>: The intermediary model <code class="docutils literal"><span class="pre">&lt;through</span> <span class="pre">model&gt;</span></code> has no field
+<code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>.</li>
+<li><strong>fields.E339</strong>: <code class="docutils literal"><span class="pre">&lt;model&gt;.&lt;field</span> <span class="pre">name&gt;</span></code> is not a foreign key to <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>fields.W340</strong>: <code class="docutils literal"><span class="pre">null</span></code> has no effect on <code class="docutils literal"><span class="pre">ManyToManyField</span></code>.</li>
+<li><strong>fields.W341</strong>: <code class="docutils literal"><span class="pre">ManyToManyField</span></code> does not support <code class="docutils literal"><span class="pre">validators</span></code>.</li>
+<li><strong>fields.W342</strong>: Setting <code class="docutils literal"><span class="pre">unique=True</span></code> on a <code class="docutils literal"><span class="pre">ForeignKey</span></code> has the same
+effect as using a <code class="docutils literal"><span class="pre">OneToOneField</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="signals">
+<h4>Signals<a class="headerlink" href="#signals" title="永久链接至标题">¶</a></h4>
+<ul class="simple">
+<li><strong>signals.E001</strong>: <code class="docutils literal"><span class="pre">&lt;handler&gt;</span></code> was connected to the <code class="docutils literal"><span class="pre">&lt;signal&gt;</span></code> signal with
+a lazy reference to the sender <code class="docutils literal"><span class="pre">&lt;app</span> <span class="pre">label&gt;.&lt;model&gt;</span></code>, but app <code class="docutils literal"><span class="pre">&lt;app</span> <span class="pre">label&gt;</span></code>
+isn’t installed or doesn’t provide model <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="backwards-compatibility">
+<h4>Backwards Compatibility<a class="headerlink" href="#backwards-compatibility" title="永久链接至标题">¶</a></h4>
+<p>The following checks are performed to warn the user of any potential problems
+that might occur as a result of a version upgrade.</p>
+<ul class="simple">
+<li><strong>1_6.W001</strong>: Some project unit tests may not execute as expected. <em>This
+check was removed in Django 1.8 due to false positives</em>.</li>
+<li><strong>1_6.W002</strong>: <code class="docutils literal"><span class="pre">BooleanField</span></code> does not have a default value. <em>This
+check was removed in Django 1.8 due to false positives</em>.</li>
+<li><strong>1_7.W001</strong>:  Django 1.7 changed the global defaults for the
+<code class="docutils literal"><span class="pre">MIDDLEWARE_CLASSES.</span></code>
+<code class="docutils literal"><span class="pre">django.contrib.sessions.middleware.SessionMiddleware</span></code>,
+<code class="docutils literal"><span class="pre">django.contrib.auth.middleware.AuthenticationMiddleware</span></code>, and
+<code class="docutils literal"><span class="pre">django.contrib.messages.middleware.MessageMiddleware</span></code> were removed from
+the defaults. If your project needs these middleware then you should
+configure this setting. <em>This check was removed in Django 1.9</em>.</li>
+<li><strong>1_8.W001</strong>: The standalone <code class="docutils literal"><span class="pre">TEMPLATE_*</span></code> settings were deprecated in
+Django 1.8 and the <a class="reference internal" href="settings.html#std:setting-TEMPLATES"><code class="xref std std-setting docutils literal"><span class="pre">TEMPLATES</span></code></a> dictionary takes precedence. You must
+put the values of the following settings into your defaults <code class="docutils literal"><span class="pre">TEMPLATES</span></code>
+dict: <code class="docutils literal"><span class="pre">TEMPLATE_DIRS</span></code>, <code class="docutils literal"><span class="pre">TEMPLATE_CONTEXT_PROCESSORS</span></code>, <code class="docutils literal"><span class="pre">TEMPLATE_DEBUG</span></code>,
+<code class="docutils literal"><span class="pre">TEMPLATE_LOADERS</span></code>, <code class="docutils literal"><span class="pre">TEMPLATE_STRING_IF_INVALID</span></code>.</li>
+<li><strong>1_10.W001</strong>: The <code class="docutils literal"><span class="pre">MIDDLEWARE_CLASSES</span></code> setting is deprecated in Django
+1.10  and the <a class="reference internal" href="settings.html#std:setting-MIDDLEWARE"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE</span></code></a> setting takes precedence. Since you’ve
+set <code class="docutils literal"><span class="pre">MIDDLEWARE</span></code>, the value of <code class="docutils literal"><span class="pre">MIDDLEWARE_CLASSES</span></code> is ignored.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="admin">
+<h3>Admin<a class="headerlink" href="#admin" title="永久链接至标题">¶</a></h3>
+<p>Admin checks are all performed as part of the <code class="docutils literal"><span class="pre">admin</span></code> tag.</p>
+<p>The following checks are performed on any
+<a class="reference internal" href="contrib/admin/index.html#django.contrib.admin.ModelAdmin" title="django.contrib.admin.ModelAdmin"><code class="xref py py-class docutils literal"><span class="pre">ModelAdmin</span></code></a> (or subclass) that is registered
+with the admin site:</p>
+<ul class="simple">
+<li><strong>admin.E001</strong>: The value of <code class="docutils literal"><span class="pre">raw_id_fields</span></code> must be a list or tuple.</li>
+<li><strong>admin.E002</strong>: The value of <code class="docutils literal"><span class="pre">raw_id_fields[n]</span></code> refers to <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>,
+which is not an attribute of <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>admin.E003</strong>: The value of <code class="docutils literal"><span class="pre">raw_id_fields[n]</span></code> must be a foreign key or
+a many-to-many field.</li>
+<li><strong>admin.E004</strong>: The value of <code class="docutils literal"><span class="pre">fields</span></code> must be a list or tuple.</li>
+<li><strong>admin.E005</strong>: Both <code class="docutils literal"><span class="pre">fieldsets</span></code> and <code class="docutils literal"><span class="pre">fields</span></code> are specified.</li>
+<li><strong>admin.E006</strong>: The value of <code class="docutils literal"><span class="pre">fields</span></code> contains duplicate field(s).</li>
+<li><strong>admin.E007</strong>: The value of <code class="docutils literal"><span class="pre">fieldsets</span></code> must be a list or tuple.</li>
+<li><strong>admin.E008</strong>: The value of <code class="docutils literal"><span class="pre">fieldsets[n]</span></code> must be a list or tuple.</li>
+<li><strong>admin.E009</strong>: The value of <code class="docutils literal"><span class="pre">fieldsets[n]</span></code> must be of length 2.</li>
+<li><strong>admin.E010</strong>: The value of <code class="docutils literal"><span class="pre">fieldsets[n][1]</span></code> must be a dictionary.</li>
+<li><strong>admin.E011</strong>: The value of <code class="docutils literal"><span class="pre">fieldsets[n][1]</span></code> must contain the key
+<code class="docutils literal"><span class="pre">fields</span></code>.</li>
+<li><strong>admin.E012</strong>: There are duplicate field(s) in <code class="docutils literal"><span class="pre">fieldsets[n][1]</span></code>.</li>
+<li><strong>admin.E013</strong>: <code class="docutils literal"><span class="pre">fields[n]/fieldsets[n][m]</span></code> cannot include the
+<code class="docutils literal"><span class="pre">ManyToManyField</span></code> <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>, because that field manually specifies a
+relationship model.</li>
+<li><strong>admin.E014</strong>: The value of <code class="docutils literal"><span class="pre">exclude</span></code> must be a list or tuple.</li>
+<li><strong>admin.E015</strong>: The value of <code class="docutils literal"><span class="pre">exclude</span></code> contains duplicate field(s).</li>
+<li><strong>admin.E016</strong>: The value of <code class="docutils literal"><span class="pre">form</span></code> must inherit from <code class="docutils literal"><span class="pre">BaseModelForm</span></code>.</li>
+<li><strong>admin.E017</strong>: The value of <code class="docutils literal"><span class="pre">filter_vertical</span></code> must be a list or tuple.</li>
+<li><strong>admin.E018</strong>: The value of <code class="docutils literal"><span class="pre">filter_horizontal</span></code> must be a list or tuple.</li>
+<li><strong>admin.E019</strong>: The value of <code class="docutils literal"><span class="pre">filter_vertical[n]/filter_vertical[n]</span></code> refers
+to <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>, which is not an attribute of <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>admin.E020</strong>: The value of <code class="docutils literal"><span class="pre">filter_vertical[n]/filter_vertical[n]</span></code> must
+be a many-to-many field.</li>
+<li><strong>admin.E021</strong>: The value of <code class="docutils literal"><span class="pre">radio_fields</span></code> must be a dictionary.</li>
+<li><strong>admin.E022</strong>: The value of <code class="docutils literal"><span class="pre">radio_fields</span></code> refers to <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>,
+which is not an attribute of <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>admin.E023</strong>: The value of <code class="docutils literal"><span class="pre">radio_fields</span></code> refers to <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>,
+which is not a <code class="docutils literal"><span class="pre">ForeignKey</span></code>, and does not have a <code class="docutils literal"><span class="pre">choices</span></code> definition.</li>
+<li><strong>admin.E024</strong>: The value of <code class="docutils literal"><span class="pre">radio_fields[&lt;field</span> <span class="pre">name&gt;]</span></code> must be either
+<code class="docutils literal"><span class="pre">admin.HORIZONTAL</span></code> or <code class="docutils literal"><span class="pre">admin.VERTICAL</span></code>.</li>
+<li><strong>admin.E025</strong>: The value of <code class="docutils literal"><span class="pre">view_on_site</span></code> must be either a callable or a
+boolean value.</li>
+<li><strong>admin.E026</strong>: The value of <code class="docutils literal"><span class="pre">prepopulated_fields</span></code> must be a dictionary.</li>
+<li><strong>admin.E027</strong>: The value of <code class="docutils literal"><span class="pre">prepopulated_fields</span></code> refers to
+<code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>, which is not an attribute of <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>admin.E028</strong>: The value of <code class="docutils literal"><span class="pre">prepopulated_fields</span></code> refers to
+<code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>, which must not be a <code class="docutils literal"><span class="pre">DateTimeField</span></code>, a <code class="docutils literal"><span class="pre">ForeignKey</span></code>, or a
+<code class="docutils literal"><span class="pre">ManyToManyField</span></code> field.</li>
+<li><strong>admin.E029</strong>: The value of <code class="docutils literal"><span class="pre">prepopulated_fields[&lt;field</span> <span class="pre">name&gt;]</span></code> must be a
+list or tuple.</li>
+<li><strong>admin.E030</strong>: The value of <code class="docutils literal"><span class="pre">prepopulated_fields</span></code> refers to
+<code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>, which is not an attribute of <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>admin.E031</strong>: The value of <code class="docutils literal"><span class="pre">ordering</span></code> must be a list or tuple.</li>
+<li><strong>admin.E032</strong>: The value of <code class="docutils literal"><span class="pre">ordering</span></code> has the random ordering marker
+<code class="docutils literal"><span class="pre">?</span></code>, but contains other fields as well.</li>
+<li><strong>admin.E033</strong>: The value of <code class="docutils literal"><span class="pre">ordering</span></code> refers to <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>, which
+is not an attribute of <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>admin.E034</strong>: The value of <code class="docutils literal"><span class="pre">readonly_fields</span></code> must be a list or tuple.</li>
+<li><strong>admin.E035</strong>: The value of <code class="docutils literal"><span class="pre">readonly_fields[n]</span></code> is not a callable, an
+attribute of <code class="docutils literal"><span class="pre">&lt;ModelAdmin</span> <span class="pre">class&gt;</span></code>, or an attribute of <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+</ul>
+<div class="section" id="modeladmin">
+<h4><code class="docutils literal"><span class="pre">ModelAdmin</span></code><a class="headerlink" href="#modeladmin" title="永久链接至标题">¶</a></h4>
+<p>The following checks are performed on any
+<a class="reference internal" href="contrib/admin/index.html#django.contrib.admin.ModelAdmin" title="django.contrib.admin.ModelAdmin"><code class="xref py py-class docutils literal"><span class="pre">ModelAdmin</span></code></a> that is registered
+with the admin site:</p>
+<ul class="simple">
+<li><strong>admin.E101</strong>: The value of <code class="docutils literal"><span class="pre">save_as</span></code> must be a boolean.</li>
+<li><strong>admin.E102</strong>: The value of <code class="docutils literal"><span class="pre">save_on_top</span></code> must be a boolean.</li>
+<li><strong>admin.E103</strong>: The value of <code class="docutils literal"><span class="pre">inlines</span></code> must be a list or tuple.</li>
+<li><strong>admin.E104</strong>: <code class="docutils literal"><span class="pre">&lt;InlineModelAdmin</span> <span class="pre">class&gt;</span></code> must inherit from
+<code class="docutils literal"><span class="pre">BaseModelAdmin</span></code>.</li>
+<li><strong>admin.E105</strong>: <code class="docutils literal"><span class="pre">&lt;InlineModelAdmin</span> <span class="pre">class&gt;</span></code> must have a <code class="docutils literal"><span class="pre">model</span></code> attribute.</li>
+<li><strong>admin.E106</strong>: The value of <code class="docutils literal"><span class="pre">&lt;InlineModelAdmin</span> <span class="pre">class&gt;.model</span></code> must be a
+<code class="docutils literal"><span class="pre">Model</span></code>.</li>
+<li><strong>admin.E107</strong>: The value of <code class="docutils literal"><span class="pre">list_display</span></code> must be a list or tuple.</li>
+<li><strong>admin.E108</strong>: The value of <code class="docutils literal"><span class="pre">list_display[n]</span></code> refers to <code class="docutils literal"><span class="pre">&lt;label&gt;</span></code>,
+which is not a callable, an attribute of <code class="docutils literal"><span class="pre">&lt;ModelAdmin</span> <span class="pre">class&gt;</span></code>, or an
+attribute or method on <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>admin.E109</strong>: The value of <code class="docutils literal"><span class="pre">list_display[n]</span></code> must not be a
+<code class="docutils literal"><span class="pre">ManyToManyField</span></code> field.</li>
+<li><strong>admin.E110</strong>: The value of <code class="docutils literal"><span class="pre">list_display_links</span></code> must be a list, a tuple,
+or <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>admin.E111</strong>: The value of <code class="docutils literal"><span class="pre">list_display_links[n]</span></code> refers to <code class="docutils literal"><span class="pre">&lt;label&gt;</span></code>,
+which is not defined in <code class="docutils literal"><span class="pre">list_display</span></code>.</li>
+<li><strong>admin.E112</strong>: The value of <code class="docutils literal"><span class="pre">list_filter</span></code> must be a list or tuple.</li>
+<li><strong>admin.E113</strong>: The value of <code class="docutils literal"><span class="pre">list_filter[n]</span></code> must inherit from
+<code class="docutils literal"><span class="pre">ListFilter</span></code>.</li>
+<li><strong>admin.E114</strong>: The value of <code class="docutils literal"><span class="pre">list_filter[n]</span></code> must not inherit from
+<code class="docutils literal"><span class="pre">FieldListFilter</span></code>.</li>
+<li><strong>admin.E115</strong>: The value of <code class="docutils literal"><span class="pre">list_filter[n][1]</span></code> must inherit from
+<code class="docutils literal"><span class="pre">FieldListFilter</span></code>.</li>
+<li><strong>admin.E116</strong>: The value of <code class="docutils literal"><span class="pre">list_filter[n]</span></code> refers to <code class="docutils literal"><span class="pre">&lt;label&gt;</span></code>,
+which does not refer to a Field.</li>
+<li><strong>admin.E117</strong>: The value of <code class="docutils literal"><span class="pre">list_select_related</span></code> must be a boolean,
+tuple or list.</li>
+<li><strong>admin.E118</strong>: The value of <code class="docutils literal"><span class="pre">list_per_page</span></code> must be an integer.</li>
+<li><strong>admin.E119</strong>: The value of <code class="docutils literal"><span class="pre">list_max_show_all</span></code> must be an integer.</li>
+<li><strong>admin.E120</strong>: The value of <code class="docutils literal"><span class="pre">list_editable</span></code> must be a list or tuple.</li>
+<li><strong>admin.E121</strong>: The value of <code class="docutils literal"><span class="pre">list_editable[n]</span></code> refers to <code class="docutils literal"><span class="pre">&lt;label&gt;</span></code>,
+which is not an attribute of <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>admin.E122</strong>: The value of <code class="docutils literal"><span class="pre">list_editable[n]</span></code> refers to <code class="docutils literal"><span class="pre">&lt;label&gt;</span></code>,
+which is not contained in <code class="docutils literal"><span class="pre">list_display</span></code>.</li>
+<li><strong>admin.E123</strong>: The value of <code class="docutils literal"><span class="pre">list_editable[n]</span></code> cannot be in both
+<code class="docutils literal"><span class="pre">list_editable</span></code> and <code class="docutils literal"><span class="pre">list_display_links</span></code>.</li>
+<li><strong>admin.E124</strong>: The value of <code class="docutils literal"><span class="pre">list_editable[n]</span></code> refers to the first field
+in <code class="docutils literal"><span class="pre">list_display</span></code> (<code class="docutils literal"><span class="pre">&lt;label&gt;</span></code>), which cannot be used unless
+<code class="docutils literal"><span class="pre">list_display_links</span></code> is set.</li>
+<li><strong>admin.E125</strong>: The value of <code class="docutils literal"><span class="pre">list_editable[n]</span></code> refers to <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>,
+which is not editable through the admin.</li>
+<li><strong>admin.E126</strong>: The value of <code class="docutils literal"><span class="pre">search_fields</span></code> must be a list or tuple.</li>
+<li><strong>admin.E127</strong>: The value of <code class="docutils literal"><span class="pre">date_hierarchy</span></code> refers to <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>,
+which is not an attribute of <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>admin.E128</strong>: The value of <code class="docutils literal"><span class="pre">date_hierarchy</span></code> must be a <code class="docutils literal"><span class="pre">DateField</span></code> or
+<code class="docutils literal"><span class="pre">DateTimeField</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="inlinemodeladmin">
+<h4><code class="docutils literal"><span class="pre">InlineModelAdmin</span></code><a class="headerlink" href="#inlinemodeladmin" title="永久链接至标题">¶</a></h4>
+<p>The following checks are performed on any
+<a class="reference internal" href="contrib/admin/index.html#django.contrib.admin.InlineModelAdmin" title="django.contrib.admin.InlineModelAdmin"><code class="xref py py-class docutils literal"><span class="pre">InlineModelAdmin</span></code></a> that is registered as an
+inline on a <a class="reference internal" href="contrib/admin/index.html#django.contrib.admin.ModelAdmin" title="django.contrib.admin.ModelAdmin"><code class="xref py py-class docutils literal"><span class="pre">ModelAdmin</span></code></a>.</p>
+<ul class="simple">
+<li><strong>admin.E201</strong>: Cannot exclude the field <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>, because it is the
+foreign key to the parent model <code class="docutils literal"><span class="pre">&lt;app_label&gt;.&lt;model&gt;</span></code>.</li>
+<li><strong>admin.E202</strong>: <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code> has no <code class="docutils literal"><span class="pre">ForeignKey</span></code> to <code class="docutils literal"><span class="pre">&lt;parent</span> <span class="pre">model&gt;</span></code>./
+<code class="docutils literal"><span class="pre">&lt;model&gt;</span></code> has more than one <code class="docutils literal"><span class="pre">ForeignKey</span></code> to <code class="docutils literal"><span class="pre">&lt;parent</span> <span class="pre">model&gt;</span></code>.</li>
+<li><strong>admin.E203</strong>: The value of <code class="docutils literal"><span class="pre">extra</span></code> must be an integer.</li>
+<li><strong>admin.E204</strong>: The value of <code class="docutils literal"><span class="pre">max_num</span></code> must be an integer.</li>
+<li><strong>admin.E205</strong>: The value of <code class="docutils literal"><span class="pre">min_num</span></code> must be an integer.</li>
+<li><strong>admin.E206</strong>: The value of <code class="docutils literal"><span class="pre">formset</span></code> must inherit from
+<code class="docutils literal"><span class="pre">BaseModelFormSet</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="genericinlinemodeladmin">
+<h4><code class="docutils literal"><span class="pre">GenericInlineModelAdmin</span></code><a class="headerlink" href="#genericinlinemodeladmin" title="永久链接至标题">¶</a></h4>
+<p>The following checks are performed on any
+<a class="reference internal" href="contrib/contenttypes.html#django.contrib.contenttypes.admin.GenericInlineModelAdmin" title="django.contrib.contenttypes.admin.GenericInlineModelAdmin"><code class="xref py py-class docutils literal"><span class="pre">GenericInlineModelAdmin</span></code></a> that is
+registered as an inline on a <a class="reference internal" href="contrib/admin/index.html#django.contrib.admin.ModelAdmin" title="django.contrib.admin.ModelAdmin"><code class="xref py py-class docutils literal"><span class="pre">ModelAdmin</span></code></a>.</p>
+<ul class="simple">
+<li><strong>admin.E301</strong>: <code class="docutils literal"><span class="pre">'ct_field'</span></code> references <code class="docutils literal"><span class="pre">&lt;label&gt;</span></code>, which is not a field
+on <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>admin.E302</strong>: <code class="docutils literal"><span class="pre">'ct_fk_field'</span></code> references <code class="docutils literal"><span class="pre">&lt;label&gt;</span></code>, which is not a
+field on <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>admin.E303</strong>: <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code> has no <code class="docutils literal"><span class="pre">GenericForeignKey</span></code>.</li>
+<li><strong>admin.E304</strong>: <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code> has no <code class="docutils literal"><span class="pre">GenericForeignKey</span></code> using content type
+field <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code> and object ID field <code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="adminsite">
+<h4><code class="docutils literal"><span class="pre">AdminSite</span></code><a class="headerlink" href="#adminsite" title="永久链接至标题">¶</a></h4>
+<p>The following checks are performed on the default
+<a class="reference internal" href="contrib/admin/index.html#django.contrib.admin.AdminSite" title="django.contrib.admin.AdminSite"><code class="xref py py-class docutils literal"><span class="pre">AdminSite</span></code></a>:</p>
+<ul class="simple">
+<li><strong>admin.E401</strong>: <a class="reference internal" href="contrib/contenttypes.html#module-django.contrib.contenttypes" title="django.contrib.contenttypes: Provides generic interface to installed models."><code class="xref py py-mod docutils literal"><span class="pre">django.contrib.contenttypes</span></code></a> must be in
+<a class="reference internal" href="settings.html#std:setting-INSTALLED_APPS"><code class="xref std std-setting docutils literal"><span class="pre">INSTALLED_APPS</span></code></a> in order to use the admin application.</li>
+<li><strong>admin.E402</strong>: <a class="reference internal" href="templates/api.html#django.contrib.auth.context_processors.auth" title="django.contrib.auth.context_processors.auth"><code class="xref py py-mod docutils literal"><span class="pre">django.contrib.auth.context_processors.auth</span></code></a>
+must be in <a class="reference internal" href="settings.html#std:setting-TEMPLATES"><code class="xref std std-setting docutils literal"><span class="pre">TEMPLATES</span></code></a> in order to use the admin application.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="auth">
+<h3>Auth<a class="headerlink" href="#auth" title="永久链接至标题">¶</a></h3>
+<ul class="simple">
+<li><strong>auth.E001</strong>: <code class="docutils literal"><span class="pre">REQUIRED_FIELDS</span></code> must be a list or tuple.</li>
+<li><strong>auth.E002</strong>: The field named as the <code class="docutils literal"><span class="pre">USERNAME_FIELD</span></code> for a custom user
+model must not be included in <code class="docutils literal"><span class="pre">REQUIRED_FIELDS</span></code>.</li>
+<li><strong>auth.E003</strong>: <code class="docutils literal"><span class="pre">&lt;field&gt;</span></code> must be unique because it is named as the
+<code class="docutils literal"><span class="pre">USERNAME_FIELD</span></code>.</li>
+<li><strong>auth.W004</strong>: <code class="docutils literal"><span class="pre">&lt;field&gt;</span></code> is named as the <code class="docutils literal"><span class="pre">USERNAME_FIELD</span></code>, but it is not
+unique.</li>
+<li><strong>auth.E005</strong>: The permission codenamed <code class="docutils literal"><span class="pre">&lt;codename&gt;</span></code> clashes with a builtin
+permission for model <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>auth.E006</strong>: The permission codenamed <code class="docutils literal"><span class="pre">&lt;codename&gt;</span></code> is duplicated for model
+<code class="docutils literal"><span class="pre">&lt;model&gt;</span></code>.</li>
+<li><strong>auth.E007</strong>: The <a class="reference internal" href="models/options.html#django.db.models.Options.verbose_name" title="django.db.models.Options.verbose_name"><code class="xref py py-attr docutils literal"><span class="pre">verbose_name</span></code></a> of model <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code> must be at most
+244 characters for its builtin permission names
+to be at most 255 characters.</li>
+<li><strong>auth.E008</strong>: The permission named <code class="docutils literal"><span class="pre">&lt;name&gt;</span></code> of model <code class="docutils literal"><span class="pre">&lt;model&gt;</span></code> is longer
+than 255 characters.</li>
+<li><strong>auth.C009</strong>: <code class="docutils literal"><span class="pre">&lt;User</span> <span class="pre">model&gt;.is_anonymous</span></code> must be an attribute or property
+rather than a method. Ignoring this is a security issue as anonymous users
+will be treated as authenticated!</li>
+<li><strong>auth.C010</strong>: <code class="docutils literal"><span class="pre">&lt;User</span> <span class="pre">model&gt;.is_authenticated</span></code> must be an attribute or
+property rather than a method. Ignoring this is a security issue as anonymous
+users will be treated as authenticated!</li>
+</ul>
+</div>
+<div class="section" id="content-types">
+<h3>Content Types<a class="headerlink" href="#content-types" title="永久链接至标题">¶</a></h3>
+<p>The following checks are performed when a model contains a
+<a class="reference internal" href="contrib/contenttypes.html#django.contrib.contenttypes.fields.GenericForeignKey" title="django.contrib.contenttypes.fields.GenericForeignKey"><code class="xref py py-class docutils literal"><span class="pre">GenericForeignKey</span></code></a> or
+<a class="reference internal" href="contrib/contenttypes.html#django.contrib.contenttypes.fields.GenericRelation" title="django.contrib.contenttypes.fields.GenericRelation"><code class="xref py py-class docutils literal"><span class="pre">GenericRelation</span></code></a>:</p>
+<ul class="simple">
+<li><strong>contenttypes.E001</strong>: The <code class="docutils literal"><span class="pre">GenericForeignKey</span></code> object ID references the
+non-existent field <code class="docutils literal"><span class="pre">&lt;field&gt;</span></code>.</li>
+<li><strong>contenttypes.E002</strong>: The <code class="docutils literal"><span class="pre">GenericForeignKey</span></code> content type references the
+non-existent field <code class="docutils literal"><span class="pre">&lt;field&gt;</span></code>.</li>
+<li><strong>contenttypes.E003</strong>: <code class="docutils literal"><span class="pre">&lt;field&gt;</span></code> is not a <code class="docutils literal"><span class="pre">ForeignKey</span></code>.</li>
+<li><strong>contenttypes.E004</strong>: <code class="docutils literal"><span class="pre">&lt;field&gt;</span></code> is not a <code class="docutils literal"><span class="pre">ForeignKey</span></code> to
+<code class="docutils literal"><span class="pre">contenttypes.ContentType</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="security">
+<h3>Security<a class="headerlink" href="#security" title="永久链接至标题">¶</a></h3>
+<p>The security checks do not make your site secure. They do not audit code, do
+intrusion detection, or do anything particularly complex. Rather, they help
+perform an automated, low-hanging-fruit checklist. They help you remember the
+simple things that improve your site’s security.</p>
+<p>Some of these checks may not be appropriate for your particular deployment
+configuration. For instance, if you do your HTTP to HTTPS redirection in a load
+balancer, it’d be irritating to be constantly warned about not having enabled
+<a class="reference internal" href="settings.html#std:setting-SECURE_SSL_REDIRECT"><code class="xref std std-setting docutils literal"><span class="pre">SECURE_SSL_REDIRECT</span></code></a>. Use <a class="reference internal" href="settings.html#std:setting-SILENCED_SYSTEM_CHECKS"><code class="xref std std-setting docutils literal"><span class="pre">SILENCED_SYSTEM_CHECKS</span></code></a> to
+silence unneeded checks.</p>
+<p>The following checks are run if you use the <a class="reference internal" href="django-admin.html#cmdoption-check-deploy"><code class="xref std std-option docutils literal"><span class="pre">check</span> <span class="pre">--deploy</span></code></a> option:</p>
+<ul class="simple">
+<li><strong>security.W001</strong>: You do not have
+<a class="reference internal" href="middleware.html#django.middleware.security.SecurityMiddleware" title="django.middleware.security.SecurityMiddleware"><code class="xref py py-class docutils literal"><span class="pre">django.middleware.security.SecurityMiddleware</span></code></a> in your
+<a class="reference internal" href="settings.html#std:setting-MIDDLEWARE"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE</span></code></a>/<a class="reference internal" href="settings.html#std:setting-MIDDLEWARE_CLASSES"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE_CLASSES</span></code></a> so the <a class="reference internal" href="settings.html#std:setting-SECURE_HSTS_SECONDS"><code class="xref std std-setting docutils literal"><span class="pre">SECURE_HSTS_SECONDS</span></code></a>,
+<a class="reference internal" href="settings.html#std:setting-SECURE_CONTENT_TYPE_NOSNIFF"><code class="xref std std-setting docutils literal"><span class="pre">SECURE_CONTENT_TYPE_NOSNIFF</span></code></a>, <a class="reference internal" href="settings.html#std:setting-SECURE_BROWSER_XSS_FILTER"><code class="xref std std-setting docutils literal"><span class="pre">SECURE_BROWSER_XSS_FILTER</span></code></a>,
+and <a class="reference internal" href="settings.html#std:setting-SECURE_SSL_REDIRECT"><code class="xref std std-setting docutils literal"><span class="pre">SECURE_SSL_REDIRECT</span></code></a> settings will have no effect.</li>
+<li><strong>security.W002</strong>: You do not have
+<a class="reference internal" href="middleware.html#django.middleware.clickjacking.XFrameOptionsMiddleware" title="django.middleware.clickjacking.XFrameOptionsMiddleware"><code class="xref py py-class docutils literal"><span class="pre">django.middleware.clickjacking.XFrameOptionsMiddleware</span></code></a> in your
+<a class="reference internal" href="settings.html#std:setting-MIDDLEWARE"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE</span></code></a>/<a class="reference internal" href="settings.html#std:setting-MIDDLEWARE_CLASSES"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE_CLASSES</span></code></a>, so your pages will not be served with an
+<code class="docutils literal"><span class="pre">'x-frame-options'</span></code> header. Unless there is a good reason for your
+site to be served in a frame, you should consider enabling this
+header to help prevent clickjacking attacks.</li>
+<li><strong>security.W003</strong>: You don’t appear to be using Django’s built-in cross-site
+request forgery protection via the middleware
+(<a class="reference internal" href="middleware.html#django.middleware.csrf.CsrfViewMiddleware" title="django.middleware.csrf.CsrfViewMiddleware"><code class="xref py py-class docutils literal"><span class="pre">django.middleware.csrf.CsrfViewMiddleware</span></code></a> is not in your
+<a class="reference internal" href="settings.html#std:setting-MIDDLEWARE"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE</span></code></a>/<a class="reference internal" href="settings.html#std:setting-MIDDLEWARE_CLASSES"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE_CLASSES</span></code></a>). Enabling the middleware is the safest
+approach to ensure you don’t leave any holes.</li>
+<li><strong>security.W004</strong>: You have not set a value for the
+<a class="reference internal" href="settings.html#std:setting-SECURE_HSTS_SECONDS"><code class="xref std std-setting docutils literal"><span class="pre">SECURE_HSTS_SECONDS</span></code></a> setting. If your entire site is served only
+over SSL, you may want to consider setting a value and enabling <a class="reference internal" href="middleware.html#http-strict-transport-security"><span class="std std-ref">HTTP
+Strict Transport Security</span></a>. Be sure to read
+the documentation first; enabling HSTS carelessly can cause serious,
+irreversible problems.</li>
+<li><strong>security.W005</strong>: You have not set the
+<a class="reference internal" href="settings.html#std:setting-SECURE_HSTS_INCLUDE_SUBDOMAINS"><code class="xref std std-setting docutils literal"><span class="pre">SECURE_HSTS_INCLUDE_SUBDOMAINS</span></code></a> setting to <code class="docutils literal"><span class="pre">True</span></code>. Without this,
+your site is potentially vulnerable to attack via an insecure connection to a
+subdomain. Only set this to <code class="docutils literal"><span class="pre">True</span></code> if you are certain that all subdomains of
+your domain should be served exclusively via SSL.</li>
+<li><strong>security.W006</strong>: Your <a class="reference internal" href="settings.html#std:setting-SECURE_CONTENT_TYPE_NOSNIFF"><code class="xref std std-setting docutils literal"><span class="pre">SECURE_CONTENT_TYPE_NOSNIFF</span></code></a> setting is not
+set to <code class="docutils literal"><span class="pre">True</span></code>, so your pages will not be served with an
+<code class="docutils literal"><span class="pre">'x-content-type-options:</span> <span class="pre">nosniff'</span></code> header. You should consider enabling
+this header to prevent the browser from identifying content types incorrectly.</li>
+<li><strong>security.W007</strong>: Your <a class="reference internal" href="settings.html#std:setting-SECURE_BROWSER_XSS_FILTER"><code class="xref std std-setting docutils literal"><span class="pre">SECURE_BROWSER_XSS_FILTER</span></code></a> setting is not
+set to <code class="docutils literal"><span class="pre">True</span></code>, so your pages will not be served with an
+<code class="docutils literal"><span class="pre">'x-xss-protection:</span> <span class="pre">1;</span> <span class="pre">mode=block'</span></code> header. You should consider enabling
+this header to activate the browser’s XSS filtering and help prevent XSS
+attacks.</li>
+<li><strong>security.W008</strong>: Your <a class="reference internal" href="settings.html#std:setting-SECURE_SSL_REDIRECT"><code class="xref std std-setting docutils literal"><span class="pre">SECURE_SSL_REDIRECT</span></code></a> setting is not set to
+<code class="docutils literal"><span class="pre">True</span></code>. Unless your site should be available over both SSL and non-SSL
+connections, you may want to either set this setting to <code class="docutils literal"><span class="pre">True</span></code> or configure
+a load balancer or reverse-proxy server  to redirect all connections to HTTPS.</li>
+<li><strong>security.W009</strong>: Your <a class="reference internal" href="settings.html#std:setting-SECRET_KEY"><code class="xref std std-setting docutils literal"><span class="pre">SECRET_KEY</span></code></a> has less than 50 characters or
+less than 5 unique characters. Please generate a long and random
+<code class="docutils literal"><span class="pre">SECRET_KEY</span></code>, otherwise many of Django’s security-critical features will be
+vulnerable to attack.</li>
+<li><strong>security.W010</strong>: You have <a class="reference internal" href="../topics/http/sessions.html#module-django.contrib.sessions" title="django.contrib.sessions: Provides session management for Django projects."><code class="xref py py-mod docutils literal"><span class="pre">django.contrib.sessions</span></code></a> in your
+<a class="reference internal" href="settings.html#std:setting-INSTALLED_APPS"><code class="xref std std-setting docutils literal"><span class="pre">INSTALLED_APPS</span></code></a> but you have not set
+<a class="reference internal" href="settings.html#std:setting-SESSION_COOKIE_SECURE"><code class="xref std std-setting docutils literal"><span class="pre">SESSION_COOKIE_SECURE</span></code></a> to <code class="docutils literal"><span class="pre">True</span></code>. Using a secure-only session
+cookie makes it more difficult for network traffic sniffers to hijack user
+sessions.</li>
+<li><strong>security.W011</strong>: You have
+<a class="reference internal" href="middleware.html#django.contrib.sessions.middleware.SessionMiddleware" title="django.contrib.sessions.middleware.SessionMiddleware"><code class="xref py py-class docutils literal"><span class="pre">django.contrib.sessions.middleware.SessionMiddleware</span></code></a> in your
+<a class="reference internal" href="settings.html#std:setting-MIDDLEWARE"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE</span></code></a>/<a class="reference internal" href="settings.html#std:setting-MIDDLEWARE_CLASSES"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE_CLASSES</span></code></a>, but you have not set
+<a class="reference internal" href="settings.html#std:setting-SESSION_COOKIE_SECURE"><code class="xref std std-setting docutils literal"><span class="pre">SESSION_COOKIE_SECURE</span></code></a> to <code class="docutils literal"><span class="pre">True</span></code>. Using a secure-only session
+cookie makes it more difficult for network traffic sniffers to hijack user
+sessions.</li>
+<li><strong>security.W012</strong>: <a class="reference internal" href="settings.html#std:setting-SESSION_COOKIE_SECURE"><code class="xref std std-setting docutils literal"><span class="pre">SESSION_COOKIE_SECURE</span></code></a> is not set to <code class="docutils literal"><span class="pre">True</span></code>.
+Using a secure-only session cookie makes it more difficult for network traffic
+sniffers to hijack user sessions.</li>
+<li><strong>security.W013</strong>: You have <a class="reference internal" href="../topics/http/sessions.html#module-django.contrib.sessions" title="django.contrib.sessions: Provides session management for Django projects."><code class="xref py py-mod docutils literal"><span class="pre">django.contrib.sessions</span></code></a> in your
+<a class="reference internal" href="settings.html#std:setting-INSTALLED_APPS"><code class="xref std std-setting docutils literal"><span class="pre">INSTALLED_APPS</span></code></a>, but you have not set
+<a class="reference internal" href="settings.html#std:setting-SESSION_COOKIE_HTTPONLY"><code class="xref std std-setting docutils literal"><span class="pre">SESSION_COOKIE_HTTPONLY</span></code></a> to <code class="docutils literal"><span class="pre">True</span></code>. Using an <code class="docutils literal"><span class="pre">HttpOnly</span></code> session
+cookie makes it more difficult for cross-site scripting attacks to hijack user
+sessions.</li>
+<li><strong>security.W014</strong>: You have
+<a class="reference internal" href="middleware.html#django.contrib.sessions.middleware.SessionMiddleware" title="django.contrib.sessions.middleware.SessionMiddleware"><code class="xref py py-class docutils literal"><span class="pre">django.contrib.sessions.middleware.SessionMiddleware</span></code></a> in your
+<a class="reference internal" href="settings.html#std:setting-MIDDLEWARE"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE</span></code></a>/<a class="reference internal" href="settings.html#std:setting-MIDDLEWARE_CLASSES"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE_CLASSES</span></code></a>, but you have not set
+<a class="reference internal" href="settings.html#std:setting-SESSION_COOKIE_HTTPONLY"><code class="xref std std-setting docutils literal"><span class="pre">SESSION_COOKIE_HTTPONLY</span></code></a> to <code class="docutils literal"><span class="pre">True</span></code>. Using an <code class="docutils literal"><span class="pre">HttpOnly</span></code> session
+cookie makes it more difficult for cross-site scripting attacks to hijack user
+sessions.</li>
+<li><strong>security.W015</strong>: <a class="reference internal" href="settings.html#std:setting-SESSION_COOKIE_HTTPONLY"><code class="xref std std-setting docutils literal"><span class="pre">SESSION_COOKIE_HTTPONLY</span></code></a> is not set to <code class="docutils literal"><span class="pre">True</span></code>.
+Using an <code class="docutils literal"><span class="pre">HttpOnly</span></code> session cookie makes it more difficult for cross-site
+scripting attacks to hijack user sessions.</li>
+<li><strong>security.W016</strong>: <a class="reference internal" href="settings.html#std:setting-CSRF_COOKIE_SECURE"><code class="xref std std-setting docutils literal"><span class="pre">CSRF_COOKIE_SECURE</span></code></a> is not set to <code class="docutils literal"><span class="pre">True</span></code>.
+Using a secure-only CSRF cookie makes it more difficult for network traffic
+sniffers to steal the CSRF token.</li>
+<li><strong>security.W017</strong>: <a class="reference internal" href="settings.html#std:setting-CSRF_COOKIE_HTTPONLY"><code class="xref std std-setting docutils literal"><span class="pre">CSRF_COOKIE_HTTPONLY</span></code></a> is not set to <code class="docutils literal"><span class="pre">True</span></code>.
+Using an <code class="docutils literal"><span class="pre">HttpOnly</span></code> CSRF cookie makes it more difficult for cross-site
+scripting attacks to steal the CSRF token.</li>
+<li><strong>security.W018</strong>: You should not have <a class="reference internal" href="settings.html#std:setting-DEBUG"><code class="xref std std-setting docutils literal"><span class="pre">DEBUG</span></code></a> set to <code class="docutils literal"><span class="pre">True</span></code> in
+deployment.</li>
+<li><strong>security.W019</strong>: You have
+<a class="reference internal" href="middleware.html#django.middleware.clickjacking.XFrameOptionsMiddleware" title="django.middleware.clickjacking.XFrameOptionsMiddleware"><code class="xref py py-class docutils literal"><span class="pre">django.middleware.clickjacking.XFrameOptionsMiddleware</span></code></a> in your
+<a class="reference internal" href="settings.html#std:setting-MIDDLEWARE"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE</span></code></a>/<a class="reference internal" href="settings.html#std:setting-MIDDLEWARE_CLASSES"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE_CLASSES</span></code></a>, but <a class="reference internal" href="settings.html#std:setting-X_FRAME_OPTIONS"><code class="xref std std-setting docutils literal"><span class="pre">X_FRAME_OPTIONS</span></code></a> is not set to
+<code class="docutils literal"><span class="pre">'DENY'</span></code>. The default is <code class="docutils literal"><span class="pre">'SAMEORIGIN'</span></code>, but unless there is a good reason
+for your site to serve other parts of itself in a frame, you should change
+it to <code class="docutils literal"><span class="pre">'DENY'</span></code>.</li>
+<li><strong>security.W020</strong>: <a class="reference internal" href="settings.html#std:setting-ALLOWED_HOSTS"><code class="xref std std-setting docutils literal"><span class="pre">ALLOWED_HOSTS</span></code></a> must not be empty in deployment.</li>
+</ul>
+</div>
+<div class="section" id="sites">
+<h3>Sites<a class="headerlink" href="#sites" title="永久链接至标题">¶</a></h3>
+<p>The following checks are performed on any model using a
+<a class="reference internal" href="contrib/sites.html#django.contrib.sites.managers.CurrentSiteManager" title="django.contrib.sites.managers.CurrentSiteManager"><code class="xref py py-class docutils literal"><span class="pre">CurrentSiteManager</span></code></a>:</p>
+<ul class="simple">
+<li><strong>sites.E001</strong>: <code class="docutils literal"><span class="pre">CurrentSiteManager</span></code> could not find a field named
+<code class="docutils literal"><span class="pre">&lt;field</span> <span class="pre">name&gt;</span></code>.</li>
+<li><strong>sites.E002</strong>: <code class="docutils literal"><span class="pre">CurrentSiteManager</span></code> cannot use <code class="docutils literal"><span class="pre">&lt;field&gt;</span></code> as it is not a
+foreign key or a many-to-many field.</li>
+</ul>
+</div>
+<div class="section" id="database">
+<h3>Database<a class="headerlink" href="#database" title="永久链接至标题">¶</a></h3>
+<div class="section" id="mysql">
+<h4>MySQL<a class="headerlink" href="#mysql" title="永久链接至标题">¶</a></h4>
+<p>If you’re using MySQL, the following checks will be performed:</p>
+<ul class="simple">
+<li><strong>mysql.E001</strong>: MySQL does not allow unique <code class="docutils literal"><span class="pre">CharField</span></code>s to have a
+<code class="docutils literal"><span class="pre">max_length</span></code> &gt; 255.</li>
+<li><strong>mysql.W002</strong>: MySQL Strict Mode is not set for database connection
+‘&lt;alias&gt;’. See also <a class="reference internal" href="databases.html#mysql-sql-mode"><span class="std std-ref">Setting sql_mode</span></a>.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="templates">
+<h3>Templates<a class="headerlink" href="#templates" title="永久链接至标题">¶</a></h3>
+<p>The following checks verify that your <a class="reference internal" href="settings.html#std:setting-TEMPLATES"><code class="xref std std-setting docutils literal"><span class="pre">TEMPLATES</span></code></a> setting is correctly
+configured:</p>
+<ul class="simple">
+<li><strong>templates.E001</strong>: You have <code class="docutils literal"><span class="pre">'APP_DIRS':</span> <span class="pre">True</span></code> in your
+<a class="reference internal" href="settings.html#std:setting-TEMPLATES"><code class="xref std std-setting docutils literal"><span class="pre">TEMPLATES</span></code></a> but also specify <code class="docutils literal"><span class="pre">'loaders'</span></code> in <code class="docutils literal"><span class="pre">OPTIONS</span></code>. Either
+remove <code class="docutils literal"><span class="pre">APP_DIRS</span></code> or remove the <code class="docutils literal"><span class="pre">'loaders'</span></code> option.</li>
+<li><strong>templates.E002</strong>: <code class="docutils literal"><span class="pre">string_if_invalid</span></code> in <a class="reference internal" href="settings.html#std:setting-TEMPLATES"><code class="xref std std-setting docutils literal"><span class="pre">TEMPLATES</span></code></a>
+<a class="reference internal" href="settings.html#std:setting-TEMPLATES-OPTIONS"><code class="xref std std-setting docutils literal"><span class="pre">OPTIONS</span></code></a> must be a string but got: <code class="docutils literal"><span class="pre">{value}</span></code>
+(<code class="docutils literal"><span class="pre">{type}</span></code>).</li>
+</ul>
+</div>
+<div class="section" id="caches">
+<h3>Caches<a class="headerlink" href="#caches" title="永久链接至标题">¶</a></h3>
+<p>The following checks verify that your <a class="reference internal" href="settings.html#std:setting-CACHES"><code class="xref std std-setting docutils literal"><span class="pre">CACHES</span></code></a> setting is correctly
+configured:</p>
+<ul class="simple">
+<li><strong>caches.E001</strong>: You must define a <code class="docutils literal"><span class="pre">'default'</span></code> cache in your
+<a class="reference internal" href="settings.html#std:setting-CACHES"><code class="xref std std-setting docutils literal"><span class="pre">CACHES</span></code></a> setting.</li>
+</ul>
+</div>
+<div class="section" id="urls">
+<h3>URLs<a class="headerlink" href="#urls" title="永久链接至标题">¶</a></h3>
+<p>The following checks are performed on your URL configuration:</p>
+<ul class="simple">
+<li><strong>urls.W001</strong>: Your URL pattern <code class="docutils literal"><span class="pre">&lt;pattern&gt;</span></code> uses
+<a class="reference internal" href="urls.html#django.conf.urls.include" title="django.conf.urls.include"><code class="xref py py-func docutils literal"><span class="pre">include()</span></code></a> with a <code class="docutils literal"><span class="pre">regex</span></code> ending with a
+<code class="docutils literal"><span class="pre">$</span></code>. Remove the dollar from the <code class="docutils literal"><span class="pre">regex</span></code> to avoid problems
+including URLs.</li>
+<li><strong>urls.W002</strong>: Your URL pattern <code class="docutils literal"><span class="pre">&lt;pattern&gt;</span></code> has a <code class="docutils literal"><span class="pre">regex</span></code>
+beginning with a <code class="docutils literal"><span class="pre">/</span></code>. Remove this slash as it is unnecessary.
+If this pattern is targeted in an <a class="reference internal" href="urls.html#django.conf.urls.include" title="django.conf.urls.include"><code class="xref py py-func docutils literal"><span class="pre">include()</span></code></a>, ensure
+the <a class="reference internal" href="urls.html#django.conf.urls.include" title="django.conf.urls.include"><code class="xref py py-func docutils literal"><span class="pre">include()</span></code></a> pattern has a trailing <code class="docutils literal"><span class="pre">/</span></code>.</li>
+<li><strong>urls.W003</strong>: Your URL pattern <code class="docutils literal"><span class="pre">&lt;pattern&gt;</span></code> has a <code class="docutils literal"><span class="pre">name</span></code>
+including a <code class="docutils literal"><span class="pre">:</span></code>. Remove the colon, to avoid ambiguous namespace
+references.</li>
+<li><strong>urls.E004</strong>: Your URL pattern <code class="docutils literal"><span class="pre">&lt;pattern&gt;</span></code> is invalid. Ensure that
+<code class="docutils literal"><span class="pre">urlpatterns</span></code> is a list of <a class="reference internal" href="urls.html#django.conf.urls.url" title="django.conf.urls.url"><code class="xref py py-func docutils literal"><span class="pre">url()</span></code></a> instances.</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

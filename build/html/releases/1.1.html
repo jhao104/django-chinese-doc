@@ -1,0 +1,581 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Django 1.1 release notes &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Django 1.1 release notes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/releases/1.1.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="django-1-1-release-notes">
+<h1>Django 1.1 release notes<a class="headerlink" href="#django-1-1-release-notes" title="永久链接至标题">¶</a></h1>
+<p>July 29, 2009</p>
+<p>Welcome to Django 1.1!</p>
+<p>Django 1.1 includes a number of nifty <a class="reference internal" href="#whats-new-1-1"><span class="std std-ref">new features</span></a>, lots
+of bug fixes, and an easy upgrade path from Django 1.0.</p>
+<div class="section" id="backwards-incompatible-changes-in-1-1">
+<span id="backwards-incompatible-changes-1-1"></span><h2>Backwards-incompatible changes in 1.1<a class="headerlink" href="#backwards-incompatible-changes-in-1-1" title="永久链接至标题">¶</a></h2>
+<p>Django has a policy of <a class="reference internal" href="../misc/api-stability.html"><span class="doc">API stability</span></a>. This means
+that, in general, code you develop against Django 1.0 should continue to work
+against 1.1 unchanged. However, we do sometimes make backwards-incompatible
+changes if they’re necessary to resolve bugs, and there are a handful of such
+(minor) changes between Django 1.0 and Django 1.1.</p>
+<p>Before upgrading to Django 1.1 you should double-check that the following
+changes don’t impact you, and upgrade your code if they do.</p>
+<div class="section" id="changes-to-constraint-names">
+<h3>Changes to constraint names<a class="headerlink" href="#changes-to-constraint-names" title="永久链接至标题">¶</a></h3>
+<p>Django 1.1 modifies the method used to generate database constraint names so
+that names are consistent regardless of machine word size. This change is
+backwards incompatible for some users.</p>
+<p>If you are using a 32-bit platform, you’re off the hook; you’ll observe no
+differences as a result of this change.</p>
+<p>However, <strong>users on 64-bit platforms may experience some problems</strong> using the
+<code class="docutils literal"><span class="pre">reset</span></code> management command. Prior to this change, 64-bit platforms
+would generate a 64-bit, 16 character digest in the constraint name; for
+example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">ALTER</span> <span class="n">TABLE</span> <span class="n">myapp_sometable</span> <span class="n">ADD</span> <span class="n">CONSTRAINT</span> <span class="n">object_id_refs_id_5e8f10c132091d1e</span> <span class="n">FOREIGN</span> <span class="n">KEY</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>Following this change, all platforms, regardless of word size, will generate a
+32-bit, 8 character digest in the constraint name; for example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">ALTER</span> <span class="n">TABLE</span> <span class="n">myapp_sometable</span> <span class="n">ADD</span> <span class="n">CONSTRAINT</span> <span class="n">object_id_refs_id_32091d1e</span> <span class="n">FOREIGN</span> <span class="n">KEY</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>As a result of this change, you will not be able to use the <code class="docutils literal"><span class="pre">reset</span></code>
+management command on any table made by a 64-bit machine. This is because the
+new generated name will not match the historically generated name; as a
+result, the SQL constructed by the reset command will be invalid.</p>
+<p>If you need to reset an application that was created with 64-bit constraints,
+you will need to manually drop the old constraint prior to invoking
+<code class="docutils literal"><span class="pre">reset</span></code>.</p>
+</div>
+<div class="section" id="test-cases-are-now-run-in-a-transaction">
+<h3>Test cases are now run in a transaction<a class="headerlink" href="#test-cases-are-now-run-in-a-transaction" title="永久链接至标题">¶</a></h3>
+<p>Django 1.1 runs tests inside a transaction, allowing better test performance
+(see <a class="reference internal" href="#test-performance-improvements">test performance improvements</a> for details).</p>
+<p>This change is slightly backwards incompatible if existing tests need to test
+transactional behavior, if they rely on invalid assumptions about the test
+environment, or if they require a specific test case ordering.</p>
+<p>For these cases, <a class="reference internal" href="../topics/testing/tools.html#django.test.TransactionTestCase" title="django.test.TransactionTestCase"><code class="xref py py-class docutils literal"><span class="pre">TransactionTestCase</span></code></a> can be used instead.
+This is a just a quick fix to get around test case errors revealed by the new
+rollback approach; in the long-term tests should be rewritten to correct the
+test case.</p>
+</div>
+<div class="section" id="removed-setremoteaddrfromforwardedfor-middleware">
+<span id="id1"></span><h3>Removed <code class="docutils literal"><span class="pre">SetRemoteAddrFromForwardedFor</span></code> middleware<a class="headerlink" href="#removed-setremoteaddrfromforwardedfor-middleware" title="永久链接至标题">¶</a></h3>
+<p>For convenience, Django 1.0 included an optional middleware class –
+<code class="docutils literal"><span class="pre">django.middleware.http.SetRemoteAddrFromForwardedFor</span></code> – which updated the
+value of <code class="docutils literal"><span class="pre">REMOTE_ADDR</span></code> based on the HTTP <code class="docutils literal"><span class="pre">X-Forwarded-For</span></code> header commonly
+set by some proxy configurations.</p>
+<p>It has been demonstrated that this mechanism cannot be made reliable enough for
+general-purpose use, and that (despite documentation to the contrary) its
+inclusion in Django may lead application developers to assume that the value of
+<code class="docutils literal"><span class="pre">REMOTE_ADDR</span></code> is “safe” or in some way reliable as a source of authentication.</p>
+<p>While not directly a security issue, we’ve decided to remove this middleware
+with the Django 1.1 release. It has been replaced with a class that does nothing
+other than raise a <code class="docutils literal"><span class="pre">DeprecationWarning</span></code>.</p>
+<p>If you’ve been relying on this middleware, the easiest upgrade path is:</p>
+<ul class="simple">
+<li>Examine <a class="reference external" href="https://github.com/django/django/blob/91f18400cc0fb37659e2dbaab5484ff2081f1f30/django/middleware/http.py#L33">the code as it existed before it was removed</a>.</li>
+<li>Verify that it works correctly with your upstream proxy, modifying
+it to support your particular proxy (if necessary).</li>
+<li>Introduce your modified version of <code class="docutils literal"><span class="pre">SetRemoteAddrFromForwardedFor</span></code> as a
+piece of middleware in your own project.</li>
+</ul>
+</div>
+<div class="section" id="names-of-uploaded-files-are-available-later">
+<h3>Names of uploaded files are available later<a class="headerlink" href="#names-of-uploaded-files-are-available-later" title="永久链接至标题">¶</a></h3>
+<p>In Django 1.0, files uploaded and stored in a model’s <a class="reference internal" href="../ref/models/fields.html#django.db.models.FileField" title="django.db.models.FileField"><code class="xref py py-class docutils literal"><span class="pre">FileField</span></code></a> were
+saved to disk before the model was saved to the database. This meant that the
+actual file name assigned to the file was available before saving. For example,
+it was available in a model’s pre-save signal handler.</p>
+<p>In Django 1.1 the file is saved as part of saving the model in the database, so
+the actual file name used on disk cannot be relied on until <em>after</em> the model
+has been saved.</p>
+</div>
+<div class="section" id="changes-to-how-model-formsets-are-saved">
+<h3>Changes to how model formsets are saved<a class="headerlink" href="#changes-to-how-model-formsets-are-saved" title="永久链接至标题">¶</a></h3>
+<p>In Django 1.1, <a class="reference internal" href="../topics/forms/modelforms.html#django.forms.models.BaseModelFormSet" title="django.forms.models.BaseModelFormSet"><code class="xref py py-class docutils literal"><span class="pre">BaseModelFormSet</span></code></a> now calls
+<code class="docutils literal"><span class="pre">ModelForm.save()</span></code>.</p>
+<p>This is backwards-incompatible if you were modifying <code class="docutils literal"><span class="pre">self.initial</span></code> in a model
+formset’s <code class="docutils literal"><span class="pre">__init__</span></code>, or if you relied on the internal <code class="docutils literal"><span class="pre">_total_form_count</span></code>
+or <code class="docutils literal"><span class="pre">_initial_form_count</span></code> attributes of BaseFormSet. Those attributes are now
+public methods.</p>
+</div>
+<div class="section" id="fixed-the-join-filter-s-escaping-behavior">
+<h3>Fixed the <code class="docutils literal"><span class="pre">join</span></code> filter’s escaping behavior<a class="headerlink" href="#fixed-the-join-filter-s-escaping-behavior" title="永久链接至标题">¶</a></h3>
+<p>The <a class="reference internal" href="../ref/templates/builtins.html#std:templatefilter-join"><code class="xref std std-tfilter docutils literal"><span class="pre">join</span></code></a> filter no longer escapes the literal value that is
+passed in for the connector.</p>
+<p>This is backwards incompatible for the special situation of the literal string
+containing one of the five special HTML characters. Thus, if you were writing
+<code class="docutils literal"><span class="pre">{{</span> <span class="pre">foo|join:&quot;&amp;&quot;</span> <span class="pre">}}</span></code>, you now have to write <code class="docutils literal"><span class="pre">{{</span> <span class="pre">foo|join:&quot;&amp;amp;&quot;</span> <span class="pre">}}</span></code>.</p>
+<p>The previous behavior was a bug and contrary to what was documented
+and expected.</p>
+</div>
+<div class="section" id="permanent-redirects-and-the-redirect-to-generic-view">
+<h3>Permanent redirects and the <code class="docutils literal"><span class="pre">redirect_to()</span></code> generic view<a class="headerlink" href="#permanent-redirects-and-the-redirect-to-generic-view" title="永久链接至标题">¶</a></h3>
+<p>Django 1.1 adds a <code class="docutils literal"><span class="pre">permanent</span></code> argument to the
+<code class="docutils literal"><span class="pre">django.views.generic.simple.redirect_to()</span></code> view. This is technically
+backwards-incompatible if you were using the <code class="docutils literal"><span class="pre">redirect_to</span></code> view with a
+format-string key called ‘permanent’, which is highly unlikely.</p>
+</div>
+</div>
+<div class="section" id="features-deprecated-in-1-1">
+<span id="deprecated-features-1-1"></span><h2>Features deprecated in 1.1<a class="headerlink" href="#features-deprecated-in-1-1" title="永久链接至标题">¶</a></h2>
+<p>One feature has been marked as deprecated in Django 1.1:</p>
+<ul>
+<li><p class="first">You should no longer use <code class="docutils literal"><span class="pre">AdminSite.root()</span></code> to register that admin
+views. That is, if your URLconf contains the line:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="p">(</span><span class="s">r&#39;^admin/(.*)&#39;</span><span class="p">,</span> <span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">root</span><span class="p">),</span>
+</pre></div>
+</div>
+<p>You should change it to read:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="p">(</span><span class="s">r&#39;^admin/&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">urls</span><span class="p">)),</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>You should begin to remove use of this feature from your code immediately.</p>
+<p><code class="docutils literal"><span class="pre">AdminSite.root</span></code> will raise a <code class="docutils literal"><span class="pre">PendingDeprecationWarning</span></code> if used in
+Django 1.1. This warning is hidden by default. In Django 1.2, this warning will
+be upgraded to a <code class="docutils literal"><span class="pre">DeprecationWarning</span></code>, which will be displayed loudly. Django
+1.3 will remove <code class="docutils literal"><span class="pre">AdminSite.root()</span></code> entirely.</p>
+<p>For more details on our deprecation policies and strategy, see
+<a class="reference internal" href="../internals/release-process.html"><span class="doc">Django’s release process</span></a>.</p>
+</div>
+<div class="section" id="what-s-new-in-django-1-1">
+<span id="whats-new-1-1"></span><h2>What’s new in Django 1.1<a class="headerlink" href="#what-s-new-in-django-1-1" title="永久链接至标题">¶</a></h2>
+<p>Quite a bit: since Django 1.0, we’ve made 1,290 code commits, fixed 1,206 bugs,
+and added roughly 10,000 lines of documentation.</p>
+<p>The major new features in Django 1.1 are:</p>
+<div class="section" id="orm-improvements">
+<h3>ORM improvements<a class="headerlink" href="#orm-improvements" title="永久链接至标题">¶</a></h3>
+<p>Two major enhancements have been added to Django’s object-relational mapper
+(ORM): aggregate support, and query expressions.</p>
+<div class="section" id="aggregate-support">
+<h4>Aggregate support<a class="headerlink" href="#aggregate-support" title="永久链接至标题">¶</a></h4>
+<p>It’s now possible to run SQL aggregate queries (i.e. <code class="docutils literal"><span class="pre">COUNT()</span></code>, <code class="docutils literal"><span class="pre">MAX()</span></code>,
+<code class="docutils literal"><span class="pre">MIN()</span></code>, etc.) from within Django’s ORM. You can choose to either return the
+results of the aggregate directly, or else annotate the objects in a
+<a class="reference internal" href="../ref/models/querysets.html#django.db.models.query.QuerySet" title="django.db.models.query.QuerySet"><code class="xref py py-class docutils literal"><span class="pre">QuerySet</span></code></a> with the results of the aggregate
+query.</p>
+<p>This feature is available as new
+<a class="reference internal" href="../ref/models/querysets.html#django.db.models.query.QuerySet.aggregate" title="django.db.models.query.QuerySet.aggregate"><code class="xref py py-meth docutils literal"><span class="pre">aggregate()</span></code></a> and
+<a class="reference internal" href="../ref/models/querysets.html#django.db.models.query.QuerySet.annotate" title="django.db.models.query.QuerySet.annotate"><code class="xref py py-meth docutils literal"><span class="pre">annotate()</span></code></a> methods, and is covered in
+detail in <a class="reference internal" href="../topics/db/aggregation.html"><span class="doc">the ORM aggregation documentation</span></a>.</p>
+</div>
+<div class="section" id="query-expressions">
+<h4>Query expressions<a class="headerlink" href="#query-expressions" title="永久链接至标题">¶</a></h4>
+<p>Queries can now refer to a another field on the query and can traverse
+relationships to refer to fields on related models. This is implemented in the
+new <a class="reference internal" href="../ref/models/expressions.html#django.db.models.F" title="django.db.models.F"><code class="xref py py-class docutils literal"><span class="pre">F</span></code></a> object; for full details, including examples,
+consult the <a class="reference internal" href="../ref/models/expressions.html#django.db.models.F" title="django.db.models.F"><code class="xref py py-class docutils literal"><span class="pre">F</span> <span class="pre">expressions</span> <span class="pre">documentation</span></code></a>.</p>
+</div>
+</div>
+<div class="section" id="model-improvements">
+<h3>Model improvements<a class="headerlink" href="#model-improvements" title="永久链接至标题">¶</a></h3>
+<p>A number of features have been added to Django’s model layer:</p>
+<div class="section" id="unmanaged-models">
+<h4>“Unmanaged” models<a class="headerlink" href="#unmanaged-models" title="永久链接至标题">¶</a></h4>
+<p>You can now control whether or not Django manages the life-cycle of the database
+tables for a model using the <a class="reference internal" href="../ref/models/options.html#django.db.models.Options.managed" title="django.db.models.Options.managed"><code class="xref py py-attr docutils literal"><span class="pre">managed</span></code></a> model option. This
+defaults to <code class="docutils literal"><span class="pre">True</span></code>, meaning that Django will create the appropriate database
+tables in <code class="docutils literal"><span class="pre">syncdb</span></code> and remove them as part of the <code class="docutils literal"><span class="pre">reset</span></code>
+command. That is, Django <em>manages</em> the database table’s lifecycle.</p>
+<p>If you set this to <code class="docutils literal"><span class="pre">False</span></code>, however, no database table creating or deletion
+will be automatically performed for this model. This is useful if the model
+represents an existing table or a database view that has been created by some
+other means.</p>
+<p>For more details, see the documentation for the <a class="reference internal" href="../ref/models/options.html#django.db.models.Options.managed" title="django.db.models.Options.managed"><code class="xref py py-attr docutils literal"><span class="pre">managed</span></code></a>
+option.</p>
+</div>
+<div class="section" id="proxy-models">
+<h4>Proxy models<a class="headerlink" href="#proxy-models" title="永久链接至标题">¶</a></h4>
+<p>You can now create <a class="reference internal" href="../topics/db/models.html#proxy-models"><span class="std std-ref">proxy models</span></a>: subclasses of existing
+models that only add Python-level (rather than database-level) behavior and
+aren’t represented by a new table. That is, the new model is a <em>proxy</em> for some
+underlying model, which stores all the real data.</p>
+<p>All the details can be found in the <a class="reference internal" href="../topics/db/models.html#proxy-models"><span class="std std-ref">proxy models documentation</span></a>. This feature is similar on the surface to unmanaged models,
+so the documentation has an explanation of <a class="reference internal" href="../topics/db/models.html#proxy-vs-unmanaged-models"><span class="std std-ref">how proxy models differ from
+unmanaged models</span></a>.</p>
+</div>
+<div class="section" id="deferred-fields">
+<h4>Deferred fields<a class="headerlink" href="#deferred-fields" title="永久链接至标题">¶</a></h4>
+<p>In some complex situations, your models might contain fields which could
+contain a lot of data (for example, large text fields), or require expensive
+processing to convert them to Python objects. If you know you don’t need those
+particular fields, you can now tell Django not to retrieve them from the
+database.</p>
+<p>You’ll do this with the new queryset methods
+<a class="reference internal" href="../ref/models/querysets.html#django.db.models.query.QuerySet.defer" title="django.db.models.query.QuerySet.defer"><code class="xref py py-meth docutils literal"><span class="pre">defer()</span></code></a> and
+<a class="reference internal" href="../ref/models/querysets.html#django.db.models.query.QuerySet.only" title="django.db.models.query.QuerySet.only"><code class="xref py py-meth docutils literal"><span class="pre">only()</span></code></a>.</p>
+</div>
+</div>
+<div class="section" id="testing-improvements">
+<h3>Testing improvements<a class="headerlink" href="#testing-improvements" title="永久链接至标题">¶</a></h3>
+<p>A few notable improvements have been made to the <a class="reference internal" href="../topics/testing/index.html"><span class="doc">testing framework</span></a>.</p>
+<div class="section" id="test-performance-improvements">
+<h4>Test performance improvements<a class="headerlink" href="#test-performance-improvements" title="永久链接至标题">¶</a></h4>
+<p>Tests written using Django’s <a class="reference internal" href="../topics/testing/index.html"><span class="doc">testing framework</span></a> now run
+dramatically faster (as much as 10 times faster in many cases).</p>
+<p>This was accomplished through the introduction of transaction-based tests: when
+using <a class="reference internal" href="../topics/testing/tools.html#django.test.TestCase" title="django.test.TestCase"><code class="xref py py-class docutils literal"><span class="pre">django.test.TestCase</span></code></a>, your tests will now be run in a transaction
+which is rolled back when finished, instead of by flushing and re-populating the
+database. This results in an immense speedup for most types of unit tests. See
+the documentation for <a class="reference internal" href="../topics/testing/tools.html#django.test.TestCase" title="django.test.TestCase"><code class="xref py py-class docutils literal"><span class="pre">TestCase</span></code></a> and <a class="reference internal" href="../topics/testing/tools.html#django.test.TransactionTestCase" title="django.test.TransactionTestCase"><code class="xref py py-class docutils literal"><span class="pre">TransactionTestCase</span></code></a> for a
+full description, and some important notes on database support.</p>
+</div>
+</div>
+<div class="section" id="test-client-improvements">
+<h3>Test client improvements<a class="headerlink" href="#test-client-improvements" title="永久链接至标题">¶</a></h3>
+<p>A couple of small – but highly useful – improvements have been made to the
+test client:</p>
+<ul class="simple">
+<li>The test <a class="reference internal" href="../topics/testing/tools.html#django.test.Client" title="django.test.Client"><code class="xref py py-class docutils literal"><span class="pre">Client</span></code></a> now can automatically follow redirects with the
+<code class="docutils literal"><span class="pre">follow</span></code> argument to <a class="reference internal" href="../topics/testing/tools.html#django.test.Client.get" title="django.test.Client.get"><code class="xref py py-meth docutils literal"><span class="pre">Client.get()</span></code></a> and <a class="reference internal" href="../topics/testing/tools.html#django.test.Client.post" title="django.test.Client.post"><code class="xref py py-meth docutils literal"><span class="pre">Client.post()</span></code></a>. This
+makes testing views that issue redirects simpler.</li>
+<li>It’s now easier to get at the template context in the response returned
+the test client: you’ll simply access the context as
+<code class="docutils literal"><span class="pre">request.context[key]</span></code>. The old way, which treats <code class="docutils literal"><span class="pre">request.context</span></code> as
+a list of contexts, one for each rendered template in the inheritance
+chain, is still available if you need it.</li>
+</ul>
+</div>
+<div class="section" id="new-admin-features">
+<h3>New admin features<a class="headerlink" href="#new-admin-features" title="永久链接至标题">¶</a></h3>
+<p>Django 1.1 adds a couple of nifty new features to Django’s admin interface:</p>
+<div class="section" id="editable-fields-on-the-change-list">
+<h4>Editable fields on the change list<a class="headerlink" href="#editable-fields-on-the-change-list" title="永久链接至标题">¶</a></h4>
+<p>You can now make fields editable on the admin list views via the new
+<a class="reference internal" href="../ref/contrib/admin/index.html#admin-list-editable"><span class="std std-ref">list_editable</span></a> admin option. These fields will show
+up as form widgets on the list pages, and can be edited and saved in bulk.</p>
+</div>
+<div class="section" id="admin-actions">
+<h4>Admin “actions”<a class="headerlink" href="#admin-actions" title="永久链接至标题">¶</a></h4>
+<p>You can now define <a class="reference internal" href="../ref/contrib/admin/actions.html"><span class="doc">admin actions</span></a> that can
+perform some action to a group of models in bulk. Users will be able to select
+objects on the change list page and then apply these bulk actions to all
+selected objects.</p>
+<p>Django ships with one pre-defined admin action to delete a group of objects in
+one fell swoop.</p>
+</div>
+</div>
+<div class="section" id="conditional-view-processing">
+<h3>Conditional view processing<a class="headerlink" href="#conditional-view-processing" title="永久链接至标题">¶</a></h3>
+<p>Django now has much better support for <a class="reference internal" href="../topics/conditional-view-processing.html"><span class="doc">conditional view processing</span></a> using the standard <code class="docutils literal"><span class="pre">ETag</span></code> and
+<code class="docutils literal"><span class="pre">Last-Modified</span></code> HTTP headers. This means you can now easily short-circuit
+view processing by testing less-expensive conditions. For many views this can
+lead to a serious improvement in speed and reduction in bandwidth.</p>
+</div>
+<div class="section" id="url-namespaces">
+<h3>URL namespaces<a class="headerlink" href="#url-namespaces" title="永久链接至标题">¶</a></h3>
+<p>Django 1.1 improves <a class="reference internal" href="../topics/http/urls.html#naming-url-patterns"><span class="std std-ref">named URL patterns</span></a> with the
+introduction of URL “namespaces.”</p>
+<p>In short, this feature allows the same group of URLs, from the same application,
+to be included in a Django URLConf multiple times, with varying (and potentially
+nested) named prefixes which will be used when performing reverse resolution. In
+other words, reusable applications like Django’s admin interface may be
+registered multiple times without URL conflicts.</p>
+<p>For full details, see <a class="reference internal" href="../topics/http/urls.html#topics-http-defining-url-namespaces"><span class="std std-ref">the documentation on defining URL namespaces</span></a>.</p>
+</div>
+<div class="section" id="geodjango">
+<h3>GeoDjango<a class="headerlink" href="#geodjango" title="永久链接至标题">¶</a></h3>
+<p>In Django 1.1, <a class="reference external" href="http://geodjango.org/">GeoDjango</a> (i.e. <code class="docutils literal"><span class="pre">django.contrib.gis</span></code>) has several new
+features:</p>
+<ul class="simple">
+<li>Support for <a class="reference external" href="http://www.gaia-gis.it/gaia-sins/">SpatiaLite</a> – a spatial database for SQLite – as a spatial
+backend.</li>
+<li>Geographic aggregates (<code class="docutils literal"><span class="pre">Collect</span></code>, <code class="docutils literal"><span class="pre">Extent</span></code>, <code class="docutils literal"><span class="pre">MakeLine</span></code>, <code class="docutils literal"><span class="pre">Union</span></code>)
+and <code class="docutils literal"><span class="pre">F</span></code> expressions.</li>
+<li>New <code class="docutils literal"><span class="pre">GeoQuerySet</span></code> methods: <code class="docutils literal"><span class="pre">collect</span></code>, <code class="docutils literal"><span class="pre">geojson</span></code>, and
+<code class="docutils literal"><span class="pre">snap_to_grid</span></code>.</li>
+<li>A new list interface methods for <code class="docutils literal"><span class="pre">GEOSGeometry</span></code> objects.</li>
+</ul>
+<p>For more details, see the GeoDjango documentation.</p>
+</div>
+<div class="section" id="other-improvements">
+<h3>Other improvements<a class="headerlink" href="#other-improvements" title="永久链接至标题">¶</a></h3>
+<p>Other new features and changes introduced since Django 1.0 include:</p>
+<ul class="simple">
+<li>The <a class="reference internal" href="../ref/csrf.html"><span class="doc">CSRF protection middleware</span></a> has been split into
+two classes – <code class="docutils literal"><span class="pre">CsrfViewMiddleware</span></code> checks incoming requests, and
+<code class="docutils literal"><span class="pre">CsrfResponseMiddleware</span></code> processes outgoing responses. The combined
+<code class="docutils literal"><span class="pre">CsrfMiddleware</span></code> class (which does both) remains for
+backwards-compatibility, but using the split classes is now recommended in
+order to allow fine-grained control of when and where the CSRF processing
+takes place.</li>
+<li><code class="docutils literal"><span class="pre">reverse()</span></code> and code which uses it (e.g., the <code class="docutils literal"><span class="pre">{%</span> <span class="pre">url</span> <span class="pre">%}</span></code> template tag)
+now works with URLs in Django’s administrative site, provided that the admin
+URLs are set up via <code class="docutils literal"><span class="pre">include(admin.site.urls)</span></code> (sending admin requests to
+the <code class="docutils literal"><span class="pre">admin.site.root</span></code> view still works, but URLs in the admin will not be
+“reversible” when configured this way).</li>
+<li>The <code class="docutils literal"><span class="pre">include()</span></code> function in Django URLconf modules can now accept sequences
+of URL patterns (generated by <code class="docutils literal"><span class="pre">patterns()</span></code>) in addition to module names.</li>
+<li>Instances of Django forms (see <a class="reference internal" href="../topics/forms/index.html"><span class="doc">the forms overview</span></a>)
+now have two additional methods, <code class="docutils literal"><span class="pre">hidden_fields()</span></code> and <code class="docutils literal"><span class="pre">visible_fields()</span></code>,
+which return the list of hidden – i.e., <code class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;hidden&quot;&gt;</span></code> – and
+visible fields on the form, respectively.</li>
+<li>The <code class="docutils literal"><span class="pre">redirect_to</span></code> generic view
+now accepts an additional keyword argument
+<code class="docutils literal"><span class="pre">permanent</span></code>. If <code class="docutils literal"><span class="pre">permanent</span></code> is <code class="docutils literal"><span class="pre">True</span></code>, the view will emit an HTTP
+permanent redirect (status code 301). If <code class="docutils literal"><span class="pre">False</span></code>, the view will emit an HTTP
+temporary redirect (status code 302).</li>
+<li>A new database lookup type – <code class="docutils literal"><span class="pre">week_day</span></code> – has been added for <code class="docutils literal"><span class="pre">DateField</span></code>
+and <code class="docutils literal"><span class="pre">DateTimeField</span></code>. This type of lookup accepts a number between 1 (Sunday)
+and 7 (Saturday), and returns objects where the field value matches that day
+of the week. See <a class="reference internal" href="../ref/models/querysets.html#field-lookups"><span class="std std-ref">the full list of lookup types</span></a> for
+details.</li>
+<li>The <code class="docutils literal"><span class="pre">{%</span> <span class="pre">for</span> <span class="pre">%}</span></code> tag in Django’s template language now accepts an optional
+<code class="docutils literal"><span class="pre">{%</span> <span class="pre">empty</span> <span class="pre">%}</span></code> clause, to be displayed when <code class="docutils literal"><span class="pre">{%</span> <span class="pre">for</span> <span class="pre">%}</span></code> is asked to loop
+over an empty sequence. See <a class="reference internal" href="../ref/templates/builtins.html"><span class="doc">the list of built-in template tags</span></a> for examples of this.</li>
+<li>The <a class="reference internal" href="../ref/django-admin.html#django-admin-dumpdata"><code class="xref std std-djadmin docutils literal"><span class="pre">dumpdata</span></code></a> management command now accepts individual
+model names as arguments, allowing you to export the data just from
+particular models.</li>
+<li>There’s a new <a class="reference internal" href="../ref/templates/builtins.html#std:templatefilter-safeseq"><code class="xref std std-tfilter docutils literal"><span class="pre">safeseq</span></code></a> template filter which works just like
+<a class="reference internal" href="../ref/templates/builtins.html#std:templatefilter-safe"><code class="xref std std-tfilter docutils literal"><span class="pre">safe</span></code></a> for lists, marking each item in the list as safe.</li>
+<li><a class="reference internal" href="../topics/cache.html"><span class="doc">Cache backends</span></a> now support <code class="docutils literal"><span class="pre">incr()</span></code> and
+<code class="docutils literal"><span class="pre">decr()</span></code> commands to increment and decrement the value of a cache key.
+On cache backends that support atomic increment/decrement – most
+notably, the memcached backend – these operations will be atomic, and
+quite fast.</li>
+<li>Django now can <a class="reference internal" href="../howto/auth-remote-user.html"><span class="doc">easily delegate authentication to the Web server</span></a> via a new authentication backend that supports
+the standard <code class="docutils literal"><span class="pre">REMOTE_USER</span></code> environment variable used for this purpose.</li>
+<li>There’s a new <a class="reference internal" href="../topics/http/shortcuts.html#django.shortcuts.redirect" title="django.shortcuts.redirect"><code class="xref py py-func docutils literal"><span class="pre">django.shortcuts.redirect()</span></code></a> function that makes it
+easier to issue redirects given an object, a view name, or a URL.</li>
+<li>The <code class="docutils literal"><span class="pre">postgresql_psycopg2</span></code> backend now supports <a class="reference internal" href="../ref/databases.html#postgresql-notes"><span class="std std-ref">native PostgreSQL
+autocommit</span></a>. This is an advanced, PostgreSQL-specific
+feature, that can make certain read-heavy applications a good deal
+faster.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="what-s-next">
+<h2>What’s next?<a class="headerlink" href="#what-s-next" title="永久链接至标题">¶</a></h2>
+<p>We’ll take a short break, and then work on Django 1.2 will begin – no rest for
+the weary! If you’d like to help, discussion of Django development, including
+progress toward the 1.2 release, takes place daily on the <a href="#id4"><span class="problematic" id="id5">|django-developers|</span></a>
+mailing list and in the <code class="docutils literal"><span class="pre">#django-dev</span></code> IRC channel on <code class="docutils literal"><span class="pre">irc.freenode.net</span></code>.
+Feel free to join the discussions!</p>
+<p>Django’s online documentation also includes pointers on how to contribute to
+Django:</p>
+<ul class="simple">
+<li><a class="reference internal" href="../internals/contributing/index.html"><span class="doc">How to contribute to Django</span></a></li>
+</ul>
+<p>Contributions on any level – developing code, writing documentation or simply
+triaging tickets and helping to test proposed bugfixes – are always welcome and
+appreciated.</p>
+<p>And that’s the way it is.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

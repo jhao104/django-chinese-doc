@@ -1,0 +1,383 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Writing views &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Writing views</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/topics/http/views.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="writing-views">
+<h1>Writing views<a class="headerlink" href="#writing-views" title="永久链接至标题">¶</a></h1>
+<p>A view function, or <em>view</em> for short, is simply a Python function that takes a
+Web request and returns a Web response. This response can be the HTML contents
+of a Web page, or a redirect, or a 404 error, or an XML document, or an image .
+. . or anything, really. The view itself contains whatever arbitrary logic is
+necessary to return that response. This code can live anywhere you want, as long
+as it’s on your Python path. There’s no other requirement–no “magic,” so to
+speak. For the sake of putting the code <em>somewhere</em>, the convention is to
+put views in a file called <code class="docutils literal"><span class="pre">views.py</span></code>, placed in your project or
+application directory.</p>
+<div class="section" id="a-simple-view">
+<h2>A simple view<a class="headerlink" href="#a-simple-view" title="永久链接至标题">¶</a></h2>
+<p>Here’s a view that returns the current date and time, as an HTML document:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpResponse</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="k">def</span> <span class="nf">current_datetime</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="n">html</span> <span class="o">=</span> <span class="s">&quot;&lt;html&gt;&lt;body&gt;It is now %s.&lt;/body&gt;&lt;/html&gt;&quot;</span> <span class="o">%</span> <span class="n">now</span>
+    <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Let’s step through this code one line at a time:</p>
+<ul>
+<li><p class="first">First, we import the class <a class="reference internal" href="../../ref/request-response.html#django.http.HttpResponse" title="django.http.HttpResponse"><code class="xref py py-class docutils literal"><span class="pre">HttpResponse</span></code></a> from the
+<a class="reference internal" href="../../ref/request-response.html#module-django.http" title="django.http: Classes dealing with HTTP requests and responses."><code class="xref py py-mod docutils literal"><span class="pre">django.http</span></code></a> module, along with Python’s <code class="docutils literal"><span class="pre">datetime</span></code> library.</p>
+</li>
+<li><p class="first">Next, we define a function called <code class="docutils literal"><span class="pre">current_datetime</span></code>. This is the view
+function. Each view function takes an <a class="reference internal" href="../../ref/request-response.html#django.http.HttpRequest" title="django.http.HttpRequest"><code class="xref py py-class docutils literal"><span class="pre">HttpRequest</span></code></a>
+object as its first parameter, which is typically named <code class="docutils literal"><span class="pre">request</span></code>.</p>
+<p>Note that the name of the view function doesn’t matter; it doesn’t have to
+be named in a certain way in order for Django to recognize it. We’re
+calling it <code class="docutils literal"><span class="pre">current_datetime</span></code> here, because that name clearly indicates
+what it does.</p>
+</li>
+<li><p class="first">The view returns an <a class="reference internal" href="../../ref/request-response.html#django.http.HttpResponse" title="django.http.HttpResponse"><code class="xref py py-class docutils literal"><span class="pre">HttpResponse</span></code></a> object that
+contains the generated response. Each view function is responsible for
+returning an <a class="reference internal" href="../../ref/request-response.html#django.http.HttpResponse" title="django.http.HttpResponse"><code class="xref py py-class docutils literal"><span class="pre">HttpResponse</span></code></a> object. (There are
+exceptions, but we’ll get to those later.)</p>
+</li>
+</ul>
+<div class="admonition-django-s-time-zone admonition">
+<p class="first admonition-title">Django’s Time Zone</p>
+<p class="last">Django includes a <a class="reference internal" href="../../ref/settings.html#std:setting-TIME_ZONE"><code class="xref std std-setting docutils literal"><span class="pre">TIME_ZONE</span></code></a> setting that defaults to
+<code class="docutils literal"><span class="pre">America/Chicago</span></code>. This probably isn’t where you live, so you might want
+to change it in your settings file.</p>
+</div>
+</div>
+<div class="section" id="mapping-urls-to-views">
+<h2>Mapping URLs to views<a class="headerlink" href="#mapping-urls-to-views" title="永久链接至标题">¶</a></h2>
+<p>So, to recap, this view function returns an HTML page that includes the current
+date and time. To display this view at a particular URL, you’ll need to create a
+<em>URLconf</em>; see <a class="reference internal" href="urls.html"><span class="doc">URL dispatcher</span></a> for instructions.</p>
+</div>
+<div class="section" id="returning-errors">
+<h2>Returning errors<a class="headerlink" href="#returning-errors" title="永久链接至标题">¶</a></h2>
+<p>Returning HTTP error codes in Django is easy. There are subclasses of
+<a class="reference internal" href="../../ref/request-response.html#django.http.HttpResponse" title="django.http.HttpResponse"><code class="xref py py-class docutils literal"><span class="pre">HttpResponse</span></code></a> for a number of common HTTP status codes
+other than 200 (which means <em>“OK”</em>). You can find the full list of available
+subclasses in the <a class="reference internal" href="../../ref/request-response.html#ref-httpresponse-subclasses"><span class="std std-ref">request/response</span></a>
+documentation.  Just return an instance of one of those subclasses instead of
+a normal <a class="reference internal" href="../../ref/request-response.html#django.http.HttpResponse" title="django.http.HttpResponse"><code class="xref py py-class docutils literal"><span class="pre">HttpResponse</span></code></a> in order to signify an error. For
+example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpResponse</span><span class="p">,</span> <span class="n">HttpResponseNotFound</span>
+
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c"># ...</span>
+    <span class="k">if</span> <span class="n">foo</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseNotFound</span><span class="p">(</span><span class="s">&#39;&lt;h1&gt;Page not found&lt;/h1&gt;&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s">&#39;&lt;h1&gt;Page was found&lt;/h1&gt;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>There isn’t a specialized subclass for every possible HTTP response code,
+since many of them aren’t going to be that common. However, as documented in
+the <a class="reference internal" href="../../ref/request-response.html#django.http.HttpResponse" title="django.http.HttpResponse"><code class="xref py py-class docutils literal"><span class="pre">HttpResponse</span></code></a> documentation, you can also pass the
+HTTP status code into the constructor for <a class="reference internal" href="../../ref/request-response.html#django.http.HttpResponse" title="django.http.HttpResponse"><code class="xref py py-class docutils literal"><span class="pre">HttpResponse</span></code></a>
+to create a return class for any status code you like. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpResponse</span>
+
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c"># ...</span>
+
+    <span class="c"># Return a &quot;created&quot; (201) response code.</span>
+    <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="mi">201</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Because 404 errors are by far the most common HTTP error, there’s an easier way
+to handle those errors.</p>
+<div class="section" id="the-http404-exception">
+<h3>The <code class="docutils literal"><span class="pre">Http404</span></code> exception<a class="headerlink" href="#the-http404-exception" title="永久链接至标题">¶</a></h3>
+<dl class="class">
+<dt id="django.http.Http404">
+<em class="property">class </em><code class="descclassname">django.http.</code><code class="descname">Http404</code><a class="headerlink" href="#django.http.Http404" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p>When you return an error such as <a class="reference internal" href="../../ref/request-response.html#django.http.HttpResponseNotFound" title="django.http.HttpResponseNotFound"><code class="xref py py-class docutils literal"><span class="pre">HttpResponseNotFound</span></code></a>,
+you’re responsible for defining the HTML of the resulting error page:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="k">return</span> <span class="n">HttpResponseNotFound</span><span class="p">(</span><span class="s">&#39;&lt;h1&gt;Page not found&lt;/h1&gt;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For convenience, and because it’s a good idea to have a consistent 404 error page
+across your site, Django provides an <code class="docutils literal"><span class="pre">Http404</span></code> exception. If you raise
+<code class="docutils literal"><span class="pre">Http404</span></code> at any point in a view function, Django will catch it and return the
+standard error page for your application, along with an HTTP error code 404.</p>
+<p>Example usage:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">Http404</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">render</span>
+<span class="kn">from</span> <span class="nn">polls.models</span> <span class="k">import</span> <span class="n">Poll</span>
+
+<span class="k">def</span> <span class="nf">detail</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">poll_id</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Poll</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">poll_id</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">Poll</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="s">&quot;Poll does not exist&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;polls/detail.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;poll&#39;</span><span class="p">:</span> <span class="n">p</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>In order to show customized HTML when Django returns a 404, you can create an
+HTML template named <code class="docutils literal"><span class="pre">404.html</span></code> and place it in the top level of your
+template tree. This template will then be served when <a class="reference internal" href="../../ref/settings.html#std:setting-DEBUG"><code class="xref std std-setting docutils literal"><span class="pre">DEBUG</span></code></a> is set
+to <code class="docutils literal"><span class="pre">False</span></code>.</p>
+<p>When <a class="reference internal" href="../../ref/settings.html#std:setting-DEBUG"><code class="xref std std-setting docutils literal"><span class="pre">DEBUG</span></code></a> is <code class="docutils literal"><span class="pre">True</span></code>, you can provide a message to <code class="docutils literal"><span class="pre">Http404</span></code> and
+it will appear in the standard 404 debug template. Use these messages for
+debugging purposes; they generally aren’t suitable for use in a production 404
+template.</p>
+</div>
+</div>
+<div class="section" id="customizing-error-views">
+<span id="id1"></span><h2>Customizing error views<a class="headerlink" href="#customizing-error-views" title="永久链接至标题">¶</a></h2>
+<p>The default error views in Django should suffice for most Web applications,
+but can easily be overridden if you need any custom behavior. Simply specify
+the handlers as seen below in your URLconf (setting them anywhere else will
+have no effect).</p>
+<p>The <a class="reference internal" href="../../ref/views.html#django.views.defaults.page_not_found" title="django.views.defaults.page_not_found"><code class="xref py py-func docutils literal"><span class="pre">page_not_found()</span></code></a> view is overridden by
+<a class="reference internal" href="../../ref/urls.html#django.conf.urls.handler404" title="django.conf.urls.handler404"><code class="xref py py-data docutils literal"><span class="pre">handler404</span></code></a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">handler404</span> <span class="o">=</span> <span class="s">&#39;mysite.views.my_custom_page_not_found_view&#39;</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../../ref/views.html#django.views.defaults.server_error" title="django.views.defaults.server_error"><code class="xref py py-func docutils literal"><span class="pre">server_error()</span></code></a> view is overridden by
+<a class="reference internal" href="../../ref/urls.html#django.conf.urls.handler500" title="django.conf.urls.handler500"><code class="xref py py-data docutils literal"><span class="pre">handler500</span></code></a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">handler500</span> <span class="o">=</span> <span class="s">&#39;mysite.views.my_custom_error_view&#39;</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../../ref/views.html#django.views.defaults.permission_denied" title="django.views.defaults.permission_denied"><code class="xref py py-func docutils literal"><span class="pre">permission_denied()</span></code></a> view is overridden by
+<a class="reference internal" href="../../ref/urls.html#django.conf.urls.handler403" title="django.conf.urls.handler403"><code class="xref py py-data docutils literal"><span class="pre">handler403</span></code></a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">handler403</span> <span class="o">=</span> <span class="s">&#39;mysite.views.my_custom_permission_denied_view&#39;</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../../ref/views.html#django.views.defaults.bad_request" title="django.views.defaults.bad_request"><code class="xref py py-func docutils literal"><span class="pre">bad_request()</span></code></a> view is overridden by
+<a class="reference internal" href="../../ref/urls.html#django.conf.urls.handler400" title="django.conf.urls.handler400"><code class="xref py py-data docutils literal"><span class="pre">handler400</span></code></a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">handler400</span> <span class="o">=</span> <span class="s">&#39;mysite.views.my_custom_bad_request_view&#39;</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">参见</p>
+<p class="last">Use the <a class="reference internal" href="../../ref/settings.html#std:setting-CSRF_FAILURE_VIEW"><code class="xref std std-setting docutils literal"><span class="pre">CSRF_FAILURE_VIEW</span></code></a> setting to override the CSRF error
+view.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

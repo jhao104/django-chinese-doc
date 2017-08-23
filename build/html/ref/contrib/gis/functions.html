@@ -1,0 +1,822 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Geographic Database Functions &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Geographic Database Functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/ref/contrib/gis/functions.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-django.contrib.gis.db.models.functions">
+<span id="geographic-database-functions"></span><h1>Geographic Database Functions<a class="headerlink" href="#module-django.contrib.gis.db.models.functions" title="永久链接至标题">¶</a></h1>
+<div class="versionadded">
+</div>
+<p>The functions documented on this page allow users to access geographic database
+functions to be used in annotations, aggregations, or filters in Django.</p>
+<p>Example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.contrib.gis.db.models.functions</span> <span class="k">import</span> <span class="n">Length</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Track</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">Length</span><span class="p">(</span><span class="s">&#39;line&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">length__gt</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Not all backends support all functions, so refer to the documentation of each
+function to see if your database backend supports the function you want to use.
+If you call a geographic function on a backend that doesn’t support it, you’ll
+get a <code class="docutils literal"><span class="pre">NotImplementedError</span></code> exception.</p>
+<p>Function’s summary:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="19%" />
+<col width="18%" />
+<col width="16%" />
+<col width="15%" />
+<col width="18%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Measurement</th>
+<th class="head">Relationships</th>
+<th class="head">Operations</th>
+<th class="head">Editors</th>
+<th class="head">Output format</th>
+<th class="head">Miscellaneous</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><a class="reference internal" href="#django.contrib.gis.db.models.functions.Area" title="django.contrib.gis.db.models.functions.Area"><code class="xref py py-class docutils literal"><span class="pre">Area</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.BoundingCircle" title="django.contrib.gis.db.models.functions.BoundingCircle"><code class="xref py py-class docutils literal"><span class="pre">BoundingCircle</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.Difference" title="django.contrib.gis.db.models.functions.Difference"><code class="xref py py-class docutils literal"><span class="pre">Difference</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.ForceRHR" title="django.contrib.gis.db.models.functions.ForceRHR"><code class="xref py py-class docutils literal"><span class="pre">ForceRHR</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.AsGeoJSON" title="django.contrib.gis.db.models.functions.AsGeoJSON"><code class="xref py py-class docutils literal"><span class="pre">AsGeoJSON</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.IsValid" title="django.contrib.gis.db.models.functions.IsValid"><code class="xref py py-class docutils literal"><span class="pre">IsValid</span></code></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#django.contrib.gis.db.models.functions.Distance" title="django.contrib.gis.db.models.functions.Distance"><code class="xref py py-class docutils literal"><span class="pre">Distance</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.Centroid" title="django.contrib.gis.db.models.functions.Centroid"><code class="xref py py-class docutils literal"><span class="pre">Centroid</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.Intersection" title="django.contrib.gis.db.models.functions.Intersection"><code class="xref py py-class docutils literal"><span class="pre">Intersection</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.MakeValid" title="django.contrib.gis.db.models.functions.MakeValid"><code class="xref py py-class docutils literal"><span class="pre">MakeValid</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.AsGML" title="django.contrib.gis.db.models.functions.AsGML"><code class="xref py py-class docutils literal"><span class="pre">AsGML</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.MemSize" title="django.contrib.gis.db.models.functions.MemSize"><code class="xref py py-class docutils literal"><span class="pre">MemSize</span></code></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#django.contrib.gis.db.models.functions.Length" title="django.contrib.gis.db.models.functions.Length"><code class="xref py py-class docutils literal"><span class="pre">Length</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.Envelope" title="django.contrib.gis.db.models.functions.Envelope"><code class="xref py py-class docutils literal"><span class="pre">Envelope</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.SymDifference" title="django.contrib.gis.db.models.functions.SymDifference"><code class="xref py py-class docutils literal"><span class="pre">SymDifference</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.Reverse" title="django.contrib.gis.db.models.functions.Reverse"><code class="xref py py-class docutils literal"><span class="pre">Reverse</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.AsKML" title="django.contrib.gis.db.models.functions.AsKML"><code class="xref py py-class docutils literal"><span class="pre">AsKML</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.NumGeometries" title="django.contrib.gis.db.models.functions.NumGeometries"><code class="xref py py-class docutils literal"><span class="pre">NumGeometries</span></code></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#django.contrib.gis.db.models.functions.Perimeter" title="django.contrib.gis.db.models.functions.Perimeter"><code class="xref py py-class docutils literal"><span class="pre">Perimeter</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.PointOnSurface" title="django.contrib.gis.db.models.functions.PointOnSurface"><code class="xref py py-class docutils literal"><span class="pre">PointOnSurface</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.Union" title="django.contrib.gis.db.models.functions.Union"><code class="xref py py-class docutils literal"><span class="pre">Union</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.Scale" title="django.contrib.gis.db.models.functions.Scale"><code class="xref py py-class docutils literal"><span class="pre">Scale</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.AsSVG" title="django.contrib.gis.db.models.functions.AsSVG"><code class="xref py py-class docutils literal"><span class="pre">AsSVG</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.NumPoints" title="django.contrib.gis.db.models.functions.NumPoints"><code class="xref py py-class docutils literal"><span class="pre">NumPoints</span></code></a></td>
+</tr>
+<tr class="row-even"><td></td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.SnapToGrid" title="django.contrib.gis.db.models.functions.SnapToGrid"><code class="xref py py-class docutils literal"><span class="pre">SnapToGrid</span></code></a></td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.GeoHash" title="django.contrib.gis.db.models.functions.GeoHash"><code class="xref py py-class docutils literal"><span class="pre">GeoHash</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td></td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.Transform" title="django.contrib.gis.db.models.functions.Transform"><code class="xref py py-class docutils literal"><span class="pre">Transform</span></code></a></td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td></td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td><a class="reference internal" href="#django.contrib.gis.db.models.functions.Translate" title="django.contrib.gis.db.models.functions.Translate"><code class="xref py py-class docutils literal"><span class="pre">Translate</span></code></a></td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="area">
+<h2><code class="docutils literal"><span class="pre">Area</span></code><a class="headerlink" href="#area" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.Area">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">Area</code><span class="sig-paren">(</span><em>expression</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.Area" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: MySQL, Oracle, PostGIS, SpatiaLite</p>
+<p>Accepts a single geographic field or expression and returns the area of the
+field as an <a class="reference internal" href="measure.html#django.contrib.gis.measure.Area" title="django.contrib.gis.measure.Area"><code class="xref py py-class docutils literal"><span class="pre">Area</span></code></a> measure. On MySQL, a raw
+float value is returned, as it’s not possible to automatically determine the
+unit of the field.</p>
+</div>
+<div class="section" id="asgeojson">
+<h2><code class="docutils literal"><span class="pre">AsGeoJSON</span></code><a class="headerlink" href="#asgeojson" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.AsGeoJSON">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">AsGeoJSON</code><span class="sig-paren">(</span><em>expression</em>, <em>bbox=False</em>, <em>crs=False</em>, <em>precision=8</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.AsGeoJSON" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: PostGIS, SpatiaLite</p>
+<p>Accepts a single geographic field or expression and returns a <a class="reference external" href="http://geojson.org/">GeoJSON</a> representation of the geometry. Note that the result is
+not a complete GeoJSON structure but only the <code class="docutils literal"><span class="pre">geometry</span></code> key content of a
+GeoJSON structure. See also <a class="reference internal" href="serializers.html"><span class="doc">GeoJSON Serializer</span></a>.</p>
+<p>Example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">City</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">json</span><span class="o">=</span><span class="n">AsGeoJSON</span><span class="p">(</span><span class="s">&#39;point&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;Chicago&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span>
+<span class="go">{&quot;type&quot;:&quot;Point&quot;,&quot;coordinates&quot;:[-87.65018,41.85039]}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Keyword Argument</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">bbox</span></code></td>
+<td>Set this to <code class="docutils literal"><span class="pre">True</span></code> if you want the bounding box
+to be included in the returned GeoJSON.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">crs</span></code></td>
+<td>Set this to <code class="docutils literal"><span class="pre">True</span></code> if you want the coordinate
+reference system to be included in the returned
+GeoJSON.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">precision</span></code></td>
+<td>It may be used to specify the number of significant
+digits for the coordinates in the GeoJSON
+representation – the default value is 8.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="asgml">
+<h2><code class="docutils literal"><span class="pre">AsGML</span></code><a class="headerlink" href="#asgml" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.AsGML">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">AsGML</code><span class="sig-paren">(</span><em>expression</em>, <em>version=2</em>, <em>precision=8</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.AsGML" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: PostGIS, SpatiaLite</p>
+<p>Accepts a single geographic field or expression and returns a <a class="reference external" href="https://en.wikipedia.org/wiki/Geography_Markup_Language">Geographic Markup
+Language (GML)</a> representation of the geometry.</p>
+<p>Example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">qs</span> <span class="o">=</span> <span class="n">Zipcode</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">gml</span><span class="o">=</span><span class="n">AsGML</span><span class="p">(</span><span class="s">&#39;poly&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">gml</span><span class="p">)</span>
+<span class="go">&lt;gml:Polygon srsName=&quot;EPSG:4326&quot;&gt;&lt;gml:OuterBoundaryIs&gt;-147.78711,70.245363 ...</span>
+<span class="go">-147.78711,70.245363&lt;/gml:OuterBoundaryIs&gt;&lt;/gml:Polygon&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Keyword Argument</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">precision</span></code></td>
+<td>Specifies the number of significant digits for the
+coordinates in the GML representation – the default
+value is 8.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">version</span></code></td>
+<td>Specifies the GML version to use: 2 (default) or 3.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="askml">
+<h2><code class="docutils literal"><span class="pre">AsKML</span></code><a class="headerlink" href="#askml" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.AsKML">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">AsKML</code><span class="sig-paren">(</span><em>expression</em>, <em>precision=8</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.AsKML" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: PostGIS, SpatiaLite</p>
+<p>Accepts a single geographic field or expression and returns a <a class="reference external" href="https://developers.google.com/kml/documentation/">Keyhole Markup
+Language (KML)</a> representation of the geometry.</p>
+<p>Example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">qs</span> <span class="o">=</span> <span class="n">Zipcode</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">kml</span><span class="o">=</span><span class="n">AsKML</span><span class="p">(</span><span class="s">&#39;poly&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">kml</span><span class="p">)</span>
+<span class="go">&lt;Polygon&gt;&lt;outerBoundaryIs&gt;&lt;LinearRing&gt;&lt;coordinates&gt;-103.04135,36.217596,0 ...</span>
+<span class="go">-103.04135,36.217596,0&lt;/coordinates&gt;&lt;/LinearRing&gt;&lt;/outerBoundaryIs&gt;&lt;/Polygon&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Keyword Argument</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">precision</span></code></td>
+<td>This keyword may be used to specify the number of
+significant digits for the coordinates in the KML
+representation – the default value is 8.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="assvg">
+<h2><code class="docutils literal"><span class="pre">AsSVG</span></code><a class="headerlink" href="#assvg" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.AsSVG">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">AsSVG</code><span class="sig-paren">(</span><em>expression</em>, <em>relative=False</em>, <em>precision=8</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.AsSVG" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: PostGIS, SpatiaLite</p>
+<p>Accepts a single geographic field or expression and returns a <a class="reference external" href="http://www.w3.org/Graphics/SVG/">Scalable Vector
+Graphics (SVG)</a> representation of the geometry.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Keyword Argument</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">relative</span></code></td>
+<td>If set to <code class="docutils literal"><span class="pre">True</span></code>, the path data will be implemented
+in terms of relative moves. Defaults to <code class="docutils literal"><span class="pre">False</span></code>,
+meaning that absolute moves are used instead.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">precision</span></code></td>
+<td>This keyword may be used to specify the number of
+significant digits for the coordinates in the SVG
+representation – the default value is 8.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="boundingcircle">
+<h2><code class="docutils literal"><span class="pre">BoundingCircle</span></code><a class="headerlink" href="#boundingcircle" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.BoundingCircle">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">BoundingCircle</code><span class="sig-paren">(</span><em>expression</em>, <em>num_seg=48</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.BoundingCircle" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: <a class="reference external" href="http://postgis.net/docs/ST_MinimumBoundingCircle.html">PostGIS</a></p>
+<p>Accepts a single geographic field or expression and returns the smallest circle
+polygon that can fully contain the geometry.</p>
+</div>
+<div class="section" id="centroid">
+<h2><code class="docutils literal"><span class="pre">Centroid</span></code><a class="headerlink" href="#centroid" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.Centroid">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">Centroid</code><span class="sig-paren">(</span><em>expression</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.Centroid" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: MySQL, PostGIS, Oracle, SpatiaLite</p>
+<p>Accepts a single geographic field or expression and returns the <code class="docutils literal"><span class="pre">centroid</span></code>
+value of the geometry.</p>
+</div>
+<div class="section" id="difference">
+<h2><code class="docutils literal"><span class="pre">Difference</span></code><a class="headerlink" href="#difference" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.Difference">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">Difference</code><span class="sig-paren">(</span><em>expr1</em>, <em>expr2</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.Difference" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: MySQL (≥ 5.6.1), PostGIS, Oracle, SpatiaLite</p>
+<p>Accepts two geographic fields or expressions and returns the geometric
+difference, that is the part of geometry A that does not intersect with
+geometry B.</p>
+<div class="versionchanged">
+<p>MySQL support was added.</p>
+</div>
+</div>
+<div class="section" id="distance">
+<h2><code class="docutils literal"><span class="pre">Distance</span></code><a class="headerlink" href="#distance" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.Distance">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">Distance</code><span class="sig-paren">(</span><em>expr1</em>, <em>expr2</em>, <em>spheroid=None</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.Distance" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: MySQL (≥ 5.6.1), PostGIS, Oracle, SpatiaLite</p>
+<p>Accepts two geographic fields or expressions and returns the distance between
+them, as a <a class="reference internal" href="measure.html#django.contrib.gis.measure.Distance" title="django.contrib.gis.measure.Distance"><code class="xref py py-class docutils literal"><span class="pre">Distance</span></code></a> object. On MySQL, a raw
+float value is returned, as it’s not possible to automatically determine the
+unit of the field.</p>
+<p>On backends that support distance calculation on geodetic coordinates, the
+proper backend function is automatically chosen depending on the SRID value of
+the geometries (e.g. <code class="docutils literal"><span class="pre">ST_Distance_Sphere</span></code> on PostGIS).</p>
+<p>When distances are calculated with geodetic (angular) coordinates, as is the
+case with the default WGS84 (4326) SRID, you can set the <code class="docutils literal"><span class="pre">spheroid</span></code> keyword
+argument to decide if the calculation should be based on a simple sphere (less
+accurate, less resource-intensive) or on a spheroid (more accurate, more
+resource-intensive).</p>
+<p>In the following example, the distance from the city of Hobart to every other
+<a class="reference internal" href="model-api.html#django.contrib.gis.db.models.PointField" title="django.contrib.gis.db.models.PointField"><code class="xref py py-class docutils literal"><span class="pre">PointField</span></code></a> in the <code class="docutils literal"><span class="pre">AustraliaCity</span></code>
+queryset is calculated:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">django.contrib.gis.db.models.functions</span> <span class="k">import</span> <span class="n">Distance</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pnt</span> <span class="o">=</span> <span class="n">AustraliaCity</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;Hobart&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">point</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">city</span> <span class="ow">in</span> <span class="n">AustraliaCity</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">distance</span><span class="o">=</span><span class="n">Distance</span><span class="p">(</span><span class="s">&#39;point&#39;</span><span class="p">,</span> <span class="n">pnt</span><span class="p">)):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">city</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">city</span><span class="o">.</span><span class="n">distance</span><span class="p">)</span>
+<span class="go">Wollongong 990071.220408 m</span>
+<span class="go">Shellharbour 972804.613941 m</span>
+<span class="go">Thirroul 1002334.36351 m</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last">Because the <code class="docutils literal"><span class="pre">distance</span></code> attribute is a
+<a class="reference internal" href="measure.html#django.contrib.gis.measure.Distance" title="django.contrib.gis.measure.Distance"><code class="xref py py-class docutils literal"><span class="pre">Distance</span></code></a> object, you can easily express
+the value in the units of your choice. For example, <code class="docutils literal"><span class="pre">city.distance.mi</span></code> is
+the distance value in miles and <code class="docutils literal"><span class="pre">city.distance.km</span></code> is the distance value
+in kilometers. See <a class="reference internal" href="measure.html"><span class="doc">Measurement Objects</span></a> for usage details and the list of
+<a class="reference internal" href="measure.html#supported-units"><span class="std std-ref">Supported units</span></a>.</p>
+</div>
+</div>
+<div class="section" id="envelope">
+<h2><code class="docutils literal"><span class="pre">Envelope</span></code><a class="headerlink" href="#envelope" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.Envelope">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">Envelope</code><span class="sig-paren">(</span><em>expression</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.Envelope" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: MySQL, PostGIS, SpatiaLite</p>
+<p>Accepts a single geographic field or expression and returns the geometry
+representing the bounding box of the geometry.</p>
+</div>
+<div class="section" id="forcerhr">
+<h2><code class="docutils literal"><span class="pre">ForceRHR</span></code><a class="headerlink" href="#forcerhr" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.ForceRHR">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">ForceRHR</code><span class="sig-paren">(</span><em>expression</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.ForceRHR" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: <a class="reference external" href="http://postgis.net/docs/ST_ForceRHR.html">PostGIS</a></p>
+<p>Accepts a single geographic field or expression and returns a modified version
+of the polygon/multipolygon in which all of the vertices follow the
+right-hand rule.</p>
+</div>
+<div class="section" id="geohash">
+<h2><code class="docutils literal"><span class="pre">GeoHash</span></code><a class="headerlink" href="#geohash" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.GeoHash">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">GeoHash</code><span class="sig-paren">(</span><em>expression</em>, <em>precision=None</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.GeoHash" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: PostGIS, SpatiaLite (≥ 4.0, LWGEOM)</p>
+<p>Accepts a single geographic field or expression and returns a <a class="reference external" href="https://en.wikipedia.org/wiki/Geohash">GeoHash</a>
+representation of the geometry.</p>
+<p>The <code class="docutils literal"><span class="pre">precision</span></code> keyword argument controls the number of characters in the
+result.</p>
+<div class="versionchanged">
+<p>SpatiaLite support was added.</p>
+</div>
+</div>
+<div class="section" id="intersection">
+<h2><code class="docutils literal"><span class="pre">Intersection</span></code><a class="headerlink" href="#intersection" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.Intersection">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">Intersection</code><span class="sig-paren">(</span><em>expr1</em>, <em>expr2</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.Intersection" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: MySQL (≥ 5.6.1), PostGIS, Oracle, SpatiaLite</p>
+<p>Accepts two geographic fields or expressions and returns the geometric
+intersection between them.</p>
+<div class="versionchanged">
+<p>MySQL support was added.</p>
+</div>
+</div>
+<div class="section" id="isvalid">
+<h2><code class="docutils literal"><span class="pre">IsValid</span></code><a class="headerlink" href="#isvalid" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.IsValid">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">IsValid</code><span class="sig-paren">(</span><em>expr</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.IsValid" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<div class="versionadded">
+</div>
+<p><em>Availability</em>: PostGIS</p>
+<p>Accepts a geographic field or expression and tests if the value is well formed.
+Returns <code class="docutils literal"><span class="pre">True</span></code> if its value is a valid geometry and <code class="docutils literal"><span class="pre">False</span></code> otherwise.</p>
+</div>
+<div class="section" id="length">
+<h2><code class="docutils literal"><span class="pre">Length</span></code><a class="headerlink" href="#length" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.Length">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">Length</code><span class="sig-paren">(</span><em>expression</em>, <em>spheroid=True</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.Length" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: MySQL, Oracle, PostGIS, SpatiaLite</p>
+<p>Accepts a single geographic linestring or multilinestring field or expression
+and returns its length as an <a class="reference internal" href="measure.html#django.contrib.gis.measure.Distance" title="django.contrib.gis.measure.Distance"><code class="xref py py-class docutils literal"><span class="pre">Distance</span></code></a>
+measure. On MySQL, a raw float value is returned, as it’s not possible to
+automatically determine the unit of the field.</p>
+<p>On PostGIS and SpatiaLite, when the coordinates are geodetic (angular), you can
+specify if the calculation should be based on a simple sphere (less
+accurate, less resource-intensive) or on a spheroid (more accurate, more
+resource-intensive) with the <code class="docutils literal"><span class="pre">spheroid</span></code> keyword argument.</p>
+</div>
+<div class="section" id="makevalid">
+<h2><code class="docutils literal"><span class="pre">MakeValid</span></code><a class="headerlink" href="#makevalid" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.MakeValid">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">MakeValid</code><span class="sig-paren">(</span><em>expr</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.MakeValid" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<div class="versionadded">
+</div>
+<p><em>Availability</em>: PostGIS</p>
+<p>Accepts a geographic field or expression and attempts to convert the value into
+a valid geometry without losing any of the input vertices. Geometries that are
+already valid are returned without changes. Simple polygons might become a
+multipolygon and the result might be of lower dimension than the input.</p>
+</div>
+<div class="section" id="memsize">
+<h2><code class="docutils literal"><span class="pre">MemSize</span></code><a class="headerlink" href="#memsize" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.MemSize">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">MemSize</code><span class="sig-paren">(</span><em>expression</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.MemSize" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: PostGIS</p>
+<p>Accepts a single geographic field or expression and returns the memory size
+(number of bytes) that the geometry field takes.</p>
+</div>
+<div class="section" id="numgeometries">
+<h2><code class="docutils literal"><span class="pre">NumGeometries</span></code><a class="headerlink" href="#numgeometries" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.NumGeometries">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">NumGeometries</code><span class="sig-paren">(</span><em>expression</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.NumGeometries" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: MySQL, PostGIS, Oracle, SpatiaLite</p>
+<p>Accepts a single geographic field or expression and returns the number of
+geometries if the geometry field is a collection (e.g., a <code class="docutils literal"><span class="pre">GEOMETRYCOLLECTION</span></code>
+or <code class="docutils literal"><span class="pre">MULTI*</span></code> field); otherwise returns <code class="docutils literal"><span class="pre">None</span></code>.</p>
+</div>
+<div class="section" id="numpoints">
+<h2><code class="docutils literal"><span class="pre">NumPoints</span></code><a class="headerlink" href="#numpoints" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.NumPoints">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">NumPoints</code><span class="sig-paren">(</span><em>expression</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.NumPoints" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: MySQL, PostGIS, Oracle, SpatiaLite</p>
+<p>Accepts a single geographic field or expression and returns the number of points
+in the first linestring in the geometry field; otherwise returns <code class="docutils literal"><span class="pre">None</span></code>.</p>
+</div>
+<div class="section" id="perimeter">
+<h2><code class="docutils literal"><span class="pre">Perimeter</span></code><a class="headerlink" href="#perimeter" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.Perimeter">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">Perimeter</code><span class="sig-paren">(</span><em>expression</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.Perimeter" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: PostGIS, Oracle, SpatiaLite (≥ 4.0)</p>
+<p>Accepts a single geographic field or expression and returns the perimeter of the
+geometry field as a <a class="reference internal" href="measure.html#django.contrib.gis.measure.Distance" title="django.contrib.gis.measure.Distance"><code class="xref py py-class docutils literal"><span class="pre">Distance</span></code></a> object.</p>
+</div>
+<div class="section" id="pointonsurface">
+<h2><code class="docutils literal"><span class="pre">PointOnSurface</span></code><a class="headerlink" href="#pointonsurface" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.PointOnSurface">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">PointOnSurface</code><span class="sig-paren">(</span><em>expression</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.PointOnSurface" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: PostGIS, Oracle, SpatiaLite</p>
+<p>Accepts a single geographic field or expression and returns a <code class="docutils literal"><span class="pre">Point</span></code> geometry
+guaranteed to lie on the surface of the field; otherwise returns <code class="docutils literal"><span class="pre">None</span></code>.</p>
+</div>
+<div class="section" id="reverse">
+<h2><code class="docutils literal"><span class="pre">Reverse</span></code><a class="headerlink" href="#reverse" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.Reverse">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">Reverse</code><span class="sig-paren">(</span><em>expression</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.Reverse" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: PostGIS, Oracle, SpatiaLite (≥ 4.0)</p>
+<p>Accepts a single geographic field or expression and returns a geometry with
+reversed coordinates.</p>
+</div>
+<div class="section" id="scale">
+<h2><code class="docutils literal"><span class="pre">Scale</span></code><a class="headerlink" href="#scale" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.Scale">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">Scale</code><span class="sig-paren">(</span><em>expression</em>, <em>x</em>, <em>y</em>, <em>z=0.0</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.Scale" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: PostGIS, SpatiaLite</p>
+<p>Accepts a single geographic field or expression and returns a geometry with
+scaled coordinates by multiplying them with the <code class="docutils literal"><span class="pre">x</span></code>, <code class="docutils literal"><span class="pre">y</span></code>, and optionally
+<code class="docutils literal"><span class="pre">z</span></code> parameters.</p>
+</div>
+<div class="section" id="snaptogrid">
+<h2><code class="docutils literal"><span class="pre">SnapToGrid</span></code><a class="headerlink" href="#snaptogrid" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.SnapToGrid">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">SnapToGrid</code><span class="sig-paren">(</span><em>expression</em>, <em>*args</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.SnapToGrid" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: PostGIS, SpatiaLite (≥ 3.1)</p>
+<p>Accepts a single geographic field or expression and returns a geometry with all
+points snapped to the given grid.  How the geometry is snapped to the grid
+depends on how many numeric (either float, integer, or long) arguments are
+given.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="26%" />
+<col width="74%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Number of Arguments</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>A single size to snap both the X and Y grids to.</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td>X and Y sizes to snap the grid to.</td>
+</tr>
+<tr class="row-even"><td>4</td>
+<td>X, Y sizes and the corresponding X, Y origins.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="symdifference">
+<h2><code class="docutils literal"><span class="pre">SymDifference</span></code><a class="headerlink" href="#symdifference" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.SymDifference">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">SymDifference</code><span class="sig-paren">(</span><em>expr1</em>, <em>expr2</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.SymDifference" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: MySQL (≥ 5.6.1), PostGIS, Oracle, SpatiaLite</p>
+<p>Accepts two geographic fields or expressions and returns the geometric
+symmetric difference (union without the intersection) between the given
+parameters.</p>
+<div class="versionchanged">
+<p>MySQL support was added.</p>
+</div>
+</div>
+<div class="section" id="transform">
+<h2><code class="docutils literal"><span class="pre">Transform</span></code><a class="headerlink" href="#transform" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.Transform">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">Transform</code><span class="sig-paren">(</span><em>expression</em>, <em>srid</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.Transform" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: PostGIS, Oracle, SpatiaLite</p>
+<p>Accepts a geographic field or expression and a SRID integer code, and returns
+the transformed geometry to the spatial reference system specified by the
+<code class="docutils literal"><span class="pre">srid</span></code> parameter.</p>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last">What spatial reference system an integer SRID corresponds to may depend on
+the spatial database used.  In other words, the SRID numbers used for Oracle
+are not necessarily the same as those used by PostGIS.</p>
+</div>
+</div>
+<div class="section" id="translate">
+<h2><code class="docutils literal"><span class="pre">Translate</span></code><a class="headerlink" href="#translate" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.Translate">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">Translate</code><span class="sig-paren">(</span><em>expression</em>, <em>x</em>, <em>y</em>, <em>z=0.0</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.Translate" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: PostGIS, SpatiaLite</p>
+<p>Accepts a single geographic field or expression and returns a geometry with
+its coordinates offset by the <code class="docutils literal"><span class="pre">x</span></code>, <code class="docutils literal"><span class="pre">y</span></code>, and optionally <code class="docutils literal"><span class="pre">z</span></code> numeric
+parameters.</p>
+</div>
+<div class="section" id="union">
+<h2><code class="docutils literal"><span class="pre">Union</span></code><a class="headerlink" href="#union" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.gis.db.models.functions.Union">
+<em class="property">class </em><code class="descclassname">django.contrib.gis.db.models.functions.</code><code class="descname">Union</code><span class="sig-paren">(</span><em>expr1</em>, <em>expr2</em>, <em>**extra</em><span class="sig-paren">)</span><a class="headerlink" href="#django.contrib.gis.db.models.functions.Union" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Availability</em>: MySQL (≥ 5.6.1), PostGIS, Oracle, SpatiaLite</p>
+<p>Accepts two geographic fields or expressions and returns the union of both
+geometries.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

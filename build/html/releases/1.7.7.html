@@ -1,0 +1,269 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Django 1.7.7 release notes &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Django 1.7.7 release notes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/releases/1.7.7.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="django-1-7-7-release-notes">
+<h1>Django 1.7.7 release notes<a class="headerlink" href="#django-1-7-7-release-notes" title="永久链接至标题">¶</a></h1>
+<p><em>March 18, 2015</em></p>
+<p>Django 1.7.7 fixes several bugs and security issues in 1.7.6.</p>
+<div class="section" id="denial-of-service-possibility-with-strip-tags">
+<h2>Denial-of-service possibility with <code class="docutils literal"><span class="pre">strip_tags()</span></code><a class="headerlink" href="#denial-of-service-possibility-with-strip-tags" title="永久链接至标题">¶</a></h2>
+<p>Last year <a class="reference internal" href="../ref/utils.html#django.utils.html.strip_tags" title="django.utils.html.strip_tags"><code class="xref py py-func docutils literal"><span class="pre">strip_tags()</span></code></a>  was changed to work
+iteratively. The problem is that the size of the input it’s processing can
+increase on each iteration which results in an infinite loop in
+<code class="docutils literal"><span class="pre">strip_tags()</span></code>. This issue only affects versions of Python that haven’t
+received  <a class="reference external" href="https://bugs.python.org/issue20288">a bugfix in HTMLParser</a>; namely
+Python &lt; 2.7.7 and 3.3.5. Some operating system vendors have also backported
+the fix for the Python bug into their packages of earlier versions.</p>
+<p>To remedy this issue, <code class="docutils literal"><span class="pre">strip_tags()</span></code> will now return the original input if
+it detects the length of the string it’s processing increases. Remember that
+absolutely NO guarantee is provided about the results of <code class="docutils literal"><span class="pre">strip_tags()</span></code> being
+HTML safe. So NEVER mark safe the result of a <code class="docutils literal"><span class="pre">strip_tags()</span></code> call without
+escaping it first, for example with <a class="reference internal" href="../ref/utils.html#django.utils.html.escape" title="django.utils.html.escape"><code class="xref py py-func docutils literal"><span class="pre">escape()</span></code></a>.</p>
+</div>
+<div class="section" id="mitigated-possible-xss-attack-via-user-supplied-redirect-urls">
+<h2>Mitigated possible XSS attack via user-supplied redirect URLs<a class="headerlink" href="#mitigated-possible-xss-attack-via-user-supplied-redirect-urls" title="永久链接至标题">¶</a></h2>
+<p>Django relies on user input in some cases (e.g.
+<a class="reference internal" href="../topics/auth/default.html#django.contrib.auth.views.login" title="django.contrib.auth.views.login"><code class="xref py py-func docutils literal"><span class="pre">django.contrib.auth.views.login()</span></code></a> and <a class="reference internal" href="../topics/i18n/index.html"><span class="doc">i18n</span></a>)
+to redirect the user to an “on success” URL. The security checks for these
+redirects (namely <code class="docutils literal"><span class="pre">django.utils.http.is_safe_url()</span></code>) accepted URLs with
+leading control characters and so considered URLs like <code class="docutils literal"><span class="pre">\x08javascript:...</span></code>
+safe. This issue doesn’t affect Django currently, since we only put this URL
+into the <code class="docutils literal"><span class="pre">Location</span></code> response header and browsers seem to ignore JavaScript
+there. Browsers we tested also treat URLs prefixed with control characters such
+as <code class="docutils literal"><span class="pre">%08//example.com</span></code> as relative paths so redirection to an unsafe target
+isn’t a problem either.</p>
+<p>However, if a developer relies on <code class="docutils literal"><span class="pre">is_safe_url()</span></code> to
+provide safe redirect targets and puts such a URL into a link, they could
+suffer from an XSS attack as some browsers such as Google Chrome ignore control
+characters at the start of a URL in an anchor <code class="docutils literal"><span class="pre">href</span></code>.</p>
+</div>
+<div class="section" id="bugfixes">
+<h2>Bugfixes<a class="headerlink" href="#bugfixes" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li>Fixed renaming of classes in migrations where renaming a subclass would
+cause incorrect state to be recorded for objects that referenced the
+superclass (<a href="#id1"><span class="problematic" id="id2">:ticket:`24354`</span></a>).</li>
+<li>Stopped writing migration files in dry run mode when merging migration
+conflicts. When <code class="docutils literal"><span class="pre">makemigrations</span> <span class="pre">--merge</span></code> is called with <code class="docutils literal"><span class="pre">verbosity=3</span></code> the
+migration file is written to <code class="docutils literal"><span class="pre">stdout</span></code> (<a href="#id3"><span class="problematic" id="id4">:ticket:`24427`</span></a>).</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,550 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.contrib.gis.geos.prototypes.io &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../../../../index.html"/>
+        <link rel="up" title="django" href="../../../../../django.html"/> 
+
+  
+  <script src="../../../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../../../../django.html">django</a> &raquo;</li>
+        
+      <li>django.contrib.gis.geos.prototypes.io</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.contrib.gis.geos.prototypes.io 源代码</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">from</span> <span class="nn">ctypes</span> <span class="k">import</span> <span class="n">POINTER</span><span class="p">,</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">byref</span><span class="p">,</span> <span class="n">c_char</span><span class="p">,</span> <span class="n">c_char_p</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_size_t</span>
+
+<span class="kn">from</span> <span class="nn">django.contrib.gis.geos.base</span> <span class="k">import</span> <span class="n">GEOSBase</span>
+<span class="kn">from</span> <span class="nn">django.contrib.gis.geos.libgeos</span> <span class="k">import</span> <span class="n">GEOM_PTR</span><span class="p">,</span> <span class="n">GEOSFuncFactory</span>
+<span class="kn">from</span> <span class="nn">django.contrib.gis.geos.prototypes.errcheck</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">check_geom</span><span class="p">,</span> <span class="n">check_sized_string</span><span class="p">,</span> <span class="n">check_string</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">django.contrib.gis.geos.prototypes.geom</span> <span class="k">import</span> <span class="n">c_uchar_p</span><span class="p">,</span> <span class="n">geos_char_p</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">six</span>
+<span class="kn">from</span> <span class="nn">django.utils.encoding</span> <span class="k">import</span> <span class="n">force_bytes</span>
+
+
+<span class="c"># ### The WKB/WKT Reader/Writer structures and pointers ###</span>
+<span class="k">class</span> <span class="nc">WKTReader_st</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">WKTWriter_st</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">WKBReader_st</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">WKBWriter_st</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="n">WKT_READ_PTR</span> <span class="o">=</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">WKTReader_st</span><span class="p">)</span>
+<span class="n">WKT_WRITE_PTR</span> <span class="o">=</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">WKTWriter_st</span><span class="p">)</span>
+<span class="n">WKB_READ_PTR</span> <span class="o">=</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">WKBReader_st</span><span class="p">)</span>
+<span class="n">WKB_WRITE_PTR</span> <span class="o">=</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">WKBReader_st</span><span class="p">)</span>
+
+<span class="c"># WKTReader routines</span>
+<span class="n">wkt_reader_create</span> <span class="o">=</span> <span class="n">GEOSFuncFactory</span><span class="p">(</span><span class="s">&#39;GEOSWKTReader_create&#39;</span><span class="p">,</span> <span class="n">restype</span><span class="o">=</span><span class="n">WKT_READ_PTR</span><span class="p">)</span>
+<span class="n">wkt_reader_destroy</span> <span class="o">=</span> <span class="n">GEOSFuncFactory</span><span class="p">(</span><span class="s">&#39;GEOSWKTReader_destroy&#39;</span><span class="p">,</span> <span class="n">argtypes</span><span class="o">=</span><span class="p">[</span><span class="n">WKT_READ_PTR</span><span class="p">])</span>
+
+<span class="n">wkt_reader_read</span> <span class="o">=</span> <span class="n">GEOSFuncFactory</span><span class="p">(</span>
+    <span class="s">&#39;GEOSWKTReader_read&#39;</span><span class="p">,</span> <span class="n">argtypes</span><span class="o">=</span><span class="p">[</span><span class="n">WKT_READ_PTR</span><span class="p">,</span> <span class="n">c_char_p</span><span class="p">],</span> <span class="n">restype</span><span class="o">=</span><span class="n">GEOM_PTR</span><span class="p">,</span> <span class="n">errcheck</span><span class="o">=</span><span class="n">check_geom</span>
+<span class="p">)</span>
+<span class="c"># WKTWriter routines</span>
+<span class="n">wkt_writer_create</span> <span class="o">=</span> <span class="n">GEOSFuncFactory</span><span class="p">(</span><span class="s">&#39;GEOSWKTWriter_create&#39;</span><span class="p">,</span> <span class="n">restype</span><span class="o">=</span><span class="n">WKT_WRITE_PTR</span><span class="p">)</span>
+<span class="n">wkt_writer_destroy</span> <span class="o">=</span> <span class="n">GEOSFuncFactory</span><span class="p">(</span><span class="s">&#39;GEOSWKTWriter_destroy&#39;</span><span class="p">,</span> <span class="n">argtypes</span><span class="o">=</span><span class="p">[</span><span class="n">WKT_WRITE_PTR</span><span class="p">])</span>
+
+<span class="n">wkt_writer_write</span> <span class="o">=</span> <span class="n">GEOSFuncFactory</span><span class="p">(</span>
+    <span class="s">&#39;GEOSWKTWriter_write&#39;</span><span class="p">,</span> <span class="n">argtypes</span><span class="o">=</span><span class="p">[</span><span class="n">WKT_WRITE_PTR</span><span class="p">,</span> <span class="n">GEOM_PTR</span><span class="p">],</span> <span class="n">restype</span><span class="o">=</span><span class="n">geos_char_p</span><span class="p">,</span> <span class="n">errcheck</span><span class="o">=</span><span class="n">check_string</span>
+<span class="p">)</span>
+
+<span class="n">wkt_writer_get_outdim</span> <span class="o">=</span> <span class="n">GEOSFuncFactory</span><span class="p">(</span>
+    <span class="s">&#39;GEOSWKTWriter_getOutputDimension&#39;</span><span class="p">,</span> <span class="n">argtypes</span><span class="o">=</span><span class="p">[</span><span class="n">WKT_WRITE_PTR</span><span class="p">],</span> <span class="n">restype</span><span class="o">=</span><span class="n">c_int</span>
+<span class="p">)</span>
+<span class="n">wkt_writer_set_outdim</span> <span class="o">=</span> <span class="n">GEOSFuncFactory</span><span class="p">(</span>
+    <span class="s">&#39;GEOSWKTWriter_setOutputDimension&#39;</span><span class="p">,</span> <span class="n">argtypes</span><span class="o">=</span><span class="p">[</span><span class="n">WKT_WRITE_PTR</span><span class="p">,</span> <span class="n">c_int</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">wkt_writer_set_trim</span> <span class="o">=</span> <span class="n">GEOSFuncFactory</span><span class="p">(</span><span class="s">&#39;GEOSWKTWriter_setTrim&#39;</span><span class="p">,</span> <span class="n">argtypes</span><span class="o">=</span><span class="p">[</span><span class="n">WKT_WRITE_PTR</span><span class="p">,</span> <span class="n">c_char</span><span class="p">])</span>
+<span class="n">wkt_writer_set_precision</span> <span class="o">=</span> <span class="n">GEOSFuncFactory</span><span class="p">(</span><span class="s">&#39;GEOSWKTWriter_setRoundingPrecision&#39;</span><span class="p">,</span> <span class="n">argtypes</span><span class="o">=</span><span class="p">[</span><span class="n">WKT_WRITE_PTR</span><span class="p">,</span> <span class="n">c_int</span><span class="p">])</span>
+
+<span class="c"># WKBReader routines</span>
+<span class="n">wkb_reader_create</span> <span class="o">=</span> <span class="n">GEOSFuncFactory</span><span class="p">(</span><span class="s">&#39;GEOSWKBReader_create&#39;</span><span class="p">,</span> <span class="n">restype</span><span class="o">=</span><span class="n">WKB_READ_PTR</span><span class="p">)</span>
+<span class="n">wkb_reader_destroy</span> <span class="o">=</span> <span class="n">GEOSFuncFactory</span><span class="p">(</span><span class="s">&#39;GEOSWKBReader_destroy&#39;</span><span class="p">,</span> <span class="n">argtypes</span><span class="o">=</span><span class="p">[</span><span class="n">WKB_READ_PTR</span><span class="p">])</span>
+
+
+<span class="k">class</span> <span class="nc">WKBReadFunc</span><span class="p">(</span><span class="n">GEOSFuncFactory</span><span class="p">):</span>
+    <span class="c"># Although the function definitions take `const unsigned char *`</span>
+    <span class="c"># as their parameter, we use c_char_p here so the function may</span>
+    <span class="c"># take Python strings directly as parameters.  Inside Python there</span>
+    <span class="c"># is not a difference between signed and unsigned characters, so</span>
+    <span class="c"># it is not a problem.</span>
+    <span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WKB_READ_PTR</span><span class="p">,</span> <span class="n">c_char_p</span><span class="p">,</span> <span class="n">c_size_t</span><span class="p">]</span>
+    <span class="n">restype</span> <span class="o">=</span> <span class="n">GEOM_PTR</span>
+    <span class="n">errcheck</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">check_geom</span><span class="p">)</span>
+
+
+<span class="n">wkb_reader_read</span> <span class="o">=</span> <span class="n">WKBReadFunc</span><span class="p">(</span><span class="s">&#39;GEOSWKBReader_read&#39;</span><span class="p">)</span>
+<span class="n">wkb_reader_read_hex</span> <span class="o">=</span> <span class="n">WKBReadFunc</span><span class="p">(</span><span class="s">&#39;GEOSWKBReader_readHEX&#39;</span><span class="p">)</span>
+
+<span class="c"># WKBWriter routines</span>
+<span class="n">wkb_writer_create</span> <span class="o">=</span> <span class="n">GEOSFuncFactory</span><span class="p">(</span><span class="s">&#39;GEOSWKBWriter_create&#39;</span><span class="p">,</span> <span class="n">restype</span><span class="o">=</span><span class="n">WKB_WRITE_PTR</span><span class="p">)</span>
+<span class="n">wkb_writer_destroy</span> <span class="o">=</span> <span class="n">GEOSFuncFactory</span><span class="p">(</span><span class="s">&#39;GEOSWKBWriter_destroy&#39;</span><span class="p">,</span> <span class="n">argtypes</span><span class="o">=</span><span class="p">[</span><span class="n">WKB_WRITE_PTR</span><span class="p">])</span>
+
+
+<span class="c"># WKB Writing prototypes.</span>
+<span class="k">class</span> <span class="nc">WKBWriteFunc</span><span class="p">(</span><span class="n">GEOSFuncFactory</span><span class="p">):</span>
+    <span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WKB_WRITE_PTR</span><span class="p">,</span> <span class="n">GEOM_PTR</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_size_t</span><span class="p">)]</span>
+    <span class="n">restype</span> <span class="o">=</span> <span class="n">c_uchar_p</span>
+    <span class="n">errcheck</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">check_sized_string</span><span class="p">)</span>
+
+
+<span class="n">wkb_writer_write</span> <span class="o">=</span> <span class="n">WKBWriteFunc</span><span class="p">(</span><span class="s">&#39;GEOSWKBWriter_write&#39;</span><span class="p">)</span>
+<span class="n">wkb_writer_write_hex</span> <span class="o">=</span> <span class="n">WKBWriteFunc</span><span class="p">(</span><span class="s">&#39;GEOSWKBWriter_writeHEX&#39;</span><span class="p">)</span>
+
+
+<span class="c"># WKBWriter property getter/setter prototypes.</span>
+<span class="k">class</span> <span class="nc">WKBWriterGet</span><span class="p">(</span><span class="n">GEOSFuncFactory</span><span class="p">):</span>
+    <span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WKB_WRITE_PTR</span><span class="p">]</span>
+    <span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+
+
+<span class="k">class</span> <span class="nc">WKBWriterSet</span><span class="p">(</span><span class="n">GEOSFuncFactory</span><span class="p">):</span>
+    <span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WKB_WRITE_PTR</span><span class="p">,</span> <span class="n">c_int</span><span class="p">]</span>
+
+<span class="n">wkb_writer_get_byteorder</span> <span class="o">=</span> <span class="n">WKBWriterGet</span><span class="p">(</span><span class="s">&#39;GEOSWKBWriter_getByteOrder&#39;</span><span class="p">)</span>
+<span class="n">wkb_writer_set_byteorder</span> <span class="o">=</span> <span class="n">WKBWriterSet</span><span class="p">(</span><span class="s">&#39;GEOSWKBWriter_setByteOrder&#39;</span><span class="p">)</span>
+<span class="n">wkb_writer_get_outdim</span> <span class="o">=</span> <span class="n">WKBWriterGet</span><span class="p">(</span><span class="s">&#39;GEOSWKBWriter_getOutputDimension&#39;</span><span class="p">)</span>
+<span class="n">wkb_writer_set_outdim</span> <span class="o">=</span> <span class="n">WKBWriterSet</span><span class="p">(</span><span class="s">&#39;GEOSWKBWriter_setOutputDimension&#39;</span><span class="p">)</span>
+<span class="n">wkb_writer_get_include_srid</span> <span class="o">=</span> <span class="n">WKBWriterGet</span><span class="p">(</span><span class="s">&#39;GEOSWKBWriter_getIncludeSRID&#39;</span><span class="p">,</span> <span class="n">restype</span><span class="o">=</span><span class="n">c_char</span><span class="p">)</span>
+<span class="n">wkb_writer_set_include_srid</span> <span class="o">=</span> <span class="n">WKBWriterSet</span><span class="p">(</span><span class="s">&#39;GEOSWKBWriter_setIncludeSRID&#39;</span><span class="p">,</span> <span class="n">argtypes</span><span class="o">=</span><span class="p">[</span><span class="n">WKB_WRITE_PTR</span><span class="p">,</span> <span class="n">c_char</span><span class="p">])</span>
+
+
+<span class="c"># ### Base I/O Class ###</span>
+<span class="k">class</span> <span class="nc">IOBase</span><span class="p">(</span><span class="n">GEOSBase</span><span class="p">):</span>
+    <span class="s">&quot;Base class for GEOS I/O objects.&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Getting the pointer with the constructor.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constructor</span><span class="p">()</span>
+        <span class="c"># Loading the real destructor function at this point as doing it in</span>
+        <span class="c"># __del__ is too late (import error).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_destructor</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destructor</span><span class="o">.</span><span class="n">get_func</span><span class="p">(</span>
+            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_destructor</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_destructor</span><span class="o">.</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Cleaning up with the appropriate destructor.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_destructor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+            <span class="k">pass</span>  <span class="c"># Some part might already have been garbage collected</span>
+
+<span class="c"># ### Base WKB/WKT Reading and Writing objects ###</span>
+
+
+<span class="c"># Non-public WKB/WKT reader classes for internal use because</span>
+<span class="c"># their `read` methods return _pointers_ instead of GEOSGeometry</span>
+<span class="c"># objects.</span>
+<span class="k">class</span> <span class="nc">_WKTReader</span><span class="p">(</span><span class="n">IOBase</span><span class="p">):</span>
+    <span class="n">_constructor</span> <span class="o">=</span> <span class="n">wkt_reader_create</span>
+    <span class="n">_destructor</span> <span class="o">=</span> <span class="n">wkt_reader_destroy</span>
+    <span class="n">ptr_type</span> <span class="o">=</span> <span class="n">WKT_READ_PTR</span>
+
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wkt</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wkt</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
+        <span class="k">return</span> <span class="n">wkt_reader_read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">force_bytes</span><span class="p">(</span><span class="n">wkt</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">_WKBReader</span><span class="p">(</span><span class="n">IOBase</span><span class="p">):</span>
+    <span class="n">_constructor</span> <span class="o">=</span> <span class="n">wkb_reader_create</span>
+    <span class="n">_destructor</span> <span class="o">=</span> <span class="n">wkb_reader_destroy</span>
+    <span class="n">ptr_type</span> <span class="o">=</span> <span class="n">WKB_READ_PTR</span>
+
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wkb</span><span class="p">):</span>
+        <span class="s">&quot;Returns a _pointer_ to C GEOS Geometry object from the given WKB.&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wkb</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">memoryview</span><span class="p">):</span>
+            <span class="n">wkb_s</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">wkb</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">wkb_reader_read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">wkb_s</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">wkb_s</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wkb</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">wkb_reader_read_hex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">wkb</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">wkb</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
+
+
+<span class="c"># ### WKB/WKT Writer Classes ###</span>
+<div class="viewcode-block" id="WKTWriter"><a class="viewcode-back" href="../../../../../../ref/contrib/gis/geos.html#django.contrib.gis.geos.WKTWriter">[文档]</a><span class="k">class</span> <span class="nc">WKTWriter</span><span class="p">(</span><span class="n">IOBase</span><span class="p">):</span>
+    <span class="n">_constructor</span> <span class="o">=</span> <span class="n">wkt_writer_create</span>
+    <span class="n">_destructor</span> <span class="o">=</span> <span class="n">wkt_writer_destroy</span>
+    <span class="n">ptr_type</span> <span class="o">=</span> <span class="n">WKT_WRITE_PTR</span>
+
+    <span class="n">_trim</span> <span class="o">=</span> <span class="k">False</span>
+    <span class="n">_precision</span> <span class="o">=</span> <span class="k">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">trim</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">WKTWriter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">trim</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trim</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trim</span> <span class="o">=</span> <span class="n">trim</span>
+        <span class="k">if</span> <span class="n">precision</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="n">precision</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdim</span> <span class="o">=</span> <span class="n">dim</span>
+
+<div class="viewcode-block" id="WKTWriter.write"><a class="viewcode-back" href="../../../../../../ref/contrib/gis/geos.html#django.contrib.gis.geos.WKTWriter.write">[文档]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom</span><span class="p">):</span>
+        <span class="s">&quot;Returns the WKT representation of the given geometry.&quot;</span>
+        <span class="k">return</span> <span class="n">wkt_writer_write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">geom</span><span class="o">.</span><span class="n">ptr</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">outdim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">wkt_writer_get_outdim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">)</span>
+
+    <span class="nd">@outdim</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">outdim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_dim</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">new_dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;WKT output dimension must be 2 or 3&#39;</span><span class="p">)</span>
+        <span class="n">wkt_writer_set_outdim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">new_dim</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">trim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trim</span>
+
+    <span class="nd">@trim</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">trim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trim</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_trim</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+            <span class="n">wkt_writer_set_trim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;</span><span class="se">\x01</span><span class="s">&#39;</span> <span class="k">if</span> <span class="n">flag</span> <span class="k">else</span> <span class="n">b</span><span class="s">&#39;</span><span class="se">\x00</span><span class="s">&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">precision</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precision</span>
+
+    <span class="nd">@precision</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">precision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">precision</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">precision</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">precision</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&#39;WKT output rounding precision must be non-negative integer or None.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">precision</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precision</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_precision</span> <span class="o">=</span> <span class="n">precision</span>
+            <span class="n">wkt_writer_set_precision</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">precision</span> <span class="ow">is</span> <span class="k">None</span> <span class="k">else</span> <span class="n">precision</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WKBWriter"><a class="viewcode-back" href="../../../../../../ref/contrib/gis/geos.html#django.contrib.gis.geos.WKBWriter">[文档]</a><span class="k">class</span> <span class="nc">WKBWriter</span><span class="p">(</span><span class="n">IOBase</span><span class="p">):</span>
+    <span class="n">_constructor</span> <span class="o">=</span> <span class="n">wkb_writer_create</span>
+    <span class="n">_destructor</span> <span class="o">=</span> <span class="n">wkb_writer_destroy</span>
+    <span class="n">ptr_type</span> <span class="o">=</span> <span class="n">WKB_WRITE_PTR</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">WKBWriter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdim</span> <span class="o">=</span> <span class="n">dim</span>
+
+<div class="viewcode-block" id="WKBWriter.write"><a class="viewcode-back" href="../../../../../../ref/contrib/gis/geos.html#django.contrib.gis.geos.WKBWriter.write">[文档]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom</span><span class="p">):</span>
+        <span class="s">&quot;Returns the WKB representation of the given geometry.&quot;</span>
+        <span class="k">return</span> <span class="n">six</span><span class="o">.</span><span class="n">memoryview</span><span class="p">(</span><span class="n">wkb_writer_write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">geom</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">byref</span><span class="p">(</span><span class="n">c_size_t</span><span class="p">())))</span></div>
+
+<div class="viewcode-block" id="WKBWriter.write_hex"><a class="viewcode-back" href="../../../../../../ref/contrib/gis/geos.html#django.contrib.gis.geos.WKBWriter.write_hex">[文档]</a>    <span class="k">def</span> <span class="nf">write_hex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom</span><span class="p">):</span>
+        <span class="s">&quot;Returns the HEXEWKB representation of the given geometry.&quot;</span>
+        <span class="k">return</span> <span class="n">wkb_writer_write_hex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">geom</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">byref</span><span class="p">(</span><span class="n">c_size_t</span><span class="p">()))</span></div>
+
+    <span class="c"># ### WKBWriter Properties ###</span>
+
+    <span class="c"># Property for getting/setting the byteorder.</span>
+    <span class="k">def</span> <span class="nf">_get_byteorder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">wkb_writer_get_byteorder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_byteorder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">order</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Byte order parameter must be 0 (Big Endian) or 1 (Little Endian).&#39;</span><span class="p">)</span>
+        <span class="n">wkb_writer_set_byteorder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+
+    <span class="n">byteorder</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_byteorder</span><span class="p">,</span> <span class="n">_set_byteorder</span><span class="p">)</span>
+
+    <span class="c"># Property for getting/setting the output dimension.</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">outdim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">wkb_writer_get_outdim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">)</span>
+
+    <span class="nd">@outdim</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">outdim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_dim</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">new_dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;WKB output dimension must be 2 or 3&#39;</span><span class="p">)</span>
+        <span class="n">wkb_writer_set_outdim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">new_dim</span><span class="p">)</span>
+
+    <span class="c"># Property for getting/setting the include srid flag.</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">srid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">wkb_writer_get_include_srid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">)))</span>
+
+    <span class="nd">@srid</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">srid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">include</span><span class="p">:</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">b</span><span class="s">&#39;</span><span class="se">\x01</span><span class="s">&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">b</span><span class="s">&#39;</span><span class="se">\x00</span><span class="s">&#39;</span>
+        <span class="n">wkb_writer_set_include_srid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">flag</span><span class="p">)</span></div>
+
+
+<span class="c"># `ThreadLocalIO` object holds instances of the WKT and WKB reader/writer</span>
+<span class="c"># objects that are local to the thread.  The `GEOSGeometry` internals</span>
+<span class="c"># access these instances by calling the module-level functions, defined</span>
+<span class="c"># below.</span>
+<span class="k">class</span> <span class="nc">ThreadLocalIO</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">local</span><span class="p">):</span>
+    <span class="n">wkt_r</span> <span class="o">=</span> <span class="k">None</span>
+    <span class="n">wkt_w</span> <span class="o">=</span> <span class="k">None</span>
+    <span class="n">wkb_r</span> <span class="o">=</span> <span class="k">None</span>
+    <span class="n">wkb_w</span> <span class="o">=</span> <span class="k">None</span>
+    <span class="n">ewkb_w</span> <span class="o">=</span> <span class="k">None</span>
+
+<span class="n">thread_context</span> <span class="o">=</span> <span class="n">ThreadLocalIO</span><span class="p">()</span>
+
+
+<span class="c"># These module-level routines return the I/O object that is local to the</span>
+<span class="c"># thread. If the I/O object does not exist yet it will be initialized.</span>
+<span class="k">def</span> <span class="nf">wkt_r</span><span class="p">():</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">thread_context</span><span class="o">.</span><span class="n">wkt_r</span><span class="p">:</span>
+        <span class="n">thread_context</span><span class="o">.</span><span class="n">wkt_r</span> <span class="o">=</span> <span class="n">_WKTReader</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">thread_context</span><span class="o">.</span><span class="n">wkt_r</span>
+
+
+<span class="k">def</span> <span class="nf">wkt_w</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">trim</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">thread_context</span><span class="o">.</span><span class="n">wkt_w</span><span class="p">:</span>
+        <span class="n">thread_context</span><span class="o">.</span><span class="n">wkt_w</span> <span class="o">=</span> <span class="n">WKTWriter</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span> <span class="n">trim</span><span class="o">=</span><span class="n">trim</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">thread_context</span><span class="o">.</span><span class="n">wkt_w</span><span class="o">.</span><span class="n">outdim</span> <span class="o">=</span> <span class="n">dim</span>
+        <span class="n">thread_context</span><span class="o">.</span><span class="n">wkt_w</span><span class="o">.</span><span class="n">trim</span> <span class="o">=</span> <span class="n">trim</span>
+        <span class="n">thread_context</span><span class="o">.</span><span class="n">wkt_w</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="n">precision</span>
+    <span class="k">return</span> <span class="n">thread_context</span><span class="o">.</span><span class="n">wkt_w</span>
+
+
+<span class="k">def</span> <span class="nf">wkb_r</span><span class="p">():</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">thread_context</span><span class="o">.</span><span class="n">wkb_r</span><span class="p">:</span>
+        <span class="n">thread_context</span><span class="o">.</span><span class="n">wkb_r</span> <span class="o">=</span> <span class="n">_WKBReader</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">thread_context</span><span class="o">.</span><span class="n">wkb_r</span>
+
+
+<span class="k">def</span> <span class="nf">wkb_w</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">thread_context</span><span class="o">.</span><span class="n">wkb_w</span><span class="p">:</span>
+        <span class="n">thread_context</span><span class="o">.</span><span class="n">wkb_w</span> <span class="o">=</span> <span class="n">WKBWriter</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">thread_context</span><span class="o">.</span><span class="n">wkb_w</span><span class="o">.</span><span class="n">outdim</span> <span class="o">=</span> <span class="n">dim</span>
+    <span class="k">return</span> <span class="n">thread_context</span><span class="o">.</span><span class="n">wkb_w</span>
+
+
+<span class="k">def</span> <span class="nf">ewkb_w</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">thread_context</span><span class="o">.</span><span class="n">ewkb_w</span><span class="p">:</span>
+        <span class="n">thread_context</span><span class="o">.</span><span class="n">ewkb_w</span> <span class="o">=</span> <span class="n">WKBWriter</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">)</span>
+        <span class="n">thread_context</span><span class="o">.</span><span class="n">ewkb_w</span><span class="o">.</span><span class="n">srid</span> <span class="o">=</span> <span class="k">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">thread_context</span><span class="o">.</span><span class="n">ewkb_w</span><span class="o">.</span><span class="n">outdim</span> <span class="o">=</span> <span class="n">dim</span>
+    <span class="k">return</span> <span class="n">thread_context</span><span class="o">.</span><span class="n">ewkb_w</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,376 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.views.static &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/>
+        <link rel="up" title="django" href="../../django.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../django.html">django</a> &raquo;</li>
+        
+      <li>django.views.static</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.views.static 源代码</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Views and functions for serving static files. These are only to be used</span>
+<span class="sd">during development, and SHOULD NOT be used in a production setting.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">mimetypes</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">posixpath</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">stat</span>
+
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">FileResponse</span><span class="p">,</span> <span class="n">Http404</span><span class="p">,</span> <span class="n">HttpResponse</span><span class="p">,</span> <span class="n">HttpResponseNotModified</span><span class="p">,</span>
+    <span class="n">HttpResponseRedirect</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">django.template</span> <span class="k">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">Engine</span><span class="p">,</span> <span class="n">TemplateDoesNotExist</span><span class="p">,</span> <span class="n">loader</span>
+<span class="kn">from</span> <span class="nn">django.utils.http</span> <span class="k">import</span> <span class="n">http_date</span><span class="p">,</span> <span class="n">parse_http_date</span>
+<span class="kn">from</span> <span class="nn">django.utils.six.moves.urllib.parse</span> <span class="k">import</span> <span class="n">unquote</span>
+<span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="k">import</span> <span class="n">ugettext</span> <span class="k">as</span> <span class="n">_</span><span class="p">,</span> <span class="n">ugettext_lazy</span>
+
+
+<span class="k">def</span> <span class="nf">serve</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">document_root</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">show_indexes</span><span class="o">=</span><span class="k">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serve static files below a given point in the directory structure.</span>
+
+<span class="sd">    To use, put a URL pattern such as::</span>
+
+<span class="sd">        from django.views.static import serve</span>
+
+<span class="sd">        url(r&#39;^(?P&lt;path&gt;.*)$&#39;, serve, {&#39;document_root&#39;: &#39;/path/to/my/files/&#39;})</span>
+
+<span class="sd">    in your URLconf. You must provide the ``document_root`` param. You may</span>
+<span class="sd">    also set ``show_indexes`` to ``True`` if you&#39;d like to serve a basic index</span>
+<span class="sd">    of the directory.  This index view will use the template hardcoded below,</span>
+<span class="sd">    but if you&#39;d like to override it, you can create a template called</span>
+<span class="sd">    ``static/directory_index.html``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">unquote</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+    <span class="n">newpath</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">part</span><span class="p">:</span>
+            <span class="c"># Strip empty path components.</span>
+            <span class="k">continue</span>
+        <span class="n">drive</span><span class="p">,</span> <span class="n">part</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitdrive</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+        <span class="n">head</span><span class="p">,</span> <span class="n">part</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">part</span> <span class="ow">in</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">curdir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">):</span>
+            <span class="c"># Strip &#39;.&#39; and &#39;..&#39; in path.</span>
+            <span class="k">continue</span>
+        <span class="n">newpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">newpath</span><span class="p">,</span> <span class="n">part</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\\</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;/&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">newpath</span> <span class="ow">and</span> <span class="n">path</span> <span class="o">!=</span> <span class="n">newpath</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">newpath</span><span class="p">)</span>
+    <span class="n">fullpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">document_root</span><span class="p">,</span> <span class="n">newpath</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">fullpath</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">show_indexes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">directory_index</span><span class="p">(</span><span class="n">newpath</span><span class="p">,</span> <span class="n">fullpath</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&quot;Directory indexes are not allowed here.&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fullpath</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">Http404</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;&quot;%(path)s&quot; does not exist&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="p">{</span><span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="n">fullpath</span><span class="p">})</span>
+    <span class="c"># Respect the If-Modified-Since header.</span>
+    <span class="n">statobj</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">fullpath</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">was_modified_since</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;HTTP_IF_MODIFIED_SINCE&#39;</span><span class="p">),</span>
+                              <span class="n">statobj</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">,</span> <span class="n">statobj</span><span class="o">.</span><span class="n">st_size</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">HttpResponseNotModified</span><span class="p">()</span>
+    <span class="n">content_type</span><span class="p">,</span> <span class="n">encoding</span> <span class="o">=</span> <span class="n">mimetypes</span><span class="o">.</span><span class="n">guess_type</span><span class="p">(</span><span class="n">fullpath</span><span class="p">)</span>
+    <span class="n">content_type</span> <span class="o">=</span> <span class="n">content_type</span> <span class="ow">or</span> <span class="s">&#39;application/octet-stream&#39;</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">FileResponse</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">fullpath</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">),</span> <span class="n">content_type</span><span class="o">=</span><span class="n">content_type</span><span class="p">)</span>
+    <span class="n">response</span><span class="p">[</span><span class="s">&quot;Last-Modified&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">http_date</span><span class="p">(</span><span class="n">statobj</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_ISREG</span><span class="p">(</span><span class="n">statobj</span><span class="o">.</span><span class="n">st_mode</span><span class="p">):</span>
+        <span class="n">response</span><span class="p">[</span><span class="s">&quot;Content-Length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statobj</span><span class="o">.</span><span class="n">st_size</span>
+    <span class="k">if</span> <span class="n">encoding</span><span class="p">:</span>
+        <span class="n">response</span><span class="p">[</span><span class="s">&quot;Content-Encoding&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoding</span>
+    <span class="k">return</span> <span class="n">response</span>
+
+
+<span class="n">DEFAULT_DIRECTORY_INDEX_TEMPLATE</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">{% load i18n %}</span>
+<span class="s">&lt;!DOCTYPE html&gt;</span>
+<span class="s">&lt;html lang=&quot;en&quot;&gt;</span>
+<span class="s">  &lt;head&gt;</span>
+<span class="s">    &lt;meta http-equiv=&quot;Content-type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;</span>
+<span class="s">    &lt;meta http-equiv=&quot;Content-Language&quot; content=&quot;en-us&quot; /&gt;</span>
+<span class="s">    &lt;meta name=&quot;robots&quot; content=&quot;NONE,NOARCHIVE&quot; /&gt;</span>
+<span class="s">    &lt;title&gt;{% blocktrans %}Index of {{ directory }}{% endblocktrans %}&lt;/title&gt;</span>
+<span class="s">  &lt;/head&gt;</span>
+<span class="s">  &lt;body&gt;</span>
+<span class="s">    &lt;h1&gt;{% blocktrans %}Index of {{ directory }}{% endblocktrans %}&lt;/h1&gt;</span>
+<span class="s">    &lt;ul&gt;</span>
+<span class="s">      {% if directory != &quot;/&quot; %}</span>
+<span class="s">      &lt;li&gt;&lt;a href=&quot;../&quot;&gt;../&lt;/a&gt;&lt;/li&gt;</span>
+<span class="s">      {% endif %}</span>
+<span class="s">      {% for f in file_list %}</span>
+<span class="s">      &lt;li&gt;&lt;a href=&quot;{{ f|urlencode }}&quot;&gt;{{ f }}&lt;/a&gt;&lt;/li&gt;</span>
+<span class="s">      {% endfor %}</span>
+<span class="s">    &lt;/ul&gt;</span>
+<span class="s">  &lt;/body&gt;</span>
+<span class="s">&lt;/html&gt;</span>
+<span class="s">&quot;&quot;&quot;</span>
+<span class="n">template_translatable</span> <span class="o">=</span> <span class="n">ugettext_lazy</span><span class="p">(</span><span class="s">&quot;Index of %(directory)s&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">directory_index</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">fullpath</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">select_template</span><span class="p">([</span>
+            <span class="s">&#39;static/directory_index.html&#39;</span><span class="p">,</span>
+            <span class="s">&#39;static/directory_index&#39;</span><span class="p">,</span>
+        <span class="p">])</span>
+    <span class="k">except</span> <span class="n">TemplateDoesNotExist</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">Engine</span><span class="p">(</span><span class="n">libraries</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;i18n&#39;</span><span class="p">:</span> <span class="s">&#39;django.templatetags.i18n&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">DEFAULT_DIRECTORY_INDEX_TEMPLATE</span><span class="p">)</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">fullpath</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fullpath</span><span class="p">,</span> <span class="n">f</span><span class="p">)):</span>
+                <span class="n">f</span> <span class="o">+=</span> <span class="s">&#39;/&#39;</span>
+            <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Context</span><span class="p">({</span>
+        <span class="s">&#39;directory&#39;</span><span class="p">:</span> <span class="n">path</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span><span class="p">,</span>
+        <span class="s">&#39;file_list&#39;</span><span class="p">:</span> <span class="n">files</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">was_modified_since</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">mtime</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Was something modified since the user last downloaded it?</span>
+
+<span class="sd">    header</span>
+<span class="sd">      This is the value of the If-Modified-Since header.  If this is None,</span>
+<span class="sd">      I&#39;ll just return True.</span>
+
+<span class="sd">    mtime</span>
+<span class="sd">      This is the modification time of the item we&#39;re talking about.</span>
+
+<span class="sd">    size</span>
+<span class="sd">      This is the size of the item we&#39;re talking about.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">header</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r&quot;^([^;]+)(; length=([0-9]+))?$&quot;</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span>
+                           <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+        <span class="n">header_mtime</span> <span class="o">=</span> <span class="n">parse_http_date</span><span class="p">(</span><span class="n">matches</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">header_len</span> <span class="o">=</span> <span class="n">matches</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">header_len</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">header_len</span><span class="p">)</span> <span class="o">!=</span> <span class="n">size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">mtime</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">header_mtime</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">OverflowError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">True</span>
+    <span class="k">return</span> <span class="k">False</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

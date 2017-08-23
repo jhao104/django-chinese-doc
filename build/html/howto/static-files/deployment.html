@@ -1,0 +1,352 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Deploying static files &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Deploying static files</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/howto/static-files/deployment.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="deploying-static-files">
+<h1>Deploying static files<a class="headerlink" href="#deploying-static-files" title="永久链接至标题">¶</a></h1>
+<div class="admonition seealso">
+<p class="first admonition-title">参见</p>
+<p class="last">For an introduction to the use of <a class="reference internal" href="../../ref/contrib/staticfiles.html#module-django.contrib.staticfiles" title="django.contrib.staticfiles: An app for handling static files."><code class="xref py py-mod docutils literal"><span class="pre">django.contrib.staticfiles</span></code></a>, see
+<a class="reference internal" href="index.html"><span class="doc">Managing static files (e.g. images, JavaScript, CSS)</span></a>.</p>
+</div>
+<div class="section" id="serving-static-files-in-production">
+<span id="staticfiles-production"></span><h2>Serving static files in production<a class="headerlink" href="#serving-static-files-in-production" title="永久链接至标题">¶</a></h2>
+<p>The basic outline of putting static files into production is simple: run the
+<a class="reference internal" href="../../ref/contrib/staticfiles.html#django-admin-collectstatic"><code class="xref std std-djadmin docutils literal"><span class="pre">collectstatic</span></code></a> command when static files change, then arrange for
+the collected static files directory (<a class="reference internal" href="../../ref/settings.html#std:setting-STATIC_ROOT"><code class="xref std std-setting docutils literal"><span class="pre">STATIC_ROOT</span></code></a>) to be moved to
+the static file server and served. Depending on <a class="reference internal" href="../../ref/settings.html#std:setting-STATICFILES_STORAGE"><code class="xref std std-setting docutils literal"><span class="pre">STATICFILES_STORAGE</span></code></a>,
+files may need to be moved to a new location manually or the <a class="reference internal" href="../../ref/contrib/staticfiles.html#django.contrib.staticfiles.storage.StaticFilesStorage.post_process" title="django.contrib.staticfiles.storage.StaticFilesStorage.post_process"><code class="xref py py-func docutils literal"><span class="pre">post_process</span></code></a> method
+of the <code class="docutils literal"><span class="pre">Storage</span></code> class might take care of that.</p>
+<p>Of course, as with all deployment tasks, the devil’s in the details. Every
+production setup will be a bit different, so you’ll need to adapt the basic
+outline to fit your needs. Below are a few common patterns that might help.</p>
+<div class="section" id="serving-the-site-and-your-static-files-from-the-same-server">
+<h3>Serving the site and your static files from the same server<a class="headerlink" href="#serving-the-site-and-your-static-files-from-the-same-server" title="永久链接至标题">¶</a></h3>
+<p>If you want to serve your static files from the same server that’s already
+serving your site, the process may look something like:</p>
+<ul class="simple">
+<li>Push your code up to the deployment server.</li>
+<li>On the server, run <a class="reference internal" href="../../ref/contrib/staticfiles.html#django-admin-collectstatic"><code class="xref std std-djadmin docutils literal"><span class="pre">collectstatic</span></code></a> to copy all the static files
+into <a class="reference internal" href="../../ref/settings.html#std:setting-STATIC_ROOT"><code class="xref std std-setting docutils literal"><span class="pre">STATIC_ROOT</span></code></a>.</li>
+<li>Configure your web server to serve the files in <a class="reference internal" href="../../ref/settings.html#std:setting-STATIC_ROOT"><code class="xref std std-setting docutils literal"><span class="pre">STATIC_ROOT</span></code></a>
+under the URL <a class="reference internal" href="../../ref/settings.html#std:setting-STATIC_URL"><code class="xref std std-setting docutils literal"><span class="pre">STATIC_URL</span></code></a>. For example, here’s
+<a class="reference internal" href="../deployment/wsgi/modwsgi.html#serving-files"><span class="std std-ref">how to do this with Apache and mod_wsgi</span></a>.</li>
+</ul>
+<p>You’ll probably want to automate this process, especially if you’ve got
+multiple web servers. There’s any number of ways to do this automation, but
+one option that many Django developers enjoy is <a class="reference external" href="http://fabfile.org/">Fabric</a>.</p>
+<p>Below, and in the following sections, we’ll show off a few example fabfiles
+(i.e. Fabric scripts) that automate these file deployment options. The syntax
+of a fabfile is fairly straightforward but won’t be covered here; consult
+<a class="reference external" href="http://docs.fabfile.org/">Fabric’s documentation</a>, for a complete
+explanation of the syntax.</p>
+<p>So, a fabfile to deploy static files to a couple of web servers might look
+something like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="k">import</span> <span class="o">*</span>
+
+<span class="c"># Hosts to deploy onto</span>
+<span class="n">env</span><span class="o">.</span><span class="n">hosts</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;www1.example.com&#39;</span><span class="p">,</span> <span class="s">&#39;www2.example.com&#39;</span><span class="p">]</span>
+
+<span class="c"># Where your project code lives on the server</span>
+<span class="n">env</span><span class="o">.</span><span class="n">project_root</span> <span class="o">=</span> <span class="s">&#39;/home/www/myproject&#39;</span>
+
+<span class="k">def</span> <span class="nf">deploy_static</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">cd</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">project_root</span><span class="p">):</span>
+        <span class="n">run</span><span class="p">(</span><span class="s">&#39;./manage.py collectstatic -v0 --noinput&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="serving-static-files-from-a-dedicated-server">
+<h3>Serving static files from a dedicated server<a class="headerlink" href="#serving-static-files-from-a-dedicated-server" title="永久链接至标题">¶</a></h3>
+<p>Most larger Django sites use a separate Web server – i.e., one that’s not also
+running Django – for serving static files. This server often runs a different
+type of web server – faster but less full-featured. Some common choices are:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://wiki.nginx.org/Main">Nginx</a></li>
+<li>A stripped-down version of <a class="reference external" href="https://httpd.apache.org/">Apache</a></li>
+</ul>
+<p>Configuring these servers is out of scope of this document; check each
+server’s respective documentation for instructions.</p>
+<p>Since your static file server won’t be running Django, you’ll need to modify
+the deployment strategy to look something like:</p>
+<ul class="simple">
+<li>When your static files change, run <a class="reference internal" href="../../ref/contrib/staticfiles.html#django-admin-collectstatic"><code class="xref std std-djadmin docutils literal"><span class="pre">collectstatic</span></code></a> locally.</li>
+<li>Push your local <a class="reference internal" href="../../ref/settings.html#std:setting-STATIC_ROOT"><code class="xref std std-setting docutils literal"><span class="pre">STATIC_ROOT</span></code></a> up to the static file server into the
+directory that’s being served. <a class="reference external" href="https://rsync.samba.org/">rsync</a> is a
+common choice for this step since it only needs to transfer the bits of
+static files that have changed.</li>
+</ul>
+<p>Here’s how this might look in a fabfile:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">fabric.contrib</span> <span class="k">import</span> <span class="n">project</span>
+
+<span class="c"># Where the static files get collected locally. Your STATIC_ROOT setting.</span>
+<span class="n">env</span><span class="o">.</span><span class="n">local_static_root</span> <span class="o">=</span> <span class="s">&#39;/path/to/static&#39;</span>
+
+<span class="c"># Where the static files should go remotely</span>
+<span class="n">env</span><span class="o">.</span><span class="n">remote_static_root</span> <span class="o">=</span> <span class="s">&#39;/home/www/static.example.com&#39;</span>
+
+<span class="nd">@roles</span><span class="p">(</span><span class="s">&#39;static&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">deploy_static</span><span class="p">():</span>
+    <span class="n">local</span><span class="p">(</span><span class="s">&#39;./manage.py collectstatic&#39;</span><span class="p">)</span>
+    <span class="n">project</span><span class="o">.</span><span class="n">rsync_project</span><span class="p">(</span>
+        <span class="n">remote_dir</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">remote_static_root</span><span class="p">,</span>
+        <span class="n">local_dir</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">local_static_root</span><span class="p">,</span>
+        <span class="n">delete</span><span class="o">=</span><span class="k">True</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="serving-static-files-from-a-cloud-service-or-cdn">
+<span id="staticfiles-from-cdn"></span><h3>Serving static files from a cloud service or CDN<a class="headerlink" href="#serving-static-files-from-a-cloud-service-or-cdn" title="永久链接至标题">¶</a></h3>
+<p>Another common tactic is to serve static files from a cloud storage provider
+like Amazon’s S3 and/or a CDN (content delivery network). This lets you
+ignore the problems of serving static files and can often make for
+faster-loading Web pages (especially when using a CDN).</p>
+<p>When using these services, the basic workflow would look a bit like the above,
+except that instead of using <code class="docutils literal"><span class="pre">rsync</span></code> to transfer your static files to the
+server you’d need to transfer the static files to the storage provider or CDN.</p>
+<p>There’s any number of ways you might do this, but if the provider has an API a
+<a class="reference internal" href="../custom-file-storage.html"><span class="doc">custom file storage backend</span></a> will make the
+process incredibly simple. If you’ve written or are using a 3rd party custom
+storage backend, you can tell <a class="reference internal" href="../../ref/contrib/staticfiles.html#django-admin-collectstatic"><code class="xref std std-djadmin docutils literal"><span class="pre">collectstatic</span></code></a> to use it by setting
+<a class="reference internal" href="../../ref/settings.html#std:setting-STATICFILES_STORAGE"><code class="xref std std-setting docutils literal"><span class="pre">STATICFILES_STORAGE</span></code></a> to the storage engine.</p>
+<p>For example, if you’ve written an S3 storage backend in
+<code class="docutils literal"><span class="pre">myproject.storage.S3Storage</span></code> you could use it with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">STATICFILES_STORAGE</span> <span class="o">=</span> <span class="s">&#39;myproject.storage.S3Storage&#39;</span>
+</pre></div>
+</div>
+<p>Once that’s done, all you have to do is run <a class="reference internal" href="../../ref/contrib/staticfiles.html#django-admin-collectstatic"><code class="xref std std-djadmin docutils literal"><span class="pre">collectstatic</span></code></a> and your
+static files would be pushed through your storage package up to S3. If you
+later needed to switch to a different storage provider, it could be as simple
+as changing your <a class="reference internal" href="../../ref/settings.html#std:setting-STATICFILES_STORAGE"><code class="xref std std-setting docutils literal"><span class="pre">STATICFILES_STORAGE</span></code></a> setting.</p>
+<p>For details on how you’d write one of these backends, see
+<a class="reference internal" href="../custom-file-storage.html"><span class="doc">Writing a custom storage system</span></a>. There are 3rd party apps available that
+provide storage backends for many common file storage APIs. A good starting
+point is the <a class="reference external" href="https://www.djangopackages.com/grids/g/storage-backends/">overview at djangopackages.com</a>.</p>
+</div>
+</div>
+<div class="section" id="learn-more">
+<h2>Learn more<a class="headerlink" href="#learn-more" title="永久链接至标题">¶</a></h2>
+<p>For complete details on all the settings, commands, template tags, and other
+pieces included in <a class="reference internal" href="../../ref/contrib/staticfiles.html#module-django.contrib.staticfiles" title="django.contrib.staticfiles: An app for handling static files."><code class="xref py py-mod docutils literal"><span class="pre">django.contrib.staticfiles</span></code></a>, see <a class="reference internal" href="../../ref/contrib/staticfiles.html"><span class="doc">the
+staticfiles reference</span></a>.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

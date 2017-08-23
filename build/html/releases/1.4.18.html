@@ -1,0 +1,282 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Django 1.4.18 release notes &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Django 1.4.18 release notes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/releases/1.4.18.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="django-1-4-18-release-notes">
+<h1>Django 1.4.18 release notes<a class="headerlink" href="#django-1-4-18-release-notes" title="永久链接至标题">¶</a></h1>
+<p><em>January 13, 2015</em></p>
+<p>Django 1.4.18 fixes several security issues in 1.4.17 as well as a regression
+on Python 2.5 in the 1.4.17 release.</p>
+<div class="section" id="wsgi-header-spoofing-via-underscore-dash-conflation">
+<h2>WSGI header spoofing via underscore/dash conflation<a class="headerlink" href="#wsgi-header-spoofing-via-underscore-dash-conflation" title="永久链接至标题">¶</a></h2>
+<p>When HTTP headers are placed into the WSGI environ, they are normalized by
+converting to uppercase, converting all dashes to underscores, and prepending
+<cite>HTTP_</cite>. For instance, a header <code class="docutils literal"><span class="pre">X-Auth-User</span></code> would become
+<code class="docutils literal"><span class="pre">HTTP_X_AUTH_USER</span></code> in the WSGI environ (and thus also in Django’s
+<code class="docutils literal"><span class="pre">request.META</span></code> dictionary).</p>
+<p>Unfortunately, this means that the WSGI environ cannot distinguish between
+headers containing dashes and headers containing underscores: <code class="docutils literal"><span class="pre">X-Auth-User</span></code>
+and <code class="docutils literal"><span class="pre">X-Auth_User</span></code> both become <code class="docutils literal"><span class="pre">HTTP_X_AUTH_USER</span></code>. This means that if a
+header is used in a security-sensitive way (for instance, passing
+authentication information along from a front-end proxy), even if the proxy
+carefully strips any incoming value for <code class="docutils literal"><span class="pre">X-Auth-User</span></code>, an attacker may be
+able to provide an <code class="docutils literal"><span class="pre">X-Auth_User</span></code> header (with underscore) and bypass this
+protection.</p>
+<p>In order to prevent such attacks, both Nginx and Apache 2.4+ strip all headers
+containing underscores from incoming requests by default. Django’s built-in
+development server now does the same. Django’s development server is not
+recommended for production use, but matching the behavior of common production
+servers reduces the surface area for behavior changes during deployment.</p>
+</div>
+<div class="section" id="mitigated-possible-xss-attack-via-user-supplied-redirect-urls">
+<h2>Mitigated possible XSS attack via user-supplied redirect URLs<a class="headerlink" href="#mitigated-possible-xss-attack-via-user-supplied-redirect-urls" title="永久链接至标题">¶</a></h2>
+<p>Django relies on user input in some cases (e.g.
+<a class="reference internal" href="../topics/auth/default.html#django.contrib.auth.views.login" title="django.contrib.auth.views.login"><code class="xref py py-func docutils literal"><span class="pre">django.contrib.auth.views.login()</span></code></a> and <a class="reference internal" href="../topics/i18n/index.html"><span class="doc">i18n</span></a>)
+to redirect the user to an “on success” URL. The security checks for these
+redirects (namely <code class="docutils literal"><span class="pre">django.utils.http.is_safe_url()</span></code>) didn’t strip leading
+whitespace on the tested URL and as such considered URLs like
+<code class="docutils literal"><span class="pre">\njavascript:...</span></code> safe. If a developer relied on <code class="docutils literal"><span class="pre">is_safe_url()</span></code> to
+provide safe redirect targets and put such a URL into a link, they could suffer
+from a XSS attack. This bug doesn’t affect Django currently, since we only put
+this URL into the <code class="docutils literal"><span class="pre">Location</span></code> response header and browsers seem to ignore
+JavaScript there.</p>
+</div>
+<div class="section" id="denial-of-service-attack-against-django-views-static-serve">
+<h2>Denial-of-service attack against <code class="docutils literal"><span class="pre">django.views.static.serve</span></code><a class="headerlink" href="#denial-of-service-attack-against-django-views-static-serve" title="永久链接至标题">¶</a></h2>
+<p>In older versions of Django, the <a class="reference internal" href="../ref/views.html#django.views.static.serve" title="django.views.static.serve"><code class="xref py py-func docutils literal"><span class="pre">django.views.static.serve()</span></code></a> view read
+the files it served one line at a time. Therefore, a big file with no newlines
+would result in memory usage equal to the size of that file. An attacker could
+exploit this and launch a denial-of-service attack by simultaneously requesting
+many large files. This view now reads the file in chunks to prevent large
+memory usage.</p>
+<p>Note, however, that this view has always carried a warning that it is not
+hardened for production use and should be used only as a development aid. Now
+may be a good time to audit your project and serve your files in production
+using a real front-end web server if you are not doing so.</p>
+</div>
+<div class="section" id="bugfixes">
+<h2>Bugfixes<a class="headerlink" href="#bugfixes" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li>To maintain compatibility with Python 2.5, Django’s vendored version of six,
+<a class="reference internal" href="../topics/python3.html#module-django.utils.six" title="django.utils.six"><code class="xref py py-mod docutils literal"><span class="pre">django.utils.six</span></code></a>, has been downgraded to 1.8.0 which is the last
+version to support Python 2.5.</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

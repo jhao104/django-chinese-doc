@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.contrib.postgres &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="docutils literal"><span class="pre">django.contrib.postgres</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/ref/contrib/postgres/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-django.contrib.postgres">
+<span id="django-contrib-postgres"></span><h1><code class="docutils literal"><span class="pre">django.contrib.postgres</span></code><a class="headerlink" href="#module-django.contrib.postgres" title="永久链接至标题">¶</a></h1>
+<p>PostgreSQL has a number of features which are not shared by the other databases
+Django supports. This optional module contains model fields and form fields for
+a number of PostgreSQL specific data types.</p>
+<p>Psycopg2 2.5 or higher is required, though we highly recommend using the latest
+release. Some fields require higher versions.</p>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p>Django is, and will continue to be, a database-agnostic web framework. We
+would encourage those writing reusable applications for the Django
+community to write database-agnostic code where practical. However, we
+recognize that real world projects written using Django need not be
+database-agnostic. In fact, once a project reaches a given size changing
+the underlying data store is already a significant challenge and is likely
+to require changing the code base in some ways to handle differences
+between the data stores.</p>
+<p class="last">Django provides support for a number of data types which will
+only work with PostgreSQL. There is no fundamental reason why (for example)
+a <code class="docutils literal"><span class="pre">contrib.mysql</span></code> module does not exist, except that PostgreSQL has the
+richest feature set of the supported databases so its users have the most
+to gain.</p>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="aggregates.html">PostgreSQL specific aggregation functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="aggregates.html#general-purpose-aggregation-functions">General-purpose aggregation functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aggregates.html#aggregate-functions-for-statistics">Aggregate functions for statistics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aggregates.html#usage-examples">Usage examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fields.html">PostgreSQL specific model fields</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fields.html#arrayfield"><code class="docutils literal"><span class="pre">ArrayField</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fields.html#hstorefield"><code class="docutils literal"><span class="pre">HStoreField</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fields.html#jsonfield"><code class="docutils literal"><span class="pre">JSONField</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fields.html#range-fields">Range Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="forms.html">PostgreSQL specific form fields and widgets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="forms.html#fields">Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="forms.html#widgets">Widgets</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html">PostgreSQL specific database functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#transactionnow"><code class="docutils literal"><span class="pre">TransactionNow</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lookups.html">PostgreSQL specific lookups</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lookups.html#trigram-similarity">Trigram similarity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lookups.html#unaccent"><code class="docutils literal"><span class="pre">Unaccent</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="operations.html">Database migration operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="operations.html#creating-extension-using-migrations">Creating extension using migrations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="operations.html#createextension"><code class="docutils literal"><span class="pre">CreateExtension</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="operations.html#hstoreextension"><code class="docutils literal"><span class="pre">HStoreExtension</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="operations.html#trigramextension"><code class="docutils literal"><span class="pre">TrigramExtension</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="operations.html#unaccentextension"><code class="docutils literal"><span class="pre">UnaccentExtension</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="search.html">Full text search</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="search.html#the-search-lookup">The <code class="docutils literal"><span class="pre">search</span></code> lookup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="search.html#searchvector"><code class="docutils literal"><span class="pre">SearchVector</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="search.html#searchquery"><code class="docutils literal"><span class="pre">SearchQuery</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="search.html#searchrank"><code class="docutils literal"><span class="pre">SearchRank</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="search.html#changing-the-search-configuration">Changing the search configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="search.html#weighting-queries">Weighting queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="search.html#performance">Performance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="search.html#trigram-similarity">Trigram similarity</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="validators.html">Validators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="validators.html#keysvalidator"><code class="docutils literal"><span class="pre">KeysValidator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="validators.html#range-validators">Range validators</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

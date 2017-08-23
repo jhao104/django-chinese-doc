@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The redirects app &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>The redirects app</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/ref/contrib/redirects.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-django.contrib.redirects">
+<span id="the-redirects-app"></span><h1>The redirects app<a class="headerlink" href="#module-django.contrib.redirects" title="永久链接至标题">¶</a></h1>
+<p>Django comes with an optional redirects application. It lets you store simple
+redirects in a database and handles the redirecting for you. It uses the HTTP
+response status code <code class="docutils literal"><span class="pre">301</span> <span class="pre">Moved</span> <span class="pre">Permanently</span></code> by default.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="永久链接至标题">¶</a></h2>
+<p>To install the redirects app, follow these steps:</p>
+<ol class="arabic simple">
+<li>Ensure that the <code class="docutils literal"><span class="pre">django.contrib.sites</span></code> framework
+<a class="reference internal" href="sites.html#enabling-the-sites-framework"><span class="std std-ref">is installed</span></a>.</li>
+<li>Add <code class="docutils literal"><span class="pre">'django.contrib.redirects'</span></code> to your <a class="reference internal" href="../settings.html#std:setting-INSTALLED_APPS"><code class="xref std std-setting docutils literal"><span class="pre">INSTALLED_APPS</span></code></a> setting.</li>
+<li>Add <code class="docutils literal"><span class="pre">'django.contrib.redirects.middleware.RedirectFallbackMiddleware'</span></code>
+to your <a class="reference internal" href="../settings.html#std:setting-MIDDLEWARE"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE</span></code></a> setting.</li>
+<li>Run the command <a class="reference internal" href="../django-admin.html#django-admin-migrate"><code class="xref std std-djadmin docutils literal"><span class="pre">manage.py</span> <span class="pre">migrate</span></code></a>.</li>
+</ol>
+</div>
+<div class="section" id="how-it-works">
+<h2>How it works<a class="headerlink" href="#how-it-works" title="永久链接至标题">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">manage.py</span> <span class="pre">migrate</span></code> creates a <code class="docutils literal"><span class="pre">django_redirect</span></code> table in your database. This
+is a simple lookup table with <code class="docutils literal"><span class="pre">site_id</span></code>, <code class="docutils literal"><span class="pre">old_path</span></code> and <code class="docutils literal"><span class="pre">new_path</span></code> fields.</p>
+<p>The <a class="reference internal" href="#django.contrib.redirects.middleware.RedirectFallbackMiddleware" title="django.contrib.redirects.middleware.RedirectFallbackMiddleware"><code class="xref py py-class docutils literal"><span class="pre">RedirectFallbackMiddleware</span></code></a>
+does all of the work. Each time any Django application raises a 404
+error, this middleware checks the redirects database for the requested
+URL as a last resort. Specifically, it checks for a redirect with the
+given <code class="docutils literal"><span class="pre">old_path</span></code> with a site ID that corresponds to the
+<a class="reference internal" href="../settings.html#std:setting-SITE_ID"><code class="xref std std-setting docutils literal"><span class="pre">SITE_ID</span></code></a> setting.</p>
+<ul class="simple">
+<li>If it finds a match, and <code class="docutils literal"><span class="pre">new_path</span></code> is not empty, it redirects to
+<code class="docutils literal"><span class="pre">new_path</span></code> using a 301 (“Moved Permanently”) redirect. You can subclass
+<a class="reference internal" href="#django.contrib.redirects.middleware.RedirectFallbackMiddleware" title="django.contrib.redirects.middleware.RedirectFallbackMiddleware"><code class="xref py py-class docutils literal"><span class="pre">RedirectFallbackMiddleware</span></code></a>
+and set
+<a class="reference internal" href="#django.contrib.redirects.middleware.RedirectFallbackMiddleware.response_redirect_class" title="django.contrib.redirects.middleware.RedirectFallbackMiddleware.response_redirect_class"><code class="xref py py-attr docutils literal"><span class="pre">response_redirect_class</span></code></a>
+to <a class="reference internal" href="../request-response.html#django.http.HttpResponseRedirect" title="django.http.HttpResponseRedirect"><code class="xref py py-class docutils literal"><span class="pre">django.http.HttpResponseRedirect</span></code></a> to use a
+<code class="docutils literal"><span class="pre">302</span> <span class="pre">Moved</span> <span class="pre">Temporarily</span></code> redirect instead.</li>
+<li>If it finds a match, and <code class="docutils literal"><span class="pre">new_path</span></code> is empty, it sends a 410 (“Gone”)
+HTTP header and empty (content-less) response.</li>
+<li>If it doesn’t find a match, the request continues to be processed as
+usual.</li>
+</ul>
+<p>The middleware only gets activated for 404s – not for 500s or responses of any
+other status code.</p>
+<p>Note that the order of <a class="reference internal" href="../settings.html#std:setting-MIDDLEWARE"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE</span></code></a> matters. Generally, you can put
+<a class="reference internal" href="#django.contrib.redirects.middleware.RedirectFallbackMiddleware" title="django.contrib.redirects.middleware.RedirectFallbackMiddleware"><code class="xref py py-class docutils literal"><span class="pre">RedirectFallbackMiddleware</span></code></a> at the
+end of the list, because it’s a last resort.</p>
+<p>For more on middleware, read the <a class="reference internal" href="../../topics/http/middleware.html"><span class="doc">middleware docs</span></a>.</p>
+</div>
+<div class="section" id="how-to-add-change-and-delete-redirects">
+<h2>How to add, change and delete redirects<a class="headerlink" href="#how-to-add-change-and-delete-redirects" title="永久链接至标题">¶</a></h2>
+<div class="section" id="via-the-admin-interface">
+<h3>Via the admin interface<a class="headerlink" href="#via-the-admin-interface" title="永久链接至标题">¶</a></h3>
+<p>If you’ve activated the automatic Django admin interface, you should see a
+“Redirects” section on the admin index page. Edit redirects as you edit any
+other object in the system.</p>
+</div>
+<div class="section" id="via-the-python-api">
+<h3>Via the Python API<a class="headerlink" href="#via-the-python-api" title="永久链接至标题">¶</a></h3>
+<dl class="class">
+<dt id="django.contrib.redirects.models.Redirect">
+<em class="property">class </em><code class="descclassname">models.</code><code class="descname">Redirect</code><a class="headerlink" href="#django.contrib.redirects.models.Redirect" title="永久链接至目标">¶</a></dt>
+<dd><p>Redirects are represented by a standard <a class="reference internal" href="../../topics/db/models.html"><span class="doc">Django model</span></a>,
+which lives in <a class="reference external" href="https://github.com/django/django/blob/master/django/contrib/redirects/models.py">django/contrib/redirects/models.py</a>. You can access redirect
+objects via the <a class="reference internal" href="../../topics/db/queries.html"><span class="doc">Django database API</span></a>.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="middleware">
+<h2>Middleware<a class="headerlink" href="#middleware" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="django.contrib.redirects.middleware.RedirectFallbackMiddleware">
+<em class="property">class </em><code class="descclassname">middleware.</code><code class="descname">RedirectFallbackMiddleware</code><a class="headerlink" href="#django.contrib.redirects.middleware.RedirectFallbackMiddleware" title="永久链接至目标">¶</a></dt>
+<dd><p>You can change the <a class="reference internal" href="../request-response.html#django.http.HttpResponse" title="django.http.HttpResponse"><code class="xref py py-class docutils literal"><span class="pre">HttpResponse</span></code></a> classes used
+by the middleware by creating a subclass of
+<a class="reference internal" href="#django.contrib.redirects.middleware.RedirectFallbackMiddleware" title="django.contrib.redirects.middleware.RedirectFallbackMiddleware"><code class="xref py py-class docutils literal"><span class="pre">RedirectFallbackMiddleware</span></code></a>
+and overriding <code class="docutils literal"><span class="pre">response_gone_class</span></code> and/or <code class="docutils literal"><span class="pre">response_redirect_class</span></code>.</p>
+<dl class="attribute">
+<dt id="django.contrib.redirects.middleware.RedirectFallbackMiddleware.response_gone_class">
+<code class="descname">response_gone_class</code><a class="headerlink" href="#django.contrib.redirects.middleware.RedirectFallbackMiddleware.response_gone_class" title="永久链接至目标">¶</a></dt>
+<dd><p>The <a class="reference internal" href="../request-response.html#django.http.HttpResponse" title="django.http.HttpResponse"><code class="xref py py-class docutils literal"><span class="pre">HttpResponse</span></code></a> class used when a
+<a class="reference internal" href="#django.contrib.redirects.models.Redirect" title="django.contrib.redirects.models.Redirect"><code class="xref py py-class docutils literal"><span class="pre">Redirect</span></code></a> is not found for the
+requested path or has a blank <code class="docutils literal"><span class="pre">new_path</span></code> value.</p>
+<p>Defaults to <a class="reference internal" href="../request-response.html#django.http.HttpResponseGone" title="django.http.HttpResponseGone"><code class="xref py py-class docutils literal"><span class="pre">HttpResponseGone</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="django.contrib.redirects.middleware.RedirectFallbackMiddleware.response_redirect_class">
+<code class="descname">response_redirect_class</code><a class="headerlink" href="#django.contrib.redirects.middleware.RedirectFallbackMiddleware.response_redirect_class" title="永久链接至目标">¶</a></dt>
+<dd><p>The <a class="reference internal" href="../request-response.html#django.http.HttpResponse" title="django.http.HttpResponse"><code class="xref py py-class docutils literal"><span class="pre">HttpResponse</span></code></a> class that handles the redirect.</p>
+<p>Defaults to <a class="reference internal" href="../request-response.html#django.http.HttpResponsePermanentRedirect" title="django.http.HttpResponsePermanentRedirect"><code class="xref py py-class docutils literal"><span class="pre">HttpResponsePermanentRedirect</span></code></a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

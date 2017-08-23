@@ -1,0 +1,341 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Class-based views &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Class-based views</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/topics/class-based-views/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="class-based-views">
+<h1>Class-based views<a class="headerlink" href="#class-based-views" title="永久链接至标题">¶</a></h1>
+<p>A view is a callable which takes a request and returns a
+response. This can be more than just a function, and Django provides
+an example of some classes which can be used as views. These allow you
+to structure your views and reuse code by harnessing inheritance and
+mixins. There are also some generic views for simple tasks which we’ll
+get to later, but you may want to design your own structure of
+reusable views which suits your use case. For full details, see the
+<a class="reference internal" href="../../ref/class-based-views/index.html"><span class="doc">class-based views reference documentation</span></a>.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction to class-based views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generic-display.html">Built-in class-based generic views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generic-editing.html">Form handling with class-based views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mixins.html">Using mixins with class-based views</a></li>
+</ul>
+</div>
+<div class="section" id="basic-examples">
+<h2>Basic examples<a class="headerlink" href="#basic-examples" title="永久链接至标题">¶</a></h2>
+<p>Django provides base view classes which will suit a wide range of applications.
+All views inherit from the <a class="reference internal" href="../../ref/class-based-views/base.html#django.views.generic.base.View" title="django.views.generic.base.View"><code class="xref py py-class docutils literal"><span class="pre">View</span></code></a> class, which
+handles linking the view in to the URLs, HTTP method dispatching and other
+simple features. <a class="reference internal" href="../../ref/class-based-views/base.html#django.views.generic.base.RedirectView" title="django.views.generic.base.RedirectView"><code class="xref py py-class docutils literal"><span class="pre">RedirectView</span></code></a> is for a
+simple HTTP redirect, and <a class="reference internal" href="../../ref/class-based-views/base.html#django.views.generic.base.TemplateView" title="django.views.generic.base.TemplateView"><code class="xref py py-class docutils literal"><span class="pre">TemplateView</span></code></a>
+extends the base class to make it also render a template.</p>
+</div>
+<div class="section" id="simple-usage-in-your-urlconf">
+<h2>Simple usage in your URLconf<a class="headerlink" href="#simple-usage-in-your-urlconf" title="永久链接至标题">¶</a></h2>
+<p>The simplest way to use generic views is to create them directly in your
+URLconf. If you’re only changing a few simple attributes on a class-based view,
+you can simply pass them into the
+<a class="reference internal" href="../../ref/class-based-views/base.html#django.views.generic.base.View.as_view" title="django.views.generic.base.View.as_view"><code class="xref py py-meth docutils literal"><span class="pre">as_view()</span></code></a> method call itself:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="k">import</span> <span class="n">url</span>
+<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">TemplateView</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^about/$&#39;</span><span class="p">,</span> <span class="n">TemplateView</span><span class="o">.</span><span class="n">as_view</span><span class="p">(</span><span class="n">template_name</span><span class="o">=</span><span class="s">&quot;about.html&quot;</span><span class="p">)),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>Any arguments passed to <a class="reference internal" href="../../ref/class-based-views/base.html#django.views.generic.base.View.as_view" title="django.views.generic.base.View.as_view"><code class="xref py py-meth docutils literal"><span class="pre">as_view()</span></code></a> will
+override attributes set on the class. In this example, we set <code class="docutils literal"><span class="pre">template_name</span></code>
+on the <code class="docutils literal"><span class="pre">TemplateView</span></code>. A similar overriding pattern can be used for the
+<code class="docutils literal"><span class="pre">url</span></code> attribute on <a class="reference internal" href="../../ref/class-based-views/base.html#django.views.generic.base.RedirectView" title="django.views.generic.base.RedirectView"><code class="xref py py-class docutils literal"><span class="pre">RedirectView</span></code></a>.</p>
+</div>
+<div class="section" id="subclassing-generic-views">
+<h2>Subclassing generic views<a class="headerlink" href="#subclassing-generic-views" title="永久链接至标题">¶</a></h2>
+<p>The second, more powerful way to use generic views is to inherit from an
+existing view and override attributes (such as the <code class="docutils literal"><span class="pre">template_name</span></code>) or
+methods (such as <code class="docutils literal"><span class="pre">get_context_data</span></code>) in your subclass to provide new values
+or methods. Consider, for example, a view that just displays one template,
+<code class="docutils literal"><span class="pre">about.html</span></code>. Django has a generic view to do this -
+<a class="reference internal" href="../../ref/class-based-views/base.html#django.views.generic.base.TemplateView" title="django.views.generic.base.TemplateView"><code class="xref py py-class docutils literal"><span class="pre">TemplateView</span></code></a> - so we can just subclass it,
+and override the template name:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="c"># some_app/views.py</span>
+<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">TemplateView</span>
+
+<span class="k">class</span> <span class="nc">AboutView</span><span class="p">(</span><span class="n">TemplateView</span><span class="p">):</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s">&quot;about.html&quot;</span>
+</pre></div>
+</div>
+<p>Then we just need to add this new view into our URLconf.
+<a class="reference internal" href="../../ref/class-based-views/base.html#django.views.generic.base.TemplateView" title="django.views.generic.base.TemplateView"><code class="xref py py-class docutils literal"><span class="pre">TemplateView</span></code></a> is a class, not a function,
+so we point the URL to the <a class="reference internal" href="../../ref/class-based-views/base.html#django.views.generic.base.View.as_view" title="django.views.generic.base.View.as_view"><code class="xref py py-meth docutils literal"><span class="pre">as_view()</span></code></a>
+class method instead, which provides a function-like entry to class-based
+views:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="c"># urls.py</span>
+<span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="k">import</span> <span class="n">url</span>
+<span class="kn">from</span> <span class="nn">some_app.views</span> <span class="k">import</span> <span class="n">AboutView</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^about/$&#39;</span><span class="p">,</span> <span class="n">AboutView</span><span class="o">.</span><span class="n">as_view</span><span class="p">()),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>For more information on how to use the built in generic views, consult the next
+topic on <a class="reference internal" href="generic-display.html"><span class="doc">generic class-based views</span></a>.</p>
+<div class="section" id="supporting-other-http-methods">
+<span id="id1"></span><h3>Supporting other HTTP methods<a class="headerlink" href="#supporting-other-http-methods" title="永久链接至标题">¶</a></h3>
+<p>Suppose somebody wants to access our book library over HTTP using the views
+as an API. The API client would connect every now and then and download book
+data for the books published since last visit. But if no new books appeared
+since then, it is a waste of CPU time and bandwidth to fetch the books from the
+database, render a full response and send it to the client. It might be
+preferable to ask the API when the most recent book was published.</p>
+<p>We map the URL to book list view in the URLconf:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="k">import</span> <span class="n">url</span>
+<span class="kn">from</span> <span class="nn">books.views</span> <span class="k">import</span> <span class="n">BookListView</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^books/$&#39;</span><span class="p">,</span> <span class="n">BookListView</span><span class="o">.</span><span class="n">as_view</span><span class="p">()),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>And the view:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpResponse</span>
+<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">ListView</span>
+<span class="kn">from</span> <span class="nn">books.models</span> <span class="k">import</span> <span class="n">Book</span>
+
+<span class="k">class</span> <span class="nc">BookListView</span><span class="p">(</span><span class="n">ListView</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Book</span>
+
+    <span class="k">def</span> <span class="nf">head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">last_book</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span><span class="o">.</span><span class="n">latest</span><span class="p">(</span><span class="s">&#39;publication_date&#39;</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+        <span class="c"># RFC 1123 date format</span>
+        <span class="n">response</span><span class="p">[</span><span class="s">&#39;Last-Modified&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">last_book</span><span class="o">.</span><span class="n">publication_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&#39;%a, %d %b %Y %H:%M:%S GMT&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+</pre></div>
+</div>
+<p>If the view is accessed from a <code class="docutils literal"><span class="pre">GET</span></code> request, a plain-and-simple object
+list is returned in the response (using <code class="docutils literal"><span class="pre">book_list.html</span></code> template). But if
+the client issues a <code class="docutils literal"><span class="pre">HEAD</span></code> request, the response has an empty body and
+the <code class="docutils literal"><span class="pre">Last-Modified</span></code> header indicates when the most recent book was published.
+Based on this information, the client may or may not download the full object
+list.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

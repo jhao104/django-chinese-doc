@@ -1,0 +1,331 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Clickjacking Protection &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="搜索" href="../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Clickjacking Protection</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/ref/clickjacking.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-django.middleware.clickjacking">
+<span id="clickjacking-protection"></span><h1>Clickjacking Protection<a class="headerlink" href="#module-django.middleware.clickjacking" title="永久链接至标题">¶</a></h1>
+<p>The clickjacking middleware and decorators provide easy-to-use protection
+against <a class="reference external" href="https://en.wikipedia.org/wiki/Clickjacking">clickjacking</a>.  This type of attack occurs when a malicious site
+tricks a user into clicking on a concealed element of another site which they
+have loaded in a hidden frame or iframe.</p>
+<div class="section" id="an-example-of-clickjacking">
+<h2>An example of clickjacking<a class="headerlink" href="#an-example-of-clickjacking" title="永久链接至标题">¶</a></h2>
+<p>Suppose an online store has a page where a logged in user can click “Buy Now” to
+purchase an item. A user has chosen to stay logged into the store all the time
+for convenience. An attacker site might create an “I Like Ponies” button on one
+of their own pages, and load the store’s page in a transparent iframe such that
+the “Buy Now” button is invisibly overlaid on the “I Like Ponies” button. If the
+user visits the attacker’s site, clicking “I Like Ponies” will cause an
+inadvertent click on the “Buy Now” button and an unknowing purchase of the item.</p>
+</div>
+<div class="section" id="preventing-clickjacking">
+<span id="clickjacking-prevention"></span><h2>Preventing clickjacking<a class="headerlink" href="#preventing-clickjacking" title="永久链接至标题">¶</a></h2>
+<p>Modern browsers honor the <a class="reference external" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/X-Frame-Options">X-Frame-Options</a> HTTP header that indicates whether
+or not a resource is allowed to load within a frame or iframe. If the response
+contains the header with a value of <code class="docutils literal"><span class="pre">SAMEORIGIN</span></code> then the browser will only
+load the resource in a frame if the request originated from the same site. If
+the header is set to <code class="docutils literal"><span class="pre">DENY</span></code> then the browser will block the resource from
+loading in a frame no matter which site made the request.</p>
+<p>Django provides a few simple ways to include this header in responses from your
+site:</p>
+<ol class="arabic simple">
+<li>A simple middleware that sets the header in all responses.</li>
+<li>A set of view decorators that can be used to override the middleware or to
+only set the header for certain views.</li>
+</ol>
+<p>The <code class="docutils literal"><span class="pre">X-Frame-Options</span></code> HTTP header will only be set by the middleware or view
+decorators if it is not already present in the response.</p>
+</div>
+<div class="section" id="how-to-use-it">
+<h2>How to use it<a class="headerlink" href="#how-to-use-it" title="永久链接至标题">¶</a></h2>
+<div class="section" id="setting-x-frame-options-for-all-responses">
+<h3>Setting <code class="docutils literal"><span class="pre">X-Frame-Options</span></code> for all responses<a class="headerlink" href="#setting-x-frame-options-for-all-responses" title="永久链接至标题">¶</a></h3>
+<p>To set the same <code class="docutils literal"><span class="pre">X-Frame-Options</span></code> value for all responses in your site, put
+<code class="docutils literal"><span class="pre">'django.middleware.clickjacking.XFrameOptionsMiddleware'</span></code> to
+<a class="reference internal" href="settings.html#std:setting-MIDDLEWARE"><code class="xref std std-setting docutils literal"><span class="pre">MIDDLEWARE</span></code></a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">MIDDLEWARE</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="o">...</span>
+    <span class="s">&#39;django.middleware.clickjacking.XFrameOptionsMiddleware&#39;</span><span class="p">,</span>
+    <span class="o">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>This middleware is enabled in the settings file generated by
+<a class="reference internal" href="django-admin.html#django-admin-startproject"><code class="xref std std-djadmin docutils literal"><span class="pre">startproject</span></code></a>.</p>
+<p>By default, the middleware will set the <code class="docutils literal"><span class="pre">X-Frame-Options</span></code> header to
+<code class="docutils literal"><span class="pre">SAMEORIGIN</span></code> for every outgoing <code class="docutils literal"><span class="pre">HttpResponse</span></code>. If you want <code class="docutils literal"><span class="pre">DENY</span></code>
+instead, set the <a class="reference internal" href="settings.html#std:setting-X_FRAME_OPTIONS"><code class="xref std std-setting docutils literal"><span class="pre">X_FRAME_OPTIONS</span></code></a> setting:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">X_FRAME_OPTIONS</span> <span class="o">=</span> <span class="s">&#39;DENY&#39;</span>
+</pre></div>
+</div>
+<p>When using the middleware there may be some views where you do <strong>not</strong> want the
+<code class="docutils literal"><span class="pre">X-Frame-Options</span></code> header set. For those cases, you can use a view decorator
+that tells the middleware not to set the header:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpResponse</span>
+<span class="kn">from</span> <span class="nn">django.views.decorators.clickjacking</span> <span class="k">import</span> <span class="n">xframe_options_exempt</span>
+
+<span class="nd">@xframe_options_exempt</span>
+<span class="k">def</span> <span class="nf">ok_to_load_in_a_frame</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s">&quot;This page is safe to load in a frame on any site.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="setting-x-frame-options-per-view">
+<h3>Setting <code class="docutils literal"><span class="pre">X-Frame-Options</span></code> per view<a class="headerlink" href="#setting-x-frame-options-per-view" title="永久链接至标题">¶</a></h3>
+<p>To set the <code class="docutils literal"><span class="pre">X-Frame-Options</span></code> header on a per view basis, Django provides these
+decorators:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpResponse</span>
+<span class="kn">from</span> <span class="nn">django.views.decorators.clickjacking</span> <span class="k">import</span> <span class="n">xframe_options_deny</span>
+<span class="kn">from</span> <span class="nn">django.views.decorators.clickjacking</span> <span class="k">import</span> <span class="n">xframe_options_sameorigin</span>
+
+<span class="nd">@xframe_options_deny</span>
+<span class="k">def</span> <span class="nf">view_one</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s">&quot;I won&#39;t display in any frame!&quot;</span><span class="p">)</span>
+
+<span class="nd">@xframe_options_sameorigin</span>
+<span class="k">def</span> <span class="nf">view_two</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s">&quot;Display in a frame if it&#39;s from the same origin as me.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that you can use the decorators in conjunction with the middleware. Use of
+a decorator overrides the middleware.</p>
+</div>
+</div>
+<div class="section" id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="永久链接至标题">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">X-Frame-Options</span></code> header will only protect against clickjacking in a
+modern browser. Older browsers will quietly ignore the header and need <a class="reference external" href="https://en.wikipedia.org/wiki/Clickjacking#Prevention">other
+clickjacking prevention techniques</a>.</p>
+<div class="section" id="browsers-that-support-x-frame-options">
+<h3>Browsers that support <code class="docutils literal"><span class="pre">X-Frame-Options</span></code><a class="headerlink" href="#browsers-that-support-x-frame-options" title="永久链接至标题">¶</a></h3>
+<ul class="simple">
+<li>Internet Explorer 8+</li>
+<li>Firefox 3.6.9+</li>
+<li>Opera 10.5+</li>
+<li>Safari 4+</li>
+<li>Chrome 4.1+</li>
+</ul>
+</div>
+<div class="section" id="see-also">
+<h3>See also<a class="headerlink" href="#see-also" title="永久链接至标题">¶</a></h3>
+<p>A <a class="reference external" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/X-Frame-Options#Browser_compatibility">complete list</a> of browsers supporting <code class="docutils literal"><span class="pre">X-Frame-Options</span></code>.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

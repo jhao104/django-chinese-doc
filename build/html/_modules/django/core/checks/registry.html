@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.core.checks.registry &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../../index.html"/>
+        <link rel="up" title="django" href="../../../django.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../../django.html">django</a> &raquo;</li>
+        
+      <li>django.core.checks.registry</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.core.checks.registry 源代码</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span>
+
+<span class="kn">from</span> <span class="nn">django.utils.itercompat</span> <span class="k">import</span> <span class="n">is_iterable</span>
+
+
+<span class="k">class</span> <span class="nc">Tags</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Built-in tags for internal checks.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">admin</span> <span class="o">=</span> <span class="s">&#39;admin&#39;</span>
+    <span class="n">caches</span> <span class="o">=</span> <span class="s">&#39;caches&#39;</span>
+    <span class="n">compatibility</span> <span class="o">=</span> <span class="s">&#39;compatibility&#39;</span>
+    <span class="n">database</span> <span class="o">=</span> <span class="s">&#39;database&#39;</span>
+    <span class="n">models</span> <span class="o">=</span> <span class="s">&#39;models&#39;</span>
+    <span class="n">security</span> <span class="o">=</span> <span class="s">&#39;security&#39;</span>
+    <span class="n">signals</span> <span class="o">=</span> <span class="s">&#39;signals&#39;</span>
+    <span class="n">templates</span> <span class="o">=</span> <span class="s">&#39;templates&#39;</span>
+    <span class="n">urls</span> <span class="o">=</span> <span class="s">&#39;urls&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">CheckRegistry</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">registered_checks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deployment_checks</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="o">*</span><span class="n">tags</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Can be used as a function or a decorator. Register given function</span>
+<span class="sd">        `f` labeled with given `tags`. The function should receive **kwargs</span>
+<span class="sd">        and return list of Errors and Warnings.</span>
+
+<span class="sd">        Example::</span>
+
+<span class="sd">            registry = CheckRegistry()</span>
+<span class="sd">            @registry.register(&#39;mytag&#39;, &#39;anothertag&#39;)</span>
+<span class="sd">            def my_check(apps, **kwargs):</span>
+<span class="sd">                # ... perform checks and collect `errors` ...</span>
+<span class="sd">                return errors</span>
+<span class="sd">            # or</span>
+<span class="sd">            registry.register(my_check, &#39;mytag&#39;, &#39;anothertag&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&#39;deploy&#39;</span><span class="p">,</span> <span class="k">False</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">inner</span><span class="p">(</span><span class="n">check</span><span class="p">):</span>
+            <span class="n">check</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="n">tags</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;deploy&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deployment_checks</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">deployment_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">registered_checks</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">registered_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">check</span>
+
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">check</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">inner</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">check</span><span class="p">:</span>
+                <span class="n">tags</span> <span class="o">+=</span> <span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="p">)</span>
+            <span class="k">return</span> <span class="n">inner</span>
+
+    <span class="k">def</span> <span class="nf">run_checks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_configs</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">include_deployment_checks</span><span class="o">=</span><span class="k">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run all registered checks and return list of Errors and Warnings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">checks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_checks</span><span class="p">(</span><span class="n">include_deployment_checks</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="n">checks</span> <span class="o">=</span> <span class="p">[</span><span class="n">check</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span>
+                      <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="s">&#39;tags&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">set</span><span class="p">(</span><span class="n">check</span><span class="o">.</span><span class="n">tags</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">tags</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># By default, &#39;database&#39;-tagged checks are not run as they do more</span>
+            <span class="c"># than mere static code analysis.</span>
+            <span class="n">checks</span> <span class="o">=</span> <span class="p">[</span><span class="n">check</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span>
+                      <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="s">&#39;tags&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">Tags</span><span class="o">.</span><span class="n">database</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">check</span><span class="o">.</span><span class="n">tags</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span><span class="p">:</span>
+            <span class="n">new_errors</span> <span class="o">=</span> <span class="n">check</span><span class="p">(</span><span class="n">app_configs</span><span class="o">=</span><span class="n">app_configs</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">is_iterable</span><span class="p">(</span><span class="n">new_errors</span><span class="p">),</span> <span class="p">(</span>
+                <span class="s">&quot;The function %r did not return a list. All functions registered &quot;</span>
+                <span class="s">&quot;with the checks registry must return a list.&quot;</span> <span class="o">%</span> <span class="n">check</span><span class="p">)</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_errors</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">errors</span>
+
+    <span class="k">def</span> <span class="nf">tag_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">include_deployment_checks</span><span class="o">=</span><span class="k">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tags_available</span><span class="p">(</span><span class="n">include_deployment_checks</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">tags_available</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deployment_checks</span><span class="o">=</span><span class="k">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">check</span><span class="o">.</span><span class="n">tags</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_checks</span><span class="p">(</span><span class="n">deployment_checks</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="s">&#39;tags&#39;</span><span class="p">)]))</span>
+
+    <span class="k">def</span> <span class="nf">get_checks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_deployment_checks</span><span class="o">=</span><span class="k">False</span><span class="p">):</span>
+        <span class="n">checks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">registered_checks</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">include_deployment_checks</span><span class="p">:</span>
+            <span class="n">checks</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deployment_checks</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">checks</span>
+
+
+<span class="n">registry</span> <span class="o">=</span> <span class="n">CheckRegistry</span><span class="p">()</span>
+<span class="n">register</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">register</span>
+<span class="n">run_checks</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">run_checks</span>
+<span class="n">tag_exists</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">tag_exists</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

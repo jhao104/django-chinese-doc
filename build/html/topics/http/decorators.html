@@ -1,0 +1,358 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>View decorators &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>View decorators</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/topics/http/decorators.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-django.views.decorators.http">
+<span id="view-decorators"></span><h1>View decorators<a class="headerlink" href="#module-django.views.decorators.http" title="永久链接至标题">¶</a></h1>
+<p>Django provides several decorators that can be applied to views to support
+various HTTP features.</p>
+<div class="section" id="allowed-http-methods">
+<h2>Allowed HTTP methods<a class="headerlink" href="#allowed-http-methods" title="永久链接至标题">¶</a></h2>
+<p>The decorators in <a class="reference internal" href="#module-django.views.decorators.http" title="django.views.decorators.http"><code class="xref py py-mod docutils literal"><span class="pre">django.views.decorators.http</span></code></a> can be used to restrict
+access to views based on the request method. These decorators will return
+a <a class="reference internal" href="../../ref/request-response.html#django.http.HttpResponseNotAllowed" title="django.http.HttpResponseNotAllowed"><code class="xref py py-class docutils literal"><span class="pre">django.http.HttpResponseNotAllowed</span></code></a> if the conditions are not met.</p>
+<dl class="function">
+<dt id="django.views.decorators.http.require_http_methods">
+<code class="descclassname">django.views.decorators.http.</code><code class="descname">require_http_methods</code><span class="sig-paren">(</span><em>request_method_list</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/views/decorators/http.html#require_http_methods"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.views.decorators.http.require_http_methods" title="永久链接至目标">¶</a></dt>
+<dd><p>Decorator to require that a view only accepts particular request
+methods. Usage:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.views.decorators.http</span> <span class="k">import</span> <span class="n">require_http_methods</span>
+
+<span class="nd">@require_http_methods</span><span class="p">([</span><span class="s">&quot;GET&quot;</span><span class="p">,</span> <span class="s">&quot;POST&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c"># I can assume now that only GET or POST requests make it this far</span>
+    <span class="c"># ...</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Note that request methods should be in uppercase.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="django.views.decorators.http.require_GET">
+<code class="descclassname">django.views.decorators.http.</code><code class="descname">require_GET</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django.views.decorators.http.require_GET" title="永久链接至目标">¶</a></dt>
+<dd><p>Decorator to require that a view only accepts the GET method.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="django.views.decorators.http.require_POST">
+<code class="descclassname">django.views.decorators.http.</code><code class="descname">require_POST</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django.views.decorators.http.require_POST" title="永久链接至目标">¶</a></dt>
+<dd><p>Decorator to require that a view only accepts the POST method.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="django.views.decorators.http.require_safe">
+<code class="descclassname">django.views.decorators.http.</code><code class="descname">require_safe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django.views.decorators.http.require_safe" title="永久链接至目标">¶</a></dt>
+<dd><p>Decorator to require that a view only accepts the GET and HEAD methods.
+These methods are commonly considered “safe” because they should not have
+the significance of taking an action other than retrieving the requested
+resource.</p>
+<div class="admonition note">
+<p class="first admonition-title">注解</p>
+<p class="last">Web servers should automatically strip the content of responses to HEAD
+requests while leaving the headers unchanged, so you may handle HEAD
+requests exactly like GET requests in your views. Since some software,
+such as link checkers, rely on HEAD requests, you might prefer
+using <code class="docutils literal"><span class="pre">require_safe</span></code> instead of <code class="docutils literal"><span class="pre">require_GET</span></code>.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="conditional-view-processing">
+<h2>Conditional view processing<a class="headerlink" href="#conditional-view-processing" title="永久链接至标题">¶</a></h2>
+<p>The following decorators in <a class="reference internal" href="#module-django.views.decorators.http" title="django.views.decorators.http"><code class="xref py py-mod docutils literal"><span class="pre">django.views.decorators.http</span></code></a> can be used to
+control caching behavior on particular views.</p>
+<dl class="function">
+<dt id="django.views.decorators.http.condition">
+<code class="descclassname">django.views.decorators.http.</code><code class="descname">condition</code><span class="sig-paren">(</span><em>etag_func=None</em>, <em>last_modified_func=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/views/decorators/http.html#condition"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.views.decorators.http.condition" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="django.views.decorators.http.etag">
+<code class="descclassname">django.views.decorators.http.</code><code class="descname">etag</code><span class="sig-paren">(</span><em>etag_func</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/views/decorators/http.html#etag"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.views.decorators.http.etag" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="django.views.decorators.http.last_modified">
+<code class="descclassname">django.views.decorators.http.</code><code class="descname">last_modified</code><span class="sig-paren">(</span><em>last_modified_func</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/views/decorators/http.html#last_modified"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.views.decorators.http.last_modified" title="永久链接至目标">¶</a></dt>
+<dd><p>These decorators can be used to generate <code class="docutils literal"><span class="pre">ETag</span></code> and <code class="docutils literal"><span class="pre">Last-Modified</span></code>
+headers; see
+<a class="reference internal" href="../conditional-view-processing.html"><span class="doc">conditional view processing</span></a>.</p>
+</dd></dl>
+
+<span class="target" id="module-django.views.decorators.gzip"></span></div>
+<div class="section" id="gzip-compression">
+<h2>GZip compression<a class="headerlink" href="#gzip-compression" title="永久链接至标题">¶</a></h2>
+<p>The decorators in <a class="reference internal" href="#module-django.views.decorators.gzip" title="django.views.decorators.gzip"><code class="xref py py-mod docutils literal"><span class="pre">django.views.decorators.gzip</span></code></a> control content
+compression on a per-view basis.</p>
+<dl class="function">
+<dt id="django.views.decorators.gzip.gzip_page">
+<code class="descclassname">django.views.decorators.gzip.</code><code class="descname">gzip_page</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django.views.decorators.gzip.gzip_page" title="永久链接至目标">¶</a></dt>
+<dd><p>This decorator compresses content if the browser allows gzip compression.
+It sets the <code class="docutils literal"><span class="pre">Vary</span></code> header accordingly, so that caches will base their
+storage on the <code class="docutils literal"><span class="pre">Accept-Encoding</span></code> header.</p>
+</dd></dl>
+
+<span class="target" id="module-django.views.decorators.vary"></span></div>
+<div class="section" id="vary-headers">
+<h2>Vary headers<a class="headerlink" href="#vary-headers" title="永久链接至标题">¶</a></h2>
+<p>The decorators in <a class="reference internal" href="#module-django.views.decorators.vary" title="django.views.decorators.vary"><code class="xref py py-mod docutils literal"><span class="pre">django.views.decorators.vary</span></code></a> can be used to control
+caching based on specific request headers.</p>
+<dl class="function">
+<dt id="django.views.decorators.vary.vary_on_cookie">
+<code class="descclassname">django.views.decorators.vary.</code><code class="descname">vary_on_cookie</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/views/decorators/vary.html#vary_on_cookie"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.views.decorators.vary.vary_on_cookie" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="django.views.decorators.vary.vary_on_headers">
+<code class="descclassname">django.views.decorators.vary.</code><code class="descname">vary_on_headers</code><span class="sig-paren">(</span><em>*headers</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/views/decorators/vary.html#vary_on_headers"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.views.decorators.vary.vary_on_headers" title="永久链接至目标">¶</a></dt>
+<dd><p>The <code class="docutils literal"><span class="pre">Vary</span></code> header defines which request headers a cache mechanism should take
+into account when building its cache key.</p>
+<p>See <a class="reference internal" href="../cache.html#using-vary-headers"><span class="std std-ref">using vary headers</span></a>.</p>
+</dd></dl>
+
+<span class="target" id="module-django.views.decorators.cache"></span></div>
+<div class="section" id="caching">
+<h2>Caching<a class="headerlink" href="#caching" title="永久链接至标题">¶</a></h2>
+<p>The decorators in <a class="reference internal" href="#module-django.views.decorators.cache" title="django.views.decorators.cache"><code class="xref py py-mod docutils literal"><span class="pre">django.views.decorators.cache</span></code></a> control server and
+client-side caching.</p>
+<dl class="function">
+<dt id="django.views.decorators.cache.cache_control">
+<code class="descclassname">django.views.decorators.cache.</code><code class="descname">cache_control</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/views/decorators/cache.html#cache_control"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.views.decorators.cache.cache_control" title="永久链接至目标">¶</a></dt>
+<dd><p>This decorator patches the response’s <code class="docutils literal"><span class="pre">Cache-Control</span></code> header by adding
+all of the keyword arguments to it. See
+<a class="reference internal" href="../../ref/utils.html#django.utils.cache.patch_cache_control" title="django.utils.cache.patch_cache_control"><code class="xref py py-func docutils literal"><span class="pre">patch_cache_control()</span></code></a> for the details of the
+transformation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="django.views.decorators.cache.never_cache">
+<code class="descclassname">django.views.decorators.cache.</code><code class="descname">never_cache</code><span class="sig-paren">(</span><em>view_func</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/django/views/decorators/cache.html#never_cache"><span class="viewcode-link">[源代码]</span></a><a class="headerlink" href="#django.views.decorators.cache.never_cache" title="永久链接至目标">¶</a></dt>
+<dd><p>This decorator adds a <code class="docutils literal"><span class="pre">Cache-Control:</span> <span class="pre">max-age=0,</span> <span class="pre">no-cache,</span> <span class="pre">no-store,</span>
+<span class="pre">must-revalidate</span></code> header to a response to indicate that a page should never
+be cached.</p>
+<div class="versionchanged">
+<p>Before Django 1.9, <code class="docutils literal"><span class="pre">Cache-Control:</span> <span class="pre">max-age=0</span></code> was sent. This didn’t
+reliably prevent caching in all browsers.</p>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

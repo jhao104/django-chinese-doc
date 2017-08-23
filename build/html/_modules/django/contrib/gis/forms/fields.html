@@ -1,0 +1,353 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.contrib.gis.forms.fields &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../../../index.html"/>
+        <link rel="up" title="django" href="../../../../django.html"/> 
+
+  
+  <script src="../../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../../../django.html">django</a> &raquo;</li>
+        
+      <li>django.contrib.gis.forms.fields</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.contrib.gis.forms.fields 源代码</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">from</span> <span class="nn">django</span> <span class="k">import</span> <span class="n">forms</span>
+<span class="kn">from</span> <span class="nn">django.contrib.gis.geos</span> <span class="k">import</span> <span class="n">GEOSException</span><span class="p">,</span> <span class="n">GEOSGeometry</span>
+<span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="k">import</span> <span class="n">ugettext_lazy</span> <span class="k">as</span> <span class="n">_</span>
+
+<span class="kn">from</span> <span class="nn">.widgets</span> <span class="k">import</span> <span class="n">OpenLayersWidget</span>
+
+
+<div class="viewcode-block" id="GeometryField"><a class="viewcode-back" href="../../../../../ref/contrib/gis/forms-api.html#django.contrib.gis.forms.GeometryField">[文档]</a><span class="k">class</span> <span class="nc">GeometryField</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Field</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the basic form field for a Geometry.  Any textual input that is</span>
+<span class="sd">    accepted by GEOSGeometry is accepted by this form.  By default,</span>
+<span class="sd">    this includes WKT, HEXEWKB, WKB (in a buffer), and GeoJSON.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">widget</span> <span class="o">=</span> <span class="n">OpenLayersWidget</span>
+    <span class="n">geom_type</span> <span class="o">=</span> <span class="s">&#39;GEOMETRY&#39;</span>
+
+    <span class="n">default_error_messages</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;No geometry value provided.&#39;</span><span class="p">),</span>
+        <span class="s">&#39;invalid_geom&#39;</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Invalid geometry value.&#39;</span><span class="p">),</span>
+        <span class="s">&#39;invalid_geom_type&#39;</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;Invalid geometry type.&#39;</span><span class="p">),</span>
+        <span class="s">&#39;transform_error&#39;</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s">&#39;An error occurred when transforming the geometry &#39;</span>
+                             <span class="s">&#39;to the SRID of the geometry form field.&#39;</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c"># Pop out attributes from the database field, or use sensible</span>
+        <span class="c"># defaults (e.g., allow None).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">srid</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;srid&#39;</span><span class="p">,</span> <span class="k">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;geom_type&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom_type</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GeometryField</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;geom_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom_type</span>
+
+    <span class="k">def</span> <span class="nf">to_python</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms the value to a Geometry object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">empty_values</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">None</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">GEOSGeometry</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">GEOSGeometry</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">GEOSException</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">error_messages</span><span class="p">[</span><span class="s">&#39;invalid_geom&#39;</span><span class="p">],</span> <span class="n">code</span><span class="o">=</span><span class="s">&#39;invalid_geom&#39;</span><span class="p">)</span>
+
+        <span class="c"># Try to set the srid</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">srid</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">value</span><span class="o">.</span><span class="n">srid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">map_srid</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">srid</span><span class="p">:</span>
+                    <span class="n">value</span><span class="o">.</span><span class="n">srid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">srid</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates that the input value can be converted to a Geometry</span>
+<span class="sd">        object (which is returned).  A ValidationError is raised if</span>
+<span class="sd">        the value cannot be instantiated as a Geometry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">GeometryField</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">geom</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">geom</span>
+
+        <span class="c"># Ensuring that the geometry is of the correct type (indicated</span>
+        <span class="c"># using the OGC string label).</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">geom_type</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom_type</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s">&#39;GEOMETRY&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">error_messages</span><span class="p">[</span><span class="s">&#39;invalid_geom_type&#39;</span><span class="p">],</span> <span class="n">code</span><span class="o">=</span><span class="s">&#39;invalid_geom_type&#39;</span><span class="p">)</span>
+
+        <span class="c"># Transforming the geometry if the SRID was set.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">srid</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">srid</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">srid</span> <span class="o">!=</span> <span class="n">geom</span><span class="o">.</span><span class="n">srid</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">geom</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">srid</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">GEOSException</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">error_messages</span><span class="p">[</span><span class="s">&#39;transform_error&#39;</span><span class="p">],</span> <span class="n">code</span><span class="o">=</span><span class="s">&#39;transform_error&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">geom</span>
+
+    <span class="k">def</span> <span class="nf">has_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Compare geographic value of data with its initial value. &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_python</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">initial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_python</span><span class="p">(</span><span class="n">initial</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">True</span>
+
+        <span class="c"># Only do a geographic comparison if both values are available</span>
+        <span class="k">if</span> <span class="n">initial</span> <span class="ow">and</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">initial</span><span class="o">.</span><span class="n">srid</span><span class="p">)</span>
+            <span class="c"># If the initial value was not added by the browser, the geometry</span>
+            <span class="c"># provided may be slightly different, the first time it is saved.</span>
+            <span class="c"># The comparison is done with a very low tolerance.</span>
+            <span class="k">return</span> <span class="ow">not</span> <span class="n">initial</span><span class="o">.</span><span class="n">equals_exact</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.000001</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Check for change of state of existence</span>
+            <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">initial</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeometryCollectionField"><a class="viewcode-back" href="../../../../../ref/contrib/gis/forms-api.html#django.contrib.gis.forms.GeometryCollectionField">[文档]</a><span class="k">class</span> <span class="nc">GeometryCollectionField</span><span class="p">(</span><span class="n">GeometryField</span><span class="p">):</span>
+    <span class="n">geom_type</span> <span class="o">=</span> <span class="s">&#39;GEOMETRYCOLLECTION&#39;</span></div>
+
+
+<div class="viewcode-block" id="PointField"><a class="viewcode-back" href="../../../../../ref/contrib/gis/forms-api.html#django.contrib.gis.forms.PointField">[文档]</a><span class="k">class</span> <span class="nc">PointField</span><span class="p">(</span><span class="n">GeometryField</span><span class="p">):</span>
+    <span class="n">geom_type</span> <span class="o">=</span> <span class="s">&#39;POINT&#39;</span></div>
+
+
+<div class="viewcode-block" id="MultiPointField"><a class="viewcode-back" href="../../../../../ref/contrib/gis/forms-api.html#django.contrib.gis.forms.MultiPointField">[文档]</a><span class="k">class</span> <span class="nc">MultiPointField</span><span class="p">(</span><span class="n">GeometryField</span><span class="p">):</span>
+    <span class="n">geom_type</span> <span class="o">=</span> <span class="s">&#39;MULTIPOINT&#39;</span></div>
+
+
+<div class="viewcode-block" id="LineStringField"><a class="viewcode-back" href="../../../../../ref/contrib/gis/forms-api.html#django.contrib.gis.forms.LineStringField">[文档]</a><span class="k">class</span> <span class="nc">LineStringField</span><span class="p">(</span><span class="n">GeometryField</span><span class="p">):</span>
+    <span class="n">geom_type</span> <span class="o">=</span> <span class="s">&#39;LINESTRING&#39;</span></div>
+
+
+<div class="viewcode-block" id="MultiLineStringField"><a class="viewcode-back" href="../../../../../ref/contrib/gis/forms-api.html#django.contrib.gis.forms.MultiLineStringField">[文档]</a><span class="k">class</span> <span class="nc">MultiLineStringField</span><span class="p">(</span><span class="n">GeometryField</span><span class="p">):</span>
+    <span class="n">geom_type</span> <span class="o">=</span> <span class="s">&#39;MULTILINESTRING&#39;</span></div>
+
+
+<div class="viewcode-block" id="PolygonField"><a class="viewcode-back" href="../../../../../ref/contrib/gis/forms-api.html#django.contrib.gis.forms.PolygonField">[文档]</a><span class="k">class</span> <span class="nc">PolygonField</span><span class="p">(</span><span class="n">GeometryField</span><span class="p">):</span>
+    <span class="n">geom_type</span> <span class="o">=</span> <span class="s">&#39;POLYGON&#39;</span></div>
+
+
+<div class="viewcode-block" id="MultiPolygonField"><a class="viewcode-back" href="../../../../../ref/contrib/gis/forms-api.html#django.contrib.gis.forms.MultiPolygonField">[文档]</a><span class="k">class</span> <span class="nc">MultiPolygonField</span><span class="p">(</span><span class="n">GeometryField</span><span class="p">):</span>
+    <span class="n">geom_type</span> <span class="o">=</span> <span class="s">&#39;MULTIPOLYGON&#39;</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.utils.decorators &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/>
+        <link rel="up" title="django" href="../../django.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../django.html">django</a> &raquo;</li>
+        
+      <li>django.utils.decorators</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.utils.decorators 源代码</h1><div class="highlight"><pre>
+<span class="s">&quot;Functions that help with dynamically creating decorators for views.&quot;</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">ContextDecorator</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">ContextDecorator</span> <span class="o">=</span> <span class="k">None</span>
+
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">WRAPPER_ASSIGNMENTS</span><span class="p">,</span> <span class="n">update_wrapper</span><span class="p">,</span> <span class="n">wraps</span>
+
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">six</span>
+
+
+<span class="k">class</span> <span class="nc">classonlymethod</span><span class="p">(</span><span class="nb">classmethod</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">cls</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;This method is available only on the class, not on instances.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">classonlymethod</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__get__</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="method_decorator"><a class="viewcode-back" href="../../../ref/utils.html#django.views.decorators.csrf.method_decorator">[文档]</a><span class="k">def</span> <span class="nf">method_decorator</span><span class="p">(</span><span class="n">decorator</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a function decorator into a method decorator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># &#39;obj&#39; can be a class or a function. If &#39;obj&#39; is a function at the time it</span>
+    <span class="c"># is passed to _dec,  it will eventually be a method of the class it is</span>
+    <span class="c"># defined on. If &#39;obj&#39; is a class, the &#39;name&#39; is required to be the name</span>
+    <span class="c"># of the method that will be decorated.</span>
+    <span class="k">def</span> <span class="nf">_dec</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="n">is_class</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_class</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+                <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                        <span class="s">&quot;Cannot decorate &#39;{0}&#39; as it isn&#39;t a callable &quot;</span>
+                        <span class="s">&quot;attribute of {1} ({2})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s">&quot;The keyword argument `name` must be the name of a method &quot;</span>
+                    <span class="s">&quot;of the decorated class: {0}. Got &#39;{1}&#39; instead&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="n">obj</span>
+
+        <span class="k">def</span> <span class="nf">decorate</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Apply a list/tuple of decorators if decorator is one. Decorator</span>
+<span class="sd">            functions are applied so that the call order is the same as the</span>
+<span class="sd">            order in which they appear in the iterable.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">decorator</span><span class="p">,</span> <span class="s">&#39;__iter__&#39;</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">dec</span> <span class="ow">in</span> <span class="n">decorator</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">function</span> <span class="o">=</span> <span class="n">dec</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">function</span>
+            <span class="k">return</span> <span class="n">decorator</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="nd">@decorate</span>
+            <span class="k">def</span> <span class="nf">bound_func</span><span class="p">(</span><span class="o">*</span><span class="n">args2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs2</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">func</span><span class="o">.</span><span class="n">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">))(</span><span class="o">*</span><span class="n">args2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs2</span><span class="p">)</span>
+            <span class="c"># bound_func has the signature that &#39;decorator&#39; expects i.e.  no</span>
+            <span class="c"># &#39;self&#39; argument, but it is a closure over self so it can call</span>
+            <span class="c"># &#39;func&#39; correctly.</span>
+            <span class="k">return</span> <span class="n">bound_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c"># In case &#39;decorator&#39; adds attributes to the function it decorates, we</span>
+        <span class="c"># want to copy those. We don&#39;t have access to bound_func in this scope,</span>
+        <span class="c"># but we can cheat by using it on a dummy function.</span>
+
+        <span class="nd">@decorate</span>
+        <span class="k">def</span> <span class="nf">dummy</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="n">update_wrapper</span><span class="p">(</span><span class="n">_wrapper</span><span class="p">,</span> <span class="n">dummy</span><span class="p">)</span>
+        <span class="c"># Need to preserve any existing attributes of &#39;func&#39;, including the name.</span>
+        <span class="n">update_wrapper</span><span class="p">(</span><span class="n">_wrapper</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_class</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">_wrapper</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">obj</span>
+
+        <span class="k">return</span> <span class="n">_wrapper</span>
+    <span class="c"># Don&#39;t worry about making _dec look similar to a list/tuple as it&#39;s rather</span>
+    <span class="c"># meaningless.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">decorator</span><span class="p">,</span> <span class="s">&#39;__iter__&#39;</span><span class="p">):</span>
+        <span class="n">update_wrapper</span><span class="p">(</span><span class="n">_dec</span><span class="p">,</span> <span class="n">decorator</span><span class="p">,</span> <span class="n">assigned</span><span class="o">=</span><span class="n">available_attrs</span><span class="p">(</span><span class="n">decorator</span><span class="p">))</span>
+    <span class="c"># Change the name to aid debugging.</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">decorator</span><span class="p">,</span> <span class="s">&#39;__name__&#39;</span><span class="p">):</span>
+        <span class="n">_dec</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="s">&#39;method_decorator(%s)&#39;</span> <span class="o">%</span> <span class="n">decorator</span><span class="o">.</span><span class="n">__name__</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_dec</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="s">&#39;method_decorator(%s)&#39;</span> <span class="o">%</span> <span class="n">decorator</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
+    <span class="k">return</span> <span class="n">_dec</span></div>
+
+
+<div class="viewcode-block" id="decorator_from_middleware_with_args"><a class="viewcode-back" href="../../../ref/utils.html#django.views.decorators.csrf.decorator_from_middleware_with_args">[文档]</a><span class="k">def</span> <span class="nf">decorator_from_middleware_with_args</span><span class="p">(</span><span class="n">middleware_class</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Like decorator_from_middleware, but returns a function</span>
+<span class="sd">    that accepts the arguments to be passed to the middleware_class.</span>
+<span class="sd">    Use like::</span>
+
+<span class="sd">         cache_page = decorator_from_middleware_with_args(CacheMiddleware)</span>
+<span class="sd">         # ...</span>
+
+<span class="sd">         @cache_page(3600)</span>
+<span class="sd">         def my_view(request):</span>
+<span class="sd">             # ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">make_middleware_decorator</span><span class="p">(</span><span class="n">middleware_class</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="decorator_from_middleware"><a class="viewcode-back" href="../../../ref/utils.html#django.views.decorators.csrf.decorator_from_middleware">[文档]</a><span class="k">def</span> <span class="nf">decorator_from_middleware</span><span class="p">(</span><span class="n">middleware_class</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a middleware class (not an instance), returns a view decorator. This</span>
+<span class="sd">    lets you use middleware functionality on a per-view basis. The middleware</span>
+<span class="sd">    is created with no params passed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">make_middleware_decorator</span><span class="p">(</span><span class="n">middleware_class</span><span class="p">)()</span></div>
+
+
+<span class="k">def</span> <span class="nf">available_attrs</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the list of functools-wrappable attributes on a callable.</span>
+<span class="sd">    This is required as a workaround for http://bugs.python.org/issue3445</span>
+<span class="sd">    under Python 2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">six</span><span class="o">.</span><span class="n">PY3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">WRAPPER_ASSIGNMENTS</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">WRAPPER_ASSIGNMENTS</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">a</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">make_middleware_decorator</span><span class="p">(</span><span class="n">middleware_class</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_make_decorator</span><span class="p">(</span><span class="o">*</span><span class="n">m_args</span><span class="p">,</span> <span class="o">**</span><span class="n">m_kwargs</span><span class="p">):</span>
+        <span class="n">middleware</span> <span class="o">=</span> <span class="n">middleware_class</span><span class="p">(</span><span class="o">*</span><span class="n">m_args</span><span class="p">,</span> <span class="o">**</span><span class="n">m_kwargs</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_decorator</span><span class="p">(</span><span class="n">view_func</span><span class="p">):</span>
+            <span class="nd">@wraps</span><span class="p">(</span><span class="n">view_func</span><span class="p">,</span> <span class="n">assigned</span><span class="o">=</span><span class="n">available_attrs</span><span class="p">(</span><span class="n">view_func</span><span class="p">))</span>
+            <span class="k">def</span> <span class="nf">_wrapped_view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">middleware</span><span class="p">,</span> <span class="s">&#39;process_request&#39;</span><span class="p">):</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">middleware</span><span class="o">.</span><span class="n">process_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">result</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">middleware</span><span class="p">,</span> <span class="s">&#39;process_view&#39;</span><span class="p">):</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">middleware</span><span class="o">.</span><span class="n">process_view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">view_func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">result</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">response</span> <span class="o">=</span> <span class="n">view_func</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">middleware</span><span class="p">,</span> <span class="s">&#39;process_exception&#39;</span><span class="p">):</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="n">middleware</span><span class="o">.</span><span class="n">process_exception</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="n">result</span>
+                    <span class="k">raise</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="s">&#39;render&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">callable</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">render</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">middleware</span><span class="p">,</span> <span class="s">&#39;process_template_response&#39;</span><span class="p">):</span>
+                        <span class="n">response</span> <span class="o">=</span> <span class="n">middleware</span><span class="o">.</span><span class="n">process_template_response</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+                    <span class="c"># Defer running of process_response until after the template</span>
+                    <span class="c"># has been rendered:</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">middleware</span><span class="p">,</span> <span class="s">&#39;process_response&#39;</span><span class="p">):</span>
+                        <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+                            <span class="k">return</span> <span class="n">middleware</span><span class="o">.</span><span class="n">process_response</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+                        <span class="n">response</span><span class="o">.</span><span class="n">add_post_render_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">middleware</span><span class="p">,</span> <span class="s">&#39;process_response&#39;</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="n">middleware</span><span class="o">.</span><span class="n">process_response</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">response</span>
+            <span class="k">return</span> <span class="n">_wrapped_view</span>
+        <span class="k">return</span> <span class="n">_decorator</span>
+    <span class="k">return</span> <span class="n">_make_decorator</span>
+
+
+<span class="k">if</span> <span class="n">ContextDecorator</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+    <span class="c"># ContextDecorator was introduced in Python 3.2</span>
+    <span class="c"># See https://docs.python.org/3/library/contextlib.html#contextlib.ContextDecorator</span>
+    <span class="k">class</span> <span class="nc">ContextDecorator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A base class that enables a context manager to also be used as a decorator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+            <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">assigned</span><span class="o">=</span><span class="n">available_attrs</span><span class="p">(</span><span class="n">func</span><span class="p">))</span>
+            <span class="k">def</span> <span class="nf">inner</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">inner</span>
+
+
+<span class="k">class</span> <span class="nc">classproperty</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fget</span> <span class="o">=</span> <span class="n">method</span>
+
+    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">cls</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fget</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fget</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

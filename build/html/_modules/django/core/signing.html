@@ -1,0 +1,435 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>django.core.signing &mdash; django-chinese-docs 1.10 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="索引"
+              href="../../../genindex.html"/>
+        <link rel="search" title="搜索" href="../../../search.html"/>
+    <link rel="top" title="django-chinese-docs 1.10 文档" href="../../../index.html"/>
+        <link rel="up" title="django" href="../../django.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> django-chinese-docs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro/index.html">入门教程</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">django-chinese-docs</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">模块代码</a> &raquo;</li>
+        
+          <li><a href="../../django.html">django</a> &raquo;</li>
+        
+      <li>django.core.signing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>django.core.signing 源代码</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions for creating and restoring url-safe signed JSON objects.</span>
+
+<span class="sd">The format used looks like this:</span>
+
+<span class="sd">&gt;&gt;&gt; signing.dumps(&quot;hello&quot;)</span>
+<span class="sd">&#39;ImhlbGxvIg:1QaUZC:YIye-ze3TTx7gtSv422nZA4sgmk&#39;</span>
+
+<span class="sd">There are two components here, separated by a &#39;:&#39;. The first component is a</span>
+<span class="sd">URLsafe base64 encoded JSON of the object passed to dumps(). The second</span>
+<span class="sd">component is a base64 encoded hmac/SHA1 hash of &quot;$first_component:$secret&quot;</span>
+
+<span class="sd">signing.loads(s) checks the signature and returns the deserialized object.</span>
+<span class="sd">If the signature fails, a BadSignature exception is raised.</span>
+
+<span class="sd">&gt;&gt;&gt; signing.loads(&quot;ImhlbGxvIg:1QaUZC:YIye-ze3TTx7gtSv422nZA4sgmk&quot;)</span>
+<span class="sd">u&#39;hello&#39;</span>
+<span class="sd">&gt;&gt;&gt; signing.loads(&quot;ImhlbGxvIg:1QaUZC:YIye-ze3TTx7gtSv422nZA4sgmk-modified&quot;)</span>
+<span class="sd">...</span>
+<span class="sd">BadSignature: Signature failed: ImhlbGxvIg:1QaUZC:YIye-ze3TTx7gtSv422nZA4sgmk-modified</span>
+
+<span class="sd">You can optionally compress the JSON prior to base64 encoding it to save</span>
+<span class="sd">space, using the compress=True argument. This checks if compression actually</span>
+<span class="sd">helps and only applies compression if the result is a shorter string:</span>
+
+<span class="sd">&gt;&gt;&gt; signing.dumps(range(1, 20), compress=True)</span>
+<span class="sd">&#39;.eJwFwcERACAIwLCF-rCiILN47r-GyZVJsNgkxaFxoDgxcOHGxMKD_T7vhAml:1QaUaL:BA0thEZrp4FQVXIXuOvYJtLJSrQ&#39;</span>
+
+<span class="sd">The fact that the string is compressed is signalled by the prefixed &#39;.&#39; at the</span>
+<span class="sd">start of the base64 JSON.</span>
+
+<span class="sd">There are 65 url-safe characters: the 64 used by url-safe base64 and the &#39;:&#39;.</span>
+<span class="sd">These functions make use of all of them.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">zlib</span>
+
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">baseconv</span>
+<span class="kn">from</span> <span class="nn">django.utils.crypto</span> <span class="k">import</span> <span class="n">constant_time_compare</span><span class="p">,</span> <span class="n">salted_hmac</span>
+<span class="kn">from</span> <span class="nn">django.utils.encoding</span> <span class="k">import</span> <span class="n">force_bytes</span><span class="p">,</span> <span class="n">force_str</span><span class="p">,</span> <span class="n">force_text</span>
+<span class="kn">from</span> <span class="nn">django.utils.module_loading</span> <span class="k">import</span> <span class="n">import_string</span>
+
+<span class="n">_SEP_UNSAFE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;^[A-z0-9-_=]*$&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">BadSignature</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Signature does not match</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">SignatureExpired</span><span class="p">(</span><span class="n">BadSignature</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Signature timestamp is older than required max_age</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="k">def</span> <span class="nf">b64_encode</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">b</span><span class="s">&#39;=&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">b64_decode</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">pad</span> <span class="o">=</span> <span class="n">b</span><span class="s">&#39;=&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64decode</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="n">pad</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">base64_hmac</span><span class="p">(</span><span class="n">salt</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">b64_encode</span><span class="p">(</span><span class="n">salted_hmac</span><span class="p">(</span><span class="n">salt</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">get_cookie_signer</span><span class="p">(</span><span class="n">salt</span><span class="o">=</span><span class="s">&#39;django.core.signing.get_cookie_signer&#39;</span><span class="p">):</span>
+    <span class="n">Signer</span> <span class="o">=</span> <span class="n">import_string</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">SIGNING_BACKEND</span><span class="p">)</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">force_bytes</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">SECRET_KEY</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Signer</span><span class="p">(</span><span class="n">b</span><span class="s">&#39;django.http.cookies&#39;</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="n">salt</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">JSONSerializer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple wrapper around json to be used in signing.dumps and</span>
+<span class="sd">    signing.loads.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;:&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;latin-1&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;latin-1&#39;</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="dumps"><a class="viewcode-back" href="../../../topics/signing.html#django.core.signing.dumps">[文档]</a><span class="k">def</span> <span class="nf">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="s">&#39;django.core.signing&#39;</span><span class="p">,</span> <span class="n">serializer</span><span class="o">=</span><span class="n">JSONSerializer</span><span class="p">,</span> <span class="n">compress</span><span class="o">=</span><span class="k">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns URL-safe, sha1 signed base64 compressed JSON string. If key is</span>
+<span class="sd">    None, settings.SECRET_KEY is used instead.</span>
+
+<span class="sd">    If compress is True (not the default) checks if compressing using zlib can</span>
+<span class="sd">    save some space. Prepends a &#39;.&#39; to signify compression. This is included</span>
+<span class="sd">    in the signature, to protect against zip bombs.</span>
+
+<span class="sd">    Salt can be used to namespace the hash, so that a signed string is</span>
+<span class="sd">    only valid for a given namespace. Leaving this at the default</span>
+<span class="sd">    value or re-using a salt value across different parts of your</span>
+<span class="sd">    application without good cause is a security risk.</span>
+
+<span class="sd">    The serializer is expected to return a bytestring.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">serializer</span><span class="p">()</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="c"># Flag for if it&#39;s been compressed or not</span>
+    <span class="n">is_compressed</span> <span class="o">=</span> <span class="k">False</span>
+
+    <span class="k">if</span> <span class="n">compress</span><span class="p">:</span>
+        <span class="c"># Avoid zlib dependency unless compress is being used</span>
+        <span class="n">compressed</span> <span class="o">=</span> <span class="n">zlib</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">compressed</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">compressed</span>
+            <span class="n">is_compressed</span> <span class="o">=</span> <span class="k">True</span>
+    <span class="n">base64d</span> <span class="o">=</span> <span class="n">b64_encode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_compressed</span><span class="p">:</span>
+        <span class="n">base64d</span> <span class="o">=</span> <span class="n">b</span><span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">base64d</span>
+    <span class="k">return</span> <span class="n">TimestampSigner</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="n">salt</span><span class="p">)</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">base64d</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="loads"><a class="viewcode-back" href="../../../topics/signing.html#django.core.signing.loads">[文档]</a><span class="k">def</span> <span class="nf">loads</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="s">&#39;django.core.signing&#39;</span><span class="p">,</span> <span class="n">serializer</span><span class="o">=</span><span class="n">JSONSerializer</span><span class="p">,</span> <span class="n">max_age</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reverse of dumps(), raises BadSignature if signature fails.</span>
+
+<span class="sd">    The serializer is expected to accept a bytestring.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># TimestampSigner.unsign always returns unicode but base64 and zlib</span>
+    <span class="c"># compression operate on bytes.</span>
+    <span class="n">base64d</span> <span class="o">=</span> <span class="n">force_bytes</span><span class="p">(</span><span class="n">TimestampSigner</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="n">salt</span><span class="p">)</span><span class="o">.</span><span class="n">unsign</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">max_age</span><span class="o">=</span><span class="n">max_age</span><span class="p">))</span>
+    <span class="n">decompress</span> <span class="o">=</span> <span class="k">False</span>
+    <span class="k">if</span> <span class="n">base64d</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">b</span><span class="s">&#39;.&#39;</span><span class="p">:</span>
+        <span class="c"># It&#39;s compressed; uncompress it first</span>
+        <span class="n">base64d</span> <span class="o">=</span> <span class="n">base64d</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">decompress</span> <span class="o">=</span> <span class="k">True</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">b64_decode</span><span class="p">(</span><span class="n">base64d</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">decompress</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">zlib</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">serializer</span><span class="p">()</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Signer"><a class="viewcode-back" href="../../../topics/signing.html#django.core.signing.Signer">[文档]</a><span class="k">class</span> <span class="nc">Signer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">&#39;:&#39;</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="c"># Use of native strings in all versions of Python</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span> <span class="ow">or</span> <span class="n">settings</span><span class="o">.</span><span class="n">SECRET_KEY</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sep</span> <span class="o">=</span> <span class="n">force_str</span><span class="p">(</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_SEP_UNSAFE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sep</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s">&#39;Unsafe Signer separator: %r (cannot be empty or consist of &#39;</span>
+                <span class="s">&#39;only A-z0-9-_=)&#39;</span> <span class="o">%</span> <span class="n">sep</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">salt</span> <span class="o">=</span> <span class="n">force_str</span><span class="p">(</span><span class="n">salt</span> <span class="ow">or</span> <span class="s">&#39;%s.%s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">signature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="n">base64_hmac</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">salt</span> <span class="o">+</span> <span class="s">&#39;signer&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+        <span class="c"># Convert the signature from bytes to str only on Python 3</span>
+        <span class="k">return</span> <span class="n">force_str</span><span class="p">(</span><span class="n">signature</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">force_str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="s">&#39;%s%s%s&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">unsign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signed_value</span><span class="p">):</span>
+        <span class="n">signed_value</span> <span class="o">=</span> <span class="n">force_str</span><span class="p">(</span><span class="n">signed_value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sep</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">signed_value</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BadSignature</span><span class="p">(</span><span class="s">&#39;No &quot;%s&quot; found in value&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
+        <span class="n">value</span><span class="p">,</span> <span class="n">sig</span> <span class="o">=</span> <span class="n">signed_value</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">constant_time_compare</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">force_text</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">BadSignature</span><span class="p">(</span><span class="s">&#39;Signature &quot;%s&quot; does not match&#39;</span> <span class="o">%</span> <span class="n">sig</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TimestampSigner"><a class="viewcode-back" href="../../../topics/signing.html#django.core.signing.TimestampSigner">[文档]</a><span class="k">class</span> <span class="nc">TimestampSigner</span><span class="p">(</span><span class="n">Signer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">baseconv</span><span class="o">.</span><span class="n">base62</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
+
+<div class="viewcode-block" id="TimestampSigner.sign"><a class="viewcode-back" href="../../../topics/signing.html#django.core.signing.TimestampSigner.sign">[文档]</a>    <span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">force_str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="s">&#39;%s%s%s&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">TimestampSigner</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TimestampSigner.unsign"><a class="viewcode-back" href="../../../topics/signing.html#django.core.signing.TimestampSigner.unsign">[文档]</a>    <span class="k">def</span> <span class="nf">unsign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">max_age</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve original value and check it wasn&#39;t signed more</span>
+<span class="sd">        than max_age seconds ago.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">TimestampSigner</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">unsign</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">value</span><span class="p">,</span> <span class="n">timestamp</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">baseconv</span><span class="o">.</span><span class="n">base62</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">timestamp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">max_age</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">max_age</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
+                <span class="n">max_age</span> <span class="o">=</span> <span class="n">max_age</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+            <span class="c"># Check timestamp is not older than max_age</span>
+            <span class="n">age</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">timestamp</span>
+            <span class="k">if</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="n">max_age</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SignatureExpired</span><span class="p">(</span>
+                    <span class="s">&#39;Signature age %s &gt; %s seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">age</span><span class="p">,</span> <span class="n">max_age</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">value</span></div></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, j_hao104.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/translations.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
