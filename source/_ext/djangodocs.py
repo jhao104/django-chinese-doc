@@ -10,7 +10,7 @@ from docutils.parsers.rst import Directive, directives
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.domains.std import Cmdoption
-from sphinx.util.console import bold
+# from sphinx.util.console import bold
 from sphinx.util.nodes import set_source_info
 
 try:
@@ -289,7 +289,7 @@ class DjangoHTMLTranslator(HTMLTranslator):
         old_ids = node.get('ids', [])
         node['ids'] = ['s-' + i for i in old_ids]
         node['ids'].extend(old_ids)
-        super().visit_section(node)
+        # super().visit_section(node)
         node['ids'] = old_ids
 
 
@@ -309,8 +309,8 @@ class DjangoStandaloneHTMLBuilder(StandaloneHTMLBuilder):
     name = 'djangohtml'
 
     def finish(self):
-        super().finish()
-        self.info(bold("writing templatebuiltins.js..."))
+        # super().finish()
+        # self.info(bold("writing templatebuiltins.js..."))
         xrefs = self.env.domaindata["std"]["objects"]
         templatebuiltins = {
             "ttags": [
