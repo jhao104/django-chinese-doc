@@ -1,11 +1,12 @@
 ============
-Using Django
+使用Django
 ============
 
 Introductions to all the key parts of Django you'll need to know:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
+   :hidden:
 
    install
    db/index

@@ -1,139 +1,105 @@
-=====================================
-Writing your first Django app, part 2
-=====================================
+===========================
+开发第一个Django应用,Part2
+===========================
 
-This tutorial begins where :doc:`Tutorial 1 </intro/tutorial01>` left off.
-We'll setup the database, create your first model, and get a quick introduction
-to Django's automatically-generated admin site.
+.. rubric:: 模型和管理站点
 
-Database setup
-==============
+本教程继续 :doc:`Tutorial 1 </intro/tutorial01>。我们将设置数据库，创建您的第一个模型，并快速介绍Django的自动生成的管理网站。
 
-Now, open up :file:`mysite/settings.py`. It's a normal Python module with
-module-level variables representing Django settings.
+数据库设置
+==========
 
-By default, the configuration uses SQLite. If you're new to databases, or
-you're just interested in trying Django, this is the easiest choice. SQLite is
-included in Python, so you won't need to install anything else to support your
-database. When starting your first real project, however, you may want to use a
-more scalable database like PostgreSQL, to avoid database-switching headaches
-down the road.
+现在，编辑 :file:`mysite/settings.py` 。它是一个用模块级别变量表示Django配置的普通Python模块。
 
-If you wish to use another database, install the appropriate :ref:`database
-bindings <database-installation>` and change the following keys in the
-:setting:`DATABASES` ``'default'`` item to match your database connection
-settings:
+Django的默认数据库是SQLite。如果你是数据库初学者，或者你只是想要试用一下Django，
+SQLite是最简单的选择。 SQLite包含在Python中，所以你不需要另外安装其他任何东西。
+当然在你开始第一个真正的项目时，你可能想使用一个更健壮的数据库比如PostgreSQL来避免在未来遇到令人头疼的数据库切换问题。
 
-* :setting:`ENGINE <DATABASE-ENGINE>` -- Either
+如果你希望使用另外一种数据库，请配置合适的 :ref:`database bindings <database-installation>`，
+并在 :file:`mysite/settings.py` 的 :setting:`DATABASES` ``'default'`` 条目中修改以下的配置以匹配你的数据库连接的设置：
+
+
+* :setting:`ENGINE <DATABASE-ENGINE>` -- 支持
   ``'django.db.backends.sqlite3'``,
   ``'django.db.backends.postgresql'``,
-  ``'django.db.backends.mysql'``, or
-  ``'django.db.backends.oracle'``. Other backends are :ref:`also available
-  <third-party-notes>`.
+  ``'django.db.backends.mysql'``, 和
+  ``'django.db.backends.oracle'``. 更多参考 :ref:`also available <third-party-notes>`.
 
-* :setting:`NAME` -- The name of your database. If you're using SQLite, the
-  database will be a file on your computer; in that case, :setting:`NAME`
-  should be the full absolute path, including filename, of that file. The
-  default value, ``os.path.join(BASE_DIR, 'db.sqlite3')``, will store the file
-  in your project directory.
+* :setting:`NAME` -- 数据库的名称。如果你使用SQLite，数据库将是你计算机上的一个文件； 如果是这样的话，NAME应该是这个文件的绝对路径，包括文件名。默认值是 ``os.path.join(BASE_DIR, 'db.sqlite3')``，它将文件保存在你项目的目录中；
 
-If you are not using SQLite as your database, additional settings such as
-:setting:`USER`, :setting:`PASSWORD`, and :setting:`HOST` must be added.
-For more details, see the reference documentation for :setting:`DATABASES`.
+如果不使用SQLite作为数据库，则必须添加其他设置，
+例如 :setting:`USER`，:setting:`PASSWORD` 和 :setting:`HOST`。有关更多详细信息，请参阅 :setting:`DATABASES` 的参考文档。
 
-.. admonition:: For databases other than SQLite
 
-    If you're using a database besides SQLite, make sure you've created a
-    database by this point. Do that with "``CREATE DATABASE database_name;``"
-    within your database's interactive prompt.
+.. admonition:: SQLite以外的数据库
 
-    Also make sure that the database user provided in :file:`mysite/settings.py`
-    has "create database" privileges. This allows automatic creation of a
-    :ref:`test database <the-test-database>` which will be needed in a later
-    tutorial.
+    如果您使用SQLite之外的数据库，请确保您已经创建好了一个数据库。
+    如果没有，请在数据库的交互中使用“ ``CREATE DATABASE database_name`` ”进行创建。
 
-    If you're using SQLite, you don't need to create anything beforehand - the
-    database file will be created automatically when it is needed.
+    并且要保证在 :file:`mysite/settings.py` 中配置的用户有创建表的权限。
 
-While you're editing :file:`mysite/settings.py`, set :setting:`TIME_ZONE` to
-your time zone.
+    如果您使用的是SQLite，那么您不需要预先创建任何东西——数据库文件将在需要时自动创建。
 
-Also, note the :setting:`INSTALLED_APPS` setting at the top of the file. That
-holds the names of all Django applications that are activated in this Django
-instance. Apps can be used in multiple projects, and you can package and
-distribute them for use by others in their projects.
+当你编辑 :file:`mysite/settings.py` 时，请设置 :setting:`TIME_ZONE` 为你自己的时区。
 
-By default, :setting:`INSTALLED_APPS` contains the following apps, all of which
-come with Django:
+:setting:`INSTALLED_APPS` 中是Django实例中所有Django应用的名称。
+应用可以在多个项目中使用，而且你可以将这些应用打包和分发给其他人在他们的项目中使用。
 
-* :mod:`django.contrib.admin` -- The admin site. You'll use it shortly.
+:setting:`INSTALLED_APPS` 默认包含了以下应用:
 
-* :mod:`django.contrib.auth` -- An authentication system.
+* :mod:`django.contrib.admin` --  管理站点.
 
-* :mod:`django.contrib.contenttypes` -- A framework for content types.
+* :mod:`django.contrib.auth` -- 用户认证系统.
 
-* :mod:`django.contrib.sessions` -- A session framework.
+* :mod:`django.contrib.contenttypes` -- 用于内容类型的框架.
 
-* :mod:`django.contrib.messages` -- A messaging framework.
+* :mod:`django.contrib.sessions` -- session框架.
 
-* :mod:`django.contrib.staticfiles` -- A framework for managing
-  static files.
+* :mod:`django.contrib.messages` -- 消息框架.
 
-These applications are included by default as a convenience for the common case.
+* :mod:`django.contrib.staticfiles` -- 管理静态文件的框架.
 
-Some of these applications make use of at least one database table, though,
-so we need to create the tables in the database before we can use them. To do
-that, run the following command:
+这些应用，默认包含在Django中，以方便通用场合下使用。
+
+其中一些应用程序需要数据库表才能使用，所以我们需要在数据库中创建表，然后才能使用它们。为此，请运行以下命令：
 
 .. code-block:: console
 
     $ python manage.py migrate
 
-The :djadmin:`migrate` command looks at the :setting:`INSTALLED_APPS` setting
-and creates any necessary database tables according to the database settings
-in your :file:`mysite/settings.py` file and the database migrations shipped
-with the app (we'll cover those later). You'll see a message for each
-migration it applies. If you're interested, run the command-line client for your
-database and type ``\dt`` (PostgreSQL), ``SHOW TABLES;`` (MySQL), ``.schema``
-(SQLite), or ``SELECT TABLE_NAME FROM USER_TABLES;`` (Oracle) to display the
-tables Django created.
+:djadmin:`migrate` 查看 :setting:`INSTALLED_APPS` 设置并根据 :file:`mysite/settings.py` 文件中的数据库设置
+创建任何必要的数据库表，数据库的迁移还会跟踪应用的变化。你会看到对每次迁移有一条信息。
+如果你有兴趣，可以运行你的数据库的命令行客户端并输入 ``\dt`` (PostgreSQL), ``SHOW TABLES;`` (MySQL)
+或 ``.schema`` (SQLite)或 ``SELECT TABLE_NAME FROM USER_TABLES;`` (Oracle) 来显示Django创建的表。
 
-.. admonition:: For the minimalists
+.. admonition:: 至极简主义者
 
-    Like we said above, the default applications are included for the common
-    case, but not everybody needs them. If you don't need any or all of them,
-    feel free to comment-out or delete the appropriate line(s) from
-    :setting:`INSTALLED_APPS` before running :djadmin:`migrate`. The
-    :djadmin:`migrate` command will only run migrations for apps in
-    :setting:`INSTALLED_APPS`.
+    :setting:`INSTALLED_APPS` 包含的默认应用用于常见的场景，但并不是每个人都需要它们。
+    如果你不需要它们中的任何一个或所有应用，
+    可以在运行 :djadmin:`migrate` 之前从 :setting:`INSTALLED_APPS` 中自由地注释或删除相应的行。
+    :djadmin:`migrate` 命令将只为 :setting:`INSTALLED_APPS` 中的应用运行数据库的迁移。
 
 .. _creating-models:
 
-Creating models
-===============
+创建模型
+========
 
-Now we'll define your models -- essentially, your database layout, with
-additional metadata.
+现在定义该应用的模型——本质上，就是定义该模型所对应的数据库设计及其附带的元数据。
 
-.. admonition:: Philosophy
+.. admonition:: 定义
 
-   A model is the single, definitive source of truth about your data. It contains
-   the essential fields and behaviors of the data you're storing. Django follows
-   the :ref:`DRY Principle <dry>`. The goal is to define your data model in one
-   place and automatically derive things from it.
+   模型是关于你的数据的唯一的、明确的来源。它包含您正在存储的数据的基本字段和行为。
+   Django遵循 :ref:`DRY Principle <dry>` 。只在一个地方定义数据模型，并自动从中派生出其他东西。
 
-   This includes the migrations - unlike in Ruby On Rails, for example, migrations
-   are entirely derived from your models file, and are essentially just a
-   history that Django can roll through to update your database schema to
-   match your current models.
+   这包括迁移——与Ruby On Rails不同的是，例如迁移完全依照于你的模型文件且本质上只是一个历史记录，
+   Django通过这个历史记录更新你的数据库模式使它与你现在的模型文件保持一致。
 
-In our simple poll app, we'll create two models: ``Question`` and ``Choice``.
-A ``Question`` has a question and a publication date. A ``Choice`` has two
-fields: the text of the choice and a vote tally. Each ``Choice`` is associated
-with a ``Question``.
 
-These concepts are represented by simple Python classes. Edit the
-:file:`polls/models.py` file so it looks like this:
+在这个简单的投票应用中，我们将创建两个模型：
+``Question`` 和 ``Choice``。 ``Question`` 对象具有一个question_text（问题）属性和一个publish_date（发布时间）属性。
+``Choice`` 有两个字段：选择的内容和选择的得票统计。 每个Choice与一个Question关联。
+
+这些概念通过简单的Python类来表示。 编辑 :file:`polls/models.py` 文件，并让它看起来像这样：
 
 .. snippet::
     :filename: polls/models.py
@@ -151,9 +117,9 @@ These concepts are represented by simple Python classes. Edit the
         choice_text = models.CharField(max_length=200)
         votes = models.IntegerField(default=0)
 
-The code is straightforward. Each model is represented by a class that
-subclasses :class:`django.db.models.Model`. Each model has a number of class
-variables, each of which represents a database field in the model.
+代码很简单。每个模型由一个继承 :class:`django.db.models.Model` 的类表示。
+每个模型都有一些类变量，每个变量表示模型中的数据库字段。
+
 
 Each field is represented by an instance of a :class:`~django.db.models.Field`
 class -- e.g., :class:`~django.db.models.CharField` for character fields and

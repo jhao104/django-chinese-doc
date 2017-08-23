@@ -2,6 +2,8 @@
 开发第一个Django应用,Part1
 ===========================
 
+.. rubric:: 请求和响应
+
 通过例子学习。在本教程中，将介绍创建一个简单的投票应用程序。
 
 它包含下面两部分：
@@ -83,17 +85,17 @@
 -  :file:`mysite/wsgi.py` ：用于你的项目的与WSGI兼容的Web服务器入口。用作服务部署，更多细节请参见 :doc:`/howto/deployment/wsgi/index` 。
 
 
-The development server
-======================
+开发服务器
+===========
 
-Let's verify your Django project works. Change into the outer :file:`mysite` directory, if
-you haven't already, and run the following commands:
+让我们验证一下你的Django项目是否安装正常。 进入外层的 :file:`mysite` 目录，然后运行以下命令:
+
 
 .. code-block:: console
 
    $ python manage.py runserver
 
-You'll see the following output on the command line:
+你将在看到如下输出:
 
 .. parsed-literal::
 
@@ -110,85 +112,66 @@ You'll see the following output on the command line:
     Quit the server with CONTROL-C.
 
 .. note::
-    Ignore the warning about unapplied database migrations for now; we'll deal
-    with the database shortly.
+    现在忽略有关未应用数据库迁移的警告;下面教程将很快处理数据库
 
-You've started the Django development server, a lightweight Web server written
-purely in Python. We've included this with Django so you can develop things
-rapidly, without having to deal with configuring a production server -- such as
-Apache -- until you're ready for production.
+这表明你已经启动了Django开发服务器，一个用纯Python写的轻量级Web服务器。
+我们在Django中内置了它，这样你就可以在不配置用于生产环境的服务器（例如Apache）的情况下快速开发出产品，
+直到你准备好上线。
 
-Now's a good time to note: **don't** use this server in anything resembling a
-production environment. It's intended only for use while developing. (We're in
-the business of making Web frameworks, not Web servers.)
+请注意：**不要** 在任何生产环境使用这个服务器。它仅仅是用于在开发中使用。（我们的重点是编写Web框架，非Web服务器。）
 
-Now that the server's running, visit http://127.0.0.1:8000/ with your Web
-browser. You'll see a "Welcome to Django" page, in pleasant, light-blue pastel.
-It worked!
+既然服务器已经运行，请用你的浏览器访问 http://127.0.0.1:8000。
+在淡蓝色背景下，你将看到一个“Welcome to Django”的页面。 It worked!
 
-.. admonition:: Changing the port
+.. admonition:: 修改端口号
 
-    By default, the :djadmin:`runserver` command starts the development server
-    on the internal IP at port 8000.
+    默认情况下，:djadmin:`runserver` 命令在内部IP的8000端口启动开发服务器。
 
-    If you want to change the server's port, pass
-    it as a command-line argument. For instance, this command starts the server
-    on port 8080:
+    如果你需改变服务器的端口，把要使用的端口作为一个命令行参数传递给它。 例如，这个命令在8080端口启动服务器：
 
     .. code-block:: console
 
         $ python manage.py runserver 8080
 
-    If you want to change the server's IP, pass it along with the port. So to
-    listen on all public IPs (useful if you want to show off your work on other
-    computers on your network), use:
+    如果你需改变服务器的IP地址，把IP地址和端口号放到一起。 因此若要监听所有的外网IP，
+    请使用（如果你想在另外一台电脑上展示你的工作，会非常有用）：
 
     .. code-block:: console
 
         $ python manage.py runserver 0.0.0.0:8000
 
-    Full docs for the development server can be found in the
-    :djadmin:`runserver` reference.
 
-.. admonition:: Automatic reloading of :djadmin:`runserver`
+.. admonition:: :djadmin:`runserver` 的自动重载
 
-    The development server automatically reloads Python code for each request
-    as needed. You don't need to restart the server for code changes to take
-    effect. However, some actions like adding files don't trigger a restart,
-    so you'll have to restart the server in these cases.
+    在Debug模式下，开发服务器会根据需要自动重新载入Python代码。 你不必为了使更改的代码生效而重启服务器。
+    然而，一些行为比如添加文件，不会触发服务器的重启，所以在这种情况下你需要手动重启服务器。
 
-Creating the Polls app
-======================
+创建投票app
+=============
 
-Now that your environment -- a "project" -- is set up, you're set to start
-doing work.
+你编写的每个Django应用都是遵循特定约定且包含一个Python包。
+Django自带这个功能，它可以自动生成应用的基本目录结构（就像创建项目那样）
 
-Each application you write in Django consists of a Python package that follows
-a certain convention. Django comes with a utility that automatically generates
-the basic directory structure of an app, so you can focus on writing code
-rather than creating directories.
 
-.. admonition:: Projects vs. apps
+.. admonition:: project和app区别：
 
-    What's the difference between a project and an app? An app is a Web
-    application that does something -- e.g., a Weblog system, a database of
-    public records or a simple poll app. A project is a collection of
-    configuration and apps for a particular website. A project can contain
-    multiple apps. An app can be in multiple projects.
+    * 一个app实现某个功能，比如博客、公共档案数据库或者简单的投票系统；
 
-Your apps can live anywhere on your :ref:`Python path <tut-searchpath>`. In
-this tutorial, we'll create our poll app right next to your :file:`manage.py`
-file so that it can be imported as its own top-level module, rather than a
-submodule of ``mysite``.
+    * 一个project是配置文件和多个app的集合，他们组合成整个站点；
 
-To create your app, make sure you're in the same directory as :file:`manage.py`
-and type this command:
+    * 一个project可以包含多个app；
+
+    * 一个app可以属于多个project。
+
+app的存放位置可以是任何地点，但是通常我们将它们都放在与同级目录下，这样方便导入文件。
+
+进入mysite目录，确保与 :file:`manage.py` 文件处于同一级，并且键入以下命令来创建你的app:
 
 .. code-block:: console
 
     $ python manage.py startapp polls
 
-That'll create a directory :file:`polls`, which is laid out like this::
+这将创建一个目录 :file:`polls`，它的结构如下::
 
     polls/
         __init__.py
@@ -200,13 +183,12 @@ That'll create a directory :file:`polls`, which is laid out like this::
         tests.py
         views.py
 
-This directory structure will house the poll application.
+这个目录结构将用于存放poll应用程序
 
-Write your first view
-=====================
+编写视图
+========
 
-Let's write the first view. Open the file ``polls/views.py``
-and put the following Python code in it:
+让我们写第一个视图。打开文件 ``polls/views.py``，并输入以下Python代码：
 
 .. snippet::
     :filename: polls/views.py
@@ -217,11 +199,9 @@ and put the following Python code in it:
     def index(request):
         return HttpResponse("Hello, world. You're at the polls index.")
 
-This is the simplest view possible in Django. To call the view, we need to map
-it to a URL - and for this we need a URLconf.
+这是Django中最简单的视图。要调用视图，我们需要将它映射到一个URL,为此，我们需要一个URLconf。
 
-To create a URLconf in the polls directory, create a file called ``urls.py``.
-Your app directory should now look like::
+要在polls目录中创建一个URLconf，在polls文件夹中创建一个名为 ``urls.py`` 的文件。您的应用目录现在应该像这样::
 
     polls/
         __init__.py
@@ -234,7 +214,7 @@ Your app directory should now look like::
         urls.py
         views.py
 
-In the ``polls/urls.py`` file include the following code:
+编辑 ``polls/urls.py`` 文件：
 
 .. snippet::
     :filename: polls/urls.py
@@ -247,9 +227,9 @@ In the ``polls/urls.py`` file include the following code:
         url(r'^$', views.index, name='index'),
     ]
 
-The next step is to point the root URLconf at the ``polls.urls`` module. In
-``mysite/urls.py``, add an import for ``django.conf.urls.include`` and insert
-an :func:`~django.conf.urls.include` in the ``urlpatterns`` list, so you have:
+你可以看到项目根目录下的mysite目录也有个urls.py文件，
+下一步是让这个项目的主urls.py文件指向我们建立的polls这个app独有的urls.py文件，
+打开 ``mysite/urls.py`` 文件，你需要先导入include模块，代码如下：
 
 .. snippet::
     :filename: mysite/urls.py
@@ -262,99 +242,56 @@ an :func:`~django.conf.urls.include` in the ``urlpatterns`` list, so you have:
         url(r'^admin/', admin.site.urls),
     ]
 
-The :func:`~django.conf.urls.include` function allows referencing other
-URLconfs. Note that the regular expressions for the
-:func:`~django.conf.urls.include` function doesn't have a ``$`` (end-of-string
-match character) but rather a trailing slash. Whenever Django encounters
-:func:`~django.conf.urls.include`, it chops off whatever part of the URL
-matched up to that point and sends the remaining string to the included URLconf
-for further processing.
+方法 :func:`~django.conf.urls.include` 相当于二级路由策略，
+它将接收到的url地址去除了它前面的正则表达式，将剩下的字符串传递给下一级路由进行判断。
 
-The idea behind :func:`~django.conf.urls.include` is to make it easy to
-plug-and-play URLs. Since polls are in their own URLconf
-(``polls/urls.py``), they can be placed under "/polls/", or under
-"/fun_polls/", or under "/content/polls/", or any other path root, and the
-app will still work.
+include的背后是一种即插即用的思想。项目根路由不关心具体app的路由策略，
+只管往指定的二级路由转发，实现了解耦的特性。app所属的二级路由可以根据自己的需要随意编写，
+不会和其它的app路由发生冲突。app目录可以放置在任何位置，而不用修改路由。这是软件设计里很常见的一种模式。
 
-.. admonition:: When to use :func:`~django.conf.urls.include()`
-
-    You should always use ``include()`` when you include other URL patterns.
-    ``admin.site.urls`` is the only exception to this.
-
-.. admonition:: Doesn't match what you see?
-
-    If you're seeing ``include(admin.site.urls)`` instead of just
-    ``admin.site.urls``, you're probably using a version of Django that
-    doesn't match this tutorial version.  You'll want to either switch to the
-    older tutorial or the newer Django version.
-
-You have now wired an ``index`` view into the URLconf. Lets verify it's
-working, run the following command:
+您现在已将索引视图连接到URLconf。让我们验证它的工作，运行以下命令：
 
 .. code-block:: console
 
    $ python manage.py runserver
 
-Go to http://localhost:8000/polls/ in your browser, and you should see the
-text "*Hello, world. You're at the polls index.*", which you defined in the
-``index`` view.
+在浏览器中访问 http//localhost8000/polls/ ，
+你应该看到文本“Hello, world. You're at the polls index.“，
+就如你在 ``view.py`` 中定义的那样。
 
-The :func:`~django.conf.urls.url` function is passed four arguments, two
-required: ``regex`` and ``view``, and two optional: ``kwargs``, and ``name``.
-At this point, it's worth reviewing what these arguments are for.
+:func:`~django.conf.urls.url`函数可以传递4个参数，
+其中2个是必须的：``regex`` 和 ``view``，以及2个可选的参数： ``kwargs`` 和 ``name`` 。下面是具体的解释：
 
-:func:`~django.conf.urls.url` argument: regex
+url() 参数：regex
+--------------------
+
+regex是正则表达式的通用缩写，它是一种匹配字符串或url地址的语法。
+Django拿着用户请求的url地址，在urls.py文件中对urlpatterns列表中的每一项条目从头开始进行逐一对比，
+一旦遇到匹配项，立即执行该条目映射的视图函数或二级路由，其后的条目将不再继续匹配。因此，url路由的编写顺序至关重要！
+
+需要注意的是，regex不会去匹配GET或POST参数或域名，
+例如对于 ``https://www.example.com/myapp`` ， regex只尝试匹配 ``myapp/`` 。
+对于 ``https://www.example.com/myapp/?page=3`` ， regex也只尝试匹配 ``myapp/``
+
+url() 参数：view
+------------------
+
+当正则表达式匹配到某个条目时，自动将封装的 :class:`~django.http.HttpRequest` 对象作为第一个参数，
+正则表达式“捕获”到的值作为第二个参数，传递给该条目指定的视图。
+如果是简单捕获，那么捕获值将作为一个位置参数进行传递，如果是命名捕获，那么将作为关键字参数进行传递。
+
+url() 参数：kwargs
+-------------------
+
+任意数量的关键字参数可以作为一个字典传递给目标视图。
+
+url() 参数: name
 ---------------------------------------------
 
-The term "regex" is a commonly used short form meaning "regular expression",
-which is a syntax for matching patterns in strings, or in this case, url
-patterns. Django starts at the first regular expression and makes its way down
-the list,  comparing the requested URL against each regular expression until it
-finds one that matches.
+对你的URL进行命名，可以让你能够在Django的任意处，尤其是模板内显式地引用它。
+相当于给URL取了个全局变量名，你只需要修改这个全局变量的值，在整个Django中引用它的地方也将同样获得改变。
+这是极为古老、朴素和有用的设计思想，而且这种思想无处不在。
 
-Note that these regular expressions do not search GET and POST parameters, or
-the domain name. For example, in a request to
-``https://www.example.com/myapp/``, the URLconf will look for ``myapp/``. In a
-request to ``https://www.example.com/myapp/?page=3``, the URLconf will also
-look for ``myapp/``.
 
-If you need help with regular expressions, see `Wikipedia's entry`_ and the
-documentation of the :mod:`re` module. Also, the O'Reilly book "Mastering
-Regular Expressions" by Jeffrey Friedl is fantastic. In practice, however,
-you don't need to be an expert on regular expressions, as you really only need
-to know how to capture simple patterns. In fact, complex regexes can have poor
-lookup performance, so you probably shouldn't rely on the full power of regexes.
+当您熟悉基本的请求和响应后，请阅读 :doc:`本教程的第2部分 </intro/tutorial02>` ，使用数据库。
 
-Finally, a performance note: these regular expressions are compiled the first
-time the URLconf module is loaded. They're super fast (as long as the lookups
-aren't too complex as noted above).
-
-.. _Wikipedia's entry: https://en.wikipedia.org/wiki/Regular_expression
-
-:func:`~django.conf.urls.url` argument: view
---------------------------------------------
-
-When Django finds a regular expression match, Django calls the specified view
-function, with an :class:`~django.http.HttpRequest` object as the first
-argument and any “captured” values from the regular expression as other
-arguments. If the regex uses simple captures, values are passed as positional
-arguments; if it uses named captures, values are passed as keyword arguments.
-We'll give an example of this in a bit.
-
-:func:`~django.conf.urls.url` argument: kwargs
-----------------------------------------------
-
-Arbitrary keyword arguments can be passed in a dictionary to the target view. We
-aren't going to use this feature of Django in the tutorial.
-
-:func:`~django.conf.urls.url` argument: name
----------------------------------------------
-
-Naming your URL lets you refer to it unambiguously from elsewhere in Django,
-especially from within templates. This powerful feature allows you to make
-global changes to the URL patterns of your project while only touching a single
-file.
-
-When you're comfortable with the basic request and response flow, read
-:doc:`part 2 of this tutorial </intro/tutorial02>` to start working with the
-database.

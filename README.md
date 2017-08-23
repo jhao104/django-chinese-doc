@@ -1,14 +1,14 @@
->如果感兴趣， 欢迎加入进来一起翻译。Folk 项目:https://github.com/jhao104/django-chinese-docs-1.10 提交你的内容。翻译后的文档会在GitBook上自动更新:https://jhao104.gitbooks.io/django-1-10/content/
+>如果感兴趣， 欢迎加入进来一起翻译。Folk 项目:https://github.com/jhao104/django-chinese-doc 提交你的内容。翻译后的文档会自动更新到:http://django-chinese-doc.readthedocs.io/zh_CN/latest/
 
 # Django1.10中文文档
-
+[![Documentation Status](https://readthedocs.org/projects/django-chinese-doc/badge/?version=latest)](http://django-chinese-doc.readthedocs.io/zh_CN/latest/?badge=latest)
 　　你想知道的关于Django的一切。
 
 ## 文档组织方式
 
 　　Django有很多的文档。一个好的组织结构能够帮助您在何处寻找你想要的内容：
 
-* [入门教程](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B.md)一步步详解如何从零开始创建一个Web应用程序。如果您第一次使用Django或Web应用程序开发，那么请从这里开始。也就是下面的“[入门](#入门)”部分。
+* [入门教程](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/index.html)一步步详解如何从零开始创建一个Web应用程序。如果您第一次使用Django或Web应用程序开发，那么请从这里开始。也就是下面的“[入门](#入门)”部分。
 
 * [主题指南](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/%E4%BD%BF%E7%94%A8Django.md)在比较高的层次上讨论某些话题和概念，并提供有用的背景信息和解释。
 

@@ -1,5 +1,5 @@
 ====================
-Django 中文文档
+Django1.10 中文文档
 ====================
 
 .. rubric:: Django的百科全书.
@@ -360,3 +360,4 @@ you can contribute:
    :hidden:
 
    intro/index
+   topics/index
