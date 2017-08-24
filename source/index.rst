@@ -361,3 +361,5 @@ you can contribute:
 
    intro/index
    topics/index
+   ref/index
+   howto/index
