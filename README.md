@@ -2,6 +2,7 @@
 
 # Django1.10中文文档
 [![Documentation Status](https://readthedocs.org/projects/django-chinese-doc/badge/?version=latest)](http://django-chinese-doc.readthedocs.io/zh_CN/latest/?badge=latest)
+
 　　你想知道的关于Django的一切。
 
 ## 文档组织方式
@@ -20,9 +21,9 @@
 
 　　如果你是刚接触Django或编程，这是一个起点。
 
-* **从零开始**: [概览](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/Django概览.md) | [安装](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/%E5%BF%AB%E9%80%9F%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97.md)
+* **从零开始**: [概览](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/overview.html) | [安装](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/install.html)
 
-* **入门教程**: [Part1:请求与响应](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial01/%E5%BC%80%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart1.md) | [Part2:模型和管理站点](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial02/%E5%BC%80%E5%8F%91%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart2.md) | [Part3:视图和模板](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial03/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart3.md) | [Part4:表单和通用视图](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial04/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart4.md) | [Part5:测试](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial05/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart5.md) | [Part6:静态文件](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial06/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart6.md) | [Part7:自定义管理站点](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial07/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart7.md)
+* **入门教程**: [Part1:请求与响应](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/tutorial01.html) | [Part2:模型和管理站点](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/tutorial02.html) | [Part3:视图和模板](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/tutorial03.html) | [Part4:表单和通用视图](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial04/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart4.md) | [Part5:测试](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial05/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart5.md) | [Part6:静态文件](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial06/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart6.md) | [Part7:自定义管理站点](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/tutorial07/%E7%AC%AC%E4%B8%80%E4%B8%AADjango%E5%BA%94%E7%94%A8%2CPart7.md)
 
 * **进阶教程**: [如何开发可重用的应用 (0%)]() | [开发Django补丁 (0%)]()
 
