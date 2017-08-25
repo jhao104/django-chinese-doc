@@ -53,31 +53,30 @@ Django1.10 中文文档
 
 Are you new to Django or to programming? This is the place to start!
 
-* **From scratch:**
-  :doc:`Overview <intro/overview>` |
-  :doc:`Installation <intro/install>`
+* **从零开始:**
+  :doc:`概览 <intro/overview>` |
+  :doc:`安装 <intro/install>`
 
-* **Tutorial:**
-  :doc:`Part 1: Requests and responses <intro/tutorial01>` |
-  :doc:`Part 2: Models and the admin site <intro/tutorial02>` |
-  :doc:`Part 3: Views and templates <intro/tutorial03>` |
-  :doc:`Part 4: Forms and generic views <intro/tutorial04>` |
-  :doc:`Part 5: Testing <intro/tutorial05>` |
-  :doc:`Part 6: Static files <intro/tutorial06>` |
-  :doc:`Part 7: Customizing the admin site <intro/tutorial07>`
+* **入门教程:**
+  :doc:`Part 1: 请求和响应 <intro/tutorial01>` |
+  :doc:`Part 2: 模型和管理站点 <intro/tutorial02>` |
+  :doc:`Part 3: 视图和模板 <intro/tutorial03>` |
+  :doc:`Part 4: 表单和通用视图 <intro/tutorial04>` |
+  :doc:`Part 5: 测试 <intro/tutorial05>` |
+  :doc:`Part 6: 静态文件 <intro/tutorial06>` |
+  :doc:`Part 7: 自定义管理站点 <intro/tutorial07>`
 
-* **Advanced Tutorials:**
-  :doc:`How to write reusable apps <intro/reusable-apps>` |
-  :doc:`Writing your first patch for Django <intro/contributing>`
+* **进阶教程:**
+  :doc:`如何开发可重用的应用 <intro/reusable-apps>` |
+  :doc:`开发Django补丁 <intro/contributing>`
 
-The model layer
-===============
+模型层
+=======
 
-Django provides an abstraction layer (the "models") for structuring and
-manipulating the data of your Web application. Learn more about it below:
+Django提供一个抽象层（Models）以构建和操作你的web应用中的数据，通过以下内容了解更多：
 
-* **Models:**
-  :doc:`Introduction to models <topics/db/models>` |
+* **模型:**
+  :doc:`模型简介 <topics/db/models>` |
   :doc:`Field types <ref/models/fields>` |
   :doc:`Meta options <ref/models/options>` |
   :doc:`Model class <ref/models/class>`
