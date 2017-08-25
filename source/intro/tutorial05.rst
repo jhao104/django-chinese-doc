@@ -1,141 +1,99 @@
-=====================================
-Writing your first Django app, part 5
-=====================================
+===========================
+开发第一个Django应用,Part4
+===========================
 
-This tutorial begins where :doc:`Tutorial 4 </intro/tutorial04>` left off.
-We've built a Web-poll application, and we'll now create some automated tests
-for it.
+本教程上接 :doc:`Tutorial 4 </intro/tutorial04>` 。 前面已经建立一个网页投票应用，现在将为它创建一些自动化测试。
 
-Introducing automated testing
-=============================
+自动化测试简介
+===============
 
-What are automated tests?
--------------------------
+什么是自动化测试
+-------------------
 
-Tests are simple routines that check the operation of your code.
+测试是检查你的代码是否正常运行的行为。
 
-Testing operates at different levels. Some tests might apply to a tiny detail
-(*does a particular model method return values as expected?*) while others
-examine the overall operation of the software (*does a sequence of user inputs
-on the site produce the desired result?*). That's no different from the kind of
-testing you did earlier in :doc:`Tutorial 2 </intro/tutorial02>`, using the
-:djadmin:`shell` to examine the behavior of a method, or running the
-application and entering data to check how it behaves.
+测试也分为不同的级别。有些测试可能是用于某个细节操作（比如特定的模型方法是否返回预期的值），
+而有些测试是检查软件的整体操作（比如站点上的一系列用户输入是否产生所需的结果）。
+这和 :doc:`Tutorial 2 </intro/tutorial02>` 中的测试是一样的，使用 :djadmin:`shell` 来检查方法的行为，
+或者运行应用程序并输入数据来检查它的行为。
 
-What's different in *automated* tests is that the testing work is done for
-you by the system. You create a set of tests once, and then as you make changes
-to your app, you can check that your code still works as you originally
-intended, without having to perform time consuming manual testing.
+自动化测试的不同之处就在于这些测试会由系统来帮你完成。你只需要创建一组测试一次，即便以后对应用进行了更改，
+您仍可以使用这组测试代码检查应用是否按照预期的方式工作，而无需执行耗时的手动测试。
 
-Why you need to create tests
-----------------------------
+为什么需要自动化测试
+---------------------
 
-So why create tests, and why now?
+那么为什么现在要自动化测试？
 
-You may feel that you have quite enough on your plate just learning
-Python/Django, and having yet another thing to learn and do may seem
-overwhelming and perhaps unnecessary. After all, our polls application is
-working quite happily now; going through the trouble of creating automated
-tests is not going to make it work any better. If creating the polls
-application is the last bit of Django programming you will ever do, then true,
-you don't need to know how to create automated tests. But, if that's not the
-case, now is an excellent time to learn.
+你可能感觉学习Python/Django已经足够，再去学习其他的东西也许需要付出巨大的努力而且没有必要，
+毕竟我们的投票应用已经愉快地运行起来了。与其花时间去做自动化测试还不如改进现在的应用。
+如果你学习Django就是仅仅是为了创建一个小小投票应用，那么涉足自动化测试显然没有必要。
+但如果不是这样，现在是一个很好的学习机会。
 
-Tests will save you time
-~~~~~~~~~~~~~~~~~~~~~~~~
+测试可以节约开发时间
+~~~~~~~~~~~~~~~~~~~~~
 
-Up to a certain point, 'checking that it seems to work' will be a satisfactory
-test. In a more sophisticated application, you might have dozens of complex
-interactions between components.
+某种程度上，“检查并发现工作正常”似乎是种比较满意的测试结果。但在一些复杂的应用中，
+你会发现组件之间存在各种各样复杂的交互关系。
 
-A change in any of those components could have unexpected consequences on the
-application's behavior. Checking that it still 'seems to work' could mean
-running through your code's functionality with twenty different variations of
-your test data just to make sure you haven't broken something - not a good use
-of your time.
+这些组件有任何小的的更改都有可能会对应用程序的行为产生意想不到的后果。要得出“似乎工作正常”的结果，
+可能意味着你需要使用二十种不同的测试数据来测试你的代码，而这仅仅是为了确保你没有做错某些事，
+这种方法效率低下。然而，自动化测试只需要数秒就可以完成以上的任务。如果出现了错误，还能够帮助找出引发这个异常行为的代码。
 
-That's especially true when automated tests could do this for you in seconds.
-If something's gone wrong, tests will also assist in identifying the code
-that's causing the unexpected behavior.
+有时候你可能会觉得编写测试程序相比起有价值的、创造性的编程工作显得单调乏味、无趣，尤其是当你的代码工作正常时。
+但是，比起用几个小时的时间来手动测试你的程序，或者试图找出代码中一个新生问题的原因，
+编写自动化测试程序的性价比还是很高的。
 
-Sometimes it may seem a chore to tear yourself away from your productive,
-creative programming work to face the unglamorous and unexciting business
-of writing tests, particularly when you know your code is working properly.
 
-However, the task of writing tests is a lot more fulfilling than spending hours
-testing your application manually or trying to identify the cause of a
-newly-introduced problem.
+测试可以发现并防止问题
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Tests don't just identify problems, they prevent them
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+将测试看做只是开发中消极的一面是错误的，没有测试，应用程序的目的或预期行为可能是相当不透明的。即使这是你自己的代码，
+你也会发现自己正在都不知道它在做什么。测试可以改变这一情况； 它们使你的代码内部变得明晰，当错误出现后，
+它们会明确地指出哪部分代码出了问题——甚至你自己都不会料到问题会出现在那里。
 
-It's a mistake to think of tests merely as a negative aspect of development.
+测试使您的代码更受欢迎
+~~~~~~~~~~~~~~~~~~~~~~
 
-Without tests, the purpose or intended behavior of an application might be
-rather opaque. Even when it's your own code, you will sometimes find yourself
-poking around in it trying to find out what exactly it's doing.
+你可能已经创建了一个堪称辉煌的软件，但是你会发现许多其他的开发者会由于它缺少测试程序而拒绝查看它一眼；
+没有测试程序，他们不会信任它。 Jacob Kaplan-Moss，Django最初的几个开发者之一，
+说过“不具有测试程序的代码是设计上的错误”。
+你需要开始编写测试的另一个原因就是其他的开发者在他们认真研读你的代码前可能想要查看一下它有没有测试。
 
-Tests change that; they light up your code from the inside, and when something
-goes wrong, they focus light on the part that has gone wrong - *even if you
-hadn't even realized it had gone wrong*.
+测试有助于团队合作
+~~~~~~~~~~~~~~~~~~~
 
-Tests make your code more attractive
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+之前的观点是从单个开发人员来维护一个程序这个方向来阐述的。 复杂的应用将会被一个团队来维护。
+测试能够减少同事在无意间破坏你的代码的情况（和你在不知情的情况下破坏别人的代码的情况）。
+如果你想在团队中做一个好的Django开发者，你必须擅长测试！
 
-You might have created a brilliant piece of software, but you will find that
-many other developers will simply refuse to look at it because it lacks tests;
-without tests, they won't trust it. Jacob Kaplan-Moss, one of Django's
-original developers, says "Code without tests is broken by design."
+基本的测试策略
+==============
 
-That other developers want to see tests in your software before they take it
-seriously is yet another reason for you to start writing tests.
+编写测试程序有很多种方法。一些程序员遵循一种叫做 “`测试驱动开发`_”的规则，他们在编写代码前会先编好测试程序。
+看起来似乎有点反人类，但实际上这种方法与大多数人经常的做法很相似：先描述一个问题，然后编写代码来解决这个问题。
+测试驱动开发可以简单地用Python测试用例将问题格式化。
 
-Tests help teams work together
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+很多时候，刚接触测试的人会先编写一些代码后才编写测试程序。事实上，在之前就编写一些测试会好一点，
+但不管怎么说什么时候开始都不算晚。
 
-The previous points are written from the point of view of a single developer
-maintaining an application. Complex applications will be maintained by teams.
-Tests guarantee that colleagues don't inadvertently break your code (and that
-you don't break theirs without knowing). If you want to make a living as a
-Django programmer, you must be good at writing tests!
+有时候你很难决定从什么时候开始编写测试。如果你已经编写了数千行Python代码，挑选它们中的一些来进行测试是不太容易的。
+这种情况下，在下次你对代码进行变更，添加一个新功能或者修复一个bug之时，编写你的第一个测试，效果会非常好。
+下面，让我们来编写一个测试。
 
-Basic testing strategies
-========================
+.. _测试驱动开发: https://en.wikipedia.org/wiki/Test-driven_development
 
-There are many ways to approach writing tests.
+编写第一个测试
+===============
 
-Some programmers follow a discipline called "`test-driven development`_"; they
-actually write their tests before they write their code. This might seem
-counter-intuitive, but in fact it's similar to what most people will often do
-anyway: they describe a problem, then create some code to solve it. Test-driven
-development simply formalizes the problem in a Python test case.
+发现bug
+----------
 
-More often, a newcomer to testing will create some code and later decide that
-it should have some tests. Perhaps it would have been better to write some
-tests earlier, but it's never too late to get started.
+很巧，在我们的投票应用中有一个小bug需要修改：在 ``Question.was_published_recently()`` 方法的返回值中，
+当 ``Question`` 在最近的一天发布的时候返回True（这是正确的），然而当 ``Question`` 在未来的日期内发布的时候也返回
+True（这是错误的）。
 
-Sometimes it's difficult to figure out where to get started with writing tests.
-If you have written several thousand lines of Python, choosing something to
-test might not be easy. In such a case, it's fruitful to write your first test
-the next time you make a change, either when you add a new feature or fix a bug.
-
-So let's do that right away.
-
-.. _test-driven development: https://en.wikipedia.org/wiki/Test-driven_development
-
-Writing our first test
-======================
-
-We identify a bug
------------------
-
-Fortunately, there's a little bug in the ``polls`` application for us to fix
-right away: the ``Question.was_published_recently()`` method returns ``True`` if
-the ``Question`` was published within the last day (which is correct) but also if
-the ``Question``’s ``pub_date`` field is in the future (which certainly isn't).
-
-To check if the bug really exists, using the Admin create a question whose date
-lies in the future and check the method using the :djadmin:`shell`::
+要检查该bug是否真的存在，使用Admin创建一个未来的日期，并使用 :djadmin:`shell` 检查::
 
     >>> import datetime
     >>> from django.utils import timezone
@@ -146,19 +104,16 @@ lies in the future and check the method using the :djadmin:`shell`::
     >>> future_question.was_published_recently()
     True
 
-Since things in the future are not 'recent', this is clearly wrong.
+由于“将来”不等于“最近”，因此这显然是个bug。
 
-Create a test to expose the bug
+创建一个测试来暴露这个bug
 -------------------------------
 
-What we've just done in the :djadmin:`shell` to test for the problem is exactly
-what we can do in an automated test, so let's turn that into an automated test.
+刚才我们是在 :djadmin:`shell` 中测试了这个bug，那如何通过自动化测试来发现这个bug呢？
 
-A conventional place for an application's tests is in the application's
-``tests.py`` file; the testing system will automatically find tests in any file
-whose name begins with ``test``.
+通常，我们会把测试代码放在应用的 ``tests.py`` 文件中；测试系统将自动地从任何名字以 ``test`` 开头的文件中查找测试程序。
 
-Put the following in the ``tests.py`` file in the ``polls`` application:
+将下面的代码输入投票应用的 ``tests.py`` 文件中：
 
 .. snippet::
     :filename: polls/tests.py
@@ -182,19 +137,18 @@ Put the following in the ``tests.py`` file in the ``polls`` application:
             future_question = Question(pub_date=time)
             self.assertIs(future_question.was_published_recently(), False)
 
-What we have done here is created a :class:`django.test.TestCase` subclass
-with a method that creates a ``Question`` instance with a ``pub_date`` in the
-future. We then check the output of ``was_published_recently()`` - which
-*ought* to be False.
+我们在这里创建了一个 :class:`django.test.TestCase` 的子类，它具有一个方法，该方法创建一个 ``pub_date``
+在未来的 ``Question`` 实例。最后我们检查 ``was_published_recently()`` 的输出，它应该是 False。
 
-Running tests
+
+运行测试程序
 -------------
 
-In the terminal, we can run our test::
+在终端中，运行下面的命令::
 
     $ python manage.py test polls
 
-and you'll see something like::
+你将看到结果如下::
 
     Creating test database for alias 'default'...
     F
@@ -212,33 +166,28 @@ and you'll see something like::
     FAILED (failures=1)
     Destroying test database for alias 'default'...
 
-What happened is this:
+这背后的过程：
 
-* ``python manage.py test polls`` looked for tests in the ``polls`` application
+* ``python manage.py test polls`` 命令会查找所有 ``polls`` 应用中的测试程序
 
-* it found a subclass of the :class:`django.test.TestCase` class
+* 发现一个 :class:`django.test.TestCase` 的子类
 
-* it created a special database for the purpose of testing
+* 它为测试创建了一个特定的数据库
 
-* it looked for test methods - ones whose names begin with ``test``
+* 查找函数名以 ``test`` 开头的测试方法
 
-* in ``test_was_published_recently_with_future_question`` it created a ``Question``
-  instance whose ``pub_date`` field is 30 days in the future
+* 在 ``test_was_published_recently_with_future_question`` 方法中，创建一个 ``Question`` 实例，
+  该实例的 ``pub_data`` 字段的值是30天后的未来日期
 
-* ... and using the ``assertIs()`` method, it discovered that its
-  ``was_published_recently()`` returns ``True``, though we wanted it to return
-  ``False``
+* 然后利用 ``assertIs()`` 方法，它发现 ``was_published_recently()`` 返回了 ``True``，而不是我们希望的 ``False``
 
-The test informs us which test failed and even the line on which the failure
-occurred.
+这个测试通知我们哪个测试失败了，错误出现在哪一行。
 
-Fixing the bug
+修复bug
 --------------
 
-We already know what the problem is: ``Question.was_published_recently()`` should
-return ``False`` if its ``pub_date`` is in the future. Amend the method in
-``models.py``, so that it will only return ``True`` if the date is also in the
-past:
+现在我们已经知道问题是什么：如果它的 ``pub_date`` 是在未来，``Question.was_published_recently()`` 应该返回 ``False``。
+在 ``models.py`` 中修复这个方法，让它只有当日期是在过去时才返回 ``True``：
 
 .. snippet::
     :filename: polls/models.py
@@ -247,7 +196,7 @@ past:
         now = timezone.now()
         return now - datetime.timedelta(days=1) <= self.pub_date <= now
 
-and run the test again::
+重新运行测试::
 
     Creating test database for alias 'default'...
     .
@@ -257,31 +206,26 @@ and run the test again::
     OK
     Destroying test database for alias 'default'...
 
-After identifying a bug, we wrote a test that exposes it and corrected the bug
-in the code so our test passes.
+在找出一个bug之后，编写一个测试来验证这个错误，然后在代码中更正这个错误让我们的测试通过。
 
-Many other things might go wrong with our application in the future, but we can
-be sure that we won't inadvertently reintroduce this bug, because simply
-running the test will warn us immediately. We can consider this little portion
-of the application pinned down safely forever.
+未来，在应用中可能会出许多其它未知的错误，但是我们可以保证不会无意中再次引入这个错误，
+因为简单地运行一下这个测试就会立即提醒我们。 我们可以认为这个应用的这一小部分会永远安全了。
 
-More comprehensive tests
-------------------------
 
-While we're here, we can further pin down the ``was_published_recently()``
-method; in fact, it would be positively embarrassing if in fixing one bug we had
-introduced another.
 
-Add two more test methods to the same class, to test the behavior of the method
-more comprehensively:
+更全面的测试
+--------------
+
+我们可以使 ``was_published_recently()`` 方法更加可靠，事实上，
+在修复一个错误的同时又引入一个新的错误将是一件很令人尴尬的事。下面，我们在同一个测试类中再额外添加两个其它的方法，
+来更加全面地进行测试：
 
 .. snippet::
     :filename: polls/tests.py
 
     def test_was_published_recently_with_old_question(self):
         """
-        was_published_recently() should return False for questions whose
-        pub_date is older than 1 day.
+        日期超过1天的将返回False。这里创建了一个30天前发布的实例。
         """
         time = timezone.now() - datetime.timedelta(days=30)
         old_question = Question(pub_date=time)
@@ -289,100 +233,81 @@ more comprehensively:
 
     def test_was_published_recently_with_recent_question(self):
         """
-        was_published_recently() should return True for questions whose
-        pub_date is within the last day.
+        最近一天内的将返回True。这里创建了一个1小时内发布的实例。
         """
         time = timezone.now() - datetime.timedelta(hours=1)
         recent_question = Question(pub_date=time)
         self.assertIs(recent_question.was_published_recently(), True)
 
-And now we have three tests that confirm that ``Question.was_published_recently()``
-returns sensible values for past, recent, and future questions.
+现在我们有三个测试来保证无论发布时间是在过去、现在还是未来 ``Question.was_published_recently()``
+都将返回正确的结果。最后，``polls`` 应用虽然简单，但是无论它今后会变得多么复杂以及会和多少其它的应用产生相互作用，
+我们都能保证 ``Question.was_published_recently()`` 会按照预期的那样工作。
 
-Again, ``polls`` is a simple application, but however complex it grows in the
-future and whatever other code it interacts with, we now have some guarantee
-that the method we have written tests for will behave in expected ways.
-
-Test a view
+测试视图
 ===========
 
-The polls application is fairly undiscriminating: it will publish any question,
-including ones whose ``pub_date`` field lies in the future. We should improve
-this. Setting a ``pub_date`` in the future should mean that the Question is
-published at that moment, but invisible until then.
+这个投票应用没有辨别能力：它将会发布任何的 ``Question`` ，包括 ``pub_date`` 字段是未来的。我们应该改进这一点。
+让 ``pub_date`` 是将来时间的 ``Question`` 应该在未来发布，但是一直不可见，直到那个时间点才会变得可见。
 
-A test for a view
+什么是视图测试
 -----------------
 
-When we fixed the bug above, we wrote the test first and then the code to fix
-it. In fact that was a simple example of test-driven development, but it
-doesn't really matter in which order we do the work.
+当我们修复上面的错误时，我们先写测试，然后修改代码来修复它。
 
-In our first test, we focused closely on the internal behavior of the code. For
-this test, we want to check its behavior as it would be experienced by a user
-through a web browser.
+事实上，这是测试驱动开发的一个简单的例子，但做的顺序并不真的重要。在我们的第一个测试中，我们专注于代码内部的行为。
+在这个测试中，我们想要通过浏览器从用户的角度来检查它的行为。在我们试着修复任何事情之前，
+让我们先查看一下我们能用到的工具。
 
-Before we try to fix anything, let's have a look at the tools at our disposal.
-
-The Django test client
+Django的测试客户端
 ----------------------
 
-Django provides a test :class:`~django.test.Client` to simulate a user
-interacting with the code at the view level.  We can use it in ``tests.py``
-or even in the :djadmin:`shell`.
+Django提供了一个 :class:`~django.test.Client` 用来模拟用户和代码的交互。我们可以在 ``tests.py``
+甚至 :djadmin:`shell` 中使用它。
 
-We will start again with the :djadmin:`shell`, where we need to do a couple of
-things that won't be necessary in ``tests.py``. The first is to set up the test
-environment in the :djadmin:`shell`::
+先介绍使用 :djadmin:`shell` 的情况，这种方式下，需要做很多在 ``tests.py`` 中不必做的事。首先是设置测试环境::
 
     >>> from django.test.utils import setup_test_environment
     >>> setup_test_environment()
 
-:meth:`~django.test.utils.setup_test_environment` installs a template renderer
-which will allow us to examine some additional attributes on responses such as
-``response.context`` that otherwise wouldn't be available. Note that this
-method *does not* setup a test database, so the following will be run against
-the existing database and the output may differ slightly depending on what
-questions you already created. You might get unexpected results if your
-``TIME_ZONE`` in ``settings.py`` isn't correct. If you don't remember setting
-it earlier, check it before continuing.
+:meth:`~django.test.utils.setup_test_environment` 会安装一个模板渲染器，
+它使我们可以检查一些额外的属性比如 ``response.context``，这些属性通常情况下是访问不到的。请注意，
+这种方法不会建立一个测试数据库，所以以下命令将运行在现有的数据库上，
+输出的内容也会根据你已经创建的Question的不同而稍有不同。
 
-Next we need to import the test client class (later in ``tests.py`` we will use
-the :class:`django.test.TestCase` class, which comes with its own client, so
-this won't be required)::
+如果你当前 ``settings.py`` 中的的 ``TIME_ZONE`` 不正确，那么你或许得不到预期的结果。在进行下一步之前，
+请确保时区设置正确。
+
+下面我们需要导入测试客户端类（在之后的 ``tests.py`` 中，我们将使用 ``django.test.TestCase`` 类，
+它具有自己的客户端，不需要导入这个类）：::
 
     >>> from django.test import Client
     >>> # create an instance of the client for our use
     >>> client = Client()
 
-With that ready, we can ask the client to do some work for us::
+下面是具体的一些使用操作::
 
     >>> # get a response from '/'
     >>> response = client.get('/')
-    >>> # we should expect a 404 from that address
+    >>> # 这个地址应该返回的是404页面
     >>> response.status_code
     404
-    >>> # on the other hand we should expect to find something at '/polls/'
-    >>> # we'll use 'reverse()' rather than a hardcoded URL
+    >>> # 另一方面我们希望在'/polls/'获取一些内容
+    >>> # 通过使用'reverse()'方法，而不是URL硬编码
     >>> from django.urls import reverse
     >>> response = client.get(reverse('polls:index'))
     >>> response.status_code
     200
     >>> response.content
     b'\n    <ul>\n    \n        <li><a href="/polls/1/">What&#39;s up?</a></li>\n    \n    </ul>\n\n'
-    >>> # If the following doesn't work, you probably omitted the call to
-    >>> # setup_test_environment() described above
+    >>> # 如果下面的操作没有正常执行，有可能是你前面忘了安装测试环境--setup_test_environment()
     >>> response.context['latest_question_list']
     <QuerySet [<Question: What's up?>]>
 
-Improving our view
+改进视图
 ------------------
 
-The list of polls shows polls that aren't published yet (i.e. those that have a
-``pub_date`` in the future). Let's fix that.
-
-In :doc:`Tutorial 4 </intro/tutorial04>` we introduced a class-based view,
-based on :class:`~django.views.generic.list.ListView`:
+投票的列表会显示还没有发布的问卷（即 ``pub_date`` 在未来的问卷）。让我们来修复它。
+在 :doc:`Tutorial 4 </intro/tutorial04>` 中，我们介绍了一个继承 :class:`~django.views.generic.list.ListView` 的基类视图:
 
 .. snippet::
     :filename: polls/views.py
@@ -395,19 +320,12 @@ based on :class:`~django.views.generic.list.ListView`:
             """Return the last five published questions."""
             return Question.objects.order_by('-pub_date')[:5]
 
-We need to amend the ``get_queryset()`` method and change it so that it also
-checks the date by comparing it with ``timezone.now()``. First we need to add
-an import:
+我们需要在 ``get_queryset()`` 方法中对比 ``timezone.now()`` 。首先导入 ``timezone`` 模块，然后修改 ``get_queryset()`` 方法，如下：
 
 .. snippet::
     :filename: polls/views.py
 
     from django.utils import timezone
-
-and then we must amend the ``get_queryset`` method like so:
-
-.. snippet::
-    :filename: polls/views.py
 
     def get_queryset(self):
         """
@@ -418,38 +336,26 @@ and then we must amend the ``get_queryset`` method like so:
             pub_date__lte=timezone.now()
         ).order_by('-pub_date')[:5]
 
-``Question.objects.filter(pub_date__lte=timezone.now())`` returns a queryset
-containing ``Question``\s whose ``pub_date`` is less than or equal to - that
-is, earlier than or equal to - ``timezone.now``.
+``Question.objects.filter(pub_date__lte=timezone.now())`` 返回一个查询集，
+包含 ``pub_date`` 小于等于 ``timezone.now`` 的Question。
 
-Testing our new view
---------------------
+测试新视图
+-----------
 
-Now you can satisfy yourself that this behaves as expected by firing up the
-runserver, loading the site in your browser, creating ``Questions`` with dates
-in the past and future, and checking that only those that have been published
-are listed.  You don't want to have to do that *every single time you make any
-change that might affect this* - so let's also create a test, based on our
-:djadmin:`shell` session above.
+现在，您可以通过启动运行服务器，在浏览器中加载站点，创建过去和将来的日期的问题，并检查仅列出已发布的站点，
+从而满足您的需求。如果你不想每次修改可能与这相关的代码时都重复这样做———所以我们还要根据上面的shell会话创建一个测试。
 
-Add the following to ``polls/tests.py``:
+将下面的代码添加到 ``polls/tests.py``：
 
 .. snippet::
     :filename: polls/tests.py
 
     from django.urls import reverse
 
-and we'll create a shortcut function to create questions as well as a new test
-class:
-
-.. snippet::
-    :filename: polls/tests.py
-
     def create_question(question_text, days):
         """
-        Creates a question with the given `question_text` and published the
-        given number of `days` offset to now (negative for questions published
-        in the past, positive for questions that have yet to be published).
+        2个参数，一个是问卷的文本内容，另外一个是当前时间的偏移天数，
+        负值表示发布日期在过去，正值表示发布日期在将来。
         """
         time = timezone.now() + datetime.timedelta(days=days)
         return Question.objects.create(question_text=question_text, pub_date=time)
@@ -458,7 +364,7 @@ class:
     class QuestionViewTests(TestCase):
         def test_index_view_with_no_questions(self):
             """
-            If no questions exist, an appropriate message should be displayed.
+            如果问卷不存在，给出相应的提示。
             """
             response = self.client.get(reverse('polls:index'))
             self.assertEqual(response.status_code, 200)
@@ -467,8 +373,7 @@ class:
 
         def test_index_view_with_a_past_question(self):
             """
-            Questions with a pub_date in the past should be displayed on the
-            index page.
+            发布日期在过去的问卷将在index页面显示。
             """
             create_question(question_text="Past question.", days=-30)
             response = self.client.get(reverse('polls:index'))
@@ -479,8 +384,7 @@ class:
 
         def test_index_view_with_a_future_question(self):
             """
-            Questions with a pub_date in the future should not be displayed on
-            the index page.
+            发布日期在将来的问卷不会在index页面显示
             """
             create_question(question_text="Future question.", days=30)
             response = self.client.get(reverse('polls:index'))
@@ -489,8 +393,7 @@ class:
 
         def test_index_view_with_future_question_and_past_question(self):
             """
-            Even if both past and future questions exist, only past questions
-            should be displayed.
+            即使同时存在过去和将来的问卷，也只有过去的问卷会被显示。
             """
             create_question(question_text="Past question.", days=-30)
             create_question(question_text="Future question.", days=30)
@@ -502,7 +405,7 @@ class:
 
         def test_index_view_with_two_past_questions(self):
             """
-            The questions index page may display multiple questions.
+            index页面可以同时显示多个问卷。
             """
             create_question(question_text="Past question 1.", days=-30)
             create_question(question_text="Past question 2.", days=-5)
@@ -513,36 +416,26 @@ class:
             )
 
 
-Let's look at some of these more closely.
+让我们更详细地看下以上这些内容。
 
-First is a question shortcut function, ``create_question``, to take some
-repetition out of the process of creating questions.
+第一个是Question的快捷函数 ``create_question``，功能是将创建Question的过程封装起来。
 
-``test_index_view_with_no_questions`` doesn't create any questions, but checks
-the message: "No polls are available." and verifies the ``latest_question_list``
-is empty. Note that the :class:`django.test.TestCase` class provides some
-additional assertion methods. In these examples, we use
-:meth:`~django.test.SimpleTestCase.assertContains()` and
-:meth:`~django.test.TransactionTestCase.assertQuerysetEqual()`.
+``test_index_view_with_no_questions`` 不创建任何Question，但会检查消息“No polls are available.”
+并验证 ``latest_question_list`` 为空。注意 ``django.test.TestCase`` 类提供一些额外的断言方法。在这些例子中，
+我们使用了:meth:`~django.test.SimpleTestCase.assertContains()` 和 :meth:`~django.test.TransactionTestCase.assertQuerysetEqual()`。
 
-In ``test_index_view_with_a_past_question``, we create a question and verify that it
-appears in the list.
+在 ``test_index_view_with_a_past_question`` 中，我们创建一个Question并验证它是否出现在列表中。
 
-In ``test_index_view_with_a_future_question``, we create a question with a
-``pub_date`` in the future. The database is reset for each test method, so the
-first question is no longer there, and so again the index shouldn't have any
-questions in it.
+在 ``test_index_view_with_a_future_question`` 中，我们创建一个 ``pub_date`` 在未来的Question。
+数据库会为每一个测试方法进行重置，所以第一个Question已经不在那里，因此index页面里不应该有任何Question。
 
-And so on. In effect, we are using the tests to tell a story of admin input
-and user experience on the site, and checking that at every state and for every
-new change in the state of the system, the expected results are published.
+诸如此类，事实上，我们是在用测试，模拟站点上的管理员输入和用户体验，检查系统的每一个状态变化，发布的是预期的结果。
 
-Testing the ``DetailView``
---------------------------
+测试DetailView
+----------------------
 
-What we have works well; however, even though future questions don't appear in
-the *index*, users can still reach them if they know or guess the right URL. So
-we need to add a similar  constraint to ``DetailView``:
+然而，即使未来发布的Question不会出现在index中，如果用户知道或者猜出正确的URL依然可以访问它们。
+所以我们需要给 ``DetailView`` 视图添加一个这样的约束：
 
 .. snippet::
     :filename: polls/views.py
@@ -555,9 +448,7 @@ we need to add a similar  constraint to ``DetailView``:
             """
             return Question.objects.filter(pub_date__lte=timezone.now())
 
-And of course, we will add some tests, to check that a ``Question`` whose
-``pub_date`` is in the past can be displayed, and that one with a ``pub_date``
-in the future is not:
+同样，我们将增加一些测试来检验 ``pub_date`` 在过去的Question可以显示出来，而 ``pub_date`` 在未来的不可以
 
 .. snippet::
     :filename: polls/tests.py
@@ -565,8 +456,7 @@ in the future is not:
     class QuestionIndexDetailTests(TestCase):
         def test_detail_view_with_a_future_question(self):
             """
-            The detail view of a question with a pub_date in the future should
-            return a 404 not found.
+            访问发布时间在将来的detail页面将返回404.
             """
             future_question = create_question(question_text='Future question.', days=5)
             url = reverse('polls:detail', args=(future_question.id,))
@@ -575,102 +465,67 @@ in the future is not:
 
         def test_detail_view_with_a_past_question(self):
             """
-            The detail view of a question with a pub_date in the past should
-            display the question's text.
+            访问发布时间在过去的detail页面将返回详细问卷内容
             """
             past_question = create_question(question_text='Past Question.', days=-5)
             url = reverse('polls:detail', args=(past_question.id,))
             response = self.client.get(url)
             self.assertContains(response, past_question.question_text)
 
-Ideas for more tests
---------------------
+其他测试思路
+-------------
 
-We ought to add a similar ``get_queryset`` method to ``ResultsView`` and
-create a new test class for that view. It'll be very similar to what we have
-just created; in fact there will be a lot of repetition.
+我们应该添加一个类似 ``get_queryset`` 的方法到 ``ResultsView`` 并为该视图创建一个新的类。
+这将与我们上面的范例非常类似，实际上也有许多重复。
 
-We could also improve our application in other ways, adding tests along the
-way. For example, it's silly that ``Questions`` can be published on the site
-that have no ``Choices``. So, our views could check for this, and exclude such
-``Questions``. Our tests would create a ``Question`` without ``Choices`` and
-then test that it's not published, as well as create a similar ``Question``
-*with* ``Choices``, and test that it *is* published.
+还可以在其它方面改进我们的应用，并随之不断地增加测试。例如，发布一个没有Choices的Questions就显得极不合理。
+所以，我们的视图应该检查这点并排除这些Questions。我们的测试会创建一个不带Choices的Question然后测试它不会发布出来，同时创建一个类似的带有Choices的Question并确保它会发布出来。
 
-Perhaps logged-in admin users should be allowed to see unpublished
-``Questions``, but not ordinary visitors. Again: whatever needs to be added to
-the software to accomplish this should be accompanied by a test, whether you
-write the test first and then make the code pass the test, or work out the
-logic in your code first and then write a test to prove it.
+也许登陆的管理员用户应该被允许查看还没发布的Questions，但普通访问者则不行。最重要的是：无论添加什么代码来完成这个要求，都需要提供相应的测试代码，不管你是先编写测试程序然后让这些代码通过测试，还是先用代码解决其中的逻辑再编写测试程序来检验它。
 
-At a certain point you are bound to look at your tests and wonder whether your
-code is suffering from test bloat, which brings us to:
+从某种程度上来说，你一定会查看你的测试代码，然后想知道你的测试程序是否过于臃肿，我们接着看下面的内容：
 
-When testing, more is better
-============================
+测试是否越多越好
+================
 
-It might seem that our tests are growing out of control. At this rate there will
-soon be more code in our tests than in our application, and the repetition
-is unaesthetic, compared to the elegant conciseness of the rest of our code.
+看起来我们的测试代码正在逐渐失去控制。以这样的速度，测试的代码量将很快超过我们的实际应用程序代码量，
+对比其它简洁优雅的代码，测试代码既重复又毫无美感。没关系！随它去！大多数情况下，
+你可以完成一个测试程序，然后忘了它。当你继续开发你的程序时，它将始终执行有效的测试功能。
+有时，测试程序需要更新。假设我们让只有具有Choices的Questions才会发布，在这种情况下，
+许多已经存在的测试都将失败：这会告诉我们哪些测试需要被修改，使得它们保持最新，所以从某种程度上讲，
+测试可以自己测试自己。在最坏的情况下，在你的开发过程中，你会发现许多测试变得多余。其实，这不是问题，
+对测试来说，冗余是一件好事。只要你的测试被合理地组织，它们就不会变得难以管理。 从经验上来说，好的做法是：
 
-**It doesn't matter**. Let them grow. For the most part, you can write a test
-once and then forget about it. It will continue performing its useful function
-as you continue to develop your program.
+* 为每个模型或视图创建一个专属的 ``TestClass``
 
-Sometimes tests will need to be updated. Suppose that we amend our views so that
-only ``Questions`` with ``Choices`` are published. In that case, many of our
-existing tests will fail - *telling us exactly which tests need to be amended to
-bring them up to date*, so to that extent tests help look after themselves.
+* 为你想测试的每一种情况建立一个单独的测试方法
 
-At worst, as you continue developing, you might find that you have some tests
-that are now redundant. Even that's not a problem; in testing redundancy is
-a *good* thing.
+* 为测试方法命名时最好从字面上能大概看出它们的功能
 
-As long as your tests are sensibly arranged, they won't become unmanageable.
-Good rules-of-thumb include having:
-
-* a separate ``TestClass`` for each model or view
-* a separate test method for each set of conditions you want to test
-* test method names that describe their function
-
-Further testing
+进一步测试
 ===============
 
-This tutorial only introduces some of the basics of testing. There's a great
-deal more you can do, and a number of very useful tools at your disposal to
-achieve some very clever things.
+本教程仅介绍一些测试的基础知识。其实还有很多工作可以做，还有一些非常有用的工具可用于实现一些非常聪明的事情。
+例如，虽然我们的测试覆盖了模型的内部逻辑和视图发布信息的方式，但你还可以使用一个“基于浏览器”的
+框架例如 Selenium_ 来测试你的HTML文件真实渲染的样子。这些工具不仅可以让你检查你的Django代码的行为，
+还能够检查JavaScript的行为。它会启动一个浏览器，与你的网站进行交互，就像有一个人在操纵一样！
+Django包含一个 :class:`~django.test.LiveServerTestCase` 来帮助与Selenium 这样的工具集成。
 
-For example, while our tests here have covered some of the internal logic of a
-model and the way our views publish information, you can use an "in-browser"
-framework such as Selenium_ to test the way your HTML actually renders in a
-browser. These tools allow you to check not just the behavior of your Django
-code, but also, for example, of your JavaScript. It's quite something to see
-the tests launch a browser, and start interacting with your site, as if a human
-being were driving it! Django includes :class:`~django.test.LiveServerTestCase`
-to facilitate integration with tools like Selenium.
+如果你有一个复杂的应用，你可能为了实现 `持续集成`_，想在每次提交代码前对代码进行自动化测试，让代码自动至少是部分自动地来控制它的质量。
 
-If you have a complex application, you may want to run tests automatically
-with every commit for the purposes of `continuous integration`_, so that
-quality control is itself - at least partially - automated.
+发现你应用中未经测试的代码的一个好方法是检查测试代码的覆盖率。 这也有助于识别脆弱的甚至死代码。
+如果你不能测试一段代码，这通常意味着这些代码需要被重构或者移除。 Coverage将帮助我们识别死代码。
+查看 :ref:`topics-testing-code-coverage` 来了解更多细节。
 
-A good way to spot untested parts of your application is to check code
-coverage. This also helps identify fragile or even dead code. If you can't test
-a piece of code, it usually means that code should be refactored or removed.
-Coverage will help to identify dead code. See
-:ref:`topics-testing-code-coverage` for details.
-
-:doc:`Testing in Django </topics/testing/index>` has comprehensive
-information about testing.
+:doc:`Testing in Django </topics/testing/index>` 有关于测试更加全面的信息。
 
 .. _Selenium: http://seleniumhq.org/
-.. _continuous integration: https://en.wikipedia.org/wiki/Continuous_integration
+.. _持续集成: https://en.wikipedia.org/wiki/Continuous_integration
 
-What's next?
+下一步
 ============
 
-For full details on testing, see :doc:`Testing in Django
-</topics/testing/index>`.
+关于测试的完整细节，请查看 :doc:`Testing in Django </topics/testing/index>`.
 
-When you're comfortable with testing Django views, read
-:doc:`part 6 of this tutorial</intro/tutorial06>` to learn about
-static files management.
+当你对Django 视图的测试感到满意后，请阅读本教程的 :doc:`第六部分</intro/tutorial06>` 来了解静态文件的管理。
+
