@@ -13,10 +13,9 @@ Django1.10 中文文档
 
 如果您有问题，我们很乐意帮助您解决!
 
-* Try the :doc:`FAQ <faq/index>` -- it's got answers to many common questions.
+* :doc:`FAQ <faq/index>` -- 许多常见问题解决方案。
 
-* Looking for specific information? Try the :ref:`genindex`, :ref:`modindex` or
-  the :doc:`detailed table of contents <contents>`.
+* 想要查找特定的信息? 试试 :ref:`genindex`, :ref:`modindex` 或者 :doc:`详细目录 <contents>`.
 
 * Search for information in the archives of the |django-users| mailing list, or
   `post a question`_.
