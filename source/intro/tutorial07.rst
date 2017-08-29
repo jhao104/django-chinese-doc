@@ -1,22 +1,17 @@
-=====================================
-Writing your first Django app, part 7
-=====================================
+==========================
+开发第一个Django应用,Part7
+==========================
 
-This tutorial begins where :doc:`Tutorial 6 </intro/tutorial06>` left off. We're
-continuing the Web-poll application and will focus on customizing Django's
-automatically-generated admin site that we first explored in :doc:`Tutorial 2
-</intro/tutorial02>`.
+本教程上接 :doc:`Tutorial 6 </intro/tutorial06>` 。将继续完成这个投票应用,
+本节将着重讲解如何使用Django自动生成后台管理网站。
 
-Customize the admin form
-========================
+自定义管理表单
+==============
 
-By registering the ``Question`` model with ``admin.site.register(Question)``,
-Django was able to construct a default form representation. Often, you'll want
-to customize how the admin form looks and works. You'll do this by telling
-Django the options you want when you register the object.
+通过 ``admin.site.register(Question)`` 注册了 ``Question`` 后，Django可以自动构建一个默认的表单。
+如果您需要自定义管理表单的外观和功能。你可以在注册时通过配置来实现。
 
-Let's see how this works by reordering the fields on the edit form. Replace
-the ``admin.site.register(Question)`` line with:
+现在先来试试重新排序表单上的字段。只需要将 ``admin.site.register(Question)`` 所在行替换为：
 
 .. snippet::
     :filename: polls/admin.py
@@ -31,21 +26,16 @@ the ``admin.site.register(Question)`` line with:
 
     admin.site.register(Question, QuestionAdmin)
 
-You'll follow this pattern -- create a model admin class, then pass it as the
-second argument to ``admin.site.register()`` -- any time you need to change the
-admin options for a model.
+你可以参照上面的形式，创建一个模型类，将之作为第二个参数传入 ``admin.site.register()``。
+而且这种操作在任何时候都可以进行。
 
-This particular change above makes the "Publication date" come before the
-"Question" field:
+经过上面修改"Publication date"字段会在"Question"字段前面：
 
 .. image:: _images/admin07.png
    :alt: Fields have been reordered
 
-This isn't impressive with only two fields, but for admin forms with dozens
-of fields, choosing an intuitive order is an important usability detail.
-
-And speaking of forms with dozens of fields, you might want to split the form
-up into fieldsets:
+目前的表单只有两个字段可能看不出什么，但是对于一个字段很多的表单，设计一个直观合理的排序方式非常重要。
+并且在字段数据很多时，还可以将表单分割成多个字段的集合：
 
 .. snippet::
     :filename: polls/admin.py
@@ -63,23 +53,17 @@ up into fieldsets:
 
     admin.site.register(Question, QuestionAdmin)
 
-The first element of each tuple in
-:attr:`~django.contrib.admin.ModelAdmin.fieldsets` is the title of the fieldset.
-Here's what our form looks like now:
+:attr:`~django.contrib.admin.ModelAdmin.fieldsets` 中每一个元组的第一个元素是该字段集合的标题。它让页面看起来像下面的样子：
 
 .. image:: _images/admin08t.png
    :alt: Form has fieldsets now
 
-Adding related objects
-======================
+添加关联对象
+=============
 
-OK, we have our Question admin page, but a ``Question`` has multiple
-``Choice``\s, and the admin page doesn't display choices.
+现在 ``Question`` 的管理页面有了，但是一个 ``Question`` 应该有多个 ``Choices`` 。而此时管理页面并没有显示。
 
-Yet.
-
-There are two ways to solve this problem. The first is to register ``Choice``
-with the admin just as we did with ``Question``. That's easy:
+现在有两个方法可以解决这个问题。一是就像刚刚 ``Question`` 一样也将 ``Choice`` 注册到admin界面。代码像这样:
 
 .. snippet::
     :filename: polls/admin.py
@@ -90,30 +74,24 @@ with the admin just as we did with ``Question``. That's easy:
     # ...
     admin.site.register(Choice)
 
-Now "Choices" is an available option in the Django admin. The "Add choice" form
-looks like this:
+现在Choice也可以在admin页面看见了，其中"Add choice"表单应该类似这样:
 
 .. image:: _images/admin09.png
    :alt: Choice admin page
 
-In that form, the "Question" field is a select box containing every question in the
-database. Django knows that a :class:`~django.db.models.ForeignKey` should be
-represented in the admin as a ``<select>`` box. In our case, only one question
-exists at this point.
+在这个表单中，Question字段是一个select选择框，包含了当前数据库中所有的Question实例。Django在admin站点中，
+自动地将所有的 :class:`~django.db.models.ForeignKey` 关系展示为一个 ``select`` 框。在我们的例子中，
+目前只有一个question对象存在。
 
-Also note the "Add Another" link next to "Question." Every object with a
-``ForeignKey`` relationship to another gets this for free. When you click "Add
-Another", you'll get a popup window with the "Add question" form. If you add a question
-in that window and click "Save", Django will save the question to the database and
-dynamically add it as the selected choice on the "Add choice" form you're
-looking at.
+请注意图中的绿色加号，它连接到Question模型。每一个包含 ``外键`` 关系的对象都会有这个绿色加号。点击它，
+会弹出一个新增Question的表单，类似Question自己的添加表单。填入相关信息点击保存后，
+Django自动将该Question保存在数据库，并作为当前Choice的关联外键对象。通俗讲就是，
+新建一个Question并作为当前Choice的外键。
 
-But, really, this is an inefficient way of adding ``Choice`` objects to the system.
-It'd be better if you could add a bunch of Choices directly when you create the
-``Question`` object. Let's make that happen.
+但是，实话说，这种创建方式的效率不怎么样。如果在创建Question对象的时候就可以直接添加一些Choice，
+那样操作将会变得简单些。
 
-Remove the ``register()`` call for the ``Choice`` model. Then, edit the ``Question``
-registration code to read:
+删除Choice模型对 ``register()`` 方法的调用。然后，编辑Question的注册代码如下：
 
 .. snippet::
     :filename: polls/admin.py
@@ -137,30 +115,24 @@ registration code to read:
 
     admin.site.register(Question, QuestionAdmin)
 
-This tells Django: "``Choice`` objects are edited on the ``Question`` admin page. By
-default, provide enough fields for 3 choices."
+上面的代码告诉Django：Choice对象将在Question管理页面进行编辑，默认情况，请提供3个Choice对象的编辑区域。
 
-Load the "Add question" page to see how that looks:
+现在"增加question"页面变成了这样:
 
 .. image:: _images/admin10t.png
    :alt: Add question page now has choices on it
 
-It works like this: There are three slots for related Choices -- as specified
-by ``extra`` -- and each time you come back to the "Change" page for an
-already-created object, you get another three extra slots.
+它的工作机制是：这里有3个插槽用于关联Choices，而且每当你重新返回一个已经存在的对象的“Change”页面，
+你又将获得3个新的额外的插槽可用。
 
-At the end of the three current slots you will find an "Add another Choice"
-link.  If you click on it, a new slot will be added. If you want to remove the
-added slot, you can click on the X to the top right of the added slot. Note
-that you can't remove the original three slots. This image shows an added slot:
+在3个插槽的最后，还有一个“Add another Choice”链接。点击它，又可以获得一个新的插槽。如果你想删除新增的插槽，
+点击它右上方的X图标即可。但是，默认的三个插槽不可删除。下面是新增插槽的样子：
 
 .. image:: _images/admin14t.png
    :alt: Additional slot added dynamically
 
-One small problem, though. It takes a lot of screen space to display all the
-fields for entering related ``Choice`` objects. For that reason, Django offers a
-tabular way of displaying inline related objects; you just need to change
-the ``ChoiceInline`` declaration to read:
+但是现在还有个小问题。上面页面中插槽纵队排列的方式需要占据大块的页面空间，看起来很不方便。为此，
+Django提供了一种扁平化的显示方式，你仅仅只需要将 ``ChoiceInline`` 继承的类改为 ``admin.TabularInline``：
 
 .. snippet::
     :filename: polls/admin.py
@@ -168,31 +140,24 @@ the ``ChoiceInline`` declaration to read:
     class ChoiceInline(admin.TabularInline):
         #...
 
-With that ``TabularInline`` (instead of ``StackedInline``), the
-related objects are displayed in a more compact, table-based format:
+使用 ``TabularInline`` 代替 ``StackedInline``,相关的对象将以一种更紧凑的表格形式显示出来:
 
 .. image:: _images/admin11t.png
    :alt: Add question page now has more compact choices
 
-Note that there is an extra "Delete?" column that allows removing rows added
-using the "Add Another Choice" button and rows that have already been saved.
+注意，这样多了一个"删除"选项，它允许你删除已经存在的Choice.
 
-Customize the admin change list
-===============================
+自定义修改列表
+===============
 
-Now that the Question admin page is looking good, let's make some tweaks to the
-"change list" page -- the one that displays all the questions in the system.
+现在Question的管理页面看起来已经差不多了，下面来看看修改列表页面，也就是显示了所有question的页面，即下图这个页面:
 
-Here's what it looks like at this point:
 
 .. image:: _images/admin04t.png
    :alt: Polls change list page
 
-By default, Django displays the ``str()`` of each object. But sometimes it'd be
-more helpful if we could display individual fields. To do that, use the
-:attr:`~django.contrib.admin.ModelAdmin.list_display` admin option, which is a
-tuple of field names to display, as columns, on the change list page for the
-object:
+Django默认只显示 ``str()`` 方法指定的内容。如果我们想要同时显示一些别的内容，可以使用 :attr:`~django.contrib.admin.ModelAdmin.list_display` 属性，
+它是一个由多个字段组成的元组，其中的每一个字段都会按顺序显示在页面上，代码如下：
 
 .. snippet::
     :filename: polls/admin.py
@@ -201,8 +166,7 @@ object:
         # ...
         list_display = ('question_text', 'pub_date')
 
-Just for good measure, let's also include the ``was_published_recently()``
-method from :doc:`Tutorial 2 </intro/tutorial02>`:
+同时，还可以把 :doc:`Tutorial 2 </intro/tutorial02>` 中的 ``was_published_recently()`` 方法也加入进来：
 
 .. snippet::
     :filename: polls/admin.py
@@ -211,20 +175,16 @@ method from :doc:`Tutorial 2 </intro/tutorial02>`:
         # ...
         list_display = ('question_text', 'pub_date', 'was_published_recently')
 
-Now the question change list page looks like this:
+现在question的修改列表页面看起来像这样:
 
 .. image:: _images/admin12t.png
    :alt: Polls change list page, updated
 
-You can click on the column headers to sort by those values -- except in the
-case of the ``was_published_recently`` header, because sorting by the output
-of an arbitrary method is not supported. Also note that the column header for
-``was_published_recently`` is, by default, the name of the method (with
-underscores replaced with spaces), and that each line contains the string
-representation of the output.
+你可以点击其中一列的表头来让列表按照这列的值来进行排序，但是 ``was_published_recently`` 这列的表头不行,
+因为Django不支持按照随便一个方法的输出进行排序。另请注意，默认情况下，``was_published_recently`` 的列标题是方法的名称（下划线替换为空格），
+内容则是输出的字符串表示形式。
 
-You can improve that by giving that method (in :file:`polls/models.py`) a few
-attributes, as follows:
+可以通过给方法 (in :file:`polls/models.py`) 提供一些属性来改进输出的样式，就如下面所示:
 
 .. snippet::
     :filename: polls/models.py
@@ -238,68 +198,53 @@ attributes, as follows:
         was_published_recently.boolean = True
         was_published_recently.short_description = 'Published recently?'
 
-For more information on these method properties, see
-:attr:`~django.contrib.admin.ModelAdmin.list_display`.
+关于这些方法属性的更多信息，请参见 :attr:`~django.contrib.admin.ModelAdmin.list_display`。
 
-Edit your :file:`polls/admin.py` file again and add an improvement to the
-``Question`` change list page: filters using the
-:attr:`~django.contrib.admin.ModelAdmin.list_filter`. Add the following line to
-``QuestionAdmin``::
+我们还可以对显示结果进行过滤，通过使用 :attr:`~django.contrib.admin.ModelAdmin.list_filter` 属性。在 ``QuestionAdmin`` 中添加下面的代码::
 
     list_filter = ['pub_date']
 
-That adds a "Filter" sidebar that lets people filter the change list by the
-``pub_date`` field:
+它添加了一个“过滤器”侧边栏，这样就可以通过 ``pubdate`` 字段来过滤显示question:
 
 .. image:: _images/admin13t.png
    :alt: Polls change list page, updated
 
-The type of filter displayed depends on the type of field you're filtering on.
-Because ``pub_date`` is a :class:`~django.db.models.DateTimeField`, Django
-knows to give appropriate filter options: "Any date", "Today", "Past 7 days",
-"This month", "This year".
+过滤器显示的筛选类型取决与你过滤的字段，由于 ``pub_data`` 是 :class:`~django.db.models.DateTimeField`，
+所以Django就自动给出了“今天”、“过去7天”、“本月”、“今年”这几个选项。
 
-This is shaping up well. Let's add some search capability::
+这一切进展顺利。再添加一些搜索功能::
 
     search_fields = ['question_text']
 
-That adds a search box at the top of the change list. When somebody enters
-search terms, Django will search the ``question_text`` field. You can use as many
-fields as you'd like -- although because it uses a ``LIKE`` query behind the
-scenes, limiting the number of search fields to a reasonable number will make
-it easier for your database to do the search.
+这行代码在修改列表的顶部添加了一个搜索框。 当进行搜索时，Django将在question_text字段中进行搜索。
+你可以在 ``search_fields`` 中使用多个字段，但由于它在后台使用LIKE进行查询，尽量不要添加太多的字段，不然会降低数据库查询效率。
 
+修改列表自带分页功能，默认每页展示100条数据。
 Now's also a good time to note that change lists give you free pagination. The
 default is to display 100 items per page. :attr:`Change list pagination
 <django.contrib.admin.ModelAdmin.list_per_page>`, :attr:`search boxes
 <django.contrib.admin.ModelAdmin.search_fields>`, :attr:`filters
 <django.contrib.admin.ModelAdmin.list_filter>`, :attr:`date-hierarchies
-<django.contrib.admin.ModelAdmin.date_hierarchy>`, and
+<django.contrib.admin.ModelAdmin.date_hierarchy>`, 和
 :attr:`column-header-ordering <django.contrib.admin.ModelAdmin.list_display>`
-all work together like you think they should.
+都会像你认为的那样工作。
 
-Customize the admin look and feel
-=================================
+自定义管理站点外观
+===================
 
-Clearly, having "Django administration" at the top of each admin page is
-ridiculous. It's just placeholder text.
+很明显，在每一个admin页面坐上顶端都显示“Django 管理”是感觉很荒诞，它仅仅是个占位文本。利用Django的模板系统，可以修改它。
 
-That's easy to change, though, using Django's template system. The Django admin
-is powered by Django itself, and its interfaces use Django's own template
-system.
+它可以用Django的模板系统轻松改变。 Django的管理站点是Django自己生成出来的，它的界面代码使用的是Django自己的模板系统。
 
-.. _ref-customizing-your-projects-templates:
 
-Customizing your *project's* templates
---------------------------------------
+自定义项目模板
+---------------
 
-Create a ``templates`` directory in your project directory (the one that
-contains ``manage.py``). Templates can live anywhere on your filesystem that
-Django can access. (Django runs as whatever user your server runs.) However,
-keeping your templates within the project is a good convention to follow.
+在项目的路劲下（包含 ``manage.py`` 的目录）创建一个名为 ``templates`` 目录。
+Templates可以放在你的文件系统中Django所能访问到的任何地方。（运行Web服务器的用户即是运行Django的用户）。
+但是作为一个好的习惯，最好把模板放在本项目目录下。
 
-Open your settings file (:file:`mysite/settings.py`, remember) and add a
-:setting:`DIRS <TEMPLATES-DIRS>` option in the :setting:`TEMPLATES` setting:
+在配置文件中(:file:`mysite/settings.py`)的 :setting:`TEMPLATES` 中添加一个 :setting:`DIRS <TEMPLATES-DIRS>` 选项:
 
 .. snippet::
     :filename: mysite/settings.py
@@ -320,36 +265,28 @@ Open your settings file (:file:`mysite/settings.py`, remember) and add a
         },
     ]
 
-:setting:`DIRS <TEMPLATES-DIRS>` is a list of filesystem directories to check
-when loading Django templates; it's a search path.
+:setting:`DIRS <TEMPLATES-DIRS>` 是在加载Django模板时检查的文件系统目录列表;它是一个搜索路径。
 
-.. admonition:: Organizing templates
 
-    Just like the static files, we *could* have all our templates together, in
-    one big templates directory, and it would work perfectly well. However,
-    templates that belong to a particular application should be placed in that
-    application’s template directory (e.g. ``polls/templates``) rather than the
-    project’s (``templates``). We'll discuss in more detail in the
-    :doc:`reusable apps tutorial </intro/reusable-apps>` *why* we do this.
+.. admonition:: 模板组织方式
 
-Now create a directory called ``admin`` inside ``templates``, and copy the
-template ``admin/base_site.html`` from within the default Django admin
-template directory in the source code of Django itself
-(``django/contrib/admin/templates``) into that directory.
+    就像静态文件一样，我们可以把所有的模板都放在一起，形成一个大大的模板文件夹，并且工作正常。但是不建议这样！
+    最好每一个模板都应该存放在它所属应用的模板目录内（例如 ``polls/templates``）
+    而不是整个项目的模板目录（``templates``），因为这样每个应用才可以被方便和正确的复用。
+    请参考 :doc:`复用app </intro/reusable-apps>`
 
-.. admonition:: Where are the Django source files?
+接下来，在刚才创建的 ``templates`` 中创建一个 ``admin`` 目录，将 ``admin/base_site.html`` 模板文件拷贝到该目录内。
+这个html文件来自Django源码，它位于 ``django/contrib/admin/templates`` 目录内。
 
-    If you have difficulty finding where the Django source files are located
-    on your system, run the following command:
+.. admonition:: 如何找到Django源文件?
 
+    在命令行中运行下面代码:
     .. code-block:: console
 
         $ python -c "import django; print(django.__path__)"
 
-Then, just edit the file and replace
-``{{ site_header|default:_('Django administration') }}`` (including the curly
-braces) with your own site's name as you see fit. You should end up with
-a section of code like:
+然后替换文件中的 ``{{ site_header|default:_('Django administration') }}`` (包括两个大括号),
+换成你想要命名的名字即可。编辑完成后应该类似下面的代码片段：
 
 .. code-block:: html+django
 
@@ -357,66 +294,44 @@ a section of code like:
     <h1 id="site-name"><a href="{% url 'admin:index' %}">Polls Administration</a></h1>
     {% endblock %}
 
-We use this approach to teach you how to override templates. In an actual
-project, you would probably use
-the :attr:`django.contrib.admin.AdminSite.site_header` attribute to more easily
-make this particular customization.
+这里仅仅是使用这种方法来教您如何覆盖模板。在实际的项目中,
+您可以使用:attr:`django.contrib.admin.AdminSite.site_header` 属性更容易实现这个特殊的定制。
 
-This template file contains lots of text like ``{% block branding %}``
-and ``{{ title }}``. The ``{%`` and ``{{`` tags are part of Django's
-template language. When Django renders ``admin/base_site.html``, this
-template language will be evaluated to produce the final HTML page, just like
-we saw in :doc:`Tutorial 3 </intro/tutorial03>`.
+在这个模板文件中有许多类似这样的文本 ``{% block branding %}``、``{{ title }}``。``{%`` 和 ``{{``
+都是Django模板语法的一部分。当Django渲染 ``admin/base_site.html`` 的时候，这个模板语言将被生成最终的html页面，
+就像 :doc:`Tutorial 3 </intro/tutorial03>` 中一样。
 
-Note that any of Django's default admin templates can be overridden. To
-override a template, just do the same thing you did with ``base_site.html`` --
-copy it from the default directory into your custom directory, and make
-changes.
 
-Customizing your *application's* templates
-------------------------------------------
+注意任何Django管理站点的默认模板都可以重写。 想要重写一个模板文件，只需要做和重写 ``base_site.html``
+相同的操作就行——将它从默认的目录拷贝到你自定义的目录中，然后修改它。
 
-Astute readers will ask: But if :setting:`DIRS <TEMPLATES-DIRS>` was empty by
-default, how was Django finding the default admin templates? The answer is
-that, since :setting:`APP_DIRS <TEMPLATES-APP_DIRS>` is set to ``True``,
-Django automatically looks for a ``templates/`` subdirectory within each
-application package, for use as a fallback (don't forget that
-``django.contrib.admin`` is an application).
+自定义应用模板
+---------------
 
-Our poll application is not very complex and doesn't need custom admin
-templates. But if it grew more sophisticated and required modification of
-Django's standard admin templates for some of its functionality, it would be
-more sensible to modify the *application's* templates, rather than those in the
-*project*. That way, you could include the polls application in any new project
-and be assured that it would find the custom templates it needed.
+聪明的读者可能会问：但是 :setting:`DIRS <TEMPLATES-DIRS>` 默认是空的，Django是如何找到默认的admin模板呢？
+回答是，由于 :setting:`APP_DIRS <TEMPLATES-APP_DIRS>` 被设置为 ``True``，
+Django将自动查找每一个应用路径下的 ``templates/`` 子目录（不要忘了 ``django.contrib.admin`` 也是一个应用）。
 
-See the :ref:`template loading documentation <template-loading>` for more
-information about how Django finds its templates.
+我们的投票应用不太复杂，因此不需要自定义admin模板。但是如果它变得越来越复杂，
+因为某些功能而需要修改Django的标准admin模板，那么修改的模板就比修改项目的模板更加明智。这样的话，
+你可以将投票应用加入到任何新的项目中，并且保证能够找到它所需要的自定义模板。
+更多关于Django如何加载模板文件的信息，请查看 :ref:`模板加载 <template-loading>` 的文档。
 
-Customize the admin index page
-==============================
+自定义管理站点首页
+==================
 
-On a similar note, you might want to customize the look and feel of the Django
-admin index page.
+在类似的情况下，您可能想要定制Django管理首页页面。默认情况下，
+管理站点首页显示所有 :setting:`INSTALLED_APPS` 并在admin应用中注册过的app，以字母顺序进行排序。
 
-By default, it displays all the apps in :setting:`INSTALLED_APPS` that have been
-registered with the admin application, in alphabetical order. You may want to
-make significant changes to the layout. After all, the index is probably the
-most important page of the admin, and it should be easy to use.
+要定制管理站点首页，需要重写 ``admin/index.html`` 模板，就像前面修改 ``base_site.html`` 模板的方法一样，
+从源码目录拷贝到你指定的目录内。编辑该文件，你会看到文件内使用了一个 ``app_list`` 模板变量。
+该变量包含了所有已经安装的Django应用。你可以硬编码链接到指定对象的admin页面，使用任何你认为好的方法，
+用于替代这个 ``app_list``。
 
-The template to customize is ``admin/index.html``. (Do the same as with
-``admin/base_site.html`` in the previous section -- copy it from the default
-directory to your custom template directory). Edit the file, and you'll see it
-uses a template variable called ``app_list``. That variable contains every
-installed Django app. Instead of using that, you can hard-code links to
-object-specific admin pages in whatever way you think is best.
+接下来做什么?
+=============
 
-What's next?
-============
+入门教程到此结束。你可以在 :doc:`这里找到 </intro/whatsnext>` 接下来应该做什么。
 
-The beginner tutorial ends here. In the meantime, you might want to check out
-some pointers on :doc:`where to go from here </intro/whatsnext>`.
-
-If you are familiar with Python packaging and interested in learning how to
-turn polls into a "reusable app", check out :doc:`Advanced tutorial: How to
-write reusable apps</intro/reusable-apps>`.
+如果您对Python包很熟悉，并且有兴趣了解如何将投票应用转换为“可复用应用程序”，
+那么请查看高级教程::doc:`如何编写可复用的应用程序</intro/reusable-apps>`
