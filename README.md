@@ -2,6 +2,8 @@
 
 # Django1.10中文文档
 [![Documentation Status](https://readthedocs.org/projects/django-chinese-doc/badge/?version=latest)](http://django-chinese-doc.readthedocs.io/zh_CN/latest/?badge=latest)
+[![](https://img.shields.io/badge/Powered%20by-@j_hao104-blue.svg)](http://www.spiderpy.cn/blog/)
+[![](http://progressed.io/bar/10?title=completed)]()
 
 　　你想知道的关于Django的一切。
 
