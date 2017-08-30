@@ -1,12 +1,10 @@
-====================
-Models and databases
-====================
+============
+模型和数据库
+============
 
 .. module:: django.db
 
-A model is the single, definitive source of data about your data. It contains
-the essential fields and behaviors of the data you're storing. Generally, each
-model maps to a single database table.
+模型是你的数据的唯一的、权威的信息源。它包含你所储存数据的必要字段和行为。通常，每个模型对应数据库中唯一的一张表。
 
 .. toctree::
    :maxdepth: 1

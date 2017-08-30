@@ -356,7 +356,7 @@ you can contribute:
    :hidden:
 
    intro/index
-   topics/index
+   主题指南 <topics/index>
    ref/index
    howto/index
    详细目录 <contents>
