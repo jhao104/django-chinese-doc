@@ -6,7 +6,6 @@ Introductions to all the key parts of Django you'll need to know:
 
 .. toctree::
    :maxdepth: 2
-   :hidden:
 
    install
    db/index

@@ -17,15 +17,13 @@ Django1.10 中文文档
 
 * 想要查找特定的信息? 试试 :ref:`genindex`, :ref:`modindex` 或者 :doc:`详细目录 <contents>`.
 
-* Search for information in the archives of the |django-users| mailing list, or
+* 到django-users邮件列表中搜索相关问题, 或者直接
   `post a question`_.
 
-* Ask a question in the `#django IRC channel`_, or search the `IRC logs`_ to see
-  if it's been asked before.
+* 到 `#django IRC channel`_ 询问问题, 或者在 `IRC logs`_ 搜索已有人回答的问题.
 
-* Report bugs with Django in our `ticket tracker`_.
+* 到这里 `ticket tracker`_ 提交bug.
 
-.. _archives: https://groups.google.com/group/django-users/
 .. _post a question: https://groups.google.com/d/forum/django-users
 .. _#django IRC channel: irc://irc.freenode.net/django
 .. _IRC logs: http://django-irc-logs.com/
@@ -115,8 +113,8 @@ Django提供一个抽象层（Models）以构建和操作你的web应用中的�
   :doc:`Optimize database access <topics/db/optimization>` |
   :doc:`PostgreSQL specific features <ref/contrib/postgres/index>`
 
-The view layer
-==============
+视图层
+=======
 
 Django has the concept of "views" to encapsulate the logic responsible for
 processing a user's request and for returning the response. Find all you need
@@ -361,3 +359,4 @@ you can contribute:
    topics/index
    ref/index
    howto/index
+   详细目录 <contents>

@@ -6,7 +6,6 @@
 
 .. toctree::
    :maxdepth: 2
-   :hidden:
 
    overview
    install
@@ -20,25 +19,6 @@
    reusable-apps
    whatsnext
    contributing
-
-* :doc:`overview`
-
-* :doc:`install`
-
-* :doc:`tutorial01`
-
-* :doc:`tutorial02`
-
-* :doc:`tutorial03`
-
-* :doc:`tutorial04`
-
-* :doc:`tutorial05`
-
-* :doc:`tutorial06`
-
-* :doc:`tutorial07`
-
 
 
 .. seealso::

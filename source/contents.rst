@@ -1,11 +1,6 @@
-=============================
-Django documentation contents
-=============================
-
-.. toctree::
-    :hidden:
-
-    index
+===============
+Django文档目录
+===============
 
 .. toctree::
     :maxdepth: 3
