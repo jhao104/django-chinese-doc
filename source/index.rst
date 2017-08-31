@@ -74,44 +74,44 @@ Django提供一个抽象层（Models）以构建和操作你的web应用中的�
 
 * **模型:**
   :doc:`模型简介 <topics/db/models>` |
-  :doc:`Field types <ref/models/fields>` |
-  :doc:`Meta options <ref/models/options>` |
-  :doc:`Model class <ref/models/class>`
+  :doc:`字段类型 <ref/models/fields>` |
+  :doc:`元选项 <ref/models/options>` |
+  :doc:`模型类 <ref/models/class>`
 
-* **QuerySets:**
-  :doc:`Executing queries <topics/db/queries>` |
-  :doc:`QuerySet method reference <ref/models/querysets>` |
-  :doc:`Lookup expressions <ref/models/lookups>`
+* **查询集:**
+  :doc:`执行查询 <topics/db/queries>` |
+  :doc:`查询集方法参考 <ref/models/querysets>` |
+  :doc:`查找语法 <ref/models/lookups>`
 
-* **Model instances:**
-  :doc:`Instance methods <ref/models/instances>` |
-  :doc:`Accessing related objects <ref/models/relations>`
+* **模型实例:**
+  :doc:`实例方法 <ref/models/instances>` |
+  :doc:`访问关联对象 <ref/models/relations>`
 
-* **Migrations:**
-  :doc:`Introduction to Migrations<topics/migrations>` |
-  :doc:`Operations reference <ref/migration-operations>` |
-  :doc:`SchemaEditor <ref/schema-editor>` |
-  :doc:`Writing migrations <howto/writing-migrations>`
+* **迁移:**
+  :doc:`迁移简介<topics/migrations>` |
+  :doc:`操作参考 <ref/migration-operations>` |
+  :doc:`模式编辑器 <ref/schema-editor>` |
+  :doc:`编写迁移 <howto/writing-migrations>`
 
-* **Advanced:**
-  :doc:`Managers <topics/db/managers>` |
-  :doc:`Raw SQL <topics/db/sql>` |
-  :doc:`Transactions <topics/db/transactions>` |
-  :doc:`Aggregation <topics/db/aggregation>` |
-  :doc:`Search <topics/db/search>` |
-  :doc:`Custom fields <howto/custom-model-fields>` |
-  :doc:`Multiple databases <topics/db/multi-db>` |
-  :doc:`Custom lookups <howto/custom-lookups>` |
-  :doc:`Query Expressions <ref/models/expressions>` |
-  :doc:`Conditional Expressions <ref/models/conditional-expressions>` |
-  :doc:`Database Functions <ref/models/database-functions>`
+* **高级:**
+  :doc:`管理器 <topics/db/managers>` |
+  :doc:`原始SQL <topics/db/sql>` |
+  :doc:`事物 <topics/db/transactions>` |
+  :doc:`聚合 <topics/db/aggregation>` |
+  :doc:`搜索 <topics/db/search>` |
+  :doc:`自定义字段 <howto/custom-model-fields>` |
+  :doc:`多数据库 <topics/db/multi-db>` |
+  :doc:`自定义查找 <howto/custom-lookups>` |
+  :doc:`查询语法 <ref/models/expressions>` |
+  :doc:`条件表达式 <ref/models/conditional-expressions>` |
+  :doc:`数据库函数 <ref/models/database-functions>`
 
-* **Other:**
-  :doc:`Supported databases <ref/databases>` |
-  :doc:`Legacy databases <howto/legacy-databases>` |
-  :doc:`Providing initial data <howto/initial-data>` |
-  :doc:`Optimize database access <topics/db/optimization>` |
-  :doc:`PostgreSQL specific features <ref/contrib/postgres/index>`
+* **其他:**
+  :doc:`支持的数据库 <ref/databases>` |
+  :doc:`遗留的数据库 <howto/legacy-databases>` |
+  :doc:`初始数据 <howto/initial-data>` |
+  :doc:`优化查询 <topics/db/optimization>` |
+  :doc:`PostgreSQL特点 <ref/contrib/postgres/index>`
 
 视图层
 =======

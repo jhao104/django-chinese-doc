@@ -13,11 +13,11 @@
 
 * [入门教程](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/index.html)一步步详解如何从零开始创建一个Web应用程序。如果您第一次使用Django或Web应用程序开发，那么请从这里开始。也就是下面的“[入门](#入门)”部分。
 
-* [主题指南](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/intro/%E4%BD%BF%E7%94%A8Django.md)在比较高的层次上讨论某些话题和概念，并提供有用的背景信息和解释。
+* [主题指南](http://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/index.html)在比较高的层次上讨论某些话题和概念，并提供有用的背景信息和解释。
 
-* [参考指南](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/API%E5%8F%82%E8%80%83.md)包含API和Django的机械等方面的技术参考。抓哟描述了它的工作原理以及如何使用它，但是这要求您对关键概念有基本的的了解。
+* [参考指南](http://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/index.html)包含API和Django的机械等方面的技术参考。抓哟描述了它的工作原理以及如何使用它，但是这要求您对关键概念有基本的的了解。
 
-* [方法指南](https://github.com/jhao104/django-chinese-docs-1.10/blob/master/%E6%96%B9%E6%B3%95%E6%8C%87%E5%8D%97.md)就像一种秘诀。他们将帮助您完成解决关键问题和用例的步骤。他们比教程更先进，并且还会帮你你了解Django的工作原理。
+* [方法指南](http://django-chinese-doc.readthedocs.io/zh_CN/latest/howto/index.html)就像一种秘诀。他们将帮助您完成解决关键问题和用例的步骤。他们比教程更先进，并且还会帮你你了解Django的工作原理。
 
 ## <span id = "first_steps">入门：</span>
 

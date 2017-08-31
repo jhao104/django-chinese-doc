@@ -415,27 +415,20 @@ Django使用 :class:`django.db.models.ForeignKey` 来定义一个多对一的关
     >>> beatles.members.all()
     <QuerySet [<Person: Ringo Starr>, <Person: Paul McCartney>]>
 
-Unlike normal many-to-many fields, you *can't* use ``add()``, ``create()``,
-or ``set()`` to create relationships::
+与普通的多对多字段不同，你不能使用 ``add()`` 、 ``create()`` 和 ``set()`` 语句来创建关系::
 
     >>> # The following statements will not work
     >>> beatles.members.add(john)
     >>> beatles.members.create(name="George Harrison")
     >>> beatles.members.set([john, paul, ringo, george])
 
-Why? You can't just create a relationship between a ``Person`` and a ``Group``
-- you need to specify all the detail for the relationship required by the
-``Membership`` model. The simple ``add``, ``create`` and assignment calls
-don't provide a way to specify this extra detail. As a result, they are
-disabled for many-to-many relationships that use an intermediate model.
-The only way to create this type of relationship is to create instances of the
-intermediate model.
+为什么不能这样做？ 这是因为你不能只创建 ``Person`` 和 ``Group`` 之间的关联关系，
+你还要指定 ``Membership`` 模型中所需要的所有信息；而简单的 ``add``、 ``create`` 和赋值语句是做不到这一点的。
+所以它们不能在使用中介模型的多对多关系中使用。此时，唯一的办法就是创建中介模型的实例。
 
-The :meth:`~django.db.models.fields.related.RelatedManager.remove` method is
-disabled for similar reasons. For example, if the custom through table defined
-by the intermediate model does not enforce uniqueness on the
-``(model1, model2)`` pair, a ``remove()`` call would not provide enough
-information as to which intermediate model instance should be deleted::
+:meth:`~django.db.models.fields.related.RelatedManager.remove` 方法被禁用也是出于同样的原因。
+
+如果中间模型定义的自定义表在 ``(model1,model2)`` 的执行不存在唯一性，则 ``remove()`` 调用将不能提供足够的信息来删除中间模型实例::
 
     >>> Membership.objects.create(person=ringo, group=beatles,
     ...     date_joined=date(1968, 9, 4),
@@ -445,8 +438,7 @@ information as to which intermediate model instance should be deleted::
     >>> # This will not work because it cannot tell which membership to remove
     >>> beatles.members.remove(ringo)
 
-However, the :meth:`~django.db.models.fields.related.RelatedManager.clear`
-method can be used to remove all many-to-many relationships for an instance::
+但是 :meth:`~django.db.models.fields.related.RelatedManager.clear` 方法却是可用的。它可以清空某个实例所有的多对多关系::
 
     >>> # Beatles have broken up
     >>> beatles.members.clear()
@@ -454,16 +446,14 @@ method can be used to remove all many-to-many relationships for an instance::
     >>> Membership.objects.all()
     <QuerySet []>
 
-Once you have established the many-to-many relationships by creating instances
-of your intermediate model, you can issue queries. Just as with normal
-many-to-many relationships, you can query using the attributes of the
-many-to-many-related model::
+只要通过创建中介模型的实例来建立对多对多关系后，你就可以执行查询了。
+查询和普通的多对多字段一样，你可以直接使用被关联模型的属性进行查询：::
 
     # Find all the groups with a member whose name starts with 'Paul'
     >>> Group.objects.filter(members__name__startswith='Paul')
     <QuerySet [<Group: The Beatles>]>
 
-As you are using an intermediate model, you can also query on its attributes::
+如果你使用了中介模型，你也可以利用中介模型的属性进行查询::
 
     # Find all the members of the Beatles that joined after 1 Jan 1961
     >>> Person.objects.filter(
@@ -471,8 +461,7 @@ As you are using an intermediate model, you can also query on its attributes::
     ...     membership__date_joined__gt=date(1961,1,1))
     <QuerySet [<Person: Ringo Starr]>
 
-If you need to access a membership's information you may do so by directly
-querying the ``Membership`` model::
+如果你需要访问一个成员的信息，你可以直接获取 ``Membership`` 模型::
 
     >>> ringos_membership = Membership.objects.get(group=beatles, person=ringo)
     >>> ringos_membership.date_joined
@@ -480,9 +469,7 @@ querying the ``Membership`` model::
     >>> ringos_membership.invite_reason
     'Needed a new drummer.'
 
-Another way to access the same information is by querying the
-:ref:`many-to-many reverse relationship<m2m-reverse-relationships>` from a
-``Person`` object::
+另一种获取相同信息的方法是，在 ``Person`` 对象上查询 :ref:`多对多反转关系 <m2m-reverse-relationships>`::
 
     >>> ringos_membership = ringo.membership_set.get(group=beatles)
     >>> ringos_membership.date_joined
@@ -490,49 +477,38 @@ Another way to access the same information is by querying the
     >>> ringos_membership.invite_reason
     'Needed a new drummer.'
 
-One-to-one relationships
-~~~~~~~~~~~~~~~~~~~~~~~~
+一对一
+~~~~~~~~~
 
-To define a one-to-one relationship, use
-:class:`~django.db.models.OneToOneField`. You use it just like any other
-``Field`` type: by including it as a class attribute of your model.
+使用 :class:`~django.db.models.OneToOneField` 来定义一对一关系。 用法和其他字段类型一样：在模型里面做为类属性包含进来。
 
-This is most useful on the primary key of an object when that object "extends"
-another object in some way.
+当某个对象想扩展自另一个对象时，最常用的方式就是在这个对象的主键上添加一对一关系。
 
-:class:`~django.db.models.OneToOneField` requires a positional argument: the
-class to which the model is related.
+:class:`~django.db.models.OneToOneField` 接收一个位置参数：与之关联的模型。
 
-For example, if you were building a database of "places", you would
-build pretty standard stuff such as address, phone number, etc. in the
-database. Then, if you wanted to build a database of restaurants on
-top of the places, instead of repeating yourself and replicating those
-fields in the ``Restaurant`` model, you could make ``Restaurant`` have
-a :class:`~django.db.models.OneToOneField` to ``Place`` (because a
-restaurant "is a" place; in fact, to handle this you'd typically use
-:ref:`inheritance <model-inheritance>`, which involves an implicit
-one-to-one relation).
+例如，你想建一个“places” 数据库，里面有一些常用的字段，比如address、 phone number 等等。
+接下来，如果你想在Place 数据库的基础上建立一个 ``Restaurant`` 数据库，而不想将已有的字段复制到Restaurant模型，
+那你可以在 ``Restaurant`` 添加一个 :class:`~django.db.models.OneToOneField` 字段，
+这个字段指向 ``Place``（因为Restaurant 本身就是一个Place；事实上，在处理这个问题的时候，你应该使用 :ref:`继承 <model-inheritance>`，它隐含一个一对一关系)
 
-As with :class:`~django.db.models.ForeignKey`, a :ref:`recursive relationship
-<recursive-relationships>` can be defined and :ref:`references to as-yet
-undefined models <lazy-relationships>` can be made.
+和使用 :class:`~django.db.models.ForeignKey` 一样，你可以定义 :ref:`递归的关联关系 <recursive-relationships>` 和
+:ref:`引用尚未定义的模型 <lazy-relationships>` 。
 
 .. seealso::
 
-    See the :doc:`One-to-one relationship model example
-    </topics/db/examples/one_to_one>` for a full example.
+    在 :doc:`一对一关系模型例子
+    </topics/db/examples/one_to_one>` 中有完整例子。
 
-:class:`~django.db.models.OneToOneField` fields also accept an optional
-:attr:`~django.db.models.OneToOneField.parent_link` argument.
+:class:`~django.db.models.OneToOneField` 字段同时还接收一个可选的
+:attr:`~django.db.models.OneToOneField.parent_link` 参数。
 
-:class:`~django.db.models.OneToOneField` classes used to automatically become
-the primary key on a model. This is no longer true (although you can manually
-pass in the :attr:`~django.db.models.Field.primary_key` argument if you like).
-Thus, it's now possible to have multiple fields of type
-:class:`~django.db.models.OneToOneField` on a single model.
+在以前的版本中，:class:`~django.db.models.OneToOneField` 字段会自动变成模型的 :attr:`~django.db.models.Field.primary_key`。
+不过现在已经不这么做了(不过要是你愿意的话，你仍可以传递 :attr:`~django.db.models.Field.primary_key` 参数来创建主键字段)。
+所以一个模型中可以有多个 :class:`~django.db.models.OneToOneField` 字段
 
-Models across files
--------------------
+
+跨文件的模型
+-------------
 
 It's perfectly OK to relate a model to one from another app. To do this, import
 the related model at the top of the file where your model is defined. Then,

@@ -2,7 +2,7 @@
 使用Django
 ============
 
-Introductions to all the key parts of Django you'll need to know:
+介绍你需要知道的Django的所有关键部分:
 
 .. toctree::
    :maxdepth: 2
