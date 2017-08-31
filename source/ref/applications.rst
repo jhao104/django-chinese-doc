@@ -1,87 +1,56 @@
-============
-Applications
-============
+===================
+应用(Applications)
+===================
 
 .. module:: django.apps
 
-Django contains a registry of installed applications that stores configuration
-and provides introspection. It also maintains a list of available :doc:`models
-</topics/db/models>`.
+Django 包含一个由已安装应用组成的注册表，它保存应用的配置并提供自省。它还维护一个可用 :doc:`models </topics/db/models>` 的列表。
 
-This registry is simply called :attr:`~django.apps.apps` and it's available in
-:mod:`django.apps`::
+这个注册表叫做 :mod:`django.apps` ，位于 :attr:`~django.apps.apps` 中::
 
     >>> from django.apps import apps
     >>> apps.get_app_config('admin').verbose_name
     'Admin'
 
-Projects and applications
-=========================
+项目和应用
+===========
+历史上，Django 使用 **项目** 这个词来描述Django的一个web应用。现在项目主要通过一个设置模块定义。
 
-The term **project** describes a Django web application. The project Python
-package is defined primarily by a settings module, but it usually contains
-other things. For example, when you run  ``django-admin startproject mysite``
-you'll get a ``mysite`` project directory that contains a ``mysite`` Python
-package with ``settings.py``, ``urls.py``, and ``wsgi.py``. The project package
-is often extended to include things like fixtures, CSS, and templates which
-aren't tied to a particular application.
+例如，当你运行 ``django-admin startproject mysite`` 时，将会创建一个 ``mysite`` 的项目目录，目录包含一个名为 ``mysite`` 的Python
+包，包含文件 ``settings.py`` 、 ``urls.py`` 和 ``wsgi.py``。 项目包通常被扩展成一个包括fixture、CSS和模板的特定应用程序模板。
 
-A **project's root directory** (the one that contains ``manage.py``) is usually
-the container for all of a project's applications which aren't installed
-separately.
+项目的 **根目录** (包含 ``manage.py`` 的目录)通常是项目里所有应用程序的容器，这些应用程序并不是单独存在的。
 
-The term **application** describes a Python package that provides some set of
-features. Applications :doc:`may be reused </intro/reusable-apps/>` in various
-projects.
+**应用** 这个词表示一个Python包，它提供某些功能的集合。应用可以在各种项目中 :doc:`重用 </intro/reusable-apps/>`。
 
-Applications include some combination of models, views, templates, template
-tags, static files, URLs, middleware, etc. They're generally wired into
-projects with the :setting:`INSTALLED_APPS` setting and optionally with other
-mechanisms such as URLconfs, the :setting:`MIDDLEWARE` setting, or template
-inheritance.
+应用包含模型、视图、模板、模板标签、静态文件、URL、中间件等等。它们一般通过 :setting:`INSTALLED_APPS` 设置和
+其它例如URLconf、:setting:`MIDDLEWARE` 设置以及模板继承等机制接入到项目中。
 
-It is important to understand that a Django application is just a set of code
-that interacts with various parts of the framework. There's no such thing as
-an ``Application`` object. However, there's a few places where Django needs to
-interact with installed applications, mainly for configuration and also for
-introspection. That's why the application registry maintains metadata in an
-:class:`~django.apps.AppConfig` instance for each installed application.
+Django 的应用只是一个代码集，它与框架的其它部分进行交互，理解这点很重要。并没有应用程序对象之类的东西。
+然而，有一些地方Django 需要与安装的应用交互，主要用于配置和自省。这是为什么应用注册表要在 :class:`~django.apps.AppConfig`
+实例中维持每个安装的应用的元数据。
 
-There's no restriction that a project package can't also be considered an
-application and have models, etc. (which would require adding it to
-:setting:`INSTALLED_APPS`).
+也没有规定项目不能被认为是包含模型的应用。（这就需要将其添加到 :setting:`INSTALLED_APPS` 中）
 
 .. _configuring-applications-ref:
 
-Configuring applications
-========================
+配置应用
+=========
 
-To configure an application, subclass :class:`~django.apps.AppConfig` and put
-the dotted path to that subclass in :setting:`INSTALLED_APPS`.
+配置应用首先要创建 :class:`~django.apps.AppConfig` 的子类，并且将子类路径加入 :setting:`INSTALLED_APPS`。
 
-When :setting:`INSTALLED_APPS` simply contains the dotted path to an
-application module, Django checks for a ``default_app_config`` variable in
-that module.
+当 :setting:`INSTALLED_APPS` 包含某个应用模块的路径后，Django 将在这个模块中检查一个 ``default_app_config`` 变量。
 
-If it's defined, it's the dotted path to the :class:`~django.apps.AppConfig`
-subclass for that application.
+如果这个变量有定义，它应该是这个应用的 :class:`~django.apps.AppConfig` 子类的路径。
 
-If there is no ``default_app_config``, Django uses the base
-:class:`~django.apps.AppConfig` class.
+如果没有 ``default_app_config``, Django将使用 :class:`~django.apps.AppConfig` 类。
 
-``default_app_config`` allows applications that predate Django 1.7 such as
-``django.contrib.admin`` to opt-in to :class:`~django.apps.AppConfig` features
-without requiring users to update their :setting:`INSTALLED_APPS`.
+新的应用最好不要使用 ``default_app_config``. 应该在 :setting:`INSTALLED_APPS` 中显式地配置适当的 :class:`~django.apps.AppConfig` 子类的路径。
 
-New applications should avoid ``default_app_config``. Instead they should
-require the dotted path to the appropriate :class:`~django.apps.AppConfig`
-subclass to be configured explicitly in :setting:`INSTALLED_APPS`.
-
-For application authors
+对于应用开发者
 -----------------------
 
-If you're creating a pluggable app called "Rock ’n’ roll", here's how you
-would provide a proper name for the admin::
+如果你正在创建一个名叫“Rock ’n’ roll”的可插式应用，下面展示了如何给admin提供一个合适的名字::
 
     # rock_n_roll/apps.py
 
@@ -91,8 +60,8 @@ would provide a proper name for the admin::
         name = 'rock_n_roll'
         verbose_name = "Rock ’n’ roll"
 
-You can make your application load this :class:`~django.apps.AppConfig`
-subclass by default as follows::
+
+可以让你的应用像下面一样以默认方式加载这个 :class:`~django.apps.AppConfig` 的子类::
 
     # rock_n_roll/__init__.py
 
