@@ -67,33 +67,23 @@ Django 的应用只是一个代码集，它与框架的其它部分进行交互�
 
     default_app_config = 'rock_n_roll.apps.RockNRollConfig'
 
-That will cause ``RockNRollConfig`` to be used when :setting:`INSTALLED_APPS`
-just contains ``'rock_n_roll'``. This allows you to make use of
-:class:`~django.apps.AppConfig` features without requiring your users to
-update their :setting:`INSTALLED_APPS` setting. Besides this use case, it's
-best to avoid using ``default_app_config`` and instead specify the app config
-class in :setting:`INSTALLED_APPS` as described next.
+这将使得 :setting:`INSTALLED_APPS` 只包含 ``'rock_n_roll'`` 时将使用 ``RockNRollConfig``
+这允许你使用 :class:`~django.apps.AppConfig` 功能而不用要求用户更新他们的 :setting:`INSTALLED_APPS` 设置
 
-Of course, you can also tell your users to put
-``'rock_n_roll.apps.RockNRollConfig'`` in their :setting:`INSTALLED_APPS`
-setting. You can even provide several different
-:class:`~django.apps.AppConfig` subclasses with different behaviors and allow
-your users to choose one via their :setting:`INSTALLED_APPS` setting.
+当然，你也可以将 ``'rock_n_roll.apps.RockNRollConfig'`` 放在 :setting:`INSTALLED_APPS` 设置中。
+你甚至可以提供几个具有不同行为的 :class:`~django.apps.AppConfig` 子类，并让使用者通过他们的
+:setting:`INSTALLED_APPS` 设置选择。
 
-The recommended convention is to put the configuration class in a submodule of
-the application called ``apps``. However, this isn't enforced by Django.
+建议的做法是将配置类放在应用的 ``apps`` 子模块中。但是，Django 不强制这一点。
 
-You must include the :attr:`~django.apps.AppConfig.name` attribute for Django
-to determine which application this configuration applies to. You can define
-any attributes documented in the :class:`~django.apps.AppConfig` API
-reference.
+你必须包含 :attr:`~django.apps.AppConfig.name` 属性来让Django 决定该配置适用的应用。
+你可以定义 :class:`~django.apps.AppConfig` API 参考中记录的任何属性。
 
 .. note::
 
-    If your code imports the application registry in an application's
-    ``__init__.py``, the name ``apps`` will clash with the ``apps`` submodule.
-    The best practice is to move that code to a submodule and import it. A
-    workaround is to import the registry under a different name::
+    如果你的代码在应用的 ``__init__.py`` 中导入应用程序注册表，
+    名称 ``apps`` 将与 ``pps`` 子模块发生冲突。最佳做法是将这些代码移到子模块，并将其导入。
+    一种解决方法是以一个不同的名称导入注册表::
 
         from django.apps import apps as django_apps
 
