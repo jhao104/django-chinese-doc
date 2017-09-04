@@ -298,51 +298,39 @@ Django应用程序需要一个单一的基本文件系统路径，其中Django(�
     * 当运行一个通过Django 的WSGI 支持 的HTTP 服务器。
     * 当调用管理命令。
 
-    It must be called explicitly in other cases, for instance in plain Python
-    scripts.
+    在其他情况下，必须显式地调用它，例如在普通的Python脚本中。
 
 .. currentmodule:: django.apps
 
-The application registry is initialized in three stages. At each stage, Django
-processes all applications in the order of :setting:`INSTALLED_APPS`.
+应用程序注册表初始化分为三个阶段。在每一个阶段，Django都按照 :setting:`INSTALLED_APPS` 中的顺序处理所有应用程序。
 
-#. First Django imports each item in :setting:`INSTALLED_APPS`.
+#. 首先Django先导入 :setting:`INSTALLED_APPS` 中的每个应用程序。
 
-   If it's an application configuration class, Django imports the root package
-   of the application, defined by its :attr:`~AppConfig.name` attribute. If
-   it's a Python package, Django creates a default application configuration.
+   如果它是一个应用配置类，Django 导入应用的root包，通过其 :attr:`~AppConfig.name` 属性。
+   如果它是一个Python 包，Django 创建应用的一个默认配置。
 
-   *At this stage, your code shouldn't import any models!*
+   *在这个阶段，你的代码不应该将任何模型导入！*
 
-   In other words, your applications' root packages and the modules that
-   define your application configuration classes shouldn't import any models,
-   even indirectly.
+   换句话说，您的应用程序的根包和定义您的应用程序配置类的模块不应该导入任何模型，甚至是间接的。
 
-   Strictly speaking, Django allows importing models once their application
-   configuration is loaded. However, in order to avoid needless constraints on
-   the order of :setting:`INSTALLED_APPS`, it's strongly recommended not
-   import any models at this stage.
+   严格地讲，Django 允许应用配置加载后导入模型。然而，为了避免 :setting:`INSTALLED_APPS` 的顺序带来不必要的约束，
+   强烈推荐在这一阶段不导入任何模型
 
-   Once this stage completes, APIs that operate on application configurations
-   such as :meth:`~apps.get_app_config()` become usable.
+   这一阶段完成后，操作应用配置的API 开始变得可以使用了，例如 :meth:`~apps.get_app_config()`。
 
-#. Then Django attempts to import the ``models`` submodule of each application,
-   if there is one.
+#. 然后 Django 将导入每个应用的models 子模块(如果存在的话)。
 
-   You must define or import all models in your application's ``models.py`` or
-   ``models/__init__.py``. Otherwise, the application registry may not be fully
-   populated at this point, which could cause the ORM to malfunction.
+   你必须在应用的 ``models.py`` 或 ``models/__init__.py`` 中定义或导入所有模型。否则，
+   应用注册表在此时可能不会完全填充，这可能导致ORM 出现故障
 
-   Once this stage completes, APIs that operate on models such as
-   :meth:`~apps.get_model()` become usable.
+   一旦完成该步骤,  :meth:`~apps.get_model()` 之类的 model API 可以使用了。
 
-#. Finally Django runs the :meth:`~AppConfig.ready()` method of each application
-   configuration.
+#. 最后，Django 运行每个应用程序配置的 :meth:`~AppConfig.ready()` 方法。
 
 .. _applications-troubleshooting:
 
-Troubleshooting
----------------
+故障排除
+-----------
 
 Here are some common problems that you may encounter during initialization:
 
