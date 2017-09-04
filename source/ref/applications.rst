@@ -87,12 +87,10 @@ Django 的应用只是一个代码集，它与框架的其它部分进行交互�
 
         from django.apps import apps as django_apps
 
-For application users
----------------------
+对于应用使用者
+---------------
 
-If you're using "Rock ’n’ roll" in a project called ``anthology``, but you
-want it to show up as "Jazz Manouche" instead, you can provide your own
-configuration::
+如果你在 ``anthology`` 项目中使用"Rock ’n’ rol"，但您希望显示成 ``"Gypsy jazz"``，你可以修改你自己的配置︰::
 
     # anthology/apps.py
 
@@ -108,106 +106,91 @@ configuration::
         # ...
     ]
 
-Again, defining project-specific configuration classes in a submodule called
-``apps`` is a convention, not a requirement.
+再说一次，在 ``apps`` 子模块定义特定于项目的配置类是一种习惯，并不强制要求。
 
-Application configuration
-=========================
+Application 配置
+=================
 
 .. class:: AppConfig
 
-    Application configuration objects store metadata for an application. Some
-    attributes can be configured in :class:`~django.apps.AppConfig`
-    subclasses. Others are set by Django and read-only.
+    Application configuration对象存储应用程序的元数据。某些属性配置在 :class:`~django.apps.AppConfig` 子类中。
+    其他由Django 设置且是只读的
 
-Configurable attributes
------------------------
+可配置的属性
+-------------
 
 .. attribute:: AppConfig.name
 
-    Full Python path to the application, e.g. ``'django.contrib.admin'``.
+    完整的Python路径, e.g. ``'django.contrib.admin'``.
 
-    This attribute defines which application the configuration applies to. It
-    must be set in all :class:`~django.apps.AppConfig` subclasses.
+    他的属性定义了该配置适用于哪个applications. 而且必须所有的 :class:`~django.apps.AppConfig` 的子类都要设置。
 
-    It must be unique across a Django project.
+    在整个Django项目中必须是唯一的。
 
 .. attribute:: AppConfig.label
 
-    Short name for the application, e.g. ``'admin'``
+    application的缩写名, e.g. ``'admin'``
 
-    This attribute allows relabeling an application when two applications
-    have conflicting labels. It defaults to the last component of ``name``.
-    It should be a valid Python identifier.
+    此属性可以重新标记应用，当两个应用程序有冲突的标签。它默认为 ``name`` 的最后一部分。它是一个有效的 Python 标识符。
 
-    It must be unique across a Django project.
+    在整个Django项目中必须是唯一的。
 
 .. attribute:: AppConfig.verbose_name
 
-    Human-readable name for the application, e.g. "Administration".
+    应用的适合阅读的名称, e.g. "Administration".
 
-    This attribute defaults to ``label.title()``.
+    默认是 ``label.title()``.
 
 .. attribute:: AppConfig.path
 
-    Filesystem path to the application directory, e.g.
+    应用目录的文件系统路径, e.g.
     ``'/usr/lib/python3.4/dist-packages/django/contrib/admin'``.
 
-    In most cases, Django can automatically detect and set this, but you can
-    also provide an explicit override as a class attribute on your
-    :class:`~django.apps.AppConfig` subclass. In a few situations this is
-    required; for instance if the app package is a `namespace package`_ with
-    multiple paths.
+    在大多数情况下，Django 可以自动检测并设置它，你也可以在 :class:`~django.apps.AppConfig`
+    子类上提供一个显式的类属性以覆盖它 。
 
-Read-only attributes
---------------------
+    在有些情况下是需要这样的；例如，如果应用的包是一个具有多个路径的 `namespace package`_ 。
+
+只读属性
+---------
 
 .. attribute:: AppConfig.module
 
-    Root module for the application, e.g. ``<module 'django.contrib.admin' from
+    应用的根模块, e.g. ``<module 'django.contrib.admin' from
     'django/contrib/admin/__init__.pyc'>``.
 
 .. attribute:: AppConfig.models_module
 
-    Module containing the models, e.g. ``<module 'django.contrib.admin.models'
+    包含 ``models`` 的模块, e.g. ``<module 'django.contrib.admin.models'
     from 'django/contrib/admin/models.pyc'>``.
 
-    It may be ``None`` if the application doesn't contain a ``models`` module.
-    Note that the database related signals such as
-    :data:`~django.db.models.signals.pre_migrate` and
-    :data:`~django.db.models.signals.post_migrate`
-    are only emitted for applications that have a ``models`` module.
+    如果应用不包含 ``models`` 模块，它可能为 ``None``。
+    注意与数据库相关的信号，如 :data:`~django.db.models.signals.pre_migrate` 和
+    :data:`~django.db.models.signals.post_migrate` 只有在应用具有 ``models`` 模块时才发出。
 
-Methods
--------
+方法
+-----
 
 .. method:: AppConfig.get_models()
 
-    Returns an iterable of :class:`~django.db.models.Model` classes for this
-    application.
+    返回本应用的所有 :class:`~django.db.models.Model` 类的一个可迭代对象。
 
 .. method:: AppConfig.get_model(model_name)
 
-    Returns the :class:`~django.db.models.Model` with the given
-    ``model_name``. Raises :exc:`LookupError` if no such model exists in this
-    application. ``model_name`` is case-insensitive.
+    根据 ``model_name`` 返回对应 :class:`~django.db.models.Model`.
+    如果模型不存在，则抛出一个 :exc:`LookupError` 异常， ``model_name`` 不区分大小写。
 
 .. method:: AppConfig.ready()
 
-    Subclasses can override this method to perform initialization tasks such
-    as registering signals. It is called as soon as the registry is fully
-    populated.
+    子类可以重写此方法以执行初始化任务，如注册信号。它在注册表填充完之后立即调用。
 
-    Although you can't import models at the module-level where
-    :class:`~django.apps.AppConfig` classes are defined, you can import them in
-    ``ready()``, using either an ``import`` statement or
-    :meth:`~AppConfig.get_model`.
+    虽然不能在定义 :class:`~django.apps.AppConfig` 类的模块级别导入模型，
+    但是可以使用 ``import`` 语句或 :meth:`~AppConfig.get_model` 将它们导入到 ``ready()`` 中。
 
-    If you're registering :mod:`model signals <django.db.models.signals>`, you
-    can refer to the sender by its string label instead of using the model
-    class itself.
+    如果您注册的是 :mod:`model signals <django.db.models.signals>` ，
+    您可以通过它的字符串标签来引用发送方，而不是使用模型类本身。
 
-    Example::
+    例如::
 
         from django.db.models.signals import pre_save
 
@@ -221,122 +204,99 @@ Methods
 
     .. warning::
 
-        Although you can access model classes as described above, avoid
-        interacting with the database in your :meth:`ready()` implementation.
-        This includes model methods that execute queries
-        (:meth:`~django.db.models.Model.save()`,
-        :meth:`~django.db.models.Model.delete()`, manager methods etc.), and
-        also raw SQL queries via ``django.db.connection``. Your
-        :meth:`ready()` method will run during startup of every management
-        command. For example, even though the test database configuration is
-        separate from the production settings, ``manage.py test`` would still
-        execute some queries against your **production** database!
+        尽管可以像上面描述的那样访问模型类，但要避免在 :meth:`ready()` 中实现与数据库交互。
+        包括执行查询( :meth:`~django.db.models.Model.save()` 、
+        :meth:`~django.db.models.Model.delete()` 、manager方法等)的模型方法，
+        以及通过 ``django.db.connection`` 的原始SQL查询。
+        您的 :meth:`ready()` 方法将在任意管理命令启动时运行。例如:
+        即使测试数据库配置与生产环境设置是分离的, ``manage.py test`` 仍会执行一些针对您的 **生产环境** 数据库的查询!
 
     .. note::
 
-        In the usual initialization process, the ``ready`` method is only called
-        once by Django. But in some corner cases, particularly in tests which
-        are fiddling with installed applications, ``ready`` might be called more
-        than once. In that case, either write idempotent methods, or put a flag
-        on your ``AppConfig`` classes to prevent re-running code which should
-        be executed exactly one time.
+        在常规的初始化过程中，``ready`` 方法只由Django 调用一次。但在一些极端情况下，
+        特别是在那些摆弄安装应用程序的测试中，``ready`` 可能被调用不止一次。在这种情况下，编写幂等方法，
+        或者在 ``AppConfig`` 类上放置一个标识来防止应该执行一次的代码重复运行。
 
 .. _namespace package:
 
-Namespace packages as apps (Python 3.3+)
-----------------------------------------
+命名空间包作为应用程序 (Python 3.3+)
+------------------------------------
 
-Python versions 3.3 and later support Python packages without an
-``__init__.py`` file. These packages are known as "namespace packages" and may
-be spread across multiple directories at different locations on ``sys.path``
-(see :pep:`420`).
+Python3.3以及更高版本支持不包含
+``__init__.py`` 文件的Python包。 这些包分布在 ``sys.path``
+(see :pep:`420`)上的不同位置的多个目录中。
 
-Django applications require a single base filesystem path where Django
-(depending on configuration) will search for templates, static assets,
-etc. Thus, namespace packages may only be Django applications if one of the
-following is true:
+Django应用程序需要一个单一的基本文件系统路径，其中Django(取决于配置)将搜索模板、静态资源。
+因此，如果符合以下条件，则名称空间包可能只是Django应用程序。
 
-1. The namespace package actually has only a single location (i.e. is not
-   spread across more than one directory.)
+1. 命名空间包实际上只有一个位置（即不会分布在多个目录中）。
 
-2. The :class:`~django.apps.AppConfig` class used to configure the application
-   has a :attr:`~django.apps.AppConfig.path` class attribute, which is the
-   absolute directory path Django will use as the single base path for the
-   application.
+2. 用于配置应用程序的 :class:`~django.apps.AppConfig` 类具有 :attr:`~django.apps.AppConfig.path` 类属性，这是Django将用作应用程序的唯一基本路径的绝对目录路径。
 
-If neither of these conditions is met, Django will raise
-:exc:`~django.core.exceptions.ImproperlyConfigured`.
+如果这些条件都不满足，Django将抛出 :exc:`~django.core.exceptions.ImproperlyConfigured` 异常。
 
-Application registry
-====================
+应用注册表
+==========
 
 .. data:: apps
 
-    The application registry provides the following public API. Methods that
-    aren't listed below are considered private and may change without notice.
+    应用程序注册中心提供以下公共API。以下未列出的方法被认为是私有的，可能会在没有通知的情况下发生变化。
 
 .. attribute:: apps.ready
 
-    Boolean attribute that is set to ``True`` after the registry is fully
-    populated and all :meth:`AppConfig.ready` methods are called.
+    布尔属性，在注册中心完全填充后或所有 :meth:`AppConfig.ready` 方法被调用后设置为 ``True``。
 
 .. method:: apps.get_app_configs()
 
-    Returns an iterable of :class:`~django.apps.AppConfig` instances.
+    返回一个所有 :class:`~django.apps.AppConfig` 的可迭代对象。
 
 .. method:: apps.get_app_config(app_label)
 
-    Returns an :class:`~django.apps.AppConfig` for the application with the
-    given ``app_label``. Raises :exc:`LookupError` if no such application
-    exists.
+    根据 ``app_label`` 返回对应的 :class:`~django.apps.AppConfig` ，如果没有对应的应用，则抛出一个 :exc:`LookupError` 异常。
 
 .. method:: apps.is_installed(app_name)
 
-    Checks whether an application with the given name exists in the registry.
-    ``app_name`` is the full name of the app, e.g. ``'django.contrib.admin'``.
+    检查注册表中是否存在具有给定名称的应用。
+    ``app_name`` 是应用的完整名称, e.g. ``'django.contrib.admin'``.
 
 .. method:: apps.get_model(app_label, model_name)
 
-    Returns the :class:`~django.db.models.Model` with the given ``app_label``
-    and ``model_name``. As a shortcut, this method also accepts a single
-    argument in the form ``app_label.model_name``. ``model_name`` is
-    case-insensitive.
+    返回给定 ``app_label`` 和 ``model_name`` 对应的 :class:`~django.db.models.Model`
+    作为快捷方式，此方法还接受 ``app_label.model_name`` 形式的一个单一参数。``model_name`` 不区分大小写。
 
-    Raises :exc:`LookupError` if no such application or model exists. Raises
-    :exc:`ValueError` when called with a single argument that doesn't contain
-    exactly one dot.
+    如果没有这种模型存在，抛出 :exc:`LookupError` 。使用不包含点号的单个参数调用时将引发 ``ValueError`` 异常。
 
 .. _app-loading-process:
 
-Initialization process
-======================
+初始化过程
+===========
 
-How applications are loaded
----------------------------
+如何加载应用
+-------------
 
-When Django starts, :func:`django.setup()` is responsible for populating the
-application registry.
+当Django 启动时，:func:`django.setup()` 负责填充应用注册表。
 
 .. currentmodule:: django
 
 .. function:: setup(set_prefix=True)
 
-    Configures Django by:
+    配置Django:
 
-    * Loading the settings.
-    * Setting up logging.
-    * If ``set_prefix`` is True, setting the URL resolver script prefix to
-      :setting:`FORCE_SCRIPT_NAME` if defined, or ``/`` otherwise.
-    * Initializing the application registry.
+    * 加载设置。
+    * 设置日志。
+    * 如果 ``set_prefix`` 为 True, 那么将URL解析器脚本前缀设置为 :setting:`FORCE_SCRIPT_NAME` (如果定义)，
+      或者为 ``/``。
 
-    .. versionchanged:: 1.10
+    * 初始化应用注册表。
 
-        The ability to set the URL resolver script prefix is new.
+    .. versionchangedcustom:: 1.10
 
-    This function is called automatically:
+        设置URL解析器脚本前缀的功能是1.10中新加的。
 
-    * When running an HTTP server via Django's WSGI support.
-    * When invoking a management command.
+    此函数在这些情况自动调用:
+
+    * 当运行一个通过Django 的WSGI 支持 的HTTP 服务器。
+    * 当调用管理命令。
 
     It must be called explicitly in other cases, for instance in plain Python
     scripts.
