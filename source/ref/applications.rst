@@ -289,7 +289,7 @@ Django应用程序需要一个单一的基本文件系统路径，其中Django(�
 
     * 初始化应用注册表。
 
-    .. versionchangedcustom:: 1.10
+    .. versionchanged:: 1.10
 
         设置URL解析器脚本前缀的功能是1.10中新加的。
 
@@ -332,41 +332,29 @@ Django应用程序需要一个单一的基本文件系统路径，其中Django(�
 故障排除
 -----------
 
-Here are some common problems that you may encounter during initialization:
+下面是在初始化过程中可能遇到的一些常见问题:
 
-* :class:`~django.core.exceptions.AppRegistryNotReady`: This happens when
-  importing an application configuration or a models module triggers code that
-  depends on the app registry.
+* :class:`~django.core.exceptions.AppRegistryNotReady`: 导致这种情况是由于导入应用程序配置或模型模块触发了依赖应用程序注册表的代码。
 
-  For example, :func:`~django.utils.translation.ugettext()` uses the app
-  registry to look up translation catalogs in applications. To translate at
-  import time, you need :func:`~django.utils.translation.ugettext_lazy()`
-  instead. (Using :func:`~django.utils.translation.ugettext()` would be a bug,
-  because the translation would happen at import time, rather than at each
-  request depending on the active language.)
+  例如, :func:`~django.utils.translation.ugettext()` 使用应用注册表来查找应用中的翻译目录。
+  若要在导入时翻译，你需要 :func:`~django.utils.translation.ugettext_lazy()` (使用 :func:`~django.utils.translation.ugettext()` would be a bug,
+  将是一个bug，因为翻译发生在导入的时候，而不是取决于每个请求的当前语言。)
 
-  Executing database queries with the ORM at import time in models modules
-  will also trigger this exception. The ORM cannot function properly until all
-  models are available.
+  模型模块中在导入时使用ORM 执行数据库查询也会引发此异常。ORM 要直到所有的模型都可用时才能正常工作。
 
-  Another common culprit is :func:`django.contrib.auth.get_user_model()`. Use
-  the :setting:`AUTH_USER_MODEL` setting to reference the User model at import
-  time.
+  另一个常见的罪魁祸首 :func:`django.contrib.auth.get_user_model()`。
+  请在导入时使用 :setting:`AUTH_USER_MODEL` 设置来引用用户模型。
 
-  This exception also happens if you forget to call :func:`django.setup()` in
-  a standalone Python script.
+  如果在一个独立的 Python 脚本中你忘了调用 :func:`django.setup()` 也会发生此异常。
 
-* ``ImportError: cannot import name ...`` This happens if the import sequence
-  ends up in a loop.
+* ``ImportError: cannot import name ...`` 如果出现循环导入，就会反正这种情况。
 
-  To eliminate such problems, you should minimize dependencies between your
-  models modules and do as little work as possible at import time. To avoid
-  executing code at import time, you can move it into a function and cache its
-  results. The code will be executed when you first need its results. This
-  concept is known as "lazy evaluation".
+  要消除这种问题，应尽量减少模型模块之间的依赖项，并在导入时尽可能少做工作。
+  为了避免在导入时执行代码，你可以移动它到一个函数和缓存其结果。当你第一次需要其结果时，
+  将执行该代码。这一概念被称为"惰性求值"。
 
-* ``django.contrib.admin`` automatically performs autodiscovery of ``admin``
-  modules in installed applications. To prevent it, change your
-  :setting:`INSTALLED_APPS` to contain
-  ``'django.contrib.admin.apps.SimpleAdminConfig'`` instead of
+* ``django.contrib.admin`` 在安装的应用中自动发现 ``admin``，
+  要阻止它，请更改你的
+  :setting:`INSTALLED_APPS` 以包含
+  ``'django.contrib.admin.apps.SimpleAdminConfig'`` 而不是
   ``'django.contrib.admin'``.
