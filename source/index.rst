@@ -202,7 +202,7 @@ testing of Django applications:
   :doc:`Full list of settings <ref/settings>`
 
 * **Applications:**
-  :doc:`Overview <ref/applications>`
+  :doc:`应用 <ref/applications>`
 
 * **Exceptions:**
   :doc:`Overview <ref/exceptions>`
@@ -359,4 +359,9 @@ you can contribute:
    主题指南 <topics/index>
    ref/index
    howto/index
+   faq/index
+   misc/index
+   releases/index
+   internals/index
+   <glossary>
    详细目录 <contents>

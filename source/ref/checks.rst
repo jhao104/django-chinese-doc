@@ -1,64 +1,51 @@
-======================
-System check framework
-======================
+=============
+系统检查框架
+=============
 
 .. currentmodule:: django.core.checks
 
-The system check framework is a set of static checks for validating Django
-projects. It detects common problems and provides hints for how to fix them.
-The framework is extensible so you can easily add your own checks.
+系统检查框架是一组用于验证Django项目的静态检查。
+它检测常见问题并提供如何修复它们的提示。框架是可扩展的，因此您可以轻松添加自定义的检查。
 
-For details on how to add your own checks and integrate them with Django's
-system checks, see the :doc:`System check topic guide </topics/checks>`.
+有关如何添加自定义检查并将其与Django的系统检查集成的详细信息，请参阅 :doc:`System check topic guide </topics/checks>`。
 
-API Reference
-=============
+API参考
+=========
 
 ``CheckMessage``
 -----------------
 
 .. class:: CheckMessage(level, msg, hint=None, obj=None, id=None)
 
-The warnings and errors raised by system checks must be instances of
-``CheckMessage``. An instance encapsulates a single reportable error or
-warning. It also provides context and hints applicable to the message, and a
-unique identifier that is used for filtering purposes.
+系统检查引起的警告和错误必须是 ``CheckMessage`` 的实例。
+这个实例封装了一个单一的可重复使用的错误和警告。
+它还提供了用于消息的上下文和提示，以及用于过滤的惟一标识符。
 
-Constructor arguments are:
+构造函数的参数:
 
 ``level``
-    The severity of the message. Use one of the predefined values: ``DEBUG``,
-    ``INFO``, ``WARNING``, ``ERROR``, ``CRITICAL``. If the level is greater or
-    equal to ``ERROR``, then Django will prevent management commands from
-    executing. Messages with level lower than ``ERROR`` (i.e. warnings) are
-    reported to the console, but can be silenced.
+    信息的严重性。使用一个预定义值: ``DEBUG``,
+    ``INFO``, ``WARNING``, ``ERROR``, ``CRITICAL``. 如果级别大于或等于 ``ERROR``，
+    则Django将阻止管理命令执行。如果消息等级下雨 ``ERROR`` (i.e. warnings) 将报告给控制台, 但不做其他处理。
 
 ``msg``
-    A short (less than 80 characters) string describing the problem. The string
-    should *not* contain newlines.
+    对问题简短描述的字符串 (少于 80 个字符)，字符串不能包含换行符。
 
 ``hint``
-    A single-line string providing a hint for fixing the problem. If no hint
-    can be provided, or the hint is self-evident from the error message, the
-    hint can be omitted, or a value of ``None`` can be used.
+    为解决问题提供提示的单行字符串。如果没有提供任何提示，
+    或者提示从错误消息中可以明显看出，则提示可以省略，或者用``None``。
 
 ``obj``
-    Optional. An object providing context for the message (for example, the
-    model where the problem was discovered). The object should be a model,
-    field, or manager or any other object that defines ``__str__`` method (on
-    Python 2 you need to define ``__unicode__`` method). The method is used
-    while reporting all messages and its result precedes the message.
+    可选。为消息提供上下文的对象(例如，发现问题的模型)。对象应该是一个模型、字段、管理器或定义
+    了 ``__str__`` 方法的任何其他对象(在Python 2中，您需要定义 ``__unicode__`` 方法)。
+    在报告所有消息时使用该方法。
 
 ``id``
-    Optional string. A unique identifier for the issue. Identifiers should
-    follow the pattern ``applabel.X001``, where ``X`` is one of the letters
-    ``CEWID``, indicating the message severity (``C`` for criticals, ``E`` for
-    errors and so). The number can be allocated by the application, but should
-    be unique within that application.
+    可选字符串，问题的唯一标示。标识符应该遵循这种模式
+    ``applabel.X001`` 。``X`` 是一个 ``CEWID`` 的一个字母，表示消息严重程度(
+    ``C`` 代表 ``CRITICAL``, ``E`` 代表 ``ERROR`` 等。) 这个数字可以由应用程序任意分配，但在应用程序中应该是唯一的。
 
-There are subclasses to make creating messages with common levels easier. When
-using them you can omit the ``level`` argument because it is implied by the
-class name.
+有子类可以使创建具有公共级别的消息更加容易。在使用它们时，您可以省略 ``level`` 参数，因为它是由类名隐含的
 
 .. class:: Debug(msg, hint=None, obj=None, id=None)
 .. class:: Info(msg, hint=None, obj=None, id=None)
@@ -66,44 +53,41 @@ class name.
 .. class:: Error(msg, hint=None, obj=None, id=None)
 .. class:: Critical(msg, hint=None, obj=None, id=None)
 
-Builtin checks
-==============
+内建检查
+=========
 
 .. _system-check-builtin-tags:
 
-Builtin tags
+内建tags
 ------------
 
-Django's system checks are organized using the following tags:
+Django的系统检查使用以下标记:
 
-* ``models``: Checks governing model, field and manager definitions.
-* ``signals``: Checks on signal declarations and handler registrations.
-* ``admin``: Checks of any admin site declarations.
-* ``compatibility``: Flagging potential problems with version upgrades.
-* ``security``: Checks security related configuration.
-* ``templates``: Checks template related configuration.
-* ``caches``: Checks cache related configuration.
-* ``urls``: Checks URL configuration.
-* ``database``: Checks database-related configuration issues. Database checks
-  are not run by default because they do more than static code analysis as
-  regular checks do. They are only run by the :djadmin:`migrate` command or if
-  you specify the ``database`` tag when calling the :djadmin:`check` command.
+* ``models``: 检查管理模型，字段和管理器定义。
+* ``signals``: 检查信号声明和处理程序注册。
+* ``admin``: 检查所有管理网站声明。
+* ``compatibility``: 标记版本升级的潜在问题。
+* ``security``: 检查安全相关的配置。
+* ``templates``: 检查模板相关配置。
+* ``caches``: 检查缓存相关配置。
+* ``urls``: 检查路由相关配置。
+* ``database``: 检查数据库配置相关问题。数据库检查并不是以默认方式运行，因为它们比静态的代码分析做的更多。
+  它们只由 :djadmin:`migrate` 命令运行，或者在调用 :djadmin:`check` 命令时指定数据库标记。
 
 .. versionadded:: 1.10
 
-    The ``database`` tag was added.
+     ``database`` tag 在再1.10版本开始加入的。
 
-Some checks may be registered with multiple tags.
+某些检查可能会向多个标签注册。
 
-Core system checks
-------------------
+核心系统检查
+------------
 
 Models
 ~~~~~~
 
-* **models.E001**: ``<swappable>`` is not of the form ``app_label.app_name``.
-* **models.E002**: ``<SETTING>`` references ``<model>``, which has not been
-  installed, or is abstract.
+* **models.E001**: ``<swappable>`` 格式不是 ``app_label.app_name``.
+* **models.E002**: ``<SETTING>`` 引用的 ``<model>``没有被 installed,或者是抽象的。
 * **models.E003**: The model has two many-to-many relations through the
   intermediate model ``<app_label>.<model>``.
 * **models.E004**: ``id`` can only be used as a field name if the field also
