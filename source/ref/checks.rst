@@ -87,7 +87,7 @@ Models
 ~~~~~~
 
 * **models.E001**: ``<swappable>`` 格式不是 ``app_label.app_name``.
-* **models.E002**: ``<SETTING>`` 引用的 ``<model>``没有被 installed,或者是抽象的。
+* **models.E002**: ``<SETTING>`` 引用的 ``<model>`` 没有被 installed,或者是抽象的。
 * **models.E003**: The model has two many-to-many relations through the
   intermediate model ``<app_label>.<model>``.
 * **models.E004**: ``id`` can only be used as a field name if the field also
