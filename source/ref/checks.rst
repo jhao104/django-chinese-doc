@@ -151,23 +151,15 @@ Models
 关系字段
 ~~~~~~~~~
 
-* **fields.E300**: Field defines a relation with model ``<model>``, which is
-  either not installed, or is abstract.
-* **fields.E301**: Field defines a relation with the model ``<model>`` which
-  has been swapped out.
-* **fields.E302**: Accessor for field ``<field name>`` clashes with field
-  ``<field name>``.
-* **fields.E303**: Reverse query name for field ``<field name>`` clashes with
-  field ``<field name>``.
-* **fields.E304**: Field name ``<field name>`` clashes with accessor for
-  ``<field name>``.
-* **fields.E305**: Field name ``<field name>`` clashes with reverse query name
-  for ``<field name>``.
-* **fields.E306**: Related name must be a valid Python identifier or end with
-  a ``'+'``.
-* **fields.E307**: The field ``<app label>.<model>.<field name>`` was declared
-  with a lazy reference to ``<app label>.<model>``, but app ``<app label>``
-  isn't installed or doesn't provide model ``<model>``.
+* **fields.E300**: 字段定义的关系模型 ``<model>`` 没有install或者是抽象的。
+* **fields.E301**: 字段定义的关系模型 ``<model>`` 已经换出。
+* **fields.E302**: 访问字段 ``<field name>`` 与字段 ``<field name>`` 冲突。
+* **fields.E303**: 反向查询字段 ``<field name>`` 与字段 ``<field name>`` 冲突。
+* **fields.E304**: 字段 ``<field name>`` 与访问字段 ``<field name>`` 冲突。
+* **fields.E305**: 字段 ``<field name>`` 与反向查询字段 ``<field name>`` 冲突。
+* **fields.E306**: 关系名必须是Python标识符，或者以 ``'+'`` 结尾。
+* **fields.E307**: 字段 ``<app label>.<model>.<field name>`` 是惰性关联到模型 ``<app label>.<model>``,
+  但是应用 ``<app label>`` 并没有install,或是没有此模型 ``<model>``。
 * **fields.E310**: No subset of the fields ``<field1>``, ``<field2>``, ... on
   model ``<model>`` is unique. Add ``unique=True`` on any of those fields or
   add at least a subset of them to a unique_together constraint.

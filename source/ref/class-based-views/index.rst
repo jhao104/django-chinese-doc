@@ -1,5 +1,5 @@
 ==============================
-Built-in class-based views API
+内建基于类的视图API
 ==============================
 
 Class-based views API reference. For introductory material, see the
@@ -7,6 +7,7 @@ Class-based views API reference. For introductory material, see the
 
 .. toctree::
    :maxdepth: 3
+   :hidden:
 
    base
    generic-display
