@@ -1,227 +1,172 @@
+=============
+接下来看什么
+=============
+
+看来你已经阅读了 :doc:`介绍文档 </intro/index>` ，而且决定继续使用Django。
+前面我们只是概要性的介绍(实际上，即使你读了所有的介绍，也只看了整个文档的5%)。
+
+所以下一步是什么呢？
+
+我们是喜欢通过实践来学习。基于这一点，你应该开始动手你自己的项目。当你需要新的技能的时候，再回来查文档。
+
+我们花了很多精力来让Django文档实用、易读、尽可能完备。
+下面文档更多的是关于如何使用文档，以便于你可以最大化的利用它。
+
+(是的，这篇文档是关于如何使用文档的。放心我们不会再为这篇文档的文档再写一篇文档了)
+
+搜索文档
+=========
+
+Django有 *大量* 的文档--大概450,000个单词--所以学会如何查找文档是很重要的。 一些查看文档的好地方是 :ref:`search` 和
+:ref:`genindex` 。
+
+
+或者你可以到处逛逛!
+
+文档是如何组织的
 =================
-What to read next
-=================
 
-So you've read all the :doc:`introductory material </intro/index>` and have
-decided you'd like to keep using Django. We've only just scratched the surface
-with this intro (in fact, if you've read every single word, you've read about
-5% of the overall documentation).
+Django 的主要文档可以分解为几个用于满足不同需求的部分：
 
-So what's next?
+* :doc:`入门教程 </intro/index>` 是为刚接触Django或Web开发的人所设计的。
+  它并不包含深度的内容，它像是培养你如何使用Django的一种“感觉”。
 
-Well, we've always been big fans of learning by doing. At this point you should
-know enough to start a project of your own and start fooling around. As you need
-to learn new tricks, come back to the documentation.
+* :doc:`主题指南 </topics/index>` ,通过另一种方式，在Django的每一块做了深入讲解。
+  主题包括 :doc:`模型系统 </topics/db/index>`， :doc:`模板索引
+  </topics/templates>` ， :doc:`表单框架 </topics/forms/index>` 等等。
 
-We've put a lot of effort into making Django's documentation useful, easy to
-read and as complete as possible. The rest of this document explains more about
-how the documentation works so that you can get the most out of it.
+  这里可能是你最需要花时间的地方；如果你动手完成了这些指导文档的内容，那么你应该对Django非常熟悉了。
 
-(Yes, this is documentation about documentation. Rest assured we have no plans
-to write a document about how to read the document about documentation.)
+* Web开发通常范围广，但是不深--问题会涉及很多领域。
+  我们写了一系列 :doc:`使用指南 </howto/index>` 来回答常见的 “我该如何..?” 这类的问题。
+  这里你会发现关于 :doc:`如何用Django生成PDF文档 </howto/outputting-pdf>` ，
+  如何写 :doc:`通用模板标签 </howto/custom-template-tags>` 等等。
 
-Finding documentation
-=====================
+  对于细节性的问题可以在  :doc:`FAQ
+  </faq/index>` 中找到。
 
-Django's got a *lot* of documentation -- almost 450,000 words and counting --
-so finding what you need can sometimes be tricky. A few good places to start
-are the :ref:`search` and the :ref:`genindex`.
+* 主题指南和使用指南没有完全覆盖到Django中得每个类、函数、方法---如果那样的话会太多，不利于学习。
+  实际上，每个类、函数、方法还有模块的细节在 :doc:`参考指南 </ref/index>` 中。
+  那里才是当你需要查找函数细节或是其他什么细节的地方。
 
-Or you can just browse around!
+* 如果你对部署项目到公网感兴趣，我们有 :doc:`这些文档</howto/deployment/index>` 是关于部署的，
+  比如部 :doc:`部署检查清单</howto/deployment/checklist>` 是你需要关心的。
 
-How the documentation is organized
-==================================
+* 最后，有一些"特殊"的文档通常与大多数开发者无关。包括 :doc:`版本记录 </releases/index>` 和
+  :doc:`内部文档 </internals/index>` 是写给那些想贡献代码到Django的人，和一些 :doc:`不好分类杂散 </misc/index>` 的文档。
 
-Django's main documentation is broken up into "chunks" designed to fill
-different needs:
+文档如何更新
+=============
 
-* The :doc:`introductory material </intro/index>` is designed for people new
-  to Django -- or to Web development in general. It doesn't cover anything
-  in depth, but instead gives a high-level overview of how developing in
-  Django "feels".
+像Django代码一样通常每天都在开发和改进，我们的文档是持续改进的。我们改进文档的原因:
 
-* The :doc:`topic guides </topics/index>`, on the other hand, dive deep into
-  individual parts of Django. There are complete guides to Django's
-  :doc:`model system </topics/db/index>`, :doc:`template engine
-  </topics/templates>`, :doc:`forms framework </topics/forms/index>`, and much
-  more.
+* 内容修改，比如语法、排版错误。
 
-  This is probably where you'll want to spend most of your time; if you work
-  your way through these guides you should come out knowing pretty much
-  everything there is to know about Django.
+* 增加内容还有例子到已有需要扩充的章节。
 
-* Web development is often broad, not deep -- problems span many domains.
-  We've written a set of :doc:`how-to guides </howto/index>` that answer
-  common "How do I ...?" questions. Here you'll find information about
-  :doc:`generating PDFs with Django </howto/outputting-pdf>`, :doc:`writing
-  custom template tags </howto/custom-template-tags>`, and more.
+* 没有列出来的Django特性文档。(这些特性列表是不完整的，但是功能确实存在。)
 
-  Answers to really common questions can also be found in the :doc:`FAQ
-  </faq/index>`.
+* 当新特性增加的时候，增加到文档，或者 Django API行为改变的时候。
 
-* The guides and how-to's don't cover every single class, function, and
-  method available in Django -- that would be overwhelming when you're
-  trying to learn. Instead, details about individual classes, functions,
-  methods, and modules are kept in the :doc:`reference </ref/index>`. This is
-  where you'll turn to find the details of a particular function or
-  whatever you need.
-
-* If you are interested in deploying a project for public use, our docs have
-  :doc:`several guides</howto/deployment/index>` for various deployment
-  setups as well as a :doc:`deployment checklist</howto/deployment/checklist>`
-  for some things you'll need to think about.
-
-* Finally, there's some "specialized" documentation not usually relevant to
-  most developers. This includes the :doc:`release notes </releases/index>` and
-  :doc:`internals documentation </internals/index>` for those who want to add
-  code to Django itself, and a :doc:`few other things that simply don't fit
-  elsewhere </misc/index>`.
-
-
-How documentation is updated
-============================
-
-Just as the Django code base is developed and improved on a daily basis, our
-documentation is consistently improving. We improve documentation for several
-reasons:
-
-* To make content fixes, such as grammar/typo corrections.
-
-* To add information and/or examples to existing sections that need to be
-  expanded.
-
-* To document Django features that aren't yet documented. (The list of
-  such features is shrinking but exists nonetheless.)
-
-* To add documentation for new features as new features get added, or as
-  Django APIs or behaviors change.
-
-Django's documentation is kept in the same source control system as its code. It
-lives in the `docs`_ directory of our Git repository. Each document online is a
-separate text file in the repository.
+Django 文档和代码一样是有版本控制的。它在我们 Git 仓库的 `docs`_ 目录下。每篇文章在仓库中是一个独立的文本文件。
 
 .. _docs: https://github.com/django/django/tree/master/docs
 
-Where to get it
-===============
+如何获取它
+===========
 
-You can read Django documentation in several ways. They are, in order of
-preference:
+你可以通过几种不同方式阅读Django文档。以下用优先顺序排列:
 
-On the Web
+在线阅读
 ----------
 
-The most recent version of the Django documentation lives at
-https://docs.djangoproject.com/en/dev/. These HTML pages are generated
-automatically from the text files in source control. That means they reflect the
-"latest and greatest" in Django -- they include the very latest corrections and
-additions, and they discuss the latest Django features, which may only be
-available to users of the Django development version. (See "Differences between
-versions" below.)
+最新版本的Django文档来源于右边网址 https://docs.djangoproject.com/en/dev/ 。
+这些HTML页面是由源控制的文本本件自动产生的。这意味着他们反映了Django“最新和最好”的方面——包括最新的更正和新添加的内容，
+以及对于可能仅针对Django最新版本的用户开放的新特性的讨论。（见下文“版本之间的差异”）
 
-We encourage you to help improve the docs by submitting changes, corrections and
-suggestions in the `ticket system`_. The Django developers actively monitor the
-ticket system and use your feedback to improve the documentation for everybody.
+我们鼓励您在 `ticket system`_  中提交更改、更正或者建议以促进文档的改善。
+Django 的开发者会主动查看工单系统，并且使用你的反馈意见来改善文档。
 
-Note, however, that tickets should explicitly relate to the documentation,
-rather than asking broad tech-support questions. If you need help with your
-particular Django setup, try the |django-users| mailing list or the `#django
-IRC channel`_ instead.
+注意，不管怎样，工单应该非常明确的是和文档相关的，而不是问一些技术支持的问题。如果你需要特别的 Django 帮助，
+试试 Django 用户组邮件列表_ 或者 `#django
+IRC channel`_ 频道。
 
+
+.. _用户组邮件列表: https://groups.google.com/d/forum/django-users
 .. _ticket system: https://code.djangoproject.com/
 .. _#django IRC channel: irc://irc.freenode.net/django
 
-In plain text
--------------
+纯文本
+-------
 
-For offline reading, or just for convenience, you can read the Django
-documentation in plain text.
+离线阅读，或者移动阅读，你可以阅读 Django 纯文本文档。
 
-If you're using an official release of Django, note that the zipped package
-(tarball) of the code includes a ``docs/`` directory, which contains all the
-documentation for that release.
+如果你正在使用 Django 官方发行版，注意代码压缩包(tarball)包括一个 ``docs/`` 目录，包含了对应发行版的文档。
 
-If you're using the development version of Django (aka "trunk"), note that the
-``docs/`` directory contains all of the documentation. You can update your
-Git checkout to get the latest changes.
+如果你在使用开发版的 Django(又称为"trunk")，注意 ``docs/`` 目录包含了所有的文档。
+你可以通过 git checkout 来获取最新更新。
 
-One low-tech way of taking advantage of the text documentation is by using the
-Unix ``grep`` utility to search for a phrase in all of the documentation. For
-example, this will show you each mention of the phrase "max_length" in any
-Django document:
+一个稍微有点技术含量的查看文档的方法是通过 Unix 系统的 ``grep`` 命令来查找关键字搜索文档。
+例如，这将会展示 Django 文档中提到"max_length"的地方。
 
 .. code-block:: console
 
     $ grep -r max_length /path/to/django/docs/
 
-As HTML, locally
+下载html到本地
 ----------------
 
-You can get a local copy of the HTML documentation following a few easy steps:
+你可以通过以下简单的方法获取 HTML 格式的文档：
 
-* Django's documentation uses a system called Sphinx__ to convert from
-  plain text to HTML. You'll need to install Sphinx by either downloading
-  and installing the package from the Sphinx website, or with ``pip``:
+* Django 的文档用了一个叫做 Sphinx__ 的文档系统来从纯文本转换到 HTML。你需要安装 Sphinx，
+  通过 Sphinx 网站下载安装包，或者通过 ``pip`` 方式安装。
 
   .. code-block:: console
 
         $ pip install Sphinx
 
-* Then, just use the included ``Makefile`` to turn the documentation into
-  HTML:
+* 然后使用文档目录中的 ``Makefile`` 来转换纯文本到 HTML:
 
   .. code-block:: console
 
         $ cd path/to/django/docs
         $ make html
 
-  You'll need `GNU Make`__ installed for this.
+  进行此操作，你需要安装 `GNU Make`__ 。
 
-  If you're on Windows you can alternatively use the included batch file:
+  如果你在 Windows 系统，你可以选择使用目录中的批处理文件：
 
   .. code-block:: bat
 
         cd path\to\django\docs
         make.bat html
 
-* The HTML documentation will be placed in ``docs/_build/html``.
+* 生成的 HTML 文件将会放在 ``docs/_build/html``。
 
 __ http://sphinx-doc.org/
 __ https://www.gnu.org/software/make/
 
 .. _differences-between-doc-versions:
 
-Differences between versions
-============================
+版本差异
+=========
 
-As previously mentioned, the text documentation in our Git repository
-contains the "latest and greatest" changes and additions. These changes often
-include documentation of new features added in the Django development version
--- the Git ("trunk") version of Django. For that reason, it's worth
-pointing out our policy on keeping straight the documentation for various
-versions of the framework.
+像之前提到的，我们 Git 仓库中的文本文档包含很多"最新"修改的文档 。
+这些修改通常包含 Django 开发版增加的一些特性。因此，我们的策略是保留各种版本的开发文档。
 
-We follow this policy:
+我们遵从的策略:
 
-* The primary documentation on djangoproject.com is an HTML version of the
-  latest docs in Git. These docs always correspond to the latest
-  official Django release, plus whatever features we've added/changed in
-  the framework *since* the latest release.
+* 在Git仓库中djangoproject.com的最新文档是HTML版本。
+  这些文档对应Django官方的最新版本，加上我们在since新版本中添加或者更改的新特性。
 
-* As we add features to Django's development version, we try to update the
-  documentation in the same Git commit transaction.
+* 当Django的开发版本中添加新特性的时候，我们尽力在相同的git提交动作中同步更新文档。
 
-* To distinguish feature changes/additions in the docs, we use the phrase:
-  "New in version X.Y", being X.Y the next release version (hence, the one
-  being developed).
+* 为了区分文档中要素的更改/添加，我们使用短语“新版本X.Y”，在下一个发行版本中为X.Y
 
-* Documentation fixes and improvements may be backported to the last release
-  branch, at the discretion of the committer, however, once a version of
-  Django is :ref:`no longer supported<backwards-compatibility-policy>`, that
-  version of the docs won't get any further updates.
+* 文档修复和改进可以由提交者自行决定，返回到最后一个发布分支，
+  但是，一旦Django的版本 :ref:`no longer supported<backwards-compatibility-policy>` ，
+  该版本的文档将不再获得任何进一步的更新。
 
-* The `main documentation Web page`_ includes links to documentation for
-  all previous versions. Be sure you are using the version of the docs
-  corresponding to the version of Django you are using!
+* 主文档_ 网页包含指向所有先前版本的文档的链接。确保您使用的是与您使用的Django版本相对应的文档版本！
 
-.. _main documentation Web page: https://docs.djangoproject.com/en/dev/
+.. _主文档: https://docs.djangoproject.com/en/dev/
