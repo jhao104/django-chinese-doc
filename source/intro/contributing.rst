@@ -1,57 +1,45 @@
-===================================
-Writing your first patch for Django
-===================================
+===============
+开发Django补丁
+===============
 
-Introduction
-============
+介绍
+=====
 
-Interested in giving back to the community a little? Maybe you've found a bug
-in Django that you'd like to see fixed, or maybe there's a small feature you
-want added.
+有兴趣为社区做出点贡献吗？也许你会在Django中发现你想要修复的漏洞，或者你希望为它添加一个小功能。
 
-Contributing back to Django itself is the best way to see your own concerns
-addressed. This may seem daunting at first, but it's really pretty simple.
-We'll walk you through the entire process, so you can learn by example.
+为Django作贡献这件事本身就是使你的顾虑得到解决的最好方式。一开始这可能会使你怯步，
+但事实上是很简单的。整个过程中我们会一步一步为你解说，所以你可以通过例子学习。
 
-Who's this tutorial for?
-------------------------
+本教程的受众
+-------------
 
 .. seealso::
 
-    If you are looking for a reference on how to submit patches, see the
-    :doc:`/internals/contributing/writing-code/submitting-patches`
-    documentation.
+    如果您正在寻找关于如何提交补丁的参考，请参阅 :doc:`/internals/contributing/writing-code/submitting-patches` 。
 
-For this tutorial, we expect that you have at least a basic understanding of
-how Django works. This means you should be comfortable going through the
-existing tutorials on :doc:`writing your first Django app</intro/tutorial01>`.
-In addition, you should have a good understanding of Python itself. But if you
-don't, `Dive Into Python`__ is a fantastic (and free) online book for
-beginning Python programmers.
+使用教程前，我们希望你至少对于Django的运行方式有基础的了解。
+这意味着你可以自如地在 :doc:`开发第一个Django应用</intro/tutorial01>` 时使用教程 。
+除此之外，你应该对于Python本身有很好的了解。如果您并不太了解，
+我们为您推荐 `Dive Into Python`__ ，对于初次使用Python的程序员来说这是一本很棒（而且免费）的在线电子书。
 
-Those of you who are unfamiliar with version control systems and Trac will find
-that this tutorial and its links include just enough information to get started.
-However, you'll probably want to read some more about these different tools if
-you plan on contributing to Django regularly.
+对于版本控制系统及Trac不熟悉的人来说，这份教程及其中的链接所包含的信息足以满足你们开始学习的需求。
+然而，如果你希望定期为Django贡献代码，你可能会希望阅读更多关于这些不同工具的信息。
 
-For the most part though, this tutorial tries to explain as much as possible,
-so that it can be of use to the widest audience.
+当然对于其中的大部分内容，Django会尽可能做出解释以帮助广大的读者。
 
-.. admonition:: Where to get help:
+.. admonition:: 如何获取帮助:
 
-    If you're having trouble going through this tutorial, please post a message
-    to |django-developers| or drop by `#django-dev on irc.freenode.net`__ to
-    chat with other Django users who might be able to help.
+    如果你在使用本教程时遇到困难，你可以发送信息给 :ref:`django-developers-mailing-list`
+    或者登陆 `#django-dev on irc.freenode.net`__ 向其他Django使用者需求帮助。
 
 __ http://www.diveintopython3.net/
 __ irc://irc.freenode.net/django-dev
 
-What does this tutorial cover?
-------------------------------
+教程包含的内容
+---------------
 
-We'll be walking you through contributing a patch to Django for the first time.
-By the end of this tutorial, you should have a basic understanding of both the
-tools and the processes involved. Specifically, we'll be covering the following:
+一开始我们会帮助你为Django编写补丁，
+在教程结束时，你将具备对工具和所包含过程的基本了解。准确来说，我们的教程将包含以下几点：
 
 * Installing Git.
 * How to download a development copy of Django.
