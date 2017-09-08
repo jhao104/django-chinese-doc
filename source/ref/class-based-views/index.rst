@@ -2,8 +2,8 @@
 内建基于类的视图API
 ==============================
 
-Class-based views API reference. For introductory material, see the
-:doc:`/topics/class-based-views/index` topic guide.
+基于类的API参考。对于介绍性内容，请参见 :doc:`/topics/class-based-views/index` 主题指南。
+ topic guide.
 
 .. toctree::
    :maxdepth: 3

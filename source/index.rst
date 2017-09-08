@@ -363,5 +363,4 @@ you can contribute:
    misc/index
    releases/index
    internals/index
-   <glossary>
    详细目录 <contents>
