@@ -41,101 +41,85 @@ __ irc://irc.freenode.net/django-dev
 一开始我们会帮助你为Django编写补丁，
 在教程结束时，你将具备对工具和所包含过程的基本了解。准确来说，我们的教程将包含以下几点：
 
-* Installing Git.
-* How to download a development copy of Django.
-* Running Django's test suite.
-* Writing a test for your patch.
-* Writing the code for your patch.
-* Testing your patch.
-* Submitting a pull request.
-* Where to look for more information.
+* 安装 Git。
+* 如何下载Django的开发副本。
+* 运行Django测试组件。
+* 开发补丁测试。
+* 开发补丁。
+* 测试补丁。
+* 提交pull request。
+* 在哪里寻找更多的信息。
 
-Once you're done with the tutorial, you can look through the rest of
-:doc:`Django's documentation on contributing</internals/contributing/index>`.
-It contains lots of great information and is a must read for anyone who'd like
-to become a regular contributor to Django. If you've got questions, it's
-probably got the answers.
+一旦你完成了这份教程，你可以浏览剩下的
+:doc:`Django's documentation on contributing</internals/contributing/index>` 。
+它包含了大量信息。任何想成为Django的正式贡献者必须去阅读它。如果你有问题，它也许会给你答案。
 
 .. admonition:: Python 3 required!
 
-    This tutorial assumes you are using Python 3. Get the latest version at
-    `Python's download page <https://www.python.org/download/>`_ or with your
-    operating system's package manager.
+    本教程的内容要求 Python 3版本。 你可以在
+    `Python's download page <https://www.python.org/download/>`_ 或者系统包管理器中获取最新版本。
+
+.. admonition:: For Windows 用户
+
+    如果你在Windows上使用Python, 请 "将
+    python.exe 添加到环境变量中", 这样才能在命令行中随意调用Python。
+
+行为规范
+=========
+
+作为一个贡献者，您可以帮助我们保持Django社区的开放和包容。请阅读并遵守我们的 `Code of Conduct <https://www.djangoproject.com/conduct/>`_ 。
+
+安装 Git
+=========
+
+使用教程前，你需要安装好Git，下载Django的最新开发版本并且对你的修改生成补丁文件。
+
+为了确认你是否已经安装了Git, 输入 ``git`` 进入命令行。如果信息提示命令无法找到, 你就需要下载并安装Git,
+详情阅读 `Git's download page`__ 。
+
+如果你还不熟悉 Git, 你可以在命令行下输入 ``git help`` 了解更多关于它的命令（确认已安装）。
 
 .. admonition:: For Windows users
 
-    When installing Python on Windows, make sure you check the option "Add
-    python.exe to Path", so that it is always available on the command line.
+    如果在Windows上安装Git，建议选择“Git Bash”选项，以便Git运行在自己的shell中。本教程假设您已经安装了它。
 
-Code of Conduct
-===============
-
-As a contributor, you can help us keep the Django community open and inclusive.
-Please read and follow our `Code of Conduct <https://www.djangoproject.com/conduct/>`_.
-
-Installing Git
-==============
-
-For this tutorial, you'll need Git installed to download the current
-development version of Django and to generate patch files for the changes you
-make.
-
-To check whether or not you have Git installed, enter ``git`` into the command
-line. If you get messages saying that this command could not be found, you'll
-have to download and install it, see `Git's download page`__.
-
-.. admonition:: For Windows users
-
-    When installing Git on Windows, it is recommended that you pick the
-    "Git Bash" option so that Git runs in its own shell. This tutorial assumes
-    that's how you have installed it.
-
-If you're not that familiar with Git, you can always find out more about its
-commands (once it's installed) by typing ``git help`` into the command line.
 
 __ http://git-scm.com/download
 
-Getting a copy of Django's development version
-==============================================
+下载Django 开发版的副本
+========================
 
-The first step to contributing to Django is to get a copy of the source code.
-First, `fork Django on GitHub <https://github.com/django/django/fork>`__. Then,
-from the command line, use the ``cd`` command to navigate to the directory
-where you'll want your local copy of Django to live.
+为Django贡献代码的第一步就是获取源代码复本。`fork Django on GitHub <https://github.com/django/django/fork>`__ 。
+在命令行里， 使用 ``cd`` 命令进入你想要保存Django的目录
 
-Download the Django source code repository using the following command:
+使用下面的命令来下载Django的源码库：
 
 .. code-block:: console
 
     $ git clone git@github.com:YourGitHubName/django.git
 
-Now that you have a local copy of Django, you can install it just like you would
-install any package using ``pip``. The most convenient way to do so is by using
-a *virtual environment* (or virtualenv) which is a feature built into Python
-that allows you to keep a separate directory of installed packages for each of
-your projects so that they don't interfere with each other.
+现在您已经有了Django的本地副本，您可以安装它，就像您可以使用 ``pip`` 安装任何包一样。
+最方便的方法是使用 *virtual environment* (或virtualenv)，
+它是Python内置的特性，允许您为每个项目保留一个单独的安装包目录，这样它们就不会互相干扰。
 
-It's a good idea to keep all your virtualenvs in one place, for example in
-``.virtualenvs/`` in your home directory. Create it if it doesn't exist yet:
+最好把你所有的虚拟空间放在一个地方，例如在您的home目录下的 ``.virtualenvs/`` 目录 。如果它还不存在，就创建它
 
 .. code-block:: console
 
     $ mkdir ~/.virtualenvs
 
-Now create a new virtualenv by running:
+现在通过运行下面代码创建一个新的virtualenv:
 
 .. code-block:: console
 
     $ python3 -m venv ~/.virtualenvs/djangodev
 
-The path is where the new environment will be saved on your computer.
+这个路径是你的电脑上保存新环境的地方。
 
 .. admonition:: For Windows users
 
-    Using the built-in ``venv`` module will not work if you are also using the
-    Git Bash shell on Windows, since activation scripts are only created for the
-    system shell (``.bat``) and PowerShell (``.ps1``). Use the ``virtualenv``
-    package instead:
+    如果您还在Windows上使用Git Bash shell，那么使用内置的 ``venv`` 模块将不起作用，
+    因为只为系统shell( ``.bat`` )和PowerShell( ``.ps1`` )创建了激活脚本。使用 ``virtualenv`` 包代替:
 
     .. code-block:: none
 
@@ -144,8 +128,7 @@ The path is where the new environment will be saved on your computer.
 
 .. admonition:: For Ubuntu users
 
-    On some versions of Ubuntu the above command might fail. Use the
-    ``virtualenv`` package instead, first making sure you have ``pip3``:
+    在某些版本的Ubuntu上，上面的命令可能会失败。使用 ``virtualenv`` 包，首先确保有 ``pip3`` :
 
     .. code-block:: console
 
@@ -154,13 +137,13 @@ The path is where the new environment will be saved on your computer.
         $ pip3 install virtualenv
         $ virtualenv --python=`which python3` ~/.virtualenvs/djangodev
 
-The final step in setting up your virtualenv is to activate it:
+设置virtualenv的最后一步是激活它:
 
 .. code-block:: console
 
     $ source ~/.virtualenvs/djangodev/bin/activate
 
-If the ``source`` command is not available, you can try using a dot instead:
+如果 ``source`` 命令不可用，您可以尝试使用一个点:
 
 .. code-block:: console
 
@@ -168,42 +151,34 @@ If the ``source`` command is not available, you can try using a dot instead:
 
 .. admonition:: For Windows users
 
-    To activate your virtualenv on Windows, run:
+    在Windows上激活你的virtualenv，运行:
 
     .. code-block:: none
 
         $ source ~/virtualenvs/djangodev/Scripts/activate
 
-You have to activate the virtualenv whenever you open a new terminal window.
-virtualenvwrapper__ is a useful tool for making this more convenient.
+每次打开一个新的终端窗口时，你必须激活 virtualenv。 virtualenvwrapper__ 是一个好用的工具，使用它更方便。
 
 __ https://virtualenvwrapper.readthedocs.io/en/latest/
 
-Anything you install through ``pip`` from now on will be installed in your new
-virtualenv, isolated from other environments and system-wide packages. Also, the
-name of the currently activated virtualenv is displayed on the command line to
-help you keep track of which one you are using. Go ahead and install the
-previously cloned copy of Django:
+当你激活了virtualenv后，通过 ``pip`` 安装的任何东西都将安装在新的virtualenv中，和其他环境和系统包是完全分离的。
+此外，当前激活的virtualenv的名称将显示在命令行上，以帮助您跟踪正在使用的对象。继续安装Django之前的克隆版本：
+
 
 .. code-block:: console
 
     $ pip install -e /path/to/your/local/clone/django/
 
-The installed version of Django is now pointing at your local copy. You will
-immediately see any changes you make to it, which is of great help when writing
-your first patch.
+Django 的已安装的版本现在指向您的本地副本。您可以立即看到它所做的任何更改，这对开发补丁是非常有用的。
 
-Rolling back to a previous revision of Django
-=============================================
+回滚到Django以前版本
+=====================
 
-For this tutorial, we'll be using ticket :ticket:`24788` as a case study, so
-we'll rewind Django's version history in git to before that ticket's patch was
-applied. This will allow us to go through all of the steps involved in writing
-that patch from scratch, including running Django's test suite.
+这个教程中，我们使用 :ticket:`24788` 问题来作为学习用例，
+所以我们要把git中Django的版本回滚到这个问题的补丁没有提交之前。
+这样的话我们就可以参与到从草稿到补丁的所有过程，包括运行Django的测试套件
 
-**Keep in mind that while we'll be using an older revision of Django's trunk
-for the purposes of the tutorial below, you should always use the current
-development revision of Django when working on your own patch for a ticket!**
+**请记住，我们使用Django的老版仅是为了学习，通常情况下你应当使用当前最新的开发版本来提交补丁**
 
 .. note::
 

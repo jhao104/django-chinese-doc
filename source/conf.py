@@ -35,6 +35,8 @@ sys.path.append(abspath(join(dirname(__file__), "_ext")))
 # ones.
 extensions = [
     'djangodocs',
+    'ticket_role',
+    'cve_role',
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     "sphinx.ext.intersphinx",
@@ -169,3 +171,7 @@ texinfo_documents = [
      author, 'django-chinese-docs', 'One line description of project.',
      'Miscellaneous'),
 ]
+
+# -- custom extension options --------------------------------------------------
+cve_url = 'https://nvd.nist.gov/view/vuln/detail?vulnId=%s'
+ticket_url = 'https://code.djangoproject.com/ticket/%s'
