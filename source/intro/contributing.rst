@@ -182,62 +182,51 @@ Django 的已安装的版本现在指向您的本地副本。您可以立即看�
 
 .. note::
 
-    The patch for this ticket was written by Paweł Marczewski, and it was
-    applied to Django as `commit 4df7e8483b2679fc1cba3410f08960bac6f51115`__.
-    Consequently, we'll be using the revision of Django just prior to that,
+    这个补丁由 Paweł Marczewski 开发， Git 提交到 Django 源码
+    `commit 4df7e8483b2679fc1cba3410f08960bac6f51115`__.
+    因此，我们要回到补丁提交之前的版本号
     `commit 4ccfc4439a7add24f8db4ef3960d02ef8ae09887`__.
 
 __ https://github.com/django/django/commit/4df7e8483b2679fc1cba3410f08960bac6f51115
 __ https://github.com/django/django/commit/4ccfc4439a7add24f8db4ef3960d02ef8ae09887
 
-Navigate into Django's root directory (that's the one that contains ``django``,
-``docs``, ``tests``, ``AUTHORS``, etc.). You can then check out the older
-revision of Django that we'll be using in the tutorial below:
+
+首先打开Django源码的根目录（这个目录包含了  ``django`` , ``docs`` , ``tests`` , ``AUTHORS`` , 等）
+然后你你可以根据下面的教程check out老版本的Django：
 
 .. code-block:: console
 
     $ git checkout 4ccfc4439a7add24f8db4ef3960d02ef8ae09887
 
-Running Django's test suite for the first time
-==============================================
+首先运行Django的测试套件
+========================
 
-When contributing to Django it's very important that your code changes don't
-introduce bugs into other areas of Django. One way to check that Django still
-works after you make your changes is by running Django's test suite. If all
-the tests still pass, then you can be reasonably sure that your changes
-haven't completely broken Django. If you've never run Django's test suite
-before, it's a good idea to run it once beforehand just to get familiar with
-what its output is supposed to look like.
+当你贡献代码给Django的时候，非常重要的一点就是你修改的代码不要给其他部分引入新的bug。
+有个办法可以在你更改代码之后检查Django是否能正常工作，就是运行Django的测试套件。如
+果所有的测试用例都通过，你就有理由相信你的改动完全没有破坏Django。
+如果你从来没有运行过Django的测试套件，那么比较好的做法是事先运行一遍，熟悉下正常情况下应该输出什么结果。
 
-Before running the test suite, install its dependencies by first ``cd``-ing
-into the Django ``tests/`` directory and then running:
+在运行测试套件之前，先将它的依赖项安装到Django ``tests/`` 目录中，运行:
 
 .. code-block:: console
 
     $ pip install -r requirements/py3.txt
 
-If you encounter an error during the installation, your system might be missing
-a dependency for one or more of the Python packages. Consult the failing
-package's documentation or search the Web with the error message that you
-encounter.
+如果在安装过程中遇到错误，您的系统可能缺少对一个或多个Python包的依赖。
+查阅失败的软件包的文档，或者在Web上搜索您遇到的错误消息。
 
-Now we are ready to run the test suite. If you're using GNU/Linux, Mac OS X or
-some other flavor of Unix, run:
+现在我们已经准备好运行测试套件了。如果您使用的是 GNU/Linux、Mac OS X或其他Unix系统，请运行:
 
 .. code-block:: console
 
     $ ./runtests.py
 
-Now sit back and relax. Django's entire test suite has over 9,600 different
-tests, so it can take anywhere from 5 to 15 minutes to run, depending on the
-speed of your computer.
+现在坐下来放松一下。Django的整个测试套件有超过9600个不同的测试用例，
+所以它可能需要5到15分钟时间运行，这也取决于您的计算机的速度。
 
-While Django's test suite is running, you'll see a stream of characters
-representing the status of each test as it's run. ``E`` indicates that an error
-was raised during a test, and ``F`` indicates that a test's assertions failed.
-Both of these are considered to be test failures. Meanwhile, ``x`` and ``s``
-indicated expected failures and skipped tests, respectively. Dots indicate
-passing tests.
+当Django的测试套件正在运行时，您将看到字符流，表示每次测试的状态。
+``E`` 表示测试期间出现错误， ``F`` 表示测试断言失败。这两种方法都被认为是测试失败。
+与此同时， ``x`` 和 ``s`` 分别表示预期的故障和跳过测试。Dots 表示通过测试。
 
 Skipped tests are typically due to missing external libraries required to run
 the test; see :ref:`running-unit-tests-dependencies` for a list of dependencies
@@ -271,8 +260,8 @@ __ http://djangoci.com
     :ref:`run the tests using a different database
     <running-unit-tests-settings>`.
 
-Creating a branch for your patch
-================================
+给补丁创建分支
+================
 
 Before making any changes, create a new branch for the ticket:
 
@@ -284,8 +273,8 @@ You can choose any name that you want for the branch, "ticket_24788" is an
 example. All changes made in this branch will be specific to the ticket and
 won't affect the main copy of the code that we cloned earlier.
 
-Writing some tests for your ticket
-==================================
+给ticket写一些测试用例
+========================
 
 In most cases, for a patch to be accepted into Django it has to include tests.
 For bug fix patches, this means writing a regression test to ensure that the
@@ -309,8 +298,8 @@ Now for our hands-on example.
 
 __ https://en.wikipedia.org/wiki/Test-driven_development
 
-Writing some tests for ticket #24788
-------------------------------------
+给分支#24788写测试
+--------------------
 
 Ticket :ticket:`24788` proposes a small feature addition: the ability to
 specify the class level attribute ``prefix`` on Form classes, so that::
@@ -361,8 +350,8 @@ that passing a ``prefix`` parameter when creating an instance still works too.
 
 __ http://www.diveintopython.net/unit_testing/index.html
 
-Running your new test
----------------------
+运行测试
+---------
 
 Remember that we haven't actually made any modifications to ``BaseForm`` yet,
 so our tests are going to fail. Let's run all the tests in the ``forms_tests``
@@ -377,13 +366,13 @@ If the tests ran correctly, you should see one failure corresponding to the test
 method we added. If all of the tests passed, then you'll want to make sure that
 you added the new test shown above to the appropriate folder and class.
 
-Writing the code for your ticket
-================================
+开发ticket代码
+================
 
 Next we'll be adding the functionality described in ticket :ticket:`24788` to
 Django.
 
-Writing the code for ticket #24788
+开发 ticket #24788 代码
 ----------------------------------
 
 Navigate to the ``django/django/forms/`` folder and open the ``forms.py`` file.
@@ -398,8 +387,8 @@ right after the ``field_order`` attribute::
         field_order = None
         prefix = None
 
-Verifying your test now passes
-------------------------------
+确保测试通过
+-------------
 
 Once you're done modifying Django, we need to make sure that the tests we wrote
 earlier pass, so we can see whether the code we wrote above is working
@@ -426,8 +415,8 @@ Re-run the tests and everything should pass. If it doesn't, make sure you
 correctly modified the ``BaseForm`` class as shown above and copied the new test
 correctly.
 
-Running Django's test suite for the second time
-===============================================
+再次运行Django测试套件
+======================
 
 Once you've verified that your patch and your test are working correctly, it's
 a good idea to run the entire Django test suite just to verify that your change
@@ -444,8 +433,8 @@ directory and run:
 
 As long as you don't see any failures, you're good to go.
 
-Writing Documentation
-=====================
+编写文档
+==========
 
 This is a new feature, so it should be documented. Add the following section on
 line 1068 (at the end of the file) of ``django/docs/ref/forms/api.txt``::
@@ -473,8 +462,8 @@ the ``versionadded`` bit is all about, see
 an explanation of how to build a copy of the documentation locally, so you can
 preview the HTML that will be generated.
 
-Previewing your changes
-=======================
+预览修改
+=========
 
 Now it's time to go through all the changes made in our patch. To display the
 differences between your current copy of Django (with your changes) and the
@@ -570,8 +559,8 @@ When you're done previewing the patch, hit the ``q`` key to return to the
 command line. If the patch's content looked okay, it's time to commit the
 changes.
 
-Committing the changes in the patch
-===================================
+提交更改到分支
+==============
 
 To commit the changes:
 
@@ -586,8 +575,8 @@ message guidelines <committing-guidelines>` and write a message like:
 
     Fixed #24788 -- Allowed Forms to specify a prefix at the class level.
 
-Pushing the commit and making a pull request
-============================================
+推送到远程并请求合并
+====================
 
 After committing the patch, send it to your fork on GitHub (substitute
 "ticket_24788" with the name of your branch if it's different):
@@ -603,8 +592,8 @@ recently pushed branches". Click "Compare & pull request" next to it.
 Please don't do it for this tutorial, but on the next page that displays a
 preview of the patch, you would click "Create pull request".
 
-Next steps
-==========
+下一步
+=========
 
 Congratulations, you've learned how to make a pull request to Django! Details
 of more advanced techniques you may need are in
@@ -613,8 +602,8 @@ of more advanced techniques you may need are in
 Now you can put those skills to good use by helping to improve Django's
 codebase.
 
-More information for new contributors
--------------------------------------
+contributors的更多信息
+----------------------
 
 Before you get too into writing patches for Django, there's a little more
 information on contributing that you should probably take a look at:
