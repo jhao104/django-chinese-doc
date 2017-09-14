@@ -489,7 +489,7 @@ Django使用 :class:`django.db.models.ForeignKey` 来定义一个多对一的关
 例如，你想建一个“places” 数据库，里面有一些常用的字段，比如address、 phone number 等等。
 接下来，如果你想在Place 数据库的基础上建立一个 ``Restaurant`` 数据库，而不想将已有的字段复制到Restaurant模型，
 那你可以在 ``Restaurant`` 添加一个 :class:`~django.db.models.OneToOneField` 字段，
-这个字段指向 ``Place``（因为Restaurant 本身就是一个Place；事实上，在处理这个问题的时候，你应该使用 :ref:`继承 <model-inheritance>`，它隐含一个一对一关系)
+这个字段指向 ``Place`` （因为Restaurant 本身就是一个Place；事实上，在处理这个问题的时候，你应该使用 :ref:`继承 <model-inheritance>`，它隐含一个一对一关系)
 
 和使用 :class:`~django.db.models.ForeignKey` 一样，你可以定义 :ref:`递归的关联关系 <recursive-relationships>` 和
 :ref:`引用尚未定义的模型 <lazy-relationships>` 。
@@ -510,9 +510,8 @@ Django使用 :class:`django.db.models.ForeignKey` 来定义一个多对一的关
 跨文件的模型
 -------------
 
-It's perfectly OK to relate a model to one from another app. To do this, import
-the related model at the top of the file where your model is defined. Then,
-just refer to the other model class wherever needed. For example::
+也可以将一个模型与另一个应用程序中的一个模型关联。为此，在定义模型的文件顶部导入相关模型。然后，
+只需在需要的地方引用其模型类即可。例如::
 
     from django.db import models
     from geography.models import ZipCode
@@ -526,46 +525,40 @@ just refer to the other model class wherever needed. For example::
             null=True,
         )
 
-Field name restrictions
------------------------
+字段名称限制
+-------------
 
-Django places only two restrictions on model field names:
+Django对模型字段名有两个限制:
 
-1. A field name cannot be a Python reserved word, because that would result
-   in a Python syntax error. For example::
+1. 字段名不能是Python保留字，因为这会导致Python语法错误。例如::
 
        class Example(models.Model):
            pass = models.IntegerField() # 'pass' is a reserved word!
 
-2. A field name cannot contain more than one underscore in a row, due to
-   the way Django's query lookup syntax works. For example::
+2. 由于与Django的查询语法的工作方式冲突，字段名不能包含多个下划线。例如::
 
        class Example(models.Model):
            foo__bar = models.IntegerField() # 'foo__bar' has two underscores!
 
-These limitations can be worked around, though, because your field name doesn't
-necessarily have to match your database column name. See the
-:attr:`~Field.db_column` option.
+这些限制有变通的方法，因为没有要求字段名称必须与数据库的列名匹配。 参见
+:attr:`~Field.db_column` 选项。
 
-SQL reserved words, such as ``join``, ``where`` or ``select``, *are* allowed as
-model field names, because Django escapes all database table names and column
-names in every underlying SQL query. It uses the quoting syntax of your
-particular database engine.
+SQL 的保留字例如 ``join`` 、 ``where`` 和 ``select`` ，可以用作模型的字段名，
+因为Django 会对底层的SQL 查询语句中的数据库表名和列名进行转义。 它根据你的数据库引擎使用不同的引用语法。
 
-Custom field types
-------------------
+自定义字段类型
+--------------
 
-If one of the existing model fields cannot be used to fit your purposes, or if
-you wish to take advantage of some less common database column types, you can
-create your own field class. Full coverage of creating your own fields is
-provided in :doc:`/howto/custom-model-fields`.
+如果已有的模型字段都不合适，或者你想用到一些很少见的数据库列类型的优点，
+你可以创建你自己的字段类型。创建你自己的字段在 :doc:`/howto/custom-model-fields` 中有完整讲述。
+
 
 .. _meta-options:
 
-``Meta`` options
+``Meta`` 选项
 ================
 
-Give your model metadata by using an inner ``class Meta``, like so::
+使用内部的 ``class Meta`` 定义模型的元数据，例如::
 
     from django.db import models
 
@@ -576,42 +569,34 @@ Give your model metadata by using an inner ``class Meta``, like so::
             ordering = ["horn_length"]
             verbose_name_plural = "oxen"
 
-Model metadata is "anything that's not a field", such as ordering options
-(:attr:`~Options.ordering`), database table name (:attr:`~Options.db_table`), or
-human-readable singular and plural names (:attr:`~Options.verbose_name` and
-:attr:`~Options.verbose_name_plural`). None are required, and adding ``class
-Meta`` to a model is completely optional.
+模型元数据是“任何不是字段的数据”，比如排序选项
+(:attr:`~Options.ordering`), 数据库表名 (:attr:`~Options.db_table`), 或者
+人类可读的单复数名称 (:attr:`~Options.verbose_name` 和
+:attr:`~Options.verbose_name_plural`)。在模型中添加 ``class Meta`` 是可选的，所有选项都不是必须的。
 
-A complete list of all possible ``Meta`` options can be found in the :doc:`model
-option reference </ref/models/options>`.
+``Meta`` 选项的完整列表可以在 :doc:`模型选项参考 </ref/models/options>` 中找到。
 
 .. _model-attributes:
 
-Model attributes
-================
+模型属性
+==========
 
 ``objects``
-    The most important attribute of a model is the
-    :class:`~django.db.models.Manager`. It's the interface through which
-    database query operations are provided to Django models and is used to
-    :ref:`retrieve the instances <retrieving-objects>` from the database. If no
-    custom ``Manager`` is defined, the default name is
-    :attr:`~django.db.models.Model.objects`. Managers are only accessible via
-    model classes, not the model instances.
+    模型最重要的属性是 :class:`~django.db.models.Manager` 。它是Django 模型进行数据库查询操作的接口，
+    并用于从数据库 :ref:`获取实例 <retrieving-objects>` 。 如果没有定义自定义 ``Manager`` ，
+    则默认名称为 :attr:`~django.db.models.Model.objects` 。Managers只能通过模型类访问，而不是模型实例。
 
 .. _model-methods:
 
-Model methods
-=============
+模型方法
+=========
 
-Define custom methods on a model to add custom "row-level" functionality to your
-objects. Whereas :class:`~django.db.models.Manager` methods are intended to do
-"table-wide" things, model methods should act on a particular model instance.
+通过在模型中添加自定义方法来给对象添加“row级别”的功能。而 :class:`~django.db.models.Manager` 方法的目的是做“table范围”的事情，
+模型方法应该着眼于一个特定的模型实例。
 
-This is a valuable technique for keeping business logic in one place -- the
-model.
+这是一个非常有价值的技术，让业务逻辑位于同一个地方 —— 模型中。
 
-For example, this model has a few custom methods::
+例如，下面的模型具有一些自定义的方法::
 
     from django.db import models
 
@@ -635,50 +620,44 @@ For example, this model has a few custom methods::
             return '%s %s' % (self.first_name, self.last_name)
         full_name = property(_get_full_name)
 
-The last method in this example is a :term:`property`.
+这个例子中的最后一个方法是一个 :term:`property` 。
 
-The :doc:`model instance reference </ref/models/instances>` has a complete list
-of :ref:`methods automatically given to each model <model-instance-methods>`.
-You can override most of these -- see `overriding predefined model methods`_,
-below -- but there are a couple that you'll almost always want to define:
+在 :doc:`模型实例参考 </ref/models/instances>` 中有完整的
+:ref:`为模型自动生成的方法 <model-instance-methods>` 列表。
+你可以重写其中的大部分 -- 参考 `重载预定义模型方法`_ ,
+但是有些方法你会始终想要重新定义:
 
 :meth:`~Model.__str__` (Python 3)
-    A Python "magic method" that returns a unicode "representation" of any
-    object. This is what Python and Django will use whenever a model
-    instance needs to be coerced and displayed as a plain string. Most
-    notably, this happens when you display an object in an interactive
-    console or in the admin.
 
-    You'll always want to define this method; the default isn't very helpful
-    at all.
+    Python的“魔法方法”，它返回任何对象的unicode“表示” 。
+    这就是Python和Django在模型实例需要被显示和强制转为为普通字符串时将使用的内容。
+    最明显是在交互式控制台或者管理站点显示一个对象的时候。
+
+    你会经常需要重新定义这个方法；默认方法返回的内容几乎没有帮助。
 
 ``__unicode__()`` (Python 2)
-    Python 2 equivalent of ``__str__()``.
+
+    Python 2 中使用，相当于 ``__str__()`` 。
 
 :meth:`~Model.get_absolute_url`
-    This tells Django how to calculate the URL for an object. Django uses
-    this in its admin interface, and any time it needs to figure out a URL
-    for an object.
 
-    Any object that has a URL that uniquely identifies it should define this
-    method.
+    它告诉Django 如何计算一个对象的URL。Django 在它的管理站点中使用到这个方法，
+    在其它任何需要计算一个对象的URL 时也将用到。
+
+    任何具有唯一标识自己的URL 的对象都应该定义这个方法。
 
 .. _overriding-model-methods:
 
-Overriding predefined model methods
------------------------------------
+重载预定义模型方法
+------------------
 
-There's another set of :ref:`model methods <model-instance-methods>` that
-encapsulate a bunch of database behavior that you'll want to customize. In
-particular you'll often want to change the way :meth:`~Model.save` and
-:meth:`~Model.delete` work.
+还有另外一部分封装数据库行为的 :ref:`模型方法 <model-instance-methods>` ，
+你可能想要自定义它们。特别是，你将要经常改变 :meth:`~Model.save` 和 :meth:`~Model.delete` 的工作方式。
 
-You're free to override these methods (and any other model method) to alter
-behavior.
 
-A classic use-case for overriding the built-in methods is if you want something
-to happen whenever you save an object. For example (see
-:meth:`~Model.save` for documentation of the parameters it accepts)::
+您可以自由地重写这些方法(以及任何其他模型方法)来改变行为。
+
+重写内置方法的经典用例是，如果您想要在保存对象时做些其他事情。例如，(请参阅 :meth:`~Model.save` 文档以获得它所接受的参数)::
 
     from django.db import models
 
@@ -691,7 +670,7 @@ to happen whenever you save an object. For example (see
             super(Blog, self).save(*args, **kwargs) # Call the "real" save() method.
             do_something_else()
 
-You can also prevent saving::
+你还可以阻止保存::
 
     from django.db import models
 
@@ -705,86 +684,68 @@ You can also prevent saving::
             else:
                 super(Blog, self).save(*args, **kwargs) # Call the "real" save() method.
 
-It's important to remember to call the superclass method -- that's
-that ``super(Blog, self).save(*args, **kwargs)`` business -- to ensure
-that the object still gets saved into the database. If you forget to
-call the superclass method, the default behavior won't happen and the
-database won't get touched.
+必须要记住调用超类的方法——  ``super(Blog, self).save(*args, **kwargs)``  —— 来确保对象被保存到数据库中。
+如果你忘记调用超类的这个方法，默认的行为将不会发生且数据库不会有任何改变。
 
-It's also important that you pass through the arguments that can be
-passed to the model method -- that's what the ``*args, **kwargs`` bit
-does. Django will, from time to time, extend the capabilities of
-built-in model methods, adding new arguments. If you use ``*args,
-**kwargs`` in your method definitions, you are guaranteed that your
-code will automatically support those arguments when they are added.
+还要记住传递参数给这个模型方法 —— 即 ``*args, **kwargs`` 。
+Django 在未来一直会扩展内建模型方法的功能并添加新的参数。
+如果在你的方法定义中使用 ``*args,
+**kwargs`` 将保证你的代码自动支持这些新的参数。
 
-.. admonition:: Overridden model methods are not called on bulk operations
+.. admonition:: 批量操作中被重载的模型方法不会被调用
 
-    Note that the :meth:`~Model.delete()` method for an object is not
-    necessarily called when :ref:`deleting objects in bulk using a
-    QuerySet <topics-db-queries-delete>` or as a result of a :attr:`cascading
-    delete <django.db.models.ForeignKey.on_delete>`. To ensure customized
-    delete logic gets executed, you can use
+    注意，当 :ref:`使用查询集批量删除对象 <topics-db-queries-delete>` 或者使用 :attr:`cascading
+    delete <django.db.models.ForeignKey.on_delete>` 时，将不会为每个对象调用
+    :meth:`~Model.delete()` 方法。为确保自定义的删除逻辑得到执行，你可以使用
     :data:`~django.db.models.signals.pre_delete` and/or
-    :data:`~django.db.models.signals.post_delete` signals.
+    :data:`~django.db.models.signals.post_delete` 信号。
 
-    Unfortunately, there isn't a workaround when
+    不幸的是，当批量
     :meth:`creating<django.db.models.query.QuerySet.bulk_create>` or
-    :meth:`updating<django.db.models.query.QuerySet.update>` objects in bulk,
-    since none of :meth:`~Model.save()`,
-    :data:`~django.db.models.signals.pre_save`, and
-    :data:`~django.db.models.signals.post_save` are called.
+    :meth:`updating<django.db.models.query.QuerySet.update>` 对象时没有变通方法，
+    因为不会调用 :meth:`~Model.save()` 、
+    :data:`~django.db.models.signals.pre_save`, 和
+    :data:`~django.db.models.signals.post_save` 。
 
-Executing custom SQL
---------------------
+执行自定义SQL
+--------------
 
-Another common pattern is writing custom SQL statements in model methods and
-module-level methods. For more details on using raw SQL, see the documentation
-on :doc:`using raw SQL</topics/db/sql>`.
+另一种常见的需求是在模型方法和模块级方法中编写自定义SQL语句。有关使用原始SQL的更多细节参见
+:doc:`使用原始 SQL</topics/db/sql>` 。
 
 .. _model-inheritance:
 
-Model inheritance
-=================
+模型继承
+=========
 
-Model inheritance in Django works almost identically to the way normal
-class inheritance works in Python, but the basics at the beginning of the page
-should still be followed. That means the base class should subclass
-:class:`django.db.models.Model`.
+Django 中的模型继承与 Python 中普通类继承方式几乎完全相同，
+但是本页开头列出的模型基本的要求还是要遵守。这表示自定义的模型类应该继承 :class:`django.db.models.Model` 。
 
-The only decision you have to make is whether you want the parent models to be
-models in their own right (with their own database tables), or if the parents
-are just holders of common information that will only be visible through the
-child models.
+你唯一需要作出的决定就是你是想让父模型具有它们自己的数据库表，
+还是让父模型只持有一些共同的信息而这些信息只有在子模型中才能看到。
 
-There are three styles of inheritance that are possible in Django.
+在Django 中有3种风格的继承
 
-1. Often, you will just want to use the parent class to hold information that
-   you don't want to have to type out for each child model. This class isn't
-   going to ever be used in isolation, so :ref:`abstract-base-classes` are
-   what you're after.
-2. If you're subclassing an existing model (perhaps something from another
-   application entirely) and want each model to have its own database table,
-   :ref:`multi-table-inheritance` is the way to go.
-3. Finally, if you only want to modify the Python-level behavior of a model,
-   without changing the models fields in any way, you can use
+1. 通常，你只想使用父类来持有一些信息，你不想在每个子模型中都敲一遍。
+   这个类永远不会单独使用，所以你要使用 :ref:`abstract-base-classes` 。
+
+2. 如果你继承一个已经存在的模型且想让每个模型具有它自己的数据库表，那么应该使用
+   :ref:`multi-table-inheritance` 。
+
+3. 最后，如果你只是想改变一个模块级别的行为，而不用修改模型的字段，你可以使用
    :ref:`proxy-models`.
 
 .. _abstract-base-classes:
 
-Abstract base classes
----------------------
+抽象基类
+----------
 
-Abstract base classes are useful when you want to put some common
-information into a number of other models. You write your base class
-and put ``abstract=True`` in the :ref:`Meta <meta-options>`
-class. This model will then not be used to create any database
-table. Instead, when it is used as a base class for other models, its
-fields will be added to those of the child class. It is an error to
-have fields in the abstract base class with the same name as those in
-the child (and Django will raise an exception).
+当你想将一些共有信息放进其它一些model的时候，抽象化类是十分有用的。你编写完基类之后，在
+:ref:`Meta <meta-options>` 中设置 ``abstract=True``
+这个模型就不会被用来创建任何数据表。取而代之的是，当它被用来作为一个其他model的基类，它的字段将被加入那些子类中。
+如果抽象基类和它的子类有相同的字段名，那么将会出现error（并且Django将抛出一个exception）。
 
-An example::
+例如::
 
     from django.db import models
 
@@ -798,23 +759,20 @@ An example::
     class Student(CommonInfo):
         home_group = models.CharField(max_length=5)
 
-The ``Student`` model will have three fields: ``name``, ``age`` and
-``home_group``. The ``CommonInfo`` model cannot be used as a normal Django
-model, since it is an abstract base class. It does not generate a database
-table or have a manager, and cannot be instantiated or saved directly.
+``Student`` 将会有三个字段: ``name``, ``age`` 和
+``home_group`` 。 ``CommonInfo`` 模型无法像一般的Django模型一样使用, 因为它是一个抽象基类。
+它无法生成一张数据表或者拥有一个管理器，并且不能实例化或者直接储存。
 
-For many uses, this type of model inheritance will be exactly what you want.
-It provides a way to factor out common information at the Python level, while
-still only creating one database table per child model at the database level.
+许多应用场景下, 这种类型的模型继承恰好是你想要的。它提供一种在Python语言层级上提取公共信息的方式，
+同时在数据库层级上，每个子类各自仍然只创建一个数据库表。
 
-``Meta`` inheritance
-~~~~~~~~~~~~~~~~~~~~
+``Meta`` 继承
+~~~~~~~~~~~~~~~
 
-When an abstract base class is created, Django makes any :ref:`Meta <meta-options>`
-inner class you declared in the base class available as an
-attribute. If a child class does not declare its own :ref:`Meta <meta-options>`
-class, it will inherit the parent's :ref:`Meta <meta-options>`. If the child wants to
-extend the parent's :ref:`Meta <meta-options>` class, it can subclass it. For example::
+当一个抽象基类被创建的时候, Django把你在基类内部定义的 :ref:`Meta <meta-options>`
+类作为一个属性使其可用。如果子类没有声明自己的 :ref:`Meta <meta-options>` 类, 他将会继承父类的
+:ref:`Meta <meta-options>` 。如果子类想要扩展父类的 :ref:`Meta <meta-options>` 类,
+它可以作为其子类。例如::
 
     from django.db import models
 
@@ -829,46 +787,35 @@ extend the parent's :ref:`Meta <meta-options>` class, it can subclass it. For ex
         class Meta(CommonInfo.Meta):
             db_table = 'student_info'
 
-Django does make one adjustment to the :ref:`Meta <meta-options>` class of an abstract base
-class: before installing the :ref:`Meta <meta-options>` attribute, it sets ``abstract=False``.
-This means that children of abstract base classes don't automatically become
-abstract classes themselves. Of course, you can make an abstract base class
-that inherits from another abstract base class. You just need to remember to
-explicitly set ``abstract=True`` each time.
+继承时，Django 会对抽象基类的 :ref:`Meta <meta-options>` 类做一个调整：在设置
+:ref:`Meta <meta-options>` 属性之前, Django 会设置 ``abstract=False`` 。
+这意味着抽象基类的子类本身不会自动变成抽象类。 当然，你可以让一个抽象基类继承自另一个抽象基类，
+你只要记得每次都要显式地设置 ``abstract=True`` 。
 
-Some attributes won't make sense to include in the :ref:`Meta <meta-options>` class of an
-abstract base class. For example, including ``db_table`` would mean that all
-the child classes (the ones that don't specify their own :ref:`Meta <meta-options>`) would use
-the same database table, which is almost certainly not what you want.
+一些属性被包含在抽象基类的 :ref:`Meta <meta-options>` 里面是没有意义的。例如，包含 ``db_table``
+属性将意味着所有的子类(是指那些没有指定自己的 :ref:`Meta <meta-options>` 类的子类)都使用同一张数据表，
+这总归不会是你想要的。
 
 .. _abstract-related-name:
 
-Be careful with ``related_name`` and ``related_query_name``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+小心使用 ``related_name`` 和 ``related_query_name``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you are using :attr:`~django.db.models.ForeignKey.related_name` or
-:attr:`~django.db.models.ForeignKey.related_query_name` on a ``ForeignKey`` or
-``ManyToManyField``, you must always specify a *unique* reverse name and query
-name for the field. This would normally cause a problem in abstract base
-classes, since the fields on this class are included into each of the child
-classes, with exactly the same values for the attributes (including
-:attr:`~django.db.models.ForeignKey.related_name` and
-:attr:`~django.db.models.ForeignKey.related_query_name`) each time.
+如果你在 ``ForeignKey`` 或 ``ManyToManyField`` 字段是使用 :attr:`~django.db.models.ForeignKey.related_name` 或
+:attr:`~django.db.models.ForeignKey.related_query_name` 属性，
+您必须始终为该字段指定 *惟一的* 反向名称和查询名称。
+但在抽象基类上这样做就会引发一个很严重的问题，
+应为Django会将基类字段添加到每个子类中，因此每个子类都具有相同的属性值(包括related_name和related_query_name)。
 
-To work around this problem, when you are using
-:attr:`~django.db.models.ForeignKey.related_name` or
-:attr:`~django.db.models.ForeignKey.related_query_name` in an abstract base
-class (only), part of the value should contain ``'%(app_label)s'`` and
-``'%(class)s'``.
+当您在抽象基类中使用 :attr:`~django.db.models.ForeignKey.related_name`
+或 :attr:`~django.db.models.ForeignKey.related_query_name`) 时，要解决这个问题，名称中就要包含
+``“%(app_label)s”`` 和 ``“%(class)s”`` 。
 
-- ``'%(class)s'`` is replaced by the lower-cased name of the child class
-  that the field is used in.
-- ``'%(app_label)s'`` is replaced by the lower-cased name of the app the child
-  class is contained within. Each installed application name must be unique
-  and the model class names within each app must also be unique, therefore the
-  resulting name will end up being different.
+- ``'%(class)s'`` 会替换为子类的小写加下划线格式的名称，字段在子类中使用。
 
-For example, given an app ``common/models.py``::
+- ``'%(app_label)s'`` 会替换为应用的小写加下划线格式的名称，应用包含子类。每个安装的应用名称都应该是唯一的，而且应用里每个模型类的名称也应该是唯一的，所以产生的名称应该彼此不同。
+
+例如，假设有一个app叫做 ``common/models.py``::
 
     from django.db import models
 
@@ -888,23 +835,23 @@ For example, given an app ``common/models.py``::
     class ChildB(Base):
         pass
 
-Along with another app ``rare/models.py``::
+以及另一个应用 ``rare/models.py``::
 
     from common.models import Base
 
     class ChildB(Base):
         pass
 
-The reverse name of the ``common.ChildA.m2m`` field will be
-``common_childa_related`` and the reverse query name will be ``common_childas``.
-The reverse name of the ``common.ChildB.m2m`` field will be
-``common_childb_related`` and the reverse query name will be
-``common_childbs``. Finally, the reverse name of the ``rare.ChildB.m2m`` field
-will be ``rare_childb_related`` and the reverse query name will be
-``rare_childbs``. It's up to you how you use the ``'%(class)s'`` and
-``'%(app_label)s'`` portion to construct your related name or related query name
-but if you forget to use it, Django will raise errors when you perform system
-checks (or run :djadmin:`migrate`).
+``common.ChildA.m2m`` 字段的反向名称是
+``common_childa_related`` ，反向查询名称是 ``common_childas`` 。
+``common.ChildB.m2m`` 字段的反向名称是
+``common_childb_related`` ，反向查询名称是
+``common_childbs`` 。最后，``rare.ChildB.m2m`` 字段的反向名称是 ``rare_childb_related``
+，反向查询名称是
+``rare_childbs`` 。这取决于你如何使用 ``'%(class)s'`` 和
+``'%(app_label)s'`` 来构造。
+如果你没有这样做，Django 就会在验证 model (或运行 :djadmin:`migrate`) 时抛出错误。
+
 
 If you don't specify a :attr:`~django.db.models.ForeignKey.related_name`
 attribute for a field in an abstract base class, the default reverse name will
