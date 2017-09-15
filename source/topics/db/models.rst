@@ -853,31 +853,26 @@ Django 中的模型继承与 Python 中普通类继承方式几乎完全相同�
 如果你没有这样做，Django 就会在验证 model (或运行 :djadmin:`migrate`) 时抛出错误。
 
 
-If you don't specify a :attr:`~django.db.models.ForeignKey.related_name`
-attribute for a field in an abstract base class, the default reverse name will
-be the name of the child class followed by ``'_set'``, just as it normally
-would be if you'd declared the field directly on the child class. For example,
-in the above code, if the :attr:`~django.db.models.ForeignKey.related_name`
-attribute was omitted, the reverse name for the ``m2m`` field would be
-``childa_set`` in the ``ChildA`` case and ``childb_set`` for the ``ChildB``
-field.
+如果你没有在抽象基类中为某个关联字段定义 :attr:`~django.db.models.ForeignKey.related_name`
+属性, 那么默认的反向名称就是子类名称加上 ``'_set'``, 它能否正常工作取决于你是否在子类中定义了同名字段。
+例如，在上面的代码中，如果去掉 :attr:`~django.db.models.ForeignKey.related_name`
+属性, ``ChildA`` 中， ``m2m`` 字段的反向名称是
+``childa_set`` ；而 ``ChildB`` 中的 ``m2m`` 字段的反向名称就是 ``childb_set``
+
 
 .. versionchanged:: 1.10
 
-   Interpolation of  ``'%(app_label)s'`` and ``'%(class)s'`` for
-   ``related_query_name`` was added.
+   ``related_query_name`` 可以添加  ``'%(app_label)s'`` 和 ``'%(class)s'`` 是在1.10中加入。
 
 .. _multi-table-inheritance:
 
-Multi-table inheritance
------------------------
+多表继承
+---------
 
-The second type of model inheritance supported by Django is when each model in
-the hierarchy is a model all by itself. Each model corresponds to its own
-database table and can be queried and created individually. The inheritance
-relationship introduces links between the child model and each of its parents
-(via an automatically-created :class:`~django.db.models.OneToOneField`).
-For example::
+这是 Django 支持的第二种继承方式。使用这种继承方式时，
+每一个层级下的每个 model 都是一个真正意义上完整的 model 。 每个 model 都有专属的数据表，
+都可以查询和创建数据表。 继承关系在子 model 和它的每个父类之间都添加一个链接
+(通过一个自动创建的 :class:`~django.db.models.OneToOneField` 来实现)。 例如::
 
     from django.db import models
 
@@ -889,48 +884,39 @@ For example::
         serves_hot_dogs = models.BooleanField(default=False)
         serves_pizza = models.BooleanField(default=False)
 
-All of the fields of ``Place`` will also be available in ``Restaurant``,
-although the data will reside in a different database table. So these are both
-possible::
+``Place`` 里面的所有字段在 ``Restaurant`` 中也是有效的，
+只不过没有保存在数据库中的 ``Restaurant`` 表中。
+所以下面两个语句都是可以运行的::
 
     >>> Place.objects.filter(name="Bob's Cafe")
     >>> Restaurant.objects.filter(name="Bob's Cafe")
 
-If you have a ``Place`` that is also a ``Restaurant``, you can get from the
-``Place`` object to the ``Restaurant`` object by using the lower-case version
-of the model name::
+如果你有一个 ``Place`` 它同时也是一个 ``Restaurant``, 那么你可以使用 model 的小写形式从
+``Place`` 对象中获得与其对应的 ``Restaurant`` 对象::
 
     >>> p = Place.objects.get(id=12)
     # If p is a Restaurant object, this will give the child class:
     >>> p.restaurant
     <Restaurant: ...>
 
-However, if ``p`` in the above example was *not* a ``Restaurant`` (it had been
-created directly as a ``Place`` object or was the parent of some other class),
-referring to ``p.restaurant`` would raise a ``Restaurant.DoesNotExist``
-exception.
+但是，如果上例中的 ``p``  并不是 ``Restaurant`` (比如它仅仅只是 ``Place`` 对象，或是其他类的父类),
+那么在引用 ``p.restaurant`` 就会抛出 ``Restaurant.DoesNotExist`` 异常。
 
 .. _meta-and-multi-table-inheritance:
 
-``Meta`` and multi-table inheritance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+多表继承的 ``Meta``
+~~~~~~~~~~~~~~~~~~~~~
 
-In the multi-table inheritance situation, it doesn't make sense for a child
-class to inherit from its parent's :ref:`Meta <meta-options>` class. All the :ref:`Meta <meta-options>` options
-have already been applied to the parent class and applying them again would
-normally only lead to contradictory behavior (this is in contrast with the
-abstract base class case, where the base class doesn't exist in its own
-right).
+在多表继承中，子类继承父类的 :ref:`Meta <meta-options>` 类是没什么意义的。
+所有的 :ref:`Meta <meta-options>` 选项已经对父类起了作用，再次使用只会起反作用。
+(这与使用抽象基类的情况正好相反，因为抽象基类并没有属于它自己的内容)
 
-So a child model does not have access to its parent's :ref:`Meta
-<meta-options>` class. However, there are a few limited cases where the child
-inherits behavior from the parent: if the child does not specify an
-:attr:`~django.db.models.Options.ordering` attribute or a
-:attr:`~django.db.models.Options.get_latest_by` attribute, it will inherit
-these from its parent.
+所以子 model 并不能访问它父类的 :ref:`Meta
+<meta-options>` 类。但是在某些受限的情况下，子类可以从父类继承某些行为：如果子类没有指定
+:attr:`~django.db.models.Options.ordering` 属性或
+:attr:`~django.db.models.Options.get_latest_by` 属性，它就会从父类中继承这些属性。
 
-If the parent has an ordering and you don't want the child to have any natural
-ordering, you can explicitly disable it::
+如果父类有了排序设置，而你并不想让子类有任何排序设置，你就可以显式地禁用排序::
 
     class ChildModel(ParentModel):
         # ...
@@ -938,28 +924,25 @@ ordering, you can explicitly disable it::
             # Remove parent's ordering effect
             ordering = []
 
-Inheritance and reverse relations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+继承与反向关联
+~~~~~~~~~~~~~~~
 
-Because multi-table inheritance uses an implicit
-:class:`~django.db.models.OneToOneField` to link the child and
-the parent, it's possible to move from the parent down to the child,
-as in the above example. However, this uses up the name that is the
-default :attr:`~django.db.models.ForeignKey.related_name` value for
-:class:`~django.db.models.ForeignKey` and
-:class:`~django.db.models.ManyToManyField` relations.  If you
-are putting those types of relations on a subclass of the parent model, you
-**must** specify the :attr:`~django.db.models.ForeignKey.related_name`
-attribute on each such field. If you forget, Django will raise a validation
-error.
+因为多表继承使用了一个隐含的
+:class:`~django.db.models.OneToOneField` 来链接子类与父类，
+所以象上例那样，你可以用父类来指代子类。但是这个字段默认的
+:attr:`~django.db.models.ForeignKey.related_name` 的值与
+:class:`~django.db.models.ForeignKey` 和
+:class:`~django.db.models.ManyToManyField` 默认的反向名称相同。
+如果你与该父类的另一个子类做多对一或是多对多关系，你就必须在每个多对一和多对多字段上强制指定
+:attr:`~django.db.models.ForeignKey.related_name` 。
+如果你没这么做，Django 就会在你运行 验证(validation)  时抛出异常。
 
-For example, using the above ``Place`` class again, let's create another
-subclass with a :class:`~django.db.models.ManyToManyField`::
+例如，仍以上面 ``Place`` 类为例，我们创建一个带有 :class:`~django.db.models.ManyToManyField` 字段的子类::
 
     class Supplier(Place):
         customers = models.ManyToManyField(Place)
 
-This results in the error::
+这会产生一个错误::
 
     Reverse query name for 'Supplier.customers' clashes with reverse query
     name for 'Supplier.place_ptr'.
@@ -967,44 +950,34 @@ This results in the error::
     HINT: Add or change a related_name argument to the definition for
     'Supplier.customers' or 'Supplier.place_ptr'.
 
-Adding ``related_name`` to the ``customers`` field as follows would resolve the
-error: ``models.ManyToManyField(Place, related_name='provider')``.
+给 ``customers`` 字段添加一个 ``related_name`` 就可以解决这个错误:
+ ``models.ManyToManyField(Place, related_name='provider')`` 。
 
-Specifying the parent link field
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+指定链接父类的字段
+~~~~~~~~~~~~~~~~~~~~~
 
-As mentioned, Django will automatically create a
-:class:`~django.db.models.OneToOneField` linking your child
-class back to any non-abstract parent models. If you want to control the
-name of the attribute linking back to the parent, you can create your
-own :class:`~django.db.models.OneToOneField` and set
-:attr:`parent_link=True <django.db.models.OneToOneField.parent_link>`
-to indicate that your field is the link back to the parent class.
+之前我们提到，Django 会自动创建一个 :class:`~django.db.models.OneToOneField` 字段将子类链接至非抽象的父 model。
+如果你想指定链接父类的属性名称，你可以创建你自己的 :class:`~django.db.models.OneToOneField` 字段并设置
+:attr:`parent_link=True <django.db.models.OneToOneField.parent_link>` ，从而使用该字段链接父类。
+
 
 .. _proxy-models:
 
-Proxy models
-------------
+代理模型
+-----------
 
-When using :ref:`multi-table inheritance <multi-table-inheritance>`, a new
-database table is created for each subclass of a model. This is usually the
-desired behavior, since the subclass needs a place to store any additional
-data fields that are not present on the base class. Sometimes, however, you
-only want to change the Python behavior of a model -- perhaps to change the
-default manager, or add a new method.
+使用 :ref:`多表继承 <multi-table-inheritance>` 时, model 的每个子类都会创建一张新数据表。
+通常情况下，这正是我们想要的结果。这是因为子类需要一个空间来存储不包含在基类中的字段数据。
+但有时，你可能只想更改 model 在 Python 层的行为实现。比如：更改默认的 manager ，或是添加一个新方法。
 
-This is what proxy model inheritance is for: creating a *proxy* for the
-original model. You can create, delete and update instances of the proxy model
-and all the data will be saved as if you were using the original (non-proxied)
-model. The difference is that you can change things like the default model
-ordering or the default manager in the proxy, without having to alter the
-original.
+这就是代理模型继承的好处:为原始模型创建一个代理。您可以创建、删除和更新代理模型的实例，
+并且所有的数据将被保存，就像您使用原始的(非代理的)模型一样。
+不同之处在于，您可以在代理中更改默认的模型排序或manager，而不必更改原始数据。
 
-Proxy models are declared like normal models. You tell Django that it's a
-proxy model by setting the :attr:`~django.db.models.Options.proxy` attribute of
-the ``Meta`` class to ``True``.
+声明代理 model 和声明普通 model 没有什么不同。 设置 ``Meta`` 类中 :attr:`~django.db.models.Options.proxy`
+的值为 ``True`` ，就完成了对代理 model 的声明。
 
-For example, suppose you want to add a method to the ``Person`` model. You can do it like this::
+举个例子，假设你想给 ``Person`` 模型添加一个方法。你可以这样做::
 
     from django.db import models
 
@@ -1020,65 +993,51 @@ For example, suppose you want to add a method to the ``Person`` model. You can d
             # ...
             pass
 
-The ``MyPerson`` class operates on the same database table as its parent
-``Person`` class. In particular, any new instances of ``Person`` will also be
-accessible through ``MyPerson``, and vice-versa::
+``MyPerson`` 类和它的父类 ``Person`` 操作同一个数据表。
+特别的是， ``Person`` 的任何实例也可以通过 ``MyPerson`` 访问，反之亦然::
 
     >>> p = Person.objects.create(first_name="foobar")
     >>> MyPerson.objects.get(first_name="foobar")
     <MyPerson: foobar>
 
-You could also use a proxy model to define a different default ordering on
-a model. You might not always want to order the ``Person`` model, but regularly
-order by the ``last_name`` attribute when you use the proxy. This is easy::
+你也可以使用代理 model 给 model 定义不同的默认排序设置。
+如果你不想每次都给 ``Person`` 模型排序，但是使用代理的时候总是按照 ``last_name`` 属性排序。这非常容易::
 
     class OrderedPerson(Person):
         class Meta:
             ordering = ["last_name"]
             proxy = True
 
-Now normal ``Person`` queries will be unordered
-and ``OrderedPerson`` queries will be ordered by ``last_name``.
+这样，普通的 ``Person`` 查询是无序的，而 ``OrderedPerson`` 查询会按照 ``last_name`` 排序。
 
-Proxy models inherit ``Meta`` attributes :ref:`in the same way as regular
-models <meta-and-multi-table-inheritance>`.
+代理模型的 ``Meta`` 属性继承和 :ref:`普通模型 <meta-and-multi-table-inheritance>` 相同。
 
-``QuerySet``\s still return the model that was requested
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``QuerySet`` 始终返回请求的模型
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There is no way to have Django return, say, a ``MyPerson`` object whenever you
-query for ``Person`` objects. A queryset for ``Person`` objects will return
-those types of objects. The whole point of proxy objects is that code relying
-on the original ``Person`` will use those and your own code can use the
-extensions you included (that no other code is relying on anyway). It is not
-a way to replace the ``Person`` (or any other) model everywhere with something
-of your own creation.
+也就是说，没有办法让django在查询 ``Person`` 对象时返回 ``MyPerson`` 对象。
+``Person`` 对象的查询集会返回相同类型的对象。代理对象的特点是:它会使用依赖于原生
+``Person`` 的代码，而你可以使用你添加进来的扩展对象（它不会依赖其它任何代码）。而并不是将
+``Person`` 模型（或者其它）在所有地方替换为其它你自己创建的模型。
 
-Base class restrictions
-~~~~~~~~~~~~~~~~~~~~~~~
+基类的限制
+~~~~~~~~~~~~
 
-A proxy model must inherit from exactly one non-abstract model class. You
-can't inherit from multiple non-abstract models as the proxy model doesn't
-provide any connection between the rows in the different database tables. A
-proxy model can inherit from any number of abstract model classes, providing
-they do *not* define any model fields. A proxy model may also inherit from any
-number of proxy models that share a common non-abstract parent class.
+代理模型必须继承一个非抽象模型类。由于代理模型不提供不同数据库表中行之间的任何连接，
+所以也不能继承多个非抽象模型。代理模型可以继承任意数量的抽象模型类，
+但是不能定义任何模型字段。代理模型也可以从共享非抽象父类的任意数量的代理模型继承。
 
 .. versionchanged:: 1.10
 
-    In earlier versions, a proxy model couldn't inherit more than one proxy
-    model that shared the same parent class.
+    在早期版本中，代理模型不能继承同一个父类的多个代理模型。
 
-Proxy model managers
-~~~~~~~~~~~~~~~~~~~~
+代理模型的管理器
+~~~~~~~~~~~~~~~~~
 
-If you don't specify any model managers on a proxy model, it inherits the
-managers from its model parents. If you define a manager on the proxy model,
-it will become the default, although any managers defined on the parent
-classes will still be available.
+如果你没有在代理 模型中定义任何管理器 ，代理模型就会从父类中继承管理器 。
+如果你在代理模型中定义了一个管理器 ，它就会变成默认的管理器 ，不过定义在父类中的管理器仍然有效。
 
-Continuing our example from above, you could change the default manager used
-when you query the ``Person`` model like this::
+继续上面的例子，当你查询 ``Person`` 模型的时候，你可以改变默认管理器，例如::
 
     from django.db import models
 
@@ -1092,10 +1051,10 @@ when you query the ``Person`` model like this::
         class Meta:
             proxy = True
 
-If you wanted to add a new manager to the Proxy, without replacing the
-existing default, you can use the techniques described in the :ref:`custom
-manager <custom-managers-and-inheritance>` documentation: create a base class
-containing the new managers and inherit that after the primary base class::
+
+如果你想要向代理中添加新的管理器，而不是替换现有的默认管理器，
+你可以使用 :ref:`自定义管理器管理器 <custom-managers-and-inheritance>` 文档中描述的技巧：
+创建一个含有新的管理器的基类，并继承时把他放在主基类的后面::
 
     # Create an abstract class for the new manager.
     class ExtraManagers(models.Model):
@@ -1108,61 +1067,46 @@ containing the new managers and inherit that after the primary base class::
         class Meta:
             proxy = True
 
-You probably won't need to do this very often, but, when you do, it's
-possible.
+你可能不需要经常这样做，但这样做是可行的。
 
 .. _proxy-vs-unmanaged-models:
 
-Differences between proxy inheritance and unmanaged models
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+代理模型与非托管模型之间的差异
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Proxy model inheritance might look fairly similar to creating an unmanaged
-model, using the :attr:`~django.db.models.Options.managed` attribute on a
-model's ``Meta`` class.
+代理 model 继承看上去和使用 ``Meta`` 类中的 :attr:`~django.db.models.Options.managed` 属性的非托管 model
+非常相似。但两者并不相同，使用时选用哪种方案是一个值得考虑的问题。
 
-With careful setting of :attr:`Meta.db_table
-<django.db.models.Options.db_table>` you could create an unmanaged model that
-shadows an existing model and adds Python methods to it. However, that would be
-very repetitive and fragile as you need to keep both copies synchronized if you
-make any changes.
+通过设置 :attr:`Meta.db_table
+<django.db.models.Options.db_table>` 可以创建一个非托管的模型，它可以将现有模型隐藏，
+并向它添加Python方法。但是，这非常繁冗和脆弱，因为不论您做任何更改，都需要同时保持两个副本同步。
 
-On the other hand, proxy models are intended to behave exactly like the model
-they are proxying for. They are always in sync with the parent model since they
-directly inherit its fields and managers.
+另一方面，代理模型的行为与代理模型完全相同。它们总是与父模型保持同步，因为它们直接继承了它的字段和管理器。
 
-The general rules are:
+所以，一般规则是:
 
-1. If you are mirroring an existing model or database table and don't want
-   all the original database table columns, use ``Meta.managed=False``.
-   That option is normally useful for modeling database views and tables
-   not under the control of Django.
-2. If you are wanting to change the Python-only behavior of a model, but
-   keep all the same fields as in the original, use ``Meta.proxy=True``.
-   This sets things up so that the proxy model is an exact copy of the
-   storage structure of the original model when data is saved.
+1. 如果你要借鉴一个已有的 模型或数据表，并不想要所有原始的数据库表列，那就令
+   ``Meta.managed=False`` 。通常情况下，对模型数据库创建视图和表格不需要由 Django 控制时，就使用这个选项。
+
+2. 如果你想对 model 做 Python 层级的改动，又想保留字段不变，那就令 ``Meta.proxy=True`` 。
+   因此在数据保存时，代理 model 相当于完全复制了原始 模型的存储结构。
 
 .. _model-multiple-inheritance-topic:
 
-Multiple inheritance
---------------------
+多重继承
+---------
 
-Just as with Python's subclassing, it's possible for a Django model to inherit
-from multiple parent models. Keep in mind that normal Python name resolution
-rules apply. The first base class that a particular name (e.g. :ref:`Meta
-<meta-options>`) appears in will be the one that is used; for example, this
-means that if multiple parents contain a :ref:`Meta <meta-options>` class,
-only the first one is going to be used, and all others will be ignored.
+和Python的普通类一样，django的模型可以继承自多个父类模型。
+切记一般的Python名称解析规则也会适用。
+一个特定名称(例如 :ref:`Meta
+<meta-options>` )出现的第一个基类将将是真正使用基类。这意味着如果多个父类含有
+:ref:`Meta <meta-options>` 类，只有第一个会被使用，剩下的会忽略掉。
 
-Generally, you won't need to inherit from multiple parents. The main use-case
-where this is useful is for "mix-in" classes: adding a particular extra
-field or method to every class that inherits the mix-in. Try to keep your
-inheritance hierarchies as simple and straightforward as possible so that you
-won't have to struggle to work out where a particular piece of information is
-coming from.
+一般来说，你并不需要继承多个父类。多重继承主要对“mix-in”类有用：
+向每个继承mix-in的类添加一个特定的、额外的字段或者方法。
+你应该尝试将你的继承关系保持得尽可能简洁和直接，这样你就不必费很大力气来弄清楚某段特定的信息来自哪里。
 
-Note that inheriting from multiple models that have a common ``id`` primary
-key field will raise an error. To properly use multiple inheritance, you can
-use an explicit :class:`~django.db.models.AutoField` in the base models::
+注意，从具有普通 ``id`` 主键字段的多个模型中继承会引起错误。要正确使用多重继承，可以在基类模型中使用显式使用 :class:`~django.db.models.AutoField` ::
 
     class Article(models.Model):
         article_id = models.AutoField(primary_key=True)
@@ -1175,7 +1119,7 @@ use an explicit :class:`~django.db.models.AutoField` in the base models::
     class BookReview(Book, Article):
         pass
 
-Or use a common ancestor to hold the :class:`~django.db.models.AutoField`::
+或者是使用一个父类来持有 :class:`~django.db.models.AutoField`::
 
     class Piece(models.Model):
         pass
@@ -1189,71 +1133,51 @@ Or use a common ancestor to hold the :class:`~django.db.models.AutoField`::
     class BookReview(Book, Article):
         pass
 
-Field name "hiding" is not permitted
--------------------------------------
+不“重写”字段
+------------------
 
-In normal Python class inheritance, it is permissible for a child class to
-override any attribute from the parent class. In Django, this isn't usually
-permitted for model fields. If a non-abstract model base class has a field
-called ``author``, you can't create another model field or define
-an attribute called ``author`` in any class that inherits from that base class.
+在普通的Python类继承中，子类可以覆盖父类的任何属性。在Django中，模型字段通常不允许这样做。
+如果一个非抽象模型基类有一个名为 ``author`` 的字段，那么您就不能创建另一个模型字段，
+也不能在任何继承自基类的类中定义一个名为 ``author`` 的属性。
 
-This restriction doesn't apply to model fields inherited from an abstract
-model. Such fields may be overridden with another field or value, or be removed
-by setting ``field_name = None``.
+这个限制并不适用于从抽象模型继承的模型字段。这种情况字段可以被另一个字段或值覆盖，
+或者被设置成 ``field_name = None`` 删除掉。
 
 .. versionchanged:: 1.10
 
-    The ability to override abstract fields was added.
+    在1.10版本中新增了重写抽象字段的功能。
 
 .. warning::
 
-    Model managers are inherited from abstract base classes. Overriding an
-    inherited field which is referenced by an inherited
-    :class:`~django.db.models.Manager` may cause subtle bugs. See :ref:`custom
-    managers and model inheritance <custom-managers-and-inheritance>`.
+    模型管理器是从抽象基类继承而来的。重写继承 :class:`~django.db.models.Manager` 引用的继承字段
+    可能会导致一些的错误。参见 :ref:`自定义管理器和模型继承 <custom-managers-and-inheritance>` 。
 
 .. note::
+    一些字段在模型上定义了额外的属性，例如，一个 :class:`~django.db.models.ForeignKey` 定义了一个额外的属性，
+    并将 ``_id`` 附加到字段名，以及在外键模型上的 ``related_name`` 和 ``related_query_name`` 。
 
-    Some fields define extra attributes on the model, e.g. a
-    :class:`~django.db.models.ForeignKey` defines an extra attribute with
-    ``_id`` appended to the field name, as well as ``related_name`` and
-    ``related_query_name`` on the foreign model.
+    除非更改或删除了定义它的字段，否则不能重写这些额外的属性。
 
-    These extra attributes cannot be overridden unless the field that defines
-    it is changed or removed so that it no longer defines the extra attribute.
+重写父类的字段会导致很多麻烦，比如：初始化实例(指定在 Model.__init__ 中被实例化的字段) 和序列化。
+而普通的 Python 类继承机制并不能处理好这些特性。
+所以 Django 的继承机制被设计成与 Python 有所不同，这样做并不是随意而为的。
 
-Overriding fields in a parent model leads to difficulties in areas such as
-initializing new instances (specifying which field is being initialized in
-``Model.__init__``) and serialization. These are features which normal Python
-class inheritance doesn't have to deal with in quite the same way, so the
-difference between Django model inheritance and Python class inheritance isn't
-arbitrary.
+这些限制仅仅针对做为属性使用的 :class:`~django.db.models.Field` 实例，
+并不是针对 Python 属性，Python 属性仍是可以被重写的。 在 Python 看来，上面的限制仅仅针对字段实例的名称：
+如果你手动指定了数据库的列名称，那么在多重继承中，你就可以在子类和某个祖先类当中使用同一个列名称。
+(因为它们使用的是两个不同数据表的字段)。
 
-This restriction only applies to attributes which are
-:class:`~django.db.models.Field` instances. Normal Python attributes
-can be overridden if you wish. It also only applies to the name of the
-attribute as Python sees it: if you are manually specifying the database
-column name, you can have the same column name appearing in both a child and
-an ancestor model for multi-table inheritance (they are columns in two
-different database tables).
+如果你在祖先类中重写了某个 model 字段，Django 都会抛出 :exc:`~django.core.exceptions.FieldError` 异常
 
-Django will raise a :exc:`~django.core.exceptions.FieldError` if you override
-any model field in any ancestor model.
+将模型放到包中
+================
 
-Organizing models in a package
-==============================
+:djadmin:`manage.py startapp <startapp>` 命令创建一个包含 ``models.py`` 的应用文件结构。
+如果您有许多模型，把他们放在单独的文件夹中非常有用。
 
-The :djadmin:`manage.py startapp <startapp>` command creates an application
-structure that includes a ``models.py`` file. If you have many models,
-organizing them in separate files may be useful.
-
-To do so, create a ``models`` package. Remove ``models.py`` and create a
-``myapp/models/`` directory with an ``__init__.py`` file and the files to
-store your models. You must import the models in the ``__init__.py`` file.
-
-For example, if you had ``organic.py`` and ``synthetic.py`` in the ``models``
-directory:
+为此，创建一个 ``models`` 包。删除 ``models.py`` 。
+新建一个包含 ``__init__.py`` 文件的路径 ``myapp/models/`` 来放置模型。
+必须在 ``__init__.py`` 中导入模型。
 
 .. snippet::
     :filename: myapp/models/__init__.py
@@ -1261,12 +1185,10 @@ directory:
     from .organic import Person
     from .synthetic import Robot
 
-Explicitly importing each model rather than using ``from .models import *``
-has the advantages of not cluttering the namespace, making code more readable,
-and keeping code analysis tools useful.
+显式导入每个模型而不是使用  ``from .models import *`` 。这样具有命名空间明确，代码更具可读性等优点。
+
 
 .. seealso::
 
-    :doc:`The Models Reference </ref/models/index>`
-        Covers all the model related APIs including model fields, related
-        objects, and ``QuerySet``.
+    :doc:`模型参考 </ref/models/index>`
+        涵盖模型相关的API，包括模型字段、关联对象和 ``查询集`` 。
