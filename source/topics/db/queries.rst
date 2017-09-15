@@ -1,17 +1,14 @@
-==============
-Making queries
-==============
+=========
+执行查询
+=========
 
 .. currentmodule:: django.db.models
 
-Once you've created your :doc:`data models </topics/db/models>`, Django
-automatically gives you a database-abstraction API that lets you create,
-retrieve, update and delete objects. This document explains how to use this
-API. Refer to the :doc:`data model reference </ref/models/index>` for full
-details of all the various model lookup options.
+只要你建好 :doc:`数据 </topics/db/models>`, Django 会自动为你生成一套数据库抽象的API，
+可以让你创建、检索、更新和删除对象。这篇文档阐述如何使用这些API。
+关于模型查询所有选项的完整细节，请见 :doc:`数据模型参考 </ref/models/index>` 。
 
-Throughout this guide (and in the reference), we'll refer to the following
-models, which comprise a Weblog application:
+在整个文档（以及参考）中，都将引用下面的模型，它是一个博客应用：
 
 .. _queryset-model-example:
 
@@ -47,59 +44,52 @@ models, which comprise a Weblog application:
         def __str__(self):              # __unicode__ on Python 2
             return self.headline
 
-Creating objects
-================
+创建对象
+=========
 
-To represent database-table data in Python objects, Django uses an intuitive
-system: A model class represents a database table, and an instance of that
-class represents a particular record in the database table.
+Django 使用一种直观的方式把数据库表中的数据表示成Python对象：
+一个模型类代表数据库中的一个表，一个模型类的实例代表这个数据库表中的一条记录。
 
-To create an object, instantiate it using keyword arguments to the model class,
-then call :meth:`~django.db.models.Model.save` to save it to the database.
+使用关键字参数实例化模型实例来创建一个对象，然后调用 :meth:`~django.db.models.Model.save` 把它保存到数据库中。
 
-Assuming models live in a file ``mysite/blog/models.py``, here's an example::
+假设模型位于文件 ``mysite/blog/models.py`` 中，下面是一个例子::
 
     >>> from blog.models import Blog
     >>> b = Blog(name='Beatles Blog', tagline='All the latest Beatles news.')
     >>> b.save()
 
-This performs an ``INSERT`` SQL statement behind the scenes. Django doesn't hit
-the database until you explicitly call :meth:`~django.db.models.Model.save`.
+上面的代码其实是执行了SQL 的 ``INSERT`` 语句。在你调用 :meth:`~django.db.models.Model.save`
+之前，Django 不会访问数据库。
 
-The :meth:`~django.db.models.Model.save` method has no return value.
+:meth:`~django.db.models.Model.save` 方法没有返回值。
 
 .. seealso::
 
-    :meth:`~django.db.models.Model.save` takes a number of advanced options not
-    described here. See the documentation for
-    :meth:`~django.db.models.Model.save` for complete details.
+    :meth:`~django.db.models.Model.save` 方法还有一些高级选项，完整的细节参见
+    :meth:`~django.db.models.Model.save` 文档。
 
-    To create and save an object in a single step, use the
-    :meth:`~django.db.models.query.QuerySet.create()` method.
+    如果你想只用一条语句创建并保存一个对象，可以使用
+    :meth:`~django.db.models.query.QuerySet.create()` 方法。
 
-Saving changes to objects
-=========================
+修改对象
+==========
 
-To save changes to an object that's already in the database, use
-:meth:`~django.db.models.Model.save`.
+要保存一个数据库已存在对象的修改也是使用
+:meth:`~django.db.models.Model.save` 方法。
 
-Given a ``Blog`` instance ``b5`` that has already been saved to the database,
-this example changes its name and updates its record in the database::
+假设 ``Blog`` 的一个实例 ``b5`` 已经被保存在数据库中，下面这个例子将更改它的 name 并且更新数据库中的记录::
 
     >>> b5.name = 'New name'
     >>> b5.save()
 
-This performs an ``UPDATE`` SQL statement behind the scenes. Django doesn't hit
-the database until you explicitly call :meth:`~django.db.models.Model.save`.
+上面的代码其实是执行了SQL 的 ``UPDATE`` 语句。在你调用 :meth:`~django.db.models.Model.save` 之前，Django 不会访问数据库。
 
-Saving ``ForeignKey`` and ``ManyToManyField`` fields
-----------------------------------------------------
+保存 ``ForeignKey`` 和 ``ManyToManyField`` 字段
+--------------------------------------------------
 
-Updating a :class:`~django.db.models.ForeignKey` field works exactly the same
-way as saving a normal field -- simply assign an object of the right type to
-the field in question. This example updates the ``blog`` attribute of an
-``Entry`` instance ``entry``, assuming appropriate instances of ``Entry`` and
-``Blog`` are already saved to the database (so we can retrieve them below)::
+更新 :class:`~django.db.models.ForeignKey 字段的方式和保存普通字段相同 —— 只要把一个正确类型的对象赋值给该字段即可。
+下面的例子更新了 ``Entry`` 类的实例 ``entry`` 的 ``blog`` 属性，假设 ``Entry`` 和 ``Blog`` 分别已经有一个实例保存在数据库中
+（所以我们才能像下面这样获取它们）::
 
     >>> from blog.models import Entry
     >>> entry = Entry.objects.get(pk=1)
@@ -107,19 +97,16 @@ the field in question. This example updates the ``blog`` attribute of an
     >>> entry.blog = cheese_blog
     >>> entry.save()
 
-Updating a :class:`~django.db.models.ManyToManyField` works a little
-differently -- use the
-:meth:`~django.db.models.fields.related.RelatedManager.add` method on the field
-to add a record to the relation. This example adds the ``Author`` instance
-``joe`` to the ``entry`` object::
+更新 :class:`~django.db.models.ManyToManyField` 的方式有一些不同 —— 需要使用字段的
+:meth:`~django.db.models.fields.related.RelatedManager.add` 方法来增加关联关系的一条记录。
+下面这个例子向 ``entry`` 对象添加 ``Author`` 类的实例 ``joe`` ::
 
     >>> from blog.models import Author
     >>> joe = Author.objects.create(name="Joe")
     >>> entry.authors.add(joe)
 
-To add multiple records to a :class:`~django.db.models.ManyToManyField` in one
-go, include multiple arguments in the call to
-:meth:`~django.db.models.fields.related.RelatedManager.add`, like this::
+可以在调用 :meth:`~django.db.models.fields.related.RelatedManager.add` 方法时传入多参数，一次性向
+:class:`~django.db.models.ManyToManyField` 添加多条记录::
 
     >>> john = Author.objects.create(name="John")
     >>> paul = Author.objects.create(name="Paul")
@@ -127,16 +114,15 @@ go, include multiple arguments in the call to
     >>> ringo = Author.objects.create(name="Ringo")
     >>> entry.authors.add(john, paul, george, ringo)
 
-Django will complain if you try to assign or add an object of the wrong type.
+Django将会在你赋值或添加错误类型的对象时报错。
 
 .. _retrieving-objects:
 
-Retrieving objects
-==================
+获取对象
+==========
 
-To retrieve objects from your database, construct a
-:class:`~django.db.models.query.QuerySet` via a
-:class:`~django.db.models.Manager` on your model class.
+通过使用模型中的 :class:`~django.db.models.Manager` 构造一个
+:class:`~django.db.models.query.QuerySet` 来从数据库中获取对象。
 
 A :class:`~django.db.models.query.QuerySet` represents a collection of objects
 from your database. It can have zero, one or many *filters*. Filters narrow
