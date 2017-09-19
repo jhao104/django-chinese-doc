@@ -27,7 +27,7 @@
 
 * **入门教程**: [Part1:请求与响应](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/tutorial01.html) | [Part2:模型和管理站点](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/tutorial02.html) | [Part3:视图和模板](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/tutorial03.html) | [Part4:表单和通用视图](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/tutorial04.html) | [Part5:测试](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/tutorial05.html) | [Part6:静态文件](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/tutorial06.html) | [Part7:自定义管理站点](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/tutorial07.html)
 
-* **进阶教程**: [如何开发可重用的应用](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/reusable-apps.html) | [开发Django补丁](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/contributing.html)
+* **进阶教程**: [开发可重用的应用](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/reusable-apps.html) | [开发Django补丁](http://django-chinese-doc.readthedocs.io/zh_CN/latest/intro/contributing.html)
 
 ## 模型层
 

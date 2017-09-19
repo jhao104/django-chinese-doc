@@ -118,23 +118,22 @@ Django将会在你赋值或添加错误类型的对象时报错。
 
 .. _retrieving-objects:
 
-获取对象
+检索对象
 ==========
 
 通过使用模型中的 :class:`~django.db.models.Manager` 构造一个
 :class:`~django.db.models.query.QuerySet` 来从数据库中获取对象。
 
-A :class:`~django.db.models.query.QuerySet` represents a collection of objects
-from your database. It can have zero, one or many *filters*. Filters narrow
-down the query results based on the given parameters. In SQL terms, a
-:class:`~django.db.models.query.QuerySet` equates to a ``SELECT`` statement,
-and a filter is a limiting clause such as ``WHERE`` or ``LIMIT``.
+:class:`~django.db.models.query.QuerySet` 表示从数据库中取出来的对象的集合。
+它可以包含零个、一个或者多个 *过滤器* 。 过滤器的功能是基于所给的参数过滤查询的结果。
+从SQL角度看，
+:class:`~django.db.models.query.QuerySet` 等价于 ``SELECT`` 语句,
+过滤器就相当于 ``WHERE`` 或者 ``LIMIT`` 这样的子句。
 
-You get a :class:`~django.db.models.query.QuerySet` by using your model's
-:class:`~django.db.models.Manager`. Each model has at least one
-:class:`~django.db.models.Manager`, and it's called
-:attr:`~django.db.models.Model.objects` by default. Access it directly via the
-model class, like so::
+:class:`~django.db.models.query.QuerySet` 通过模型的
+:class:`~django.db.models.Manager` 获取。每个模型至少包含一个
+:class:`~django.db.models.Manager`, 它们默认叫做
+:attr:`~django.db.models.Model.objects` 。 可以通过模型类直接访问， 例如::
 
     >>> Blog.objects
     <django.db.models.manager.Manager object at ...>
@@ -146,68 +145,57 @@ model class, like so::
 
 .. note::
 
-    ``Managers`` are accessible only via model classes, rather than from model
-    instances, to enforce a separation between "table-level" operations and
-    "record-level" operations.
+    ``Managers`` 只能通过模型类访问，而不是模型实例。
+    目的是为了强制区分“表级别”的操作和“记录级别”的操作。
 
-The :class:`~django.db.models.Manager` is the main source of ``QuerySets`` for
-a model. For example, ``Blog.objects.all()`` returns a
-:class:`~django.db.models.query.QuerySet` that contains all ``Blog`` objects in
-the database.
+:class:`~django.db.models.Manager` 是 ``QuerySets`` 的主要来源。
+比如， ``Blog.objects.all()`` 返回一个数据库中所有 ``Blog`` 对象的
+:class:`~django.db.models.query.QuerySet` 。
 
-Retrieving all objects
-----------------------
+获取所有对象
+-------------
 
-The simplest way to retrieve objects from a table is to get all of them. To do
-this, use the :meth:`~django.db.models.query.QuerySet.all` method on a
-:class:`~django.db.models.Manager`::
+表中检索对象的最简单方法是获取所有对象。要做到这一点，在 :class:`~django.db.models.Manager` 上使用 :meth:`~django.db.models.query.QuerySet.all`
+方法::
 
     >>> all_entries = Entry.objects.all()
 
-The :meth:`~django.db.models.query.QuerySet.all` method returns a
-:class:`~django.db.models.query.QuerySet` of all the objects in the database.
+:meth:`~django.db.models.query.QuerySet.all` 返回一个数据库中所有对象的
+:class:`~django.db.models.query.QuerySet` 。
 
-Retrieving specific objects with filters
-----------------------------------------
+使用过滤器检索
+---------------
 
-The :class:`~django.db.models.query.QuerySet` returned by
-:meth:`~django.db.models.query.QuerySet.all` describes all objects in the
-database table. Usually, though, you'll need to select only a subset of the
-complete set of objects.
+:meth:`~django.db.models.query.QuerySet.all` 方法返回包含数据库所有记录的 :class:`~django.db.models.query.QuerySet`。
+但是往往只需要获取其中的一个子集。
 
-To create such a subset, you refine the initial
-:class:`~django.db.models.query.QuerySet`, adding filter conditions. The two
-most common ways to refine a :class:`~django.db.models.query.QuerySet` are:
+要创建这样一个子集，你需要在原始的的 :class:`~django.db.models.query.QuerySet` 上增加一些过滤条件。
+有两种方式可以实现：
 
 ``filter(**kwargs)``
-    Returns a new :class:`~django.db.models.query.QuerySet` containing objects
-    that match the given lookup parameters.
+    返回一个新的 :class:`~django.db.models.query.QuerySet` ，它包含满足查询参数的对象。
 
 ``exclude(**kwargs)``
-    Returns a new :class:`~django.db.models.query.QuerySet` containing objects
-    that do *not* match the given lookup parameters.
+    返回一个新的 :class:`~django.db.models.query.QuerySet` 。它包含 *不* 满足查询参数的对象。
 
-The lookup parameters (``**kwargs`` in the above function definitions) should
-be in the format described in `Field lookups`_ below.
+查询参数 (上面函数中的 ``**kwargs`` ) 需要满足特定的格式，下面 `Field lookups`_ 一节会提到。
 
-For example, to get a :class:`~django.db.models.query.QuerySet` of blog entries
-from the year 2006, use :meth:`~django.db.models.query.QuerySet.filter` like
-so::
+例如, 使用 :meth:`~django.db.models.query.QuerySet.filter`
+方法获取年份为2006的所有文章的 :class:`~django.db.models.query.QuerySet` ::
 
     Entry.objects.filter(pub_date__year=2006)
 
-With the default manager class, it is the same as::
+利用默认的管理器，它相当于::
 
     Entry.objects.all().filter(pub_date__year=2006)
 
 .. _chaining-filters:
 
-Chaining filters
-~~~~~~~~~~~~~~~~
+链式过滤
+~~~~~~~~~~
 
-The result of refining a :class:`~django.db.models.query.QuerySet` is itself a
-:class:`~django.db.models.query.QuerySet`, so it's possible to chain
-refinements together. For example::
+:class:`~django.db.models.query.QuerySet` 的筛选结果本身还是
+:class:`~django.db.models.query.QuerySet`, 所以可以将筛选语句链接在一起::
 
     >>> Entry.objects.filter(
     ...     headline__startswith='What'
@@ -217,30 +205,26 @@ refinements together. For example::
     ...     pub_date__gte=datetime(2005, 1, 30)
     ... )
 
-This takes the initial :class:`~django.db.models.query.QuerySet` of all entries
-in the database, adds a filter, then an exclusion, then another filter. The
-final result is a :class:`~django.db.models.query.QuerySet` containing all
-entries with a headline that starts with "What", that were published between
-January 30, 2005, and the current day.
+这个例子最开始获取数据库中所有对象的一个 :class:`~django.db.models.query.QuerySet`, 之后增加一个过滤器，然后是一个排除器，再之后又是一个过滤器。
+但是最终结果还是 :class:`~django.db.models.query.QuerySet` 。它包含标题以”What“开头、发布日期在2005年1月30日至当天之间的所有记录。
 
 .. _filtered-querysets-are-unique:
 
-Filtered ``QuerySet``\s are unique
+过滤后的 ``QuerySet`` 是独立的
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Each time you refine a :class:`~django.db.models.query.QuerySet`, you get a
-brand-new :class:`~django.db.models.query.QuerySet` that is in no way bound to
-the previous :class:`~django.db.models.query.QuerySet`. Each refinement creates
-a separate and distinct :class:`~django.db.models.query.QuerySet` that can be
-stored, used and reused.
+每次你筛选一个 :class:`~django.db.models.query.QuerySet`, 得到的都是全新的另一个
+:class:`~django.db.models.query.QuerySet` ， 它和之前的 :class:`~django.db.models.query.QuerySet`
+之间没有任何绑定关系。每次筛选都会创建一个独立的
+:class:`~django.db.models.query.QuerySet` ，它可以被存储及反复使用。
 
-Example::
+例如::
 
     >>> q1 = Entry.objects.filter(headline__startswith="What")
     >>> q2 = q1.exclude(pub_date__gte=datetime.date.today())
     >>> q3 = q1.filter(pub_date__gte=datetime.date.today())
 
-These three ``QuerySets`` are separate. The first is a base
+这三个 ``QuerySets`` are separate. The first is a base
 :class:`~django.db.models.query.QuerySet` containing all entries that contain a
 headline starting with "What". The second is a subset of the first, with an
 additional criteria that excludes records whose ``pub_date`` is today or in the

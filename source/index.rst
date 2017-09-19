@@ -64,7 +64,7 @@ Are you new to Django or to programming? This is the place to start!
   :doc:`Part 7: 自定义管理站点 <intro/tutorial07>`
 
 * **进阶教程:**
-  :doc:`如何开发可重用的应用 <intro/reusable-apps>` |
+  :doc:`开发可重用的应用 <intro/reusable-apps>` |
   :doc:`开发Django补丁 <intro/contributing>`
 
 模型层
