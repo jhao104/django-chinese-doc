@@ -178,7 +178,7 @@ Django将会在你赋值或添加错误类型的对象时报错。
 ``exclude(**kwargs)``
     返回一个新的 :class:`~django.db.models.query.QuerySet` 。它包含 *不* 满足查询参数的对象。
 
-查询参数 (上面函数中的 ``**kwargs`` ) 需要满足特定的格式，下面 `Field lookups`_ 一节会提到。
+查询参数 (上面函数中的 ``**kwargs`` ) 需要满足特定的格式，下面 `字段查询`_ 一节会提到。
 
 例如, 使用 :meth:`~django.db.models.query.QuerySet.filter`
 方法获取年份为2006的所有文章的 :class:`~django.db.models.query.QuerySet` ::
@@ -224,219 +224,198 @@ Django将会在你赋值或添加错误类型的对象时报错。
     >>> q2 = q1.exclude(pub_date__gte=datetime.date.today())
     >>> q3 = q1.filter(pub_date__gte=datetime.date.today())
 
-这三个 ``QuerySets`` are separate. The first is a base
-:class:`~django.db.models.query.QuerySet` containing all entries that contain a
-headline starting with "What". The second is a subset of the first, with an
-additional criteria that excludes records whose ``pub_date`` is today or in the
-future. The third is a subset of the first, with an additional criteria that
-selects only the records whose ``pub_date`` is today or in the future. The
-initial :class:`~django.db.models.query.QuerySet` (``q1``) is unaffected by the
-refinement process.
+这三个 ``QuerySets`` 都是独立的。第一个是包含所有标题以“What”开头的
+:class:`~django.db.models.query.QuerySet` 。第二个是第一个的子集，
+增加了限制条件，排除了 ``pub_date`` 大于等于今天的记录。
+第三个也是第一个的子集，限制条件是：只要 ``pub_date`` 大于等于今天的记录。
+而原来的 :class:`~django.db.models.query.QuerySet` (``q1``) 不会受到筛选的影响。
 
 .. _querysets-are-lazy:
 
-``QuerySet``\s are lazy
+``QuerySet`` 是惰性的
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-``QuerySets`` are lazy -- the act of creating a
-:class:`~django.db.models.query.QuerySet` doesn't involve any database
-activity. You can stack filters together all day long, and Django won't
-actually run the query until the :class:`~django.db.models.query.QuerySet` is
-*evaluated*. Take a look at this example::
+``QuerySets`` 是惰性执行的 —— 创建
+:class:`~django.db.models.query.QuerySet` 不会立即执行任何数据库的访问。
+你可以将过滤器保持一整天，直到 :class:`~django.db.models.query.QuerySet` 被
+*求值* 时，Django 才会真正运行这个查询。看下这个例子::
 
     >>> q = Entry.objects.filter(headline__startswith="What")
     >>> q = q.filter(pub_date__lte=datetime.date.today())
     >>> q = q.exclude(body_text__icontains="food")
     >>> print(q)
 
-Though this looks like three database hits, in fact it hits the database only
-once, at the last line (``print(q)``). In general, the results of a
-:class:`~django.db.models.query.QuerySet` aren't fetched from the database
-until you "ask" for them. When you do, the
-:class:`~django.db.models.query.QuerySet` is *evaluated* by accessing the
-database. For more details on exactly when evaluation takes place, see
+虽然它看上去有三次数据库访问, 但事实上只有在最后一行 (``print(q)``) 时才访问一次数据库。
+一般来说，只有在“请求”
+:class:`~django.db.models.query.QuerySet` 的结果时才会到数据库中去获取它们。
+当你确实需要结果时，
+:class:`~django.db.models.query.QuerySet` 通过访问数据库来求值。 关于求值发生的准确时间，参见
 :ref:`when-querysets-are-evaluated`.
 
 .. _retrieving-single-object-with-get:
 
-Retrieving a single object with ``get()``
+使用 ``get()`` 获取单个对象
 -----------------------------------------
 
-:meth:`~django.db.models.query.QuerySet.filter` will always give you a
-:class:`~django.db.models.query.QuerySet`, even if only a single object matches
-the query - in this case, it will be a
-:class:`~django.db.models.query.QuerySet` containing a single element.
+:meth:`~django.db.models.query.QuerySet.filter` 始终返回一个
+:class:`~django.db.models.query.QuerySet` ，即使只有一个对象满足查询条件。
+—— 这种情况下，
+:class:`~django.db.models.query.QuerySet` 将只包含一个元素。
 
-If you know there is only one object that matches your query, you can use the
-:meth:`~django.db.models.query.QuerySet.get` method on a
-:class:`~django.db.models.Manager` which returns the object directly::
+如果你知道只有一个对象满足你的查询，你可以使用 :class:`~django.db.models.Manager` 的
+:meth:`~django.db.models.query.QuerySet.get` 方法，它直接返回该对象::
 
     >>> one_entry = Entry.objects.get(pk=1)
 
-You can use any query expression with
-:meth:`~django.db.models.query.QuerySet.get`, just like with
-:meth:`~django.db.models.query.QuerySet.filter` - again, see `Field lookups`_
-below.
+你可以对
+:meth:`~django.db.models.query.QuerySet.get` 使用任何查询表达式， 就和
+:meth:`~django.db.models.query.QuerySet.filter` 一样， 参考 `字段查询`_ 。
 
-Note that there is a difference between using
-:meth:`~django.db.models.query.QuerySet.get`, and using
-:meth:`~django.db.models.query.QuerySet.filter` with a slice of ``[0]``. If
-there are no results that match the query,
-:meth:`~django.db.models.query.QuerySet.get` will raise a ``DoesNotExist``
-exception. This exception is an attribute of the model class that the query is
-being performed on - so in the code above, if there is no ``Entry`` object with
-a primary key of 1, Django will raise ``Entry.DoesNotExist``.
+但是
+:meth:`~django.db.models.query.QuerySet.get` 和
+:meth:`~django.db.models.query.QuerySet.filter` 有一点区别，如果没有符合条件的查询结果
+:meth:`~django.db.models.query.QuerySet.get` 会抛出一个 ``DoesNotExist`` 异常。
+这个异常是正在查询的模型类的一个属性，所以在上面的代码中，如果没有主键为 1
+的 `Entry`, Django 将抛出一个 ``Entry.DoesNotExist``。
 
-Similarly, Django will complain if more than one item matches the
-:meth:`~django.db.models.query.QuerySet.get` query. In this case, it will raise
-:exc:`~django.core.exceptions.MultipleObjectsReturned`, which again is an
-attribute of the model class itself.
+同样，如果 :meth:`~django.db.models.query.QuerySet.get` 满足条件的结果超过1个,Django会抛出一个
+:exc:`~django.core.exceptions.MultipleObjectsReturned` 异常。
 
 
-Other ``QuerySet`` methods
---------------------------
+其他 ``QuerySet`` 方法
+------------------------
 
-Most of the time you'll use :meth:`~django.db.models.query.QuerySet.all`,
+查询数据库时，大多数会使用方法 :meth:`~django.db.models.query.QuerySet.all`,
 :meth:`~django.db.models.query.QuerySet.get`,
-:meth:`~django.db.models.query.QuerySet.filter` and
-:meth:`~django.db.models.query.QuerySet.exclude` when you need to look up
-objects from the database. However, that's far from all there is; see the
-:ref:`QuerySet API Reference <queryset-api>` for a complete list of all the
-various :class:`~django.db.models.query.QuerySet` methods.
+:meth:`~django.db.models.query.QuerySet.filter` 和
+:meth:`~django.db.models.query.QuerySet.exclude` 。
+但是这只是其中一小部分方法，有关 :class:`~django.db.models.query.QuerySet` 完整的方法列表，请参见
+:ref:`QuerySet API Reference <queryset-api>` 。
 
 .. _limiting-querysets:
 
-Limiting ``QuerySet``\s
+``QuerySet`` 的Limit
 -----------------------
 
-Use a subset of Python's array-slicing syntax to limit your
-:class:`~django.db.models.query.QuerySet` to a certain number of results. This
-is the equivalent of SQL's ``LIMIT`` and ``OFFSET`` clauses.
+可以使用Python 的切片语法来限制
+:class:`~django.db.models.query.QuerySet` 记录的数目。它等同于SQL 的
+``LIMIT`` 和 ``OFFSET`` 子句。
 
-For example, this returns the first 5 objects (``LIMIT 5``)::
+例如，下面的语句返回前面5个对象 (``LIMIT 5``)::
 
     >>> Entry.objects.all()[:5]
 
-This returns the sixth through tenth objects (``OFFSET 5 LIMIT 5``)::
+下面这条语句返回第6至第10个对像 (``OFFSET 5 LIMIT 5``)::
 
     >>> Entry.objects.all()[5:10]
 
-Negative indexing (i.e. ``Entry.objects.all()[-1]``) is not supported.
+不支持负数索引 (i.e. ``Entry.objects.all()[-1]``) 。
 
-Generally, slicing a :class:`~django.db.models.query.QuerySet` returns a new
-:class:`~django.db.models.query.QuerySet` -- it doesn't evaluate the query. An
-exception is if you use the "step" parameter of Python slice syntax. For
-example, this would actually execute the query in order to return a list of
-every *second* object of the first 10::
+通常, :class:`~django.db.models.query.QuerySet`  的切片返回一个新的
+:class:`~django.db.models.query.QuerySet` -- 它不会立即执行查询。但是，如果你使用了Python切片语法中的“步长”参数，
+比如下面的语句将在前10个对象中每隔2个对象返回，这样会立即执行数据库查询::
 
     >>> Entry.objects.all()[:10:2]
 
-To retrieve a *single* object rather than a list
-(e.g. ``SELECT foo FROM bar LIMIT 1``), use a simple index instead of a
-slice. For example, this returns the first ``Entry`` in the database, after
-ordering entries alphabetically by headline::
+若不想获取列表，要一个单一的对象(e.g. ``SELECT foo FROM bar LIMIT 1``)，可以直接使用位置索引而不是切片。
+。例如，下面的语句返回数据库中根据标题排序后的第一条 `Entry` ::
 
     >>> Entry.objects.order_by('headline')[0]
 
-This is roughly equivalent to::
+它等同于::
 
     >>> Entry.objects.order_by('headline')[0:1].get()
 
-Note, however, that the first of these will raise ``IndexError`` while the
-second will raise ``DoesNotExist`` if no objects match the given criteria. See
-:meth:`~django.db.models.query.QuerySet.get` for more details.
+不同的是，如果没有满足条件的结果，第一种方法将引发 ``IndexError`` 异常，第二种方法会引发 ``DoesNotExist`` 异常。
+更多细节参见
+:meth:`~django.db.models.query.QuerySet.get` 。
 
 .. _field-lookups-intro:
 
-Field lookups
--------------
+字段查询
+---------
 
-Field lookups are how you specify the meat of an SQL ``WHERE`` clause. They're
-specified as keyword arguments to the :class:`~django.db.models.query.QuerySet`
-methods :meth:`~django.db.models.query.QuerySet.filter`,
-:meth:`~django.db.models.query.QuerySet.exclude` and
-:meth:`~django.db.models.query.QuerySet.get`.
+字段查询是指如何指定SQL ``WHERE`` 子句的内容，
+它们通过 :class:`~django.db.models.query.QuerySet`
+的 :meth:`~django.db.models.query.QuerySet.filter`,
+:meth:`~django.db.models.query.QuerySet.exclude` 和
+:meth:`~django.db.models.query.QuerySet.get` 方法的关键字参数指定。
 
-Basic lookups keyword arguments take the form ``field__lookuptype=value``.
-(That's a double-underscore). For example::
+查询的关键字参数的基本形式是 ``field__lookuptype=value``.
+(中间是两个下划线)。 例如::
 
     >>> Entry.objects.filter(pub_date__lte='2006-01-01')
 
-translates (roughly) into the following SQL:
+翻译成SQL就是:
 
 .. code-block:: sql
 
     SELECT * FROM blog_entry WHERE pub_date <= '2006-01-01';
 
-.. admonition:: How this is possible
+.. admonition:: 如何实现
 
-   Python has the ability to define functions that accept arbitrary name-value
-   arguments whose names and values are evaluated at runtime. For more
-   information, see :ref:`tut-keywordargs` in the official Python tutorial.
+   Python 定义的函数可以接收任意的键/值对参数，这些名称和参数可以在运行时求值。更多信息，
+   参见Python 官方文档中的 `关键字参数`_ 。
 
-The field specified in a lookup has to be the name of a model field. There's
-one exception though, in case of a :class:`~django.db.models.ForeignKey` you
-can specify the field name suffixed with ``_id``. In this case, the value
-parameter is expected to contain the raw value of the foreign model's primary
-key. For example:
+.. _关键字参数: https://docs.python.org/3/tutorial/controlflow.html#keyword-arguments
+
+查询条件中指定的字段必须是模型字段的名称。但有一个例外，对于 :class:`~django.db.models.ForeignKey`
+你可以使用字段名加上 ``_id`` 后缀。在这种情况下，该参数的值应该是外键的原始值。例如::
 
     >>> Entry.objects.filter(blog_id=4)
 
-If you pass an invalid keyword argument, a lookup function will raise
-``TypeError``.
+如果传入的是一个不合法的参数，查询函数将引发
+``TypeError``。
 
-The database API supports about two dozen lookup types; a complete reference
-can be found in the :ref:`field lookup reference <field-lookups>`. To give you
-a taste of what's available, here's some of the more common lookups you'll
-probably use:
+这些数据库API 支持大约二十多种查询的类型; 完整的参考请参见 :ref:`字段查询 <field-lookups>` 。
+下面是一些可能用到的常见查询：
 
 :lookup:`exact`
-    An "exact" match. For example::
+    “精确”匹配。例如::
 
         >>> Entry.objects.get(headline__exact="Cat bites dog")
 
-    Would generate SQL along these lines:
+    将生成下面的SQL:
 
     .. code-block:: sql
 
         SELECT ... WHERE headline = 'Cat bites dog';
 
-    If you don't provide a lookup type -- that is, if your keyword argument
-    doesn't contain a double underscore -- the lookup type is assumed to be
-    ``exact``.
+    如果没有提供查询类型 -- 即如果关键字参数不包含双下划线
+    -- 默认查询类型就是
+    ``exact`` 。
 
-    For example, the following two statements are equivalent::
+    因此，下面的两条语句相等::
 
         >>> Blog.objects.get(id__exact=14)  # Explicit form
         >>> Blog.objects.get(id=14)         # __exact is implied
 
-    This is for convenience, because ``exact`` lookups are the common case.
+    这是为了方便，因为 ``exact`` 查询是最常见的查询。
 
 :lookup:`iexact`
-    A case-insensitive match. So, the query::
+    大小写不敏感的匹配。所以这个查询::
 
         >>> Blog.objects.get(name__iexact="beatles blog")
 
-    Would match a ``Blog`` titled ``"Beatles Blog"``, ``"beatles blog"``, or
-    even ``"BeAtlES blOG"``.
+    将匹配到标题为 ``"Beatles Blog"`` 和 ``"beatles blog"`` 甚至 ``"BeAtlES blOG"`` 的 ``Blog`` 。
 
 :lookup:`contains`
-    Case-sensitive containment test. For example::
+    大小写敏感的包含关系。 例如::
 
         Entry.objects.get(headline__contains='Lennon')
 
-    Roughly translates to this SQL:
+    可以翻译成下面的SQL:
 
     .. code-block:: sql
 
         SELECT ... WHERE headline LIKE '%Lennon%';
 
-    Note this will match the headline ``'Today Lennon honored'`` but not
-    ``'today lennon honored'``.
+    注意，这种可以匹配到 ``'Today Lennon honored'`` 但匹配不到
+    ``'today lennon honored'`` 。
 
-    There's also a case-insensitive version, :lookup:`icontains`.
+    同样也有个大小写不敏感的版本 :lookup:`icontains` 。
 
-:lookup:`startswith`, :lookup:`endswith`
+:lookup:`startswith` 和 :lookup:`endswith`
     Starts-with and ends-with search, respectively. There are also
     case-insensitive versions called :lookup:`istartswith` and
     :lookup:`iendswith`.
