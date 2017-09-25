@@ -416,57 +416,47 @@ Django将会在你赋值或添加错误类型的对象时报错。
     同样也有个大小写不敏感的版本 :lookup:`icontains` 。
 
 :lookup:`startswith` 和 :lookup:`endswith`
-    Starts-with and ends-with search, respectively. There are also
-    case-insensitive versions called :lookup:`istartswith` and
-    :lookup:`iendswith`.
+    分别是查找以目标字符串开头和结尾的记录,同样的，它们都有一个不区分大小写的方法
+    :lookup:`istartswith` 和
+    :lookup:`iendswith` 。
 
-Again, this only scratches the surface. A complete reference can be found in the
-:ref:`field lookup reference <field-lookups>`.
+上面罗列的仅仅是部分查询方法，完整的参考：
+:ref:`字段查询参考 <field-lookups>`.
 
 .. _lookups-that-span-relationships:
 
-Lookups that span relationships
--------------------------------
+夸关联关系查询
+----------------
 
-Django offers a powerful and intuitive way to "follow" relationships in
-lookups, taking care of the SQL ``JOIN``\s for you automatically, behind the
-scenes. To span a relationship, just use the field name of related fields
-across models, separated by double underscores, until you get to the field you
-want.
+Django 提供了强大而又直观的方式来“处理”查询中的关联关系，它在后台自动帮你处理 ``JOIN`` 。
+若要使用关联关系的字段查询，只需使用关联的模型字段的名称，并使用双下划线分隔。
 
-This example retrieves all ``Entry`` objects with a ``Blog`` whose ``name``
-is ``'Beatles Blog'``::
+比如要获取所有 ``Entry`` 中所有 ``Blog`` 的 ``name`` 为 ``'Beatles Blog'`` 的对象::
 
     >>> Entry.objects.filter(blog__name='Beatles Blog')
 
-This spanning can be as deep as you'd like.
+而且这种查询可以是任意深度的。
+反过来也是可行的。若要引用一个“反向”的关系，使用该模型的小写的名称即可。
 
-It works backwards, too. To refer to a "reverse" relationship, just use the
-lowercase name of the model.
-
-This example retrieves all ``Blog`` objects which have at least one ``Entry``
-whose ``headline`` contains ``'Lennon'``::
+比如，获取所有 ``Blog`` 中 ``Entry``
+的 ``headline`` 包含 ``'Lennon'`` 的对象::
 
     >>> Blog.objects.filter(entry__headline__contains='Lennon')
 
-If you are filtering across multiple relationships and one of the intermediate
-models doesn't have a value that meets the filter condition, Django will treat
-it as if there is an empty (all values are ``NULL``), but valid, object there.
-All this means is that no error will be raised. For example, in this filter::
+如果多个关联关系直接过滤而且其中某个中间模型没有满足过滤条件的值，
+Django 会把它当做一个空的（所有的值都为NULL）合法对象。这意味着不会引发任何错误。例如，在下面的过滤器中::
 
     Blog.objects.filter(entry__authors__name='Lennon')
 
-(if there was a related ``Author`` model), if there was no ``author``
-associated with an entry, it would be treated as if there was also no ``name``
-attached, rather than raising an error because of the missing ``author``.
-Usually this is exactly what you want to have happen. The only case where it
-might be confusing is if you are using :lookup:`isnull`. Thus::
+(假设存在 ``Author`` 的关联模型), 如果没有找到符合条件的 ``author`` , 那么都会返回空,
+而不是引发缺失 ``author`` 的异常，
+这是一种比较好的处理方式，但是当使用
+:lookup:`isnull` 就会有二义性。 例如::
 
     Blog.objects.filter(entry__authors__name__isnull=True)
 
-will return ``Blog`` objects that have an empty ``name`` on the ``author`` and
-also those which have an empty ``author`` on the ``entry``. If you don't want
-those latter objects, you could write::
+这将会返回 ``author`` 中 ``name`` 为空的 ``Blog`` 对象，以及 ``entry`` 中  ``author`` 为空的``Blog`` 对象。
+如果你不需要后者，你可以修改成::
 
     Blog.objects.filter(entry__authors__isnull=False, entry__authors__name__isnull=True)
 
