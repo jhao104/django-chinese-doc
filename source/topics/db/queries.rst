@@ -460,80 +460,58 @@ Django 会把它当做一个空的（所有的值都为NULL）合法对象。这
 
     Blog.objects.filter(entry__authors__isnull=False, entry__authors__name__isnull=True)
 
-Spanning multi-valued relationships
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+跨关联关系多值查询
+~~~~~~~~~~~~~~~~~~~~~~
 
-When you are filtering an object based on a
-:class:`~django.db.models.ManyToManyField` or a reverse
-:class:`~django.db.models.ForeignKey`, there are two different sorts of filter
-you may be interested in. Consider the ``Blog``/``Entry`` relationship
-(``Blog`` to ``Entry`` is a one-to-many relation). We might be interested in
-finding blogs that have an entry which has both *"Lennon"* in the headline and
-was published in 2008. Or we might want to find blogs that have an entry with
-*"Lennon"* in the headline as well as an entry that was published
-in 2008. Since there are multiple entries associated with a single ``Blog``,
-both of these queries are possible and make sense in some situations.
+当你使用
+:class:`~django.db.models.ManyToManyField` 或者
+:class:`~django.db.models.ForeignKey` 来过滤一个对象时,有两种不同的过滤方式。
+对于 ``Blog``/``Entry`` 的关联关系
+(``Blog`` 和 ``Entry`` 是一对多关系)。既可以查找headline为 *"Lennon"* 并且pub_date是2008的Entry,
+也可以查找 headline为
+*"Lennon"* 或者 pub_date为
+2008的Entry。这两种查询都是有可能并且有意义的。
 
-The same type of situation arises with a
-:class:`~django.db.models.ManyToManyField`. For example, if an ``Entry`` has a
-:class:`~django.db.models.ManyToManyField` called ``tags``, we might want to
-find entries linked to tags called *"music"* and *"bands"* or we might want an
-entry that contains a tag with a name of *"music"* and a status of *"public"*.
+:class:`~django.db.models.ManyToManyField` 也有类似的情况。比如，如果 ``Entry`` 有一个
+:class:`~django.db.models.ManyToManyField` ``tags``,这样可能想找到tag为 *"music"* and *"bands"* 的Entry,
+或者我们想找一个tag名为 *"music"* 且状态为“public”的Entry。
 
-To handle both of these situations, Django has a consistent way of processing
-:meth:`~django.db.models.query.QuerySet.filter` calls. Everything inside a
-single :meth:`~django.db.models.query.QuerySet.filter` call is applied
-simultaneously to filter out items matching all those requirements. Successive
-:meth:`~django.db.models.query.QuerySet.filter` calls further restrict the set
-of objects, but for multi-valued relations, they apply to any object linked to
-the primary model, not necessarily those objects that were selected by an
-earlier :meth:`~django.db.models.query.QuerySet.filter` call.
+这些情况都可以使用 :meth:`~django.db.models.query.QuerySet.filter` 来处理。
+在单个 :meth:`~django.db.models.query.QuerySet.filter` 中的条件都会被同时应用到匹配。
 
-That may sound a bit confusing, so hopefully an example will clarify. To
-select all blogs that contain entries with both *"Lennon"* in the headline
-and that were published in 2008 (the same entry satisfying both conditions),
-we would write::
+这种描述可能不好理解，用一个例子来说明。比如要选择所有的entry包含 *"Lennon"* 标题并于2008年发表的博客(即这个Blog的entry要同时包含这两个条件)，
+查询代码是这样的::
 
     Blog.objects.filter(entry__headline__contains='Lennon', entry__pub_date__year=2008)
 
-To select all blogs that contain an entry with *"Lennon"* in the headline
-**as well as** an entry that was published in 2008, we would write::
+要选择Blog的entry包含 *"Lennon"* 标题，或者是2008年出版的，查询代码是这样的::
 
     Blog.objects.filter(entry__headline__contains='Lennon').filter(entry__pub_date__year=2008)
 
-Suppose there is only one blog that had both entries containing *"Lennon"* and
-entries from 2008, but that none of the entries from 2008 contained *"Lennon"*.
-The first query would not return any blogs, but the second query would return
-that one blog.
+假设有一个Blog拥有一个标题包含 *"Lennon"* 的entry和一个来自2008年的entry。
+第一个查询将匹配不到Blog, 第二个查询才会匹配上这个Blog。
 
-In the second example, the first filter restricts the queryset to all those
-blogs linked to entries with *"Lennon"* in the headline. The second filter
-restricts the set of blogs *further* to those that are also linked to entries
-that were published in 2008. The entries selected by the second filter may or
-may not be the same as the entries in the first filter. We are filtering the
-``Blog`` items with each filter statement, not the ``Entry`` items.
+第二个例子中，第一个filter过滤出的查询集是所有关联有标题包含 *"Lennon"* 的entry的Blog,
+第二个filter是在第一个的查询集中过滤出关联有发布时间是2008的entry的Blog。
+第二个filter过滤出来的entry与第一个filter过滤出来的entry可能相同也可能不同。
+每个filter语句过滤的是 ``Blog`` ，而不是 ``Entry`` 。
 
 .. note::
 
-    The behavior of :meth:`~django.db.models.query.QuerySet.filter` for queries
-    that span multi-value relationships, as described above, is not implemented
-    equivalently for :meth:`~django.db.models.query.QuerySet.exclude`. Instead,
-    the conditions in a single :meth:`~django.db.models.query.QuerySet.exclude`
-    call will not necessarily refer to the same item.
+    夸关联关系的多值 :meth:`~django.db.models.query.QuerySet.filter` 查询和
+    :meth:`~django.db.models.query.QuerySet.exclude` 不同。
+    单个 :meth:`~django.db.models.query.QuerySet.exclude` 方法的条件不必引用同一个记录。
 
-    For example, the following query would exclude blogs that contain *both*
-    entries with *"Lennon"* in the headline *and* entries published in 2008::
+    例如，要排除标题中包含 *"Lennon"* 的entry和 发布在2008的entry::
 
         Blog.objects.exclude(
             entry__headline__contains='Lennon',
             entry__pub_date__year=2008,
         )
 
-    However, unlike the behavior when using
-    :meth:`~django.db.models.query.QuerySet.filter`, this will not limit blogs
-    based on entries that satisfy both conditions. In order to do that, i.e.
-    to select all blogs that do not contain entries published with *"Lennon"*
-    that were published in 2008, you need to make two queries::
+    但是，这个和
+    :meth:`~django.db.models.query.QuerySet.filter` 不一样,它并不是排除同时满足这两个条件的Blog。
+    如果要排除Blog中entry的标题包含 *"Lennon"* 且发布时间为2008的，需要改成这样::
 
         Blog.objects.exclude(
             entry__in=Entry.objects.filter(
@@ -544,60 +522,48 @@ may not be the same as the entries in the first filter. We are filtering the
 
 .. _using-f-expressions-in-filters:
 
-Filters can reference fields on the model
------------------------------------------
+Filters 引用模型字段
+---------------------
 
-In the examples given so far, we have constructed filters that compare
-the value of a model field with a constant. But what if you want to compare
-the value of a model field with another field on the same model?
+在上面例子中，最多是将模型字段和常量进行比较。那么如何将模型的一个字段与模型的另外一个字段进行比较？
 
-Django provides :class:`F expressions <django.db.models.F>` to allow such
-comparisons. Instances of ``F()`` act as a reference to a model field within a
-query. These references can then be used in query filters to compare the values
-of two different fields on the same model instance.
+Django 提供了 :class:`F 表达式 <django.db.models.F>` 来完成这种操作。
+``F()`` 的实例作为查询中模型字段的引用。可以在查询filter中使用这些引用来比较相同模型不同instance上两个不同字段的值。
 
-For example, to find a list of all blog entries that have had more comments
-than pingbacks, we construct an ``F()`` object to reference the pingback count,
-and use that ``F()`` object in the query::
+比如, 如果要查找comments数目多于pingbacks的Entry，可以构造一个 ``F()`` 对象来引用pingback数目，
+并在查询中使用该 ``F()`` 对象::
 
     >>> from django.db.models import F
     >>> Entry.objects.filter(n_comments__gt=F('n_pingbacks'))
 
-Django supports the use of addition, subtraction, multiplication,
-division, modulo, and power arithmetic with ``F()`` objects, both with constants
-and with other ``F()`` objects. To find all the blog entries with more than
-*twice* as many comments as pingbacks, we modify the query::
+Django 支持对 ``F()`` 对象使用加法、减法、乘法、除法、取模以及幂计算等算术操作，
+操作符两边可以都是常数或 ``F()`` 对象。例如，查找comments 数目比pingbacks 两倍还要多的Entry，可以将查询修改为::
 
     >>> Entry.objects.filter(n_comments__gt=F('n_pingbacks') * 2)
 
-To find all the entries where the rating of the entry is less than the
-sum of the pingback count and comment count, we would issue the
-query::
+查询rating 比pingback 和comment 数目总和要小的Entry，可以这样查询::
 
     >>> Entry.objects.filter(rating__lt=F('n_comments') + F('n_pingbacks'))
 
-You can also use the double underscore notation to span relationships in
-an ``F()`` object. An ``F()`` object with a double underscore will introduce
-any joins needed to access the related object. For example, to retrieve all
-the entries where the author's name is the same as the blog name, we could
-issue the query::
+``F()`` 还支持在对象中使用双下划线标记来跨关联关系查询。带有双下划线的 ``F()``
+对象将引入任何需要的join 操作以访问关联的对象。例如，如要获取author的名字与blog名字相同的Entry，可以这样查询::
 
     >>> Entry.objects.filter(authors__name=F('blog__name'))
 
-For date and date/time fields, you can add or subtract a
-:class:`~datetime.timedelta` object. The following would return all entries
-that were modified more than 3 days after they were published::
+对于date 和date/time 字段，支持给它们加上或减去一个
+:class:`~datetime.timedelta` 对象。
+下面的例子将返回修改时间位于发布3天后的Entry::
 
     >>> from datetime import timedelta
     >>> Entry.objects.filter(mod_date__gt=F('pub_date') + timedelta(days=3))
 
-The ``F()`` objects support bitwise operations by ``.bitand()`` and
-``.bitor()``, for example::
+``F()`` 对象支持 ``.bitand()`` 和
+``.bitor()`` 两种位操作，例如::
 
     >>> F('somefield').bitand(16)
 
-The ``pk`` lookup shortcut
---------------------------
+``pk`` 快捷查询
+-----------------
 
 For convenience, Django provides a ``pk`` lookup shortcut, which stands for
 "primary key".
