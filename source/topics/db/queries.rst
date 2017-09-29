@@ -565,18 +565,17 @@ Django 支持对 ``F()`` 对象使用加法、减法、乘法、除法、取模�
 ``pk`` 快捷查询
 -----------------
 
-For convenience, Django provides a ``pk`` lookup shortcut, which stands for
-"primary key".
+为了方便，Django 提供一个查询快捷方式 ``pk`` ，它表示“primary key” 的意思。
 
-In the example ``Blog`` model, the primary key is the ``id`` field, so these
-three statements are equivalent::
+在 ``Blog`` 模型示例中，主键是 ``id`` 字段，所以下面三条语句是等同的::
 
     >>> Blog.objects.get(id__exact=14) # Explicit form
     >>> Blog.objects.get(id=14) # __exact is implied
     >>> Blog.objects.get(pk=14) # pk implies id__exact
 
-The use of ``pk`` isn't limited to ``__exact`` queries -- any query term
-can be combined with ``pk`` to perform a query on the primary key of a model::
+
+
+``pk`` 的使用不仅限于 ``__exact`` 查询 —— 任何查询类型都可以与 ``pk`` 结合来完成一个模型上对主键的查询::
 
     # Get blogs entries with id 1, 4 and 7
     >>> Blog.objects.filter(pk__in=[1,4,7])
@@ -584,103 +583,83 @@ can be combined with ``pk`` to perform a query on the primary key of a model::
     # Get all blog entries with id > 14
     >>> Blog.objects.filter(pk__gt=14)
 
-``pk`` lookups also work across joins. For example, these three statements are
-equivalent::
+
+``pk`` 查询在 join 中适用。例如，下面三个语句是等同的::
 
     >>> Entry.objects.filter(blog__id__exact=3) # Explicit form
     >>> Entry.objects.filter(blog__id=3)        # __exact is implied
     >>> Entry.objects.filter(blog__pk=3)        # __pk implies __id__exact
 
-Escaping percent signs and underscores in ``LIKE`` statements
--------------------------------------------------------------
+``LIKE`` 中的%和_转义
+-------------------------
 
-The field lookups that equate to ``LIKE`` SQL statements (``iexact``,
-``contains``, ``icontains``, ``startswith``, ``istartswith``, ``endswith``
-and ``iendswith``) will automatically escape the two special characters used in
-``LIKE`` statements -- the percent sign and the underscore. (In a ``LIKE``
-statement, the percent sign signifies a multiple-character wildcard and the
-underscore signifies a single-character wildcard.)
 
-This means things should work intuitively, so the abstraction doesn't leak.
-For example, to retrieve all the entries that contain a percent sign, just use
-the percent sign as any other character::
+与 ``LIKE`` SQL 语句等同的字段查询（ ``iexact`` 、 ``contains`` 、 ``icontains`` 、
+``startswith`` 、 ``istartswith`` 、 ``endswith`` 和 ``iendswith`` ）将自动转义在 ``LIKE`` 语句中
+使用的两个特殊的字符 —— 百分号和下划线。（在 ``LIKE`` 语句中，百分号通配符表示多个字符，下划线通配符表示单个字符）
+
+这样语句将很直观，不会显得太抽象。例如，要获取包含一个百分号的所有的 ``Entry`` ，只需要像其它任何字符一样使用百分号::
 
     >>> Entry.objects.filter(headline__contains='%')
 
-Django takes care of the quoting for you; the resulting SQL will look something
-like this:
+Django 会帮你转义；生成的SQL 看上去会是这样s:
 
 .. code-block:: sql
 
     SELECT ... WHERE headline LIKE '%\%%';
 
-Same goes for underscores. Both percentage signs and underscores are handled
-for you transparently.
+对于下划线是同样的道理。百分号和下划线都会自动地帮你处理。
 
 .. _caching-and-querysets:
 
-Caching and ``QuerySet``\s
---------------------------
+``QuerySet`` 缓存
+--------------------
 
-Each :class:`~django.db.models.query.QuerySet` contains a cache to minimize
-database access. Understanding how it works will allow you to write the most
-efficient code.
+每个 :class:`~django.db.models.query.QuerySet` 都会缓存一个最小化的数据库访问。编写高效的代码前你需要理解它是如何工作的。
 
-In a newly created :class:`~django.db.models.query.QuerySet`, the cache is
-empty. The first time a :class:`~django.db.models.query.QuerySet` is evaluated
--- and, hence, a database query happens -- Django saves the query results in
-the :class:`~django.db.models.query.QuerySet`’s cache and returns the results
-that have been explicitly requested (e.g., the next element, if the
-:class:`~django.db.models.query.QuerySet` is being iterated over). Subsequent
-evaluations of the :class:`~django.db.models.query.QuerySet` reuse the cached
-results.
+在一个新创建的 :class:`~django.db.models.query.QuerySet` 中，缓存为空。
+首次对查询集进行求值——即产生数据库查询，Django将保存查询的结果到
+:class:`~django.db.models.query.QuerySet` 的缓存中，并明确返回请求的结果（
+例如，如果正在迭代 :class:`~django.db.models.query.QuerySet` ，则返回下一个结果）
+接下来对该 :class:`~django.db.models.query.QuerySet` 的求值将重用缓存的结果。
 
-Keep this caching behavior in mind, because it may bite you if you don't use
-your :class:`~django.db.models.query.QuerySet`\s correctly. For example, the
-following will create two :class:`~django.db.models.query.QuerySet`\s, evaluate
-them, and throw them away::
+请牢记这个缓存行为，因为对 :class:`~django.db.models.query.QuerySet` 使用不当的话，它会坑你的。
+例如，下面的语句创建两个 :class:`~django.db.models.query.QuerySet` ，对它们求值，然后扔掉它们::
 
     >>> print([e.headline for e in Entry.objects.all()])
     >>> print([e.pub_date for e in Entry.objects.all()])
 
-That means the same database query will be executed twice, effectively doubling
-your database load. Also, there's a possibility the two lists may not include
-the same database records, because an ``Entry`` may have been added or deleted
-in the split second between the two requests.
+这意味着相同的数据库查询将执行两次，显然增加了你的数据库负载。
+同时，还有可能两个结果列表并不包含相同的数据库记录，因为在两次请求期间有可能有 ``Entry`` 被添加进来或删除掉。
 
-To avoid this problem, simply save the
-:class:`~django.db.models.query.QuerySet` and reuse it::
+为了避免这个问题，只需保存 :class:`~django.db.models.query.QuerySet` 并重新使用它::
 
     >>> queryset = Entry.objects.all()
     >>> print([p.headline for p in queryset]) # Evaluate the query set.
     >>> print([p.pub_date for p in queryset]) # Re-use the cache from the evaluation.
 
-When ``QuerySet``\s are not cached
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+何时查询集不会被缓存
+~~~~~~~~~~~~~~~~~~~~~~
 
-Querysets do not always cache their results.  When evaluating only *part* of
-the queryset, the cache is checked, but if it is not populated then the items
-returned by the subsequent query are not cached. Specifically, this means that
-:ref:`limiting the queryset <limiting-querysets>` using an array slice or an
-index will not populate the cache.
 
-For example, repeatedly getting a certain index in a queryset object will query
-the database each time::
+查询集不会永远缓存它们的结果。当只对查询集的部分进行求值时会检查缓存，
+但是如果这个部分不在缓存中，那么接下来查询返回的记录都将不会被缓存。
+这意味着使用切片或 :ref:`限制查询集 <limiting-querysets>` 将不会填充缓存。
+
+例如，重复获取查询集对象中一个特定的索引将每次都查询数据库::
 
     >>> queryset = Entry.objects.all()
     >>> print(queryset[5]) # Queries the database
     >>> print(queryset[5]) # Queries the database again
 
-However, if the entire queryset has already been evaluated, the cache will be
-checked instead::
+然而，如果已经对全部查询集求值过，则将检查缓存::
 
     >>> queryset = Entry.objects.all()
     >>> [entry for entry in queryset] # Queries the database
     >>> print(queryset[5]) # Uses cache
     >>> print(queryset[5]) # Uses cache
 
-Here are some examples of other actions that will result in the entire queryset
-being evaluated and therefore populate the cache::
+下面是一些其它例子，它们都会使得全部的查询集被求值并填充到缓存中::
 
     >>> [entry for entry in queryset]
     >>> bool(queryset)
@@ -689,75 +668,65 @@ being evaluated and therefore populate the cache::
 
 .. note::
 
-    Simply printing the queryset will not populate the cache. This is because
-    the call to ``__repr__()`` only returns a slice of the entire queryset.
+    简单地打印查询集不会填充缓存。因为 ``__repr__()`` 调用只返回全部查询集的一个切片。
 
 .. _complex-lookups-with-q:
 
-Complex lookups with ``Q`` objects
-==================================
+``Q`` 复杂查询
+===============
 
-Keyword argument queries -- in :meth:`~django.db.models.query.QuerySet.filter`,
-etc. -- are "AND"ed together. If you need to execute more complex queries (for
-example, queries with ``OR`` statements), you can use :class:`Q objects <django.db.models.Q>`.
+:meth:`~django.db.models.query.QuerySet.filter` 等方法中的关键字参数查询都是一起进行 "AND" 操作,
+如果你需要执行更复杂的查询(例如 ``OR`` 语句), 你可以使用 :class:`Q 查询对象 <django.db.models.Q>`.
 
-A :class:`Q object <django.db.models.Q>` (``django.db.models.Q``) is an object
-used to encapsulate a collection of keyword arguments. These keyword arguments
-are specified as in "Field lookups" above.
+:class:`Q 对象 <django.db.models.Q>` (``django.db.models.Q``) 对象用于封装一组关键字参数。
+这些关键字参数就是上文“字段查询” 中所提及的那些。
 
-For example, this ``Q`` object encapsulates a single ``LIKE`` query::
+例如，下面的 ``Q ``对象封装一个 ``LIKE`` 查询::
 
     from django.db.models import Q
     Q(question__startswith='What')
 
-``Q`` objects can be combined using the ``&`` and ``|`` operators. When an
-operator is used on two ``Q`` objects, it yields a new ``Q`` object.
+``Q`` 对象可以使用 ``&`` 和 ``|`` 操作符组合。 当使用操作符将两个对象组合是，将生成一个新的 ``Q`` 对象。
 
-For example, this statement yields a single ``Q`` object that represents the
-"OR" of two ``"question__startswith"`` queries::
+例如，下面的语句产生一个 ``Q`` 对象，表示两个 ``"question__startswith"``  查询的“OR”::
 
     Q(question__startswith='Who') | Q(question__startswith='What')
 
-This is equivalent to the following SQL ``WHERE`` clause::
+它等同于下面的SQL ``WHERE`` 句子::
 
     WHERE question LIKE 'Who%' OR question LIKE 'What%'
 
-You can compose statements of arbitrary complexity by combining ``Q`` objects
-with the ``&`` and ``|`` operators and use parenthetical grouping. Also, ``Q``
-objects can be negated using the ``~`` operator, allowing for combined lookups
-that combine both a normal query and a negated (``NOT``) query::
+你可以组合 ``&`` 和 ``|``  操作符以及使用括号进行分组来编写任意复杂的 ``Q`` 对象。
+同时，``Q`` 对象可以使用 ``~`` 操作符取反，这允许组合正常的查询和取反( ``NOT`` ) 查询::
 
     Q(question__startswith='Who') | ~Q(pub_date__year=2005)
 
-Each lookup function that takes keyword-arguments
+每个接受关键字参数的查询函数
 (e.g. :meth:`~django.db.models.query.QuerySet.filter`,
 :meth:`~django.db.models.query.QuerySet.exclude`,
-:meth:`~django.db.models.query.QuerySet.get`) can also be passed one or more
-``Q`` objects as positional (not-named) arguments. If you provide multiple
-``Q`` object arguments to a lookup function, the arguments will be "AND"ed
-together. For example::
+:meth:`~django.db.models.query.QuerySet.get`) 都可以传递一个或多个 ``Q`` 对象作为位置参数。
+如果一个查询函数有多个 ``Q`` 对象参数，这些参数的逻辑关系为“AND"。例如::
 
     Poll.objects.get(
         Q(question__startswith='Who'),
         Q(pub_date=date(2005, 5, 2)) | Q(pub_date=date(2005, 5, 6))
     )
 
-... roughly translates into the SQL::
+大体上可以翻译成这个SQL::
 
     SELECT * from polls WHERE question LIKE 'Who%'
         AND (pub_date = '2005-05-02' OR pub_date = '2005-05-06')
 
-Lookup functions can mix the use of ``Q`` objects and keyword arguments. All
-arguments provided to a lookup function (be they keyword arguments or ``Q``
-objects) are "AND"ed together. However, if a ``Q`` object is provided, it must
-precede the definition of any keyword arguments. For example::
+查询函数可以混合使用 ``Q`` 对象和关键字参数。
+所有提供查询函数的参数（关键字参数或 ``Q`` 对象）都将"AND”在一起。
+但是，如果出现 ``Q`` 对象，它必须位于所有关键字参数的前面。例如::
 
     Poll.objects.get(
         Q(pub_date=date(2005, 5, 2)) | Q(pub_date=date(2005, 5, 6)),
         question__startswith='Who',
     )
 
-... would be a valid query, equivalent to the previous example; but::
+这是一个合法的查询，等同于前面的例子; 但是::
 
     # INVALID QUERY
     Poll.objects.get(
@@ -765,14 +734,13 @@ precede the definition of any keyword arguments. For example::
         Q(pub_date=date(2005, 5, 2)) | Q(pub_date=date(2005, 5, 6))
     )
 
-... would not be valid.
+这个是不合法的。
 
 .. seealso::
 
-    The `OR lookups examples`_ in the Django unit tests show some possible uses
-    of ``Q``.
+    Django 单元测试中的 `OR查询示例`_ 演示了几种 ``Q`` 的用法.
 
-    .. _OR lookups examples: https://github.com/django/django/blob/master/tests/or_lookups/tests.py
+    .. _OR查询示例: https://github.com/django/django/blob/master/tests/or_lookups/tests.py
 
 Comparing objects
 =================
