@@ -742,93 +742,77 @@ Django 会帮你转义；生成的SQL 看上去会是这样s:
 
     .. _OR查询示例: https://github.com/django/django/blob/master/tests/or_lookups/tests.py
 
-Comparing objects
-=================
+对象比较
+=========
 
-To compare two model instances, just use the standard Python comparison operator,
-the double equals sign: ``==``. Behind the scenes, that compares the primary
-key values of two models.
+使用双等号 ``==`` 比较两个对象，其实是比较两个模型主键的值。
 
-Using the ``Entry`` example above, the following two statements are equivalent::
+使用上面的 ``Entry`` 示范, 下面两个表达式是等同的::
 
     >>> some_entry == other_entry
     >>> some_entry.id == other_entry.id
 
-If a model's primary key isn't called ``id``, no problem. Comparisons will
-always use the primary key, whatever it's called. For example, if a model's
-primary key field is called ``name``, these two statements are equivalent::
+即是模型的主键名称不是 ``id`` 也没关系，这种比较总是会使用主键不叫，不论叫什么名字。
+例如，如果模型的主键字段叫 ``name`` ，下面的两条语句是等同的::
 
     >>> some_obj == other_obj
     >>> some_obj.name == other_obj.name
 
 .. _topics-db-queries-delete:
 
-Deleting objects
-================
+删除对象
+=========
 
-The delete method, conveniently, is named
-:meth:`~django.db.models.Model.delete`. This method immediately deletes the
-object and returns the number of objects deleted and a dictionary with
-the number of deletions per object type. Example::
+删除方法叫做
+:meth:`~django.db.models.Model.delete` 。这个方法将立即删除对象，
+返回被删除的对象的总数和每个对象类型的删除数量的字典。举例::
 
     >>> e.delete()
     (1, {'weblog.Entry': 1})
 
 .. versionchanged:: 1.9
 
-    The return value describing the number of objects deleted was added.
+    1.9开始删除方法才有返回值。
 
-You can also delete objects in bulk. Every
-:class:`~django.db.models.query.QuerySet` has a
-:meth:`~django.db.models.query.QuerySet.delete` method, which deletes all
-members of that :class:`~django.db.models.query.QuerySet`.
+你还可以批量删除对象。每个
+:class:`~django.db.models.query.QuerySet` 都有
+:meth:`~django.db.models.query.QuerySet.delete` 方法，它作用是删除
+:class:`~django.db.models.query.QuerySet` 中的所有成员。
 
-For example, this deletes all ``Entry`` objects with a ``pub_date`` year of
-2005::
+例如, 下面语句删除所有 ``pub_date`` 为2005的 ``Entry`` ::
 
     >>> Entry.objects.filter(pub_date__year=2005).delete()
     (5, {'webapp.Entry': 5})
 
-Keep in mind that this will, whenever possible, be executed purely in SQL, and
-so the ``delete()`` methods of individual object instances will not necessarily
-be called during the process. If you've provided a custom ``delete()`` method
-on a model class and want to ensure that it is called, you will need to
-"manually" delete instances of that model (e.g., by iterating over a
-:class:`~django.db.models.query.QuerySet` and calling ``delete()`` on each
-object individually) rather than using the bulk
-:meth:`~django.db.models.query.QuerySet.delete` method of a
-:class:`~django.db.models.query.QuerySet`.
+上面的过程是通过SQL实现的，并不是依次调用每个对象的 ``delete()`` 方法。
+如果你给模型类提供了一个自定义的 ``delete()`` 方法，并且希望删除时方法被调用。
+你需要"手动"调用实例的 ``delete()`` （例如:迭代 :class:`~django.db.models.query.QuerySet` 调用每个实例的
+``delete()`` 方法，使用 :class:`~django.db.models.query.QuerySet` 的 ``delete()`` 方法）。
 
-.. versionchanged:: 1.9
 
-    The return value describing the number of objects deleted was added.
-
-When Django deletes an object, by default it emulates the behavior of the SQL
-constraint ``ON DELETE CASCADE`` -- in other words, any objects which had
-foreign keys pointing at the object to be deleted will be deleted along with
-it. For example::
+当Django 删除一个对象时，它默认使用SQL ``ON DELETE CASCADE`` 约束 —— 换句话讲，任何有外键指向要删除对象的对象都将一起删除。
+例如::
 
     b = Blog.objects.get(pk=1)
-    # This will delete the Blog and all of its Entry objects.
+    # 这会删除该 Blog 和它所有的Entry对象
     b.delete()
 
-This cascade behavior is customizable via the
-:attr:`~django.db.models.ForeignKey.on_delete` argument to the
-:class:`~django.db.models.ForeignKey`.
+这种级联的行为可以通过 :class:`~django.db.models.ForeignKey` 的
+:attr:`~django.db.models.ForeignKey.on_delete` 参数定义。
 
-Note that :meth:`~django.db.models.query.QuerySet.delete` is the only
-:class:`~django.db.models.query.QuerySet` method that is not exposed on a
-:class:`~django.db.models.Manager` itself. This is a safety mechanism to
-prevent you from accidentally requesting ``Entry.objects.delete()``, and
-deleting *all* the entries. If you *do* want to delete all the objects, then
-you have to explicitly request a complete query set::
+注意， :meth:`~django.db.models.query.QuerySet.delete` 是唯一没有在 :class:`~django.db.models.Manager`
+上暴露出来的
+:class:`~django.db.models.query.QuerySet` 方法。
+这是一个安全机制来防止你意外地请求
+``Entry.objects.delete()`` , 而删除所有的条目。
+如果你确实想删除所有的对象，你必须明确地请求一个完整的查询集::
 
     Entry.objects.all().delete()
 
 .. _topics-db-queries-copy:
 
-Copying model instances
-=======================
+复制对象
+=========
 
 Although there is no built-in method for copying model instances, it is
 possible to easily create new instance with all fields' values copied. In the
