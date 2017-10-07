@@ -4,7 +4,7 @@
 
 .. currentmodule:: django.db.models
 
-只要你建好 :doc:`数据 </topics/db/models>`, Django 会自动为你生成一套数据库抽象的API，
+只要创建好 :doc:`数据模型 </topics/db/models>`, Django 会自动为生成一套数据库抽象的API，
 可以让你创建、检索、更新和删除对象。这篇文档阐述如何使用这些API。
 关于模型查询所有选项的完整细节，请见 :doc:`数据模型参考 </ref/models/index>` 。
 
