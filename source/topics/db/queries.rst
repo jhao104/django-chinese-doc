@@ -814,9 +814,8 @@ Django 会帮你转义；生成的SQL 看上去会是这样s:
 复制对象
 =========
 
-Although there is no built-in method for copying model instances, it is
-possible to easily create new instance with all fields' values copied. In the
-simplest case, you can just set ``pk`` to ``None``. Using our blog example::
+没有内建的复制模型实例的方法，但可以通过创建一个新的实例并将它的所有字段都拷贝过来。最简单的方法是，只需要将
+``pk`` 设置成 ``None`` 。使用blog作为演示::
 
     blog = Blog(name='My blog', tagline='Blogging is easy')
     blog.save() # blog.pk == 1
@@ -824,8 +823,8 @@ simplest case, you can just set ``pk`` to ``None``. Using our blog example::
     blog.pk = None
     blog.save() # blog.pk == 2
 
-Things get more complicated if you use inheritance. Consider a subclass of
-``Blog``::
+如果你使用继承，那么会复杂一些。比如
+``Blog`` 的子类::
 
     class ThemeBlog(Blog):
         theme = models.CharField(max_length=200)
@@ -833,16 +832,14 @@ Things get more complicated if you use inheritance. Consider a subclass of
     django_blog = ThemeBlog(name='Django', tagline='Django is easy', theme='python')
     django_blog.save() # django_blog.pk == 3
 
-Due to how inheritance works, you have to set both ``pk`` and ``id`` to None::
+由于继承的原因, 你必须同时设置 ``pk`` 和 ``id`` 为 None::
 
     django_blog.pk = None
     django_blog.id = None
     django_blog.save() # django_blog.pk == 4
 
-This process doesn't copy relations that aren't part of the model's database
-table. For example, ``Entry`` has a ``ManyToManyField`` to ``Author``. After
-duplicating an entry, you must set the many-to-many relations for the new
-entry::
+这样就不会复制到其关联对象。 比如， ``Entry`` 有一个 ``ManyToManyField`` 的 ``Author``。在复制了一个entry后，
+必须为这个新的entry设置一个多对多关联关系::
 
     entry = Entry.objects.all()[0] # some previous entry
     old_authors = entry.authors.all()
@@ -850,9 +847,8 @@ entry::
     entry.save()
     entry.authors.set(old_authors)
 
-For a ``OneToOneField``, you must duplicate the related object and assign it
-to the new object's field to avoid violating the one-to-one unique constraint.
-For example, assuming ``entry`` is already duplicated as above::
+如果是 ``OneToOneField``, 您必须复制相关联的对象并将其赋值给新对象的字段，避免出现复制后一对多的情况。
+例如，假设 ``entry`` 已经是复制后的::
 
     detail = EntryDetail.objects.all()[0]
     detail.pk = None
@@ -861,170 +857,144 @@ For example, assuming ``entry`` is already duplicated as above::
 
 .. _topics-db-queries-update:
 
-Updating multiple objects at once
-=================================
+同时更新多个对象
+==================
 
-Sometimes you want to set a field to a particular value for all the objects in
-a :class:`~django.db.models.query.QuerySet`. You can do this with the
-:meth:`~django.db.models.query.QuerySet.update` method. For example::
+可以对 :class:`~django.db.models.query.QuerySet` 中的所有对象修改该某个字段的值。这就需要使用
+:meth:`~django.db.models.query.QuerySet.update` 方法，例如::
 
-    # Update all the headlines with pub_date in 2007.
+    # 修改所有pub_date为2007的headlines
     Entry.objects.filter(pub_date__year=2007).update(headline='Everything is the same')
 
-You can only set non-relation fields and :class:`~django.db.models.ForeignKey`
-fields using this method. To update a non-relation field, provide the new value
-as a constant. To update :class:`~django.db.models.ForeignKey` fields, set the
-new value to be the new model instance you want to point to. For example::
+也可以对非关联字段和 :class:`~django.db.models.ForeignKey`
+字段使用这个方法。若要更新一个非关联字段，只需提供一个新的常数值。
+若要更新 :class:`~django.db.models.ForeignKey` 字段, 需设置新的值是你想指向的新的模型实例，例如::
 
     >>> b = Blog.objects.get(pk=1)
 
-    # Change every Entry so that it belongs to this Blog.
+    # 修改所有的 Entry，使它们属于这个Blog
     >>> Entry.objects.all().update(blog=b)
 
-The ``update()`` method is applied instantly and returns the number of rows
-matched by the query (which may not be equal to the number of rows updated if
-some rows already have the new value). The only restriction on the
-:class:`~django.db.models.query.QuerySet` being updated is that it can only
-access one database table: the model's main table. You can filter based on
-related fields, but you can only update columns in the model's main
-table. Example::
+The ``update()`` 方法会立即执行并返回匹配的行数 (如果有些行的值和新值相同，返回的行数可能和被更新的行数不相等)。
+更新 :class:`~django.db.models.query.QuerySet` 唯一的限制是它只能访问一个数据库表，也就是模型的主表。
+你可以根据关联的字段过滤，但是你只能更新模型主表中的列，例如::
 
     >>> b = Blog.objects.get(pk=1)
 
     # Update all the headlines belonging to this Blog.
     >>> Entry.objects.select_related().filter(blog=b).update(headline='Everything is the same')
 
-Be aware that the ``update()`` method is converted directly to an SQL
-statement. It is a bulk operation for direct updates. It doesn't run any
-:meth:`~django.db.models.Model.save` methods on your models, or emit the
-``pre_save`` or ``post_save`` signals (which are a consequence of calling
-:meth:`~django.db.models.Model.save`), or honor the
-:attr:`~django.db.models.DateField.auto_now` field option.
-If you want to save every item in a :class:`~django.db.models.query.QuerySet`
-and make sure that the :meth:`~django.db.models.Model.save` method is called on
-each instance, you don't need any special function to handle that. Just loop
-over them and call :meth:`~django.db.models.Model.save`::
+``update()``  方法会直接转换成一个SQL语句。它是一个批量的更新操作，而且不会调用模型的
+:meth:`~django.db.models.Model.save` 方法, 或者触发
+``pre_save`` 和 ``post_save`` 信号(调用
+:meth:`~django.db.models.Model.save` 方法产生), 或者遵从
+:attr:`~django.db.models.DateField.auto_now` 选项。
+如果想保存 :class:`~django.db.models.query.QuerySet`
+中的每个条目并确保每个实例的 :meth:`~django.db.models.Model.save` 方法都被调用，
+不需要使用任何特殊的函数来处理。只需要迭代调用它们
+的 :meth:`~django.db.models.Model.save` 方法::
 
     for item in my_queryset:
         item.save()
 
-Calls to update can also use :class:`F expressions <django.db.models.F>` to
-update one field based on the value of another field in the model. This is
-especially useful for incrementing counters based upon their current value. For
-example, to increment the pingback count for every entry in the blog::
+调用update也可以使用 :class:`F 表达式 <django.db.models.F>` 来根据模型中的一个字段更新另外一个字段。
+这种在当前值的基础上加另一个值时特别有用。例如Blog中每个Entry的pingback个数::
 
     >>> Entry.objects.all().update(n_pingbacks=F('n_pingbacks') + 1)
 
-However, unlike ``F()`` objects in filter and exclude clauses, you can't
-introduce joins when you use ``F()`` objects in an update -- you can only
-reference fields local to the model being updated. If you attempt to introduce
-a join with an ``F()`` object, a ``FieldError`` will be raised::
+但是, 和filter和exclude子句中的 ``F()`` 对象不同，在update中不可以使用 ``F()`` 对象引入join --
+只可以引用正在更新的模型的字段。如果使用 ``F()`` 对象引入了join，将引发一个 ``FieldError`` 错误::
 
     # This will raise a FieldError
     >>> Entry.objects.update(headline=F('blog__name'))
 
 .. _topics-db-queries-related:
 
-Related objects
-===============
+关联对象
+==========
 
-When you define a relationship in a model (i.e., a
+如果在模型中定义了关联关系 (例如，
 :class:`~django.db.models.ForeignKey`,
-:class:`~django.db.models.OneToOneField`, or
-:class:`~django.db.models.ManyToManyField`), instances of that model will have
-a convenient API to access the related object(s).
+:class:`~django.db.models.OneToOneField`,
+:class:`~django.db.models.ManyToManyField`), 那么该模型的实例将带有一些的API来访问关联的对象。
 
-Using the models at the top of this page, for example, an ``Entry`` object ``e``
-can get its associated ``Blog`` object by accessing the ``blog`` attribute:
-``e.blog``.
+使用上面提到的模型,例如, 一个 ``Entry`` 对象 ``e``
+可以通过其 ``blog`` 属性: ``e.blog`` 来获取关联的 ``Blog`` 对象。
 
-(Behind the scenes, this functionality is implemented by Python descriptors_.
-This shouldn't really matter to you, but we point it out here for the curious.)
+Django 还提供了API 用于访问关联关系的另一头 --
+从关联的模型访问定义关联关系的模型。
+例如， ``Blog`` 对象 ``b`` 可以通过 ``entry_set`` 属性 ``b.entry_set.all()`` 来访问与它关联的所有
+``Entry`` 对象。
 
-Django also creates API accessors for the "other" side of the relationship --
-the link from the related model to the model that defines the relationship.
-For example, a ``Blog`` object ``b`` has access to a list of all related
-``Entry`` objects via the ``entry_set`` attribute: ``b.entry_set.all()``.
-
-All examples in this section use the sample ``Blog``, ``Author`` and ``Entry``
-models defined at the top of this page.
+下面所有的例子都将使用前面定义的  ``Blog``， ``Author`` 和 ``Entry`` 模型。
 
 .. _descriptors: http://users.rcn.com/python/download/Descriptor.htm
 
-One-to-many relationships
--------------------------
+一对多关系
+------------
 
-Forward
-~~~~~~~
+前向查询
+~~~~~~~~~
 
-If a model has a :class:`~django.db.models.ForeignKey`, instances of that model
-will have access to the related (foreign) object via a simple attribute of the
-model.
+如果模型具有一个 :class:`~django.db.models.ForeignKey` ，那么该模型的实例将可以通过属性访问关联的（外部）对象。
 
-Example::
+例如::
 
     >>> e = Entry.objects.get(id=2)
-    >>> e.blog # Returns the related Blog object.
+    >>> e.blog # 返回关联的Blog对象.
 
-You can get and set via a foreign-key attribute. As you may expect, changes to
-the foreign key aren't saved to the database until you call
-:meth:`~django.db.models.Model.save`. Example::
+你可以通过外键属性查询和设置。修改外键并不会立即修改数据库，除非调用了
+:meth:`~django.db.models.Model.save` 方法。 例如::
 
     >>> e = Entry.objects.get(id=2)
     >>> e.blog = some_blog
     >>> e.save()
 
-If a :class:`~django.db.models.ForeignKey` field has ``null=True`` set (i.e.,
-it allows ``NULL`` values), you can assign ``None`` to remove the relation.
-Example::
+如果 :class:`~django.db.models.ForeignKey` 字段设置了 ``null=True``  (即允许 ``NULL`` 值),
+这样就可以将其设置为 ``None`` 来取消关联。
+例如::
 
     >>> e = Entry.objects.get(id=2)
     >>> e.blog = None
     >>> e.save() # "UPDATE blog_entry SET blog_id = NULL ...;"
 
-Forward access to one-to-many relationships is cached the first time the
-related object is accessed. Subsequent accesses to the foreign key on the same
-object instance are cached. Example::
+前向查询一对多关联关系时在第一次访问关联对象就被缓存。以后对同一个对象的外键的访问都使用缓存。例如::
 
     >>> e = Entry.objects.get(id=2)
-    >>> print(e.blog)  # Hits the database to retrieve the associated Blog.
-    >>> print(e.blog)  # Doesn't hit the database; uses cached version.
+    >>> print(e.blog)  # 在数据库获取相关的Blog.
+    >>> print(e.blog)  # 不会链接数据库;使用缓存.
 
-Note that the :meth:`~django.db.models.query.QuerySet.select_related`
-:class:`~django.db.models.query.QuerySet` method recursively prepopulates the
-cache of all one-to-many relationships ahead of time. Example::
+:class:`~django.db.models.query.QuerySet` 的 :meth:`~django.db.models.query.QuerySet.select_related`
+方法预先递归填充所有的一对多关系到缓存中。例如::
 
     >>> e = Entry.objects.select_related().get(id=2)
-    >>> print(e.blog)  # Doesn't hit the database; uses cached version.
-    >>> print(e.blog)  # Doesn't hit the database; uses cached version.
+    >>> print(e.blog)  # 不会链接数据库;使用缓存.
+    >>> print(e.blog)  # 不会链接数据库;使用缓存.
 
 .. _backwards-related-objects:
 
-Following relationships "backward"
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+反向查询
+~~~~~~~~~~
 
-If a model has a :class:`~django.db.models.ForeignKey`, instances of the
-foreign-key model will have access to a :class:`~django.db.models.Manager` that
-returns all instances of the first model. By default, this
-:class:`~django.db.models.Manager` is named ``FOO_set``, where ``FOO`` is the
-source model name, lowercased. This :class:`~django.db.models.Manager` returns
-``QuerySets``, which can be filtered and manipulated as described in the
-"Retrieving objects" section above.
+如果模型具有外键 :class:`~django.db.models.ForeignKey` ，那么该外键所指向的模型实例可以通过
+:class:`~django.db.models.Manager` 返回包含某个特定外键的源模型的所有实例。
+模型情况下，这个 :class:`~django.db.models.Manager` 叫做 ``FOO_set``, ``FOO`` 是源模型的小写名称。
+该 :class:`~django.db.models.Manager` 返回的
+``QuerySets`` 同样可以使用过滤等操作。
 
-Example::
+例子::
 
     >>> b = Blog.objects.get(id=1)
-    >>> b.entry_set.all() # Returns all Entry objects related to Blog.
+    >>> b.entry_set.all() # 返回所有关联b的Blog.
 
     # b.entry_set is a Manager that returns QuerySets.
     >>> b.entry_set.filter(headline__contains='Lennon')
     >>> b.entry_set.count()
 
-You can override the ``FOO_set`` name by setting the
-:attr:`~django.db.models.ForeignKey.related_name` parameter in the
-:class:`~django.db.models.ForeignKey` definition. For example, if the ``Entry``
-model was altered to ``blog = ForeignKey(Blog, on_delete=models.CASCADE,
-related_name='entries')``, the above example code would look like this::
+你可以在定义 :class:`~django.db.models.ForeignKey` 时 设置 :attr:`~django.db.models.ForeignKey.related_name`
+参数来重写 ``FOO_set`` 名字。比如，如果 ``Entry`` 模型改成
+``blog = ForeignKey(Blog, on_delete=models.CASCADE, related_name='entries')``,
+那么上面例子的代码应该改成这样::
 
     >>> b = Blog.objects.get(id=1)
     >>> b.entries.all() # Returns all Entry objects related to Blog.
@@ -1035,13 +1005,12 @@ related_name='entries')``, the above example code would look like this::
 
 .. _using-custom-reverse-manager:
 
-Using a custom reverse manager
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+自定义反向管理器
+~~~~~~~~~~~~~~~~~~
 
-By default the :class:`~django.db.models.fields.related.RelatedManager` used
-for reverse relations is a subclass of the :ref:`default manager <manager-names>`
-for that model. If you would like to specify a different manager for a given
-query you can use the following syntax::
+默认情况下，用于反向关联关系的 :class:`~django.db.models.fields.related.RelatedManager` 是该模型
+:ref:`默认管理器 <manager-names>` 的子类。
+如果您想为查询指定不同的管理器，那么可以使用以下语法::
 
     from django.db import models
 
@@ -1053,97 +1022,82 @@ query you can use the following syntax::
     b = Blog.objects.get(id=1)
     b.entry_set(manager='entries').all()
 
-If ``EntryManager`` performed default filtering in its ``get_queryset()``
-method, that filtering would apply to the ``all()`` call.
+如果 ``EntryManager`` 在 ``get_queryset()`` 方法中执行了默认的过滤，那么该过滤将应用于 ``all()`` 调用。
 
-Of course, specifying a custom reverse manager also enables you to call its
-custom methods::
+当然，指定一个自定义的管理器还可以让你调用自定义的方法::
 
     b.entry_set(manager='entries').is_published()
 
-Additional methods to handle related objects
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+处理关联对象的其它方法
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the :class:`~django.db.models.query.QuerySet` methods defined in
-"Retrieving objects" above, the :class:`~django.db.models.ForeignKey`
-:class:`~django.db.models.Manager` has additional methods used to handle the
-set of related objects. A synopsis of each is below, and complete details can
-be found in the :doc:`related objects reference </ref/models/relations>`.
+除了在上面的“检索对象”中定义的 :class:`~django.db.models.query.QuerySet 方法之外。
+:class:`~django.db.models.ForeignKey` :class:`~django.db.models.Manager`
+还有其它用于处理关联对象集合的方法。下面是每个方法的大致介绍，完整的细节可以在
+:doc:`关联对象参考 </ref/models/relations>` 中找到。
 
 ``add(obj1, obj2, ...)``
-    Adds the specified model objects to the related object set.
+    将指定的模型对象添加到相关的对象集中。
 
 ``create(**kwargs)``
-    Creates a new object, saves it and puts it in the related object set.
-    Returns the newly created object.
+    创建一个新的对象，保存并放到关联的对象集中。返回新创建的对象。
 
 ``remove(obj1, obj2, ...)``
-    Removes the specified model objects from the related object set.
+    从关联的对象集中删除指定的模型对象。
 
 ``clear()``
-    Removes all objects from the related object set.
+    从关联的对象集中删除所有的对象。
 
 ``set(objs)``
-    Replace the set of related objects.
+    替换相关对象的集合。
 
-To assign the members of a related set, use the ``set()`` method with an
-iterable of object instances or a list of primary key values. For example::
+若要一次性给关联的对象集赋值，可以使用 ``set()`` 方法，该方法可以迭代对象实例或主键值的列表。例如::
 
     b = Blog.objects.get(id=1)
     b.entry_set.set([e1, e2])
 
-In this example, ``e1`` and ``e2`` can be full Entry instances, or integer
-primary key values.
+在例子中, ``e1`` 和 ``e2`` 可以是Entry的实例，也可以是主键的整数值。
 
-If the ``clear()`` method is available, any pre-existing objects will be
-removed from the ``entry_set`` before all objects in the iterable (in this
-case, a list) are added to the set. If the ``clear()`` method is *not*
-available, all objects in the iterable will be added without removing any
-existing elements.
+如果 ``clear()`` 可用, 那么在将可迭代对象中的成员添加到集合中之前，将从 ``entry_set``
+中删除所有已经存在的对象。如果 ``clear()`` 方法不可用，那么将直接添加可迭代对象中的成员而不会删除所有已存在的对象。
 
-Each "reverse" operation described in this section has an immediate effect on
-the database. Every addition, creation and deletion is immediately and
-automatically saved to the database.
+这一节中提到的每个”反向“操作都会立即对数据库产生作用。每个添加、创建和删除操作都会立即并自动保存到数据库中。
 
 .. _m2m-reverse-relationships:
 
-Many-to-many relationships
---------------------------
+多对多关系
+------------
 
-Both ends of a many-to-many relationship get automatic API access to the other
-end. The API works just as a "backward" one-to-many relationship, above.
+多对多关系的两端都带有访问另一端的API。这些API的工作方式与上面提到的一对多关系一样。
 
-The only difference is in the attribute naming: The model that defines the
-:class:`~django.db.models.ManyToManyField` uses the attribute name of that
-field itself, whereas the "reverse" model uses the lowercased model name of the
-original model, plus ``'_set'`` (just like reverse one-to-many relationships).
+唯一的区别在于属性的名称：定义
+:class:`~django.db.models.ManyToManyField`的模型使用本字段的属性名称,而“反向”模型使用源模型的小写名称加上 ``'_set'``
+(和一对多关系一样)。
 
-An example makes this easier to understand::
+比如::
 
     e = Entry.objects.get(id=3)
-    e.authors.all() # Returns all Author objects for this Entry.
+    e.authors.all() # 返回 Entry e中的所有Author.
     e.authors.count()
     e.authors.filter(name__contains='John')
 
     a = Author.objects.get(id=5)
-    a.entry_set.all() # Returns all Entry objects for this Author.
+    a.entry_set.all() # 返回Author a所有的Entry.
 
-Like :class:`~django.db.models.ForeignKey`,
-:class:`~django.db.models.ManyToManyField` can specify
-:attr:`~django.db.models.ManyToManyField.related_name`. In the above example,
-if the :class:`~django.db.models.ManyToManyField` in ``Entry`` had specified
-``related_name='entries'``, then each ``Author`` instance would have an
-``entries`` attribute instead of ``entry_set``.
+类似 :class:`~django.db.models.ForeignKey`,
+:class:`~django.db.models.ManyToManyField` 可以指定
+:attr:`~django.db.models.ManyToManyField.related_name` 。在上面的例子中，
+如果  ``Entry`` 中的 :class:`~django.db.models.ManyToManyField` 指定
+``related_name='entries'``, 那么 ``Author`` 实例将使用
+``entries`` 属性而不是 ``entry_set`` 。
 
-One-to-one relationships
-------------------------
+一对一关系
+------------
 
-One-to-one relationships are very similar to many-to-one relationships. If you
-define a :class:`~django.db.models.OneToOneField` on your model, instances of
-that model will have access to the related object via a simple attribute of the
-model.
+一对一关系与多对一关系非常相似。如果你在模型中定义一个 :class:`~django.db.models.OneToOneField` ，
+该模型的实例将可以通过该模型的一个简单属性访问关联的模型。
 
-For example::
+例如::
 
     class EntryDetail(models.Model):
         entry = models.OneToOneField(Entry, on_delete=models.CASCADE)
@@ -1152,67 +1106,50 @@ For example::
     ed = EntryDetail.objects.get(id=2)
     ed.entry # Returns the related Entry object.
 
-The difference comes in "reverse" queries. The related model in a one-to-one
-relationship also has access to a :class:`~django.db.models.Manager` object, but
-that :class:`~django.db.models.Manager` represents a single object, rather than
-a collection of objects::
+在“反向”查询中有所不同。 一对一关系中的关联模型同样具有一个 :class:`~django.db.models.Manager` 对象，
+但是该 :class:`~django.db.models.Manager` 表示一个单一的对象而不是对象的集合::
 
     e = Entry.objects.get(id=2)
     e.entrydetail # returns the related EntryDetail object
 
-If no object has been assigned to this relationship, Django will raise
-a ``DoesNotExist`` exception.
+如果没有对象赋值给这个关联关系，Django 将引发一个 ``DoesNotExist``  异常。
 
-Instances can be assigned to the reverse relationship in the same way as
-you would assign the forward relationship::
+实例可以赋值给反向的关联关系，方法和正向的关联关系一样::
 
     e.entrydetail = ed
 
-How are the backward relationships possible?
+反向的关联关系如何实现?
 --------------------------------------------
 
-Other object-relational mappers require you to define relationships on both
-sides. The Django developers believe this is a violation of the DRY (Don't
-Repeat Yourself) principle, so Django only requires you to define the
-relationship on one end.
+其它对象关系映射要求你在关联关系的两端都要定义。Django 的开发人员相信这是对DRY（不要重复你自己的代码）原则的违背，
+所以Django 只要求你在一端定义关联关系。
 
-But how is this possible, given that a model class doesn't know which other
-model classes are related to it until those other model classes are loaded?
+但是，考虑到直到其他模型类被加载，模型类不知道其他模型类与之相关，这是怎么实现的呢?
 
-The answer lies in the :data:`app registry <django.apps.apps>`. When Django
-starts, it imports each application listed in :setting:`INSTALLED_APPS`, and
-then the ``models`` module inside each application. Whenever a new model class
-is created, Django adds backward-relationships to any related models. If the
-related models haven't been imported yet, Django keeps tracks of the
-relationships and adds them when the related models eventually are imported.
+答案在 :data:`app registry <django.apps.apps>` 中。当Django 启动时，它导入
+:setting:`INSTALLED_APPS` 中列出的每个应用,然后导入每个应用中的 ``models``  模块。
+每创建一个新的模型时，Django 添加反向的关系到所有关联的模型。
+如果关联的模型还没有导入，Django 将保存关联关系的记录并在最终关联的模型导入时添加这些关联关系。
 
-For this reason, it's particularly important that all the models you're using
-be defined in applications listed in :setting:`INSTALLED_APPS`. Otherwise,
-backwards relations may not work properly.
+由于这个原因，你使用的所有模型都定义在 :setting:`INSTALLED_APPS` 列出的应用中就显得特别重要。
+否则，反向的关联关系将不能正常工作。
 
-Queries over related objects
-----------------------------
+查询相关对象
+--------------
 
-Queries involving related objects follow the same rules as queries involving
-normal value fields. When specifying the value for a query to match, you may
-use either an object instance itself, or the primary key value for the object.
+在关联对象字段上的查询与正常字段的查询遵循同样的规则。当你指定查询需要匹配的一个值时，你可以使用一个对象实例或者对象的主键的值。
 
-For example, if you have a Blog object ``b`` with ``id=5``, the following
-three queries would be identical::
+例如，如果你有一个  ``id=5`` 的Blog 对象 ``b`` ，下面的三个查询将是完全一样的l::
 
     Entry.objects.filter(blog=b) # Query using object instance
     Entry.objects.filter(blog=b.id) # Query using id from instance
     Entry.objects.filter(blog=5) # Query using id directly
 
-Falling back to raw SQL
-=======================
+使用原始 SQL
+===============
 
-If you find yourself needing to write an SQL query that is too complex for
-Django's database-mapper to handle, you can fall back on writing SQL by hand.
-Django has a couple of options for writing raw SQL queries; see
-:doc:`/topics/db/sql`.
+如果你发现自己需要编写一个对非常复杂的SQL查询(Django API不好实现)，那么你就可以手动写SQL了。
+Django有几个选择来编写原始的SQL查询;参见 :doc:`/topics/db/sql` 。
 
-Finally, it's important to note that the Django database layer is merely an
-interface to your database. You can access your database via other tools,
-programming languages or database frameworks; there's nothing Django-specific
-about your database.
+最后，值得注意的是Django 的数据库层只是数据库的一个接口。你可以利用其它工具、编程语言或数据库框架来访问数据库；
+你的数据库并不需要迎合django的任何东西。
