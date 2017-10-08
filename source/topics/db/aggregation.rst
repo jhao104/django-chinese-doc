@@ -1,18 +1,14 @@
-===========
-Aggregation
-===========
+======
+聚合
+======
 
 .. currentmodule:: django.db.models
 
-The topic guide on :doc:`Django's database-abstraction API </topics/db/queries>`
-described the way that you can use Django queries that create,
-retrieve, update and delete individual objects. However, sometimes you will
-need to retrieve values that are derived by summarizing or *aggregating* a
-collection of objects. This topic guide describes the ways that aggregate values
-can be generated and returned using Django queries.
+:doc:`Django 数据库抽象API </topics/db/queries>` 描述了使用Django 查询来增删查改单个对象的方法。
+然而，有时候你要获取的值需要根据一组对象聚合后才能得到。
+这个主题指南描述了如何使用Django的查询来生成和返回聚合值的方法。
 
-Throughout this guide, we'll refer to the following models. These models are
-used to track the inventory for a series of online bookstores:
+整篇指南我们都将引用以下模型。这些模型用来记录多个网上书店的库存。
 
 .. _queryset-model-example:
 
@@ -42,38 +38,38 @@ used to track the inventory for a series of online bookstores:
         books = models.ManyToManyField(Book)
         registered_users = models.PositiveIntegerField()
 
-Cheat sheet
-===========
+速查表
+=========
 
-In a hurry? Here's how to do common aggregate queries, assuming the models above:
+下面是在上面的模型上如何执行常见的聚合查询:
 
 .. code-block:: python
 
-    # Total number of books.
+    # book 总数.
     >>> Book.objects.count()
     2452
 
-    # Total number of books with publisher=BaloneyPress
+    # publisher=BaloneyPress的book总数.
     >>> Book.objects.filter(publisher__name='BaloneyPress').count()
     73
 
-    # Average price across all books.
+    # 所有book的平均价格.
     >>> from django.db.models import Avg
     >>> Book.objects.all().aggregate(Avg('price'))
     {'price__avg': 34.35}
 
-    # Max price across all books.
+    # 所有book的最高价格
     >>> from django.db.models import Max
     >>> Book.objects.all().aggregate(Max('price'))
     {'price__max': Decimal('81.20')}
 
-    # Cost per page
+    # 每页均价
     >>> from django.db.models import F, FloatField, Sum
     >>> Book.objects.all().aggregate(
     ...    price_per_page=Sum(F('price')/F('pages'), output_field=FloatField()))
     {'price_per_page': 0.4470664529184653}
 
-    # All the following queries involve traversing the Book<->Publisher
+    # 下面的所有查询都涉及到遍历 Book<->Publisher
     # foreign key relationship backwards.
 
     # Each publisher, each with a count of books as a "num_books" attribute.
@@ -89,25 +85,21 @@ In a hurry? Here's how to do common aggregate queries, assuming the models above
     >>> pubs[0].num_books
     1323
 
-Generating aggregates over a ``QuerySet``
-=========================================
+``QuerySet`` 聚合
+===================
 
-Django provides two ways to generate aggregates. The first way is to generate
-summary values over an entire ``QuerySet``. For example, say you wanted to
-calculate the average price of all books available for sale. Django's query
-syntax provides a means for describing the set of all books::
+Django提供了两种生成聚合的方法。第一种方法是从整个 ``QuerySet`` 生成统计值。
+比如，你想要计算所有在售书的平均价钱。Django的查询语法提供了一种方式描述所有图书的集合。::
 
     >>> Book.objects.all()
 
-What we need is a way to calculate summary values over the objects that
-belong to this ``QuerySet``. This is done by appending an ``aggregate()``
-clause onto the ``QuerySet``::
+我们需要在 ``QuerySet`` 对象上计算出汇总的值。这可以通过在  ``QuerySet`` 后面添加 ``aggregate()`` 子句来实现::
 
     >>> from django.db.models import Avg
     >>> Book.objects.all().aggregate(Avg('price'))
     {'price__avg': 34.35}
 
-The ``all()`` is redundant in this example, so this could be simplified to::
+其实 ``all()`` 在这里可以省略，简化为::
 
     >>> Book.objects.aggregate(Avg('price'))
     {'price__avg': 34.35}
