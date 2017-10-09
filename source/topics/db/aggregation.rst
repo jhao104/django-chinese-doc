@@ -104,67 +104,55 @@ Django提供了两种生成聚合的方法。第一种方法是从整个 ``Query
     >>> Book.objects.aggregate(Avg('price'))
     {'price__avg': 34.35}
 
-The argument to the ``aggregate()`` clause describes the aggregate value that
-we want to compute - in this case, the average of the ``price`` field on the
-``Book`` model. A list of the aggregate functions that are available can be
-found in the :ref:`QuerySet reference <aggregation-functions>`.
+``aggregate()`` 子句的参数是想要计算的聚合值，在这个例子中，是 ``Book`` 模型中
+``price`` 字段的平均值。 :ref:`查询集参考 <aggregation-functions>` 有所有的聚合函数。
 
-``aggregate()`` is a terminal clause for a ``QuerySet`` that, when invoked,
-returns a dictionary of name-value pairs. The name is an identifier for the
-aggregate value; the value is the computed aggregate. The name is
-automatically generated from the name of the field and the aggregate function.
-If you want to manually specify a name for the aggregate value, you can do so
-by providing that name when you specify the aggregate clause::
+``aggregate()`` 是 ``QuerySet``  的一个终止子句，意思是说，它返回一个包含键值对的字典。
+键的名称是聚合值的标识符，值是计算出来的聚合值。键的名称是按照字段和聚合函数的名称自动生成出来的。
+如果你想要为聚合值指定一个名称，可以在聚合子句中指定::
 
     >>> Book.objects.aggregate(average_price=Avg('price'))
     {'average_price': 34.35}
 
-If you want to generate more than one aggregate, you just add another
-argument to the ``aggregate()`` clause. So, if we also wanted to know
-the maximum and minimum price of all books, we would issue the query::
+如果你想要计算多个聚合，你可以在 ``aggregate()`` 子句作为参数添加。比如，
+如果你也想知道所有图书价格的最大值和最小值，可以这样查询::
 
     >>> from django.db.models import Avg, Max, Min
     >>> Book.objects.aggregate(Avg('price'), Max('price'), Min('price'))
     {'price__avg': 34.35, 'price__max': Decimal('81.20'), 'price__min': Decimal('12.99')}
 
-Generating aggregates for each item in a ``QuerySet``
-=====================================================
+``QuerySet`` 逐个对象的聚合
+============================
 
-The second way to generate summary values is to generate an independent
-summary for each object in a ``QuerySet``. For example, if you are retrieving
-a list of books, you may want to know how many authors contributed to
-each book. Each Book has a many-to-many relationship with the Author; we
-want to summarize this relationship for each book in the ``QuerySet``.
+生成汇总值的第二种方法，是为 ``QuerySet`` 中每一个对象都生成一个独立的汇总值。
+比如，你可能想知道每一本书有多少作者参与。每本书和作者是多对多的关系。
+我们需要汇总 ``QuerySet`` 中每本书的这种关系。
 
-Per-object summaries can be generated using the ``annotate()`` clause.
-When an ``annotate()`` clause is specified, each object in the ``QuerySet``
-will be annotated with the specified values.
+逐个对象的汇总结果可以由 ``annotate()`` 子句生成。
+当 ``annotate()`` 子句被指定之后， ``QuerySet`` 中的每个对象都会被注上特定的值。
 
-The syntax for these annotations is identical to that used for the
-``aggregate()`` clause. Each argument to ``annotate()`` describes an
-aggregate that is to be calculated. For example, to annotate books with
-the number of authors:
+annotate(注解)的语法都和 ``aggregate()`` 子句相同。 ``annotate()`` 的每个参数都描述了将要被计算的聚合值。
+
+比如，给图书添加作者数量的注解:
 
 .. code-block:: python
 
     # Build an annotated queryset
     >>> from django.db.models import Count
     >>> q = Book.objects.annotate(Count('authors'))
-    # Interrogate the first object in the queryset
+    # 查询queryset中的第一个对象
     >>> q[0]
     <Book: The Definitive Guide to Django>
     >>> q[0].authors__count
     2
-    # Interrogate the second object in the queryset
+    # 查询queryset中的第二个对象
     >>> q[1]
     <Book: Practical Django Projects>
     >>> q[1].authors__count
     1
 
-As with ``aggregate()``, the name for the annotation is automatically derived
-from the name of the aggregate function and the name of the field being
-aggregated. You can override this default name by providing an alias when you
-specify the annotation::
+和 ``aggregate()`` 一样，注解的名称也根据聚合函数的名称和聚合字段的名称自动生成。
+同样可以在指定注释时，通过提供别名来覆盖此默认名称::
 
     >>> q = Book.objects.annotate(num_authors=Count('authors'))
     >>> q[0].num_authors
@@ -172,19 +160,17 @@ specify the annotation::
     >>> q[1].num_authors
     1
 
-Unlike ``aggregate()``, ``annotate()`` is *not* a terminal clause. The output
-of the ``annotate()`` clause is a ``QuerySet``; this ``QuerySet`` can be
-modified using any other ``QuerySet`` operation, including ``filter()``,
-``order_by()``, or even additional calls to ``annotate()``.
+和 ``aggregate()`` 不同的是， ``annotate()``  *不是* 结束子句。它返回的结果是一个 ``QuerySet`` 。
+这个 ``QuerySet`` 可以使用任何 ``QuerySet`` 方法进行再次操作。包括 ``filter()``,
+``order_by()``, 甚至是再次使用 ``annotate()`` 。
 
 .. _combining-multiple-aggregations:
 
-Combining multiple aggregations
--------------------------------
+组合多个聚合
+-------------
 
-Combining multiple aggregations with ``annotate()`` will `yield the wrong
-results <https://code.djangoproject.com/ticket/10060>`_ because joins are used
-instead of subqueries:
+组合多个 ``annotate()`` 会产生
+`错误的结果 <https://code.djangoproject.com/ticket/10060>`_ ，因为使用的是join而不是子查询:
 
     >>> book = Book.objects.first()
     >>> book.authors.count()
@@ -197,9 +183,8 @@ instead of subqueries:
     >>> q[0].store__count
     6
 
-For most aggregates, there is no way to avoid this problem, however, the
-:class:`~django.db.models.Count` aggregate has a ``distinct`` parameter that
-may help:
+对于大多数的聚合, 都有这个没法避免的问题, 但是
+:class:`~django.db.models.Count` 聚合带有一个 ``distinct`` 参数可以避免:
 
     >>> q = Book.objects.annotate(Count('authors', distinct=True), Count('store', distinct=True))
     >>> q[0].authors__count
@@ -207,70 +192,52 @@ may help:
     >>> q[0].store__count
     3
 
-.. admonition:: If in doubt, inspect the SQL query!
+.. admonition:: 如果不明白，可以查看SQL query!
 
-    In order to understand what happens in your query, consider inspecting the
-    ``query`` property of your ``QuerySet``.
+    如果想知道查询具体做了什么，请查看 ``QuerySet`` 的 ``query`` 属性。
 
-Joins and aggregates
-====================
+Join和聚合
+===========
 
-So far, we have dealt with aggregates over fields that belong to the
-model being queried. However, sometimes the value you want to aggregate
-will belong to a model that is related to the model you are querying.
+到目前为止，都是被查询的模型相关字段的聚合。然而，有时可能聚合的值是与所查询模型相关的模型。
 
-When specifying the field to be aggregated in an aggregate function, Django
-will allow you to use the same :ref:`double underscore notation
-<field-lookups-intro>` that is used when referring to related fields in
-filters. Django will then handle any table joins that are required to retrieve
-and aggregate the related value.
+在聚合函数中指定聚合字段时，可以使用 :ref:`双下划线
+<field-lookups-intro>` 指定关联关系，Django会自动读取关联表，计算关联对象的聚合。
 
-For example, to find the price range of books offered in each store,
-you could use the annotation::
+例如，要查找每个商店提供的图书的价格范围，可以使用注解::
 
     >>> from django.db.models import Max, Min
     >>> Store.objects.annotate(min_price=Min('books__price'), max_price=Max('books__price'))
 
-This tells Django to retrieve the ``Store`` model, join (through the
-many-to-many relationship) with the ``Book`` model, and aggregate on the
-price field of the book model to produce a minimum and maximum value.
+这段代码告诉 Django 获取 ``Store`` 模型, join (通过多对多关系) 到 ``Book`` 模型，然后对每本书的价格进行聚合，得出最小值和最大值。
 
-The same rules apply to the ``aggregate()`` clause. If you wanted to
-know the lowest and highest price of any book that is available for sale
-in any of the stores, you could use the aggregate::
+同样，这也适用于 ``aggregate()`` 子句。
+如果你想知道所有书店中最便宜的书和最贵的书价格分别是多少::
 
     >>> Store.objects.aggregate(min_price=Min('books__price'), max_price=Max('books__price'))
 
-Join chains can be as deep as you require. For example, to extract the
-age of the youngest author of any book available for sale, you could
-issue the query::
+Join链可以按需求一直延伸。 例如，想得到所有作者当中最小的年龄，可以这样写::
 
     >>> Store.objects.aggregate(youngest_age=Min('books__authors__age'))
 
-Following relationships backwards
----------------------------------
+遵循反向关系
+------------
 
-In a way similar to :ref:`lookups-that-span-relationships`, aggregations and
-annotations on fields of models or models that are related to the one you are
-querying can include traversing "reverse" relationships. The lowercase name
-of related models and double-underscores are used here too.
+和 :ref:`lookups-that-span-relationships` 类似，作用在所查询模型的关联模型或者字段上的聚合和注解可以遍历"反向"关系。
+这里也使用了相关模型的小写名称和双下划线。
 
-For example, we can ask for all publishers, annotated with their respective
-total book stock counters (note how we use ``'book'`` to specify the
-``Publisher`` -> ``Book`` reverse foreign key hop)::
+例如，查询所有出版商，并注解它们一共出了多少本书（注意是使用 ``book`` 指定 ``Publisher`` -> ``Book`` 的反向外键关系）::
 
     >>> from django.db.models import Count, Min, Sum, Avg
     >>> Publisher.objects.annotate(Count('book'))
 
-(Every ``Publisher`` in the resulting ``QuerySet`` will have an extra attribute
-called ``book__count``.)
+(``QuerySet``结果中，每个 ``Publisher`` 都会包含一个额外的属性 ``book__count`` 。)
 
-We can also ask for the oldest book of any of those managed by every publisher::
+也可以按照每个出版商，查询所有图书中最旧的那本::
 
     >>> Publisher.objects.aggregate(oldest_pubdate=Min('book__pubdate'))
 
-(The resulting dictionary will have a key called ``'oldest_pubdate'``. If no
-such alias were specified, it would be the rather long ``'book__pubdate__min'``.)
+(返回的字典会包含一个键叫做 ``'oldest_pubdate'`` 。如果没有指定这样的别名，它将是 ``'book__pubdate__min'``.)
 
 This doesn't apply just to foreign keys. It also works with many-to-many
 relations. For example, we can ask for every author, annotated with the total
