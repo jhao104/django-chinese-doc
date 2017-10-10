@@ -239,84 +239,70 @@ Join链可以按需求一直延伸。 例如，想得到所有作者当中最小
 
 (返回的字典会包含一个键叫做 ``'oldest_pubdate'`` 。如果没有指定这样的别名，它将是 ``'book__pubdate__min'``.)
 
-This doesn't apply just to foreign keys. It also works with many-to-many
-relations. For example, we can ask for every author, annotated with the total
-number of pages considering all the books the author has (co-)authored (note how we
-use ``'book'`` to specify the ``Author`` -> ``Book`` reverse many-to-many hop)::
+这不仅仅是在外键关系上是这样。多对多关系也是如此。
+例如，查询每个作者，注解上它写的所有书（以及合著的书）一共有多少页（
+注意如何使用 ``'book'`` 来指定 ``Author`` -> ``Book`` 的多对多的反向关系）::
 
     >>> Author.objects.annotate(total_pages=Sum('book__pages'))
 
-(Every ``Author`` in the resulting ``QuerySet`` will have an extra attribute
-called ``total_pages``. If no such alias were specified, it would be the rather
-long ``book__pages__sum``.)
+(返回的 ``QuerySet`` 中，每个 ``Author`` 都有一个额外属性
+叫做 ``total_pages`` 。如果没有指定这样的别名，默认将是
+``book__pages__sum`` 。)
 
-Or ask for the average rating of all the books written by author(s) we have on
-file::
+或者查询所有图书的平均评分，这些图书由存档过的作者所写::
 
     >>> Author.objects.aggregate(average_rating=Avg('book__rating'))
 
-(The resulting dictionary will have a key called ``'average_rating'``. If no
-such alias were specified, it would be the rather long ``'book__rating__avg'``.)
+(返回的字典会包含一个叫做  ``'average_rating'`` 的键。 如果没有指定这样的别名，它将是 ``'book__rating__avg'``.)
 
-Aggregations and other ``QuerySet`` clauses
-===========================================
+聚合 ``QuerySet`` 子句
+===========================
 
 ``filter()`` and ``exclude()``
 ------------------------------
 
-Aggregates can also participate in filters. Any ``filter()`` (or
-``exclude()``) applied to normal model fields will have the effect of
-constraining the objects that are considered for aggregation.
+聚合也可以在过滤器中使用。
+作用于普通模型字段的任何 ``filter()`` (或 ``exclude()`` ) 都会对聚合涉及的对象进行限制。
 
-When used with an ``annotate()`` clause, a filter has the effect of
-constraining the objects for which an annotation is calculated. For example,
-you can generate an annotated list of all books that have a title starting
-with "Django" using the query::
+使用 ``annotate()`` 子句时, 筛选器具有约束注释被计算对象的作用。
+例如，计算每本以 "Django" 为书名开头的图书的作者的总数::
 
     >>> from django.db.models import Count, Avg
     >>> Book.objects.filter(name__startswith="Django").annotate(num_authors=Count('authors'))
 
-When used with an ``aggregate()`` clause, a filter has the effect of
-constraining the objects over which the aggregate is calculated.
-For example, you can generate the average price of all books with a
-title that starts with "Django" using the query::
+使用 ``aggregate()`` 子句, 筛选器具有约束聚合被计算对象的作用。
+例如，计算所有以 "Django" 为书名开头的图书平均价格::
 
     >>> Book.objects.filter(name__startswith="Django").aggregate(Avg('price'))
 
-Filtering on annotations
-~~~~~~~~~~~~~~~~~~~~~~~~
+对注解过滤
+~~~~~~~~~~~
 
-Annotated values can also be filtered. The alias for the annotation can be
-used in ``filter()`` and ``exclude()`` clauses in the same way as any other
-model field.
+注解的值也可以被过滤。 而注解的别名也可以和模型字段一样，在
+``filter()`` 和 ``exclude()`` 子句中使用。
 
-For example, to generate a list of books that have more than one author,
-you can issue the query::
+例如，要得到不止一个作者的图书，可以用::
 
     >>> Book.objects.annotate(num_authors=Count('authors')).filter(num_authors__gt=1)
 
-This query generates an annotated result set, and then generates a filter
-based upon that annotation.
+这个查询首先计算注解结果，然后再生成一个作用于注解上的过滤器。
 
-Order of ``annotate()`` and ``filter()`` clauses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``annotate()`` 和 ``filter()`` 的顺序
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When developing a complex query that involves both ``annotate()`` and
-``filter()`` clauses, pay particular attention to the order in which the
-clauses are applied to the ``QuerySet``.
+在写一个包含 ``annotate()`` 和
+``filter()`` 的复杂查询时，要特别注意作用于 ``QuerySet`` 子句的顺序。
 
-When an ``annotate()`` clause is applied to a query, the annotation is computed
-over the state of the query up to the point where the annotation is requested.
-The practical implication of this is that ``filter()`` and ``annotate()`` are
-not commutative operations.
+使用 ``annotate()`` 子句作用于某个查询时,要根据查询的状态才能得出注解值，而状态由
+``annotate()``的位置决定，所以 ``filter()`` 和 ``annotate()`` 不能随意交换位置。
 
-Given:
+比如，有以下数据:
 
-* Publisher A has two books with ratings 4 and 5.
-* Publisher B has two books with ratings 1 and 4.
-* Publisher C has one book with rating 1.
+* Publisher A 有两本 book，ratings 分别为4和5.
+* Publisher B 有两本 book，ratings 分别为1和4.
+* Publisher C 有一本 book，rating 为1.
 
-Here's an example with the ``Count`` aggregate::
+以 ``Count`` 聚合为例::
 
     >>> a, b = Publisher.objects.annotate(num_books=Count('book', distinct=True)).filter(book__rating__gt=3.0)
     >>> a, a.num_books
@@ -330,18 +316,13 @@ Here's an example with the ``Count`` aggregate::
     >>> b, b.num_books
     (<Publisher: B>, 1)
 
-Both queries return a list of publishers that have at least one book with a
-rating exceeding 3.0, hence publisher C is excluded.
+两个查询都返回至少有一本书的rating大于3的publisher列表，因此publisher C不在列表中。
 
-In the first query, the annotation precedes the filter, so the filter has no
-effect on the annotation. ``distinct=True`` is required to avoid a :ref:`query
-bug <combining-multiple-aggregations>`.
+在第一个查询中, 注解先于过滤, 因此过滤不会影响注解。设置 ``distinct=True`` 避免 :ref:`query bug <combining-multiple-aggregations>` 。
 
-The second query counts the number of books that have a rating exceeding 3.0
-for each publisher. The filter precedes the annotation, so the filter
-constrains the objects considered when calculating the annotation.
+第二个查询先计算每个publisher中rating的值超过3.0的图书。筛选器先于注释，因此筛选器在计算注释时已经约束了对象。
 
-Here's another example with the ``Avg`` aggregate::
+下面是另一个是 ``Avg`` 聚合的例子::
 
     >>> a, b = Publisher.objects.annotate(avg_rating=Avg('book__rating')).filter(book__rating__gt=3.0)
     >>> a, a.avg_rating
@@ -355,88 +336,67 @@ Here's another example with the ``Avg`` aggregate::
     >>> b, b.avg_rating
     (<Publisher: B>, 4.0)  # 4/1 (book with rating 1 excluded)
 
-The first query asks for the average rating of all a publisher's books for
-publisher's that have at least one book with a rating exceeding 3.0. The second
-query asks for the average of a publisher's book's ratings for only those
-ratings exceeding 3.0.
+第一个查询是计算至少有一本书的rating超过3.0的publisher的所有图书的平均rating，
+第二个查询要计算publisher的rating超过3.0的书的平均rating。
 
-It's difficult to intuit how the ORM will translate complex querysets into SQL
-queries so when in doubt, inspect the SQL with ``str(queryset.query)`` and
-write plenty of tests.
+这种情况，很难直观地了解ORM如何将复杂的queryset翻译成SQL查询，
+因此在不清楚时，可以使用 ``str(queryset.query)`` 来检查SQL，并且多一点测试。
 
 ``order_by()``
 --------------
 
-Annotations can be used as a basis for ordering. When you
-define an ``order_by()`` clause, the aggregates you provide can reference
-any alias defined as part of an ``annotate()`` clause in the query.
+注解可以用来做为排序项。当你定义 ``order_by()`` 子句时，
+也可以引用定义在 ``annotate()`` 中的任何别名。
 
-For example, to order a ``QuerySet`` of books by the number of authors
-that have contributed to the book, you could use the following query::
+例如，根据图书作者数量的多少对 ``QuerySet`` 进行排序::
 
     >>> Book.objects.annotate(num_authors=Count('authors')).order_by('num_authors')
 
 ``values()``
 ------------
 
-Ordinarily, annotations are generated on a per-object basis - an annotated
-``QuerySet`` will return one result for each object in the original
-``QuerySet``. However, when a ``values()`` clause is used to constrain the
-columns that are returned in the result set, the method for evaluating
-annotations is slightly different. Instead of returning an annotated result
-for each result in the original ``QuerySet``, the original results are
-grouped according to the unique combinations of the fields specified in the
-``values()`` clause. An annotation is then provided for each unique group;
-the annotation is computed over all members of the group.
+通常，注解值会添加到每个对象上- 一个被注解的
+``QuerySet`` 会为初始 ``QuerySet`` 的每个对象返回一个结果集。
+但是，如果使用了 ``values()`` 子句，它就会限制结果中列的范围，对注解赋值的方法就会完全不同。不是在原始的
+``QuerySet`` 返回结果中对每个对象中添加注解, 而是根据定义在 ``values()``
+子句中的字段组合先对结果进行分组，再根据每个分组算出注解值， 这个注解值是根据分组中所有的成员计算而得的。
 
-For example, consider an author query that attempts to find out the average
-rating of books written by each author:
+例如，查询出每个作者所写的书的平均评分：:
 
     >>> Author.objects.annotate(average_rating=Avg('book__rating'))
 
-This will return one result for each author in the database, annotated with
-their average book rating.
+这段代码返回的是数据库中所有的作者以及他们所著图书的平均评分。
 
-However, the result will be slightly different if you use a ``values()`` clause::
+但是如果你使用了 ``values()`` 子句，结果是完全不同的::
 
     >>> Author.objects.values('name').annotate(average_rating=Avg('book__rating'))
 
-In this example, the authors will be grouped by name, so you will only get
-an annotated result for each *unique* author name. This means if you have
-two authors with the same name, their results will be merged into a single
-result in the output of the query; the average will be computed as the
-average over the books written by both authors.
+在这个例子中，作者会按名称分组，所以你只能得到某个唯一的作者分组的注解值。
+也就是说如果你有两个作者同名，那么他们原本各自的查询结果将被合并到同一个结果中；两个作者的所有评分将被计算为一个平均分。
 
-Order of ``annotate()`` and ``values()`` clauses
+``annotate()`` 和 ``values()`` 的顺序
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As with the ``filter()`` clause, the order in which ``annotate()`` and
-``values()`` clauses are applied to a query is significant. If the
-``values()`` clause precedes the ``annotate()``, the annotation will be
-computed using the grouping described by the ``values()`` clause.
+和使用 ``filter()`` 一样, 作用于某个查询的 ``annotate()`` 和
+``values()`` 子句的顺序非常重要。如果
+``values()`` 子句在 ``annotate()`` 之前, 就会根据
+``values()`` 子句产生的分组来计算注解。
 
-However, if the ``annotate()`` clause precedes the ``values()`` clause,
-the annotations will be generated over the entire query set. In this case,
-the ``values()`` clause only constrains the fields that are generated on
-output.
+但是，如果  ``annotate()`` 子句在 ``values()`` 之前,
+就会根据整个查询集生成注解。这种情况下，
+``values()`` 子句只能限制输出的字段。
 
-For example, if we reverse the order of the ``values()`` and ``annotate()``
-clause from our previous example::
+举个例子，如果互换了上个例子中 ``values()`` 和 ``annotate()`` 子句的顺序::
 
     >>> Author.objects.annotate(average_rating=Avg('book__rating')).values('name', 'average_rating')
 
-This will now yield one unique result for each author; however, only
-the author's name and the ``average_rating`` annotation will be returned
-in the output data.
+这段代码将给每个作者添加一个唯一的字段，但只有作者名称和 ``average_rating`` 注解会返回在输出结果中。
 
-You should also note that ``average_rating`` has been explicitly included
-in the list of values to be returned. This is required because of the
-ordering of the ``values()`` and ``annotate()`` clause.
+这里 ``average_rating`` 显式地包含在返回的列表当中。这也正是因为
+ ``values()`` 和 ``annotate()`` 子句的顺序问题。
 
-If the ``values()`` clause precedes the ``annotate()`` clause, any annotations
-will be automatically added to the result set. However, if the ``values()``
-clause is applied after the ``annotate()`` clause, you need to explicitly
-include the aggregate column.
+如果 ``values()`` 子句在 ``annotate()`` 之前, 注解会被自动添加到结果集中。 但是，如果 ``values()``
+子句作用于 ``annotate()`` 之后, 您需要在 ``values`` 中显式地包含聚合列。
 
 .. _aggregation-ordering-interaction:
 
