@@ -1,78 +1,70 @@
-=====================
-Model field reference
-=====================
+==========
+模型字段
+==========
 
 .. module:: django.db.models.fields
    :synopsis: Built-in field types.
 
 .. currentmodule:: django.db.models
 
-This document contains all the API references of :class:`Field` including the
-`field options`_ and `field types`_ Django offers.
+本文档包含了Django提供的全部模型 :class:`Field` 包括
+`字段选项`_ 和 `field types`_ 的API参考。
 
 .. seealso::
 
-    If the built-in fields don't do the trick, you can try `django-localflavor
+    如果内建的字段不能满足你的需求, 你可以蚕食 `django-localflavor
     <https://github.com/django/django-localflavor>`_ (`documentation
-    <https://django-localflavor.readthedocs.io/>`_), which contains assorted
-    pieces of code that are useful for particular countries and cultures.
+    <https://django-localflavor.readthedocs.io/>`_), 其中包含对特定国家和文化的各种配套代码。
 
-    Also, you can easily :doc:`write your own custom model fields
+    同时, 也可以 :doc:`自定义模型字段
     </howto/custom-model-fields>`.
 
 .. note::
 
-    Technically, these models are defined in :mod:`django.db.models.fields`, but
-    for convenience they're imported into :mod:`django.db.models`; the standard
-    convention is to use ``from django.db import models`` and refer to fields as
-    ``models.<Foo>Field``.
+    严格意义上来讲， Model定义在 :mod:`django.db.models.fields` 里面, 但为了使用方便，它们被导入到
+    :mod:`django.db.models` 中；一般使用 ``from django.db import models`` 导入，
+    然后使用 ``models.<Foo>Field`` 的形式使用字段。
 
 .. _common-model-field-options:
 
-Field options
-=============
+字段选项
+=========
 
-The following arguments are available to all field types. All are optional.
+下列参数是全部字段类型都可用的，而且都是可选择的。
 
 ``null``
 --------
 
 .. attribute:: Field.null
 
-If ``True``, Django will store empty values as ``NULL`` in the database. Default
-is ``False``.
+如果为 ``True``, Django 将把空值在数据库中存为 ``NULL`` ，默认为
+is ``False`` 。
 
-Avoid using :attr:`~Field.null` on string-based fields such as
-:class:`CharField` and :class:`TextField` because empty string values will
-always be stored as empty strings, not as ``NULL``. If a string-based field has
-``null=True``, that means it has two possible values for "no data": ``NULL``,
-and the empty string. In most cases, it's redundant to have two possible values
-for "no data;" the Django convention is to use the empty string, not ``NULL``.
+不要为字符串类型字段设置 :attr:`~Field.null` ，例如
+:class:`CharField` 和 :class:`TextField` 。因为这样会把空字符串存为 ``NULL`` 。
+如果字符串字段设置了 ``null=True`` ，那意味着对于“无数据”有两个可能的值： :attr:`~Field.null` 和空字符串。
+这种明显是多余的，Django 的惯例是使用空字符串而不是NULL。
 
-For both string-based and non-string-based fields, you will also need to
-set ``blank=True`` if you wish to permit empty values in forms, as the
-:attr:`~Field.null` parameter only affects database storage
-(see :attr:`~Field.blank`).
+无论是字符串字段还是非字符串字段，如果你希望在表单中允许存在空值，必须要设置
+``blank=True`` ，因为仅仅影响数据库存储。(参见 :attr:`~Field.blank`)。
 
 .. note::
 
-    When using the Oracle database backend, the value ``NULL`` will be stored to
-    denote the empty string regardless of this attribute.
+    在使用Oracle 数据库时，数据库将存储 ``NULL`` 来表示空字符串，而与这个属性无关。
 
-If you want to accept :attr:`~Field.null` values with :class:`BooleanField`,
-use :class:`NullBooleanField` instead.
+如果你希望 :class:`BooleanField` 接受 :attr:`~Field.null` 值,
+那么使用 :class:`NullBooleanField` 代替。
 
 ``blank``
 ---------
 
 .. attribute:: Field.blank
 
-If ``True``, the field is allowed to be blank. Default is ``False``.
+如果为 ``True``, 则该字段允许为空。默认为 ``False`` 。
 
-Note that this is different than :attr:`~Field.null`. :attr:`~Field.null` is
-purely database-related, whereas :attr:`~Field.blank` is validation-related. If
-a field has ``blank=True``, form validation will allow entry of an empty value.
-If a field has ``blank=False``, the field will be required.
+注意它和 :attr:`~Field.null` 不同。 :attr:`~Field.null` 纯粹是数据库范畴的概念，而
+:attr:`~Field.blank` 是数据验证范畴。 如果字段设置 ``blank=True``,
+表单验证时将允许输入空值。如果字段设置 ``blank=False``, 则该字段为必填。
 
 .. _field-choices:
 
@@ -81,13 +73,12 @@ If a field has ``blank=False``, the field will be required.
 
 .. attribute:: Field.choices
 
-An iterable (e.g., a list or tuple) consisting itself of iterables of exactly
-two items (e.g. ``[(A, B), (A, B) ...]``) to use as choices for this field. If
-this is given, the default form widget will be a select box with these choices
-instead of the standard text field.
+它是一个可迭代的结构(e.g., 列表或元组) 。由可迭代的二元组组成
+(e.g. ``[(A, B), (A, B) ...]``)，
+用来给字段提供选择项。如果设置了 ``choices`` ，
+默认表格样式就会显示选择框，而不是标准的文本框，而且这个选择框的选项就是 ``choices`` 中的元组。
 
-The first element in each tuple is the actual value to be set on the model,
-and the second element is the human-readable name. For example::
+每个元组中的第一个元素，是存储在数据库中的值；第二个元素是该选项描述。 比如::
 
     YEAR_IN_SCHOOL_CHOICES = (
         ('FR', 'Freshman'),
@@ -96,8 +87,7 @@ and the second element is the human-readable name. For example::
         ('SR', 'Senior'),
     )
 
-Generally, it's best to define choices inside a model class, and to
-define a suitably-named constant for each value::
+一般来说，最好在模型类内部定义choices，然后再给每个值定义一个合适名字::
 
     from django.db import models
 
@@ -121,14 +111,11 @@ define a suitably-named constant for each value::
         def is_upperclass(self):
             return self.year_in_school in (self.JUNIOR, self.SENIOR)
 
-Though you can define a choices list outside of a model class and then
-refer to it, defining the choices and names for each choice inside the
-model class keeps all of that information with the class that uses it,
-and makes the choices easy to reference (e.g, ``Student.SOPHOMORE``
-will work anywhere that the ``Student`` model has been imported).
+当然也可以在模型类的外部定义choices然后引用它，
+但是在模型类中定义choices和其每个choice的name(即元组的第二个元素)可以保存所有使用choices的信息，
+也使得choices更容易被应用（例如， ``Student.SOPHOMORE`` 可以在任何引入 ``Student`` 模型的地方生效)。
 
-You can also collect your available choices into named groups that can
-be used for organizational purposes::
+也可以将选项归类到已命名的组中用来达成组织整理的目的::
 
     MEDIA_CHOICES = (
         ('Audio', (

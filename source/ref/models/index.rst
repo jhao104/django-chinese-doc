@@ -1,8 +1,8 @@
 ======
-Models
+模型
 ======
 
-Model API reference. For introductory material, see :doc:`/topics/db/models`.
+模型API参考指南。 模型详细介绍, 参阅 :doc:`/topics/db/models`.
 
 .. toctree::
    :maxdepth: 1
