@@ -400,17 +400,14 @@ Join链可以按需求一直延伸。 例如，想得到所有作者当中最小
 
 .. _aggregation-ordering-interaction:
 
-Interaction with default ordering or ``order_by()``
+默认排序和 ``order_by()``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Fields that are mentioned in the ``order_by()`` part of a queryset (or which
-are used in the default ordering on a model) are used when selecting the
-output data, even if they are not otherwise specified in the ``values()``
-call. These extra fields are used to group "like" results together and they
-can make otherwise identical result rows appear to be separate. This shows up,
-particularly, when counting things.
+查询集中的 ``order_by()`` 部分(或是模型中默认定义的排序项) 会在选择输出数据时被用到。
+即使这些字段没有在 ``values()`` 中指定也会被用到。
+这些字段用来组合“相似”结果，它们可以使相似的结果行看起来是独立的。尤其是在计数的时候。
 
-By way of example, suppose you have a model like this::
+通过例子中的方法，假设有一个这样的模型::
 
     from django.db import models
 
@@ -421,48 +418,37 @@ By way of example, suppose you have a model like this::
         class Meta:
             ordering = ["name"]
 
-The important part here is the default ordering on the ``name`` field. If you
-want to count how many times each distinct ``data`` value appears, you might
-try this::
+关键的部分就是在模型默认排序项中设置的 ``name`` 字段。
+如果你想知道每个非重复的  ``data`` 值出现的次数。可以这样写::
 
     # Warning: not quite correct!
     Item.objects.values("data").annotate(Count("id"))
 
-...which will group the ``Item`` objects by their common ``data`` values and
-then count the number of ``id`` values in each group. Except that it won't
-quite work. The default ordering by ``name`` will also play a part in the
-grouping, so this query will group by distinct ``(data, name)`` pairs, which
-isn't what you want. Instead, you should construct this queryset::
+...这部分代码的用意是想通过它们相同的 ``data`` 值来分组 ``Item`` 对象。然后在每个分组中计算
+``id`` 总数。但是上面那样做是行不通的，这是因为默认排序项中的 ``name`` 也是一个分组项。
+所以这个查询会根据非重复的 ``(data, name)`` 进行分组。想要得到正确的结果应该这样写::
 
     Item.objects.values("data").annotate(Count("id")).order_by()
 
-...clearing any ordering in the query. You could also order by, say, ``data``
-without any harmful effects, since that is already playing a role in the
-query.
+...这样就清空了查询中的所有排序项。你也可以在 ``order_by()`` 中使用“data”。这样结果还是一样的。
 
-This behavior is the same as that noted in the queryset documentation for
-:meth:`~django.db.models.query.QuerySet.distinct` and the general rule is the
-same: normally you won't want extra columns playing a part in the result, so
-clear out the ordering, or at least make sure it's restricted only to those
-fields you also select in a ``values()`` call.
+这个行为与查询集文档中提到的
+:meth:`~django.db.models.query.QuerySet.distinct` 一样，
+而且生成规则也一样：
+通常情况下，如果希望在结果中有额外的列，就可以清除排序，或者确保它只有在 ``values()`` 中调用的字段。
 
 .. note::
-    You might reasonably ask why Django doesn't remove the extraneous columns
-    for you. The main reason is consistency with ``distinct()`` and other
-    places: Django **never** removes ordering constraints that you have
-    specified (and we can't change those other methods' behavior, as that
-    would violate our :doc:`/misc/api-stability` policy).
+    您可能会问为什么Django没有删除多余的列。主要原因就是要保证使用
+    ``distinct()`` 和其他方法的一致性。Django **从不** 从不删除您指定的排序约束
+    (不会改动那些方法的行为，因为这会违背 :doc:`/misc/api-stability` 原则)。
 
-Aggregating annotations
------------------------
+聚合注解
+---------
 
-You can also generate an aggregate on the result of an annotation. When you
-define an ``aggregate()`` clause, the aggregates you provide can reference
-any alias defined as part of an ``annotate()`` clause in the query.
+你也可以在注解的结果上生成聚合。当你定义一个 ``aggregate()`` 子句时，
+可以使用 ``annotate()`` 子句中定义的任何别名。
 
-For example, if you wanted to calculate the average number of authors per
-book you first annotate the set of books with the author count, then
-aggregate that author count, referencing the annotation field::
+例如，如果你想计算平均每本书有几个作者，可以注解每本图书的作者总数，然后再聚合作者总数::
 
     >>> from django.db.models import Count, Avg
     >>> Book.objects.annotate(num_authors=Count('authors')).aggregate(Avg('num_authors'))
