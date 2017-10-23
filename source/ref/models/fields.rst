@@ -131,49 +131,40 @@ is ``False`` 。
         ('unknown', 'Unknown'),
     )
 
-The first element in each tuple is the name to apply to the group. The
-second element is an iterable of 2-tuples, with each 2-tuple containing
-a value and a human-readable name for an option. Grouped options may be
-combined with ungrouped options within a single list (such as the
-`unknown` option in this example).
+每个元组的第一个元素是组的名字。 第二个元素是一组可迭代的二元元组，
+每一个二元元组包含一个值和一个适合人看的名字构成一个选项。
+分组的选项可能会和未分组的选项合在同一个list中。
+（就像例中的 `unknown` 选项）。
 
-For each model field that has :attr:`~Field.choices` set, Django will add a
-method to retrieve the human-readable name for the field's current value. See
-:meth:`~django.db.models.Model.get_FOO_display` in the database API
-documentation.
+对于包含 :attr:`~Field.choices` 的模型字段, Django 将会加入一个方法来获取当前字段值的易于理解的名称
+(即元组的第二个值)。参见数据库API文档中的
+:meth:`~django.db.models.Model.get_FOO_display` 。
 
-Note that choices can be any iterable object -- not necessarily a list or tuple.
-This lets you construct choices dynamically. But if you find yourself hacking
-:attr:`~Field.choices` to be dynamic, you're probably better off using a proper
-database table with a :class:`ForeignKey`. :attr:`~Field.choices` is meant for
-static data that doesn't change much, if ever.
+choices 只要是可迭代的对象就行 -- 并不一定要是列表和元组。这样你可以动态构建choices。
+但是如果你自己搞不定动态的
+:attr:`~Field.choices` 。你最好还是使用 :class:`ForeignKey` 来构建一个合适的数据库表。
+而对于静态数据来说， :attr:`~Field.choices` 是不改变的。
 
-Unless :attr:`blank=False<Field.blank>` is set on the field along with a
-:attr:`~Field.default` then a label containing ``"---------"`` will be rendered
-with the select box. To override this behavior, add a tuple to ``choices``
-containing ``None``; e.g. ``(None, 'Your String For Display')``.
-Alternatively, you can use an empty string instead of ``None`` where this makes
-sense - such as on a :class:`~django.db.models.CharField`.
+除非在字段中设置了 :attr:`blank=False<Field.blank>` 否则将选择框中将包含一个 ``"---------"`` 的标签。
+只要在添加一个  ``None`` 到 ``choices`` 元组中就可以改变这一行为。e.g. ``(None, 'Your String For Display')`` ，
+或者, 你可以用一个空字符串代替 ``None``  比如在一个 :class:`~django.db.models.CharField` 。
 
 ``db_column``
 -------------
 
 .. attribute:: Field.db_column
 
-The name of the database column to use for this field. If this isn't given,
-Django will use the field's name.
+数据库中储存该字段的列名。如果未指定，那么Django将会使用Field名作为字段名。
 
-If your database column name is an SQL reserved word, or contains
-characters that aren't allowed in Python variable names -- notably, the
-hyphen -- that's OK. Django quotes column and table names behind the
-scenes.
+如果你的数据库列名是SQL语句的保留字，或者是包含不能作为Python 变量名的字符，如连字符。这也不会有问题，
+Django 会在后台给列名和表名加上双引号。
 
 ``db_index``
 ------------
 
 .. attribute:: Field.db_index
 
-If ``True``, a database index will be created for this field.
+如果为 ``True``,将会为这个字段创建数据库索引。
 
 ``db_tablespace``
 -----------------
@@ -191,53 +182,46 @@ support tablespaces for indexes, this option is ignored.
 
 .. attribute:: Field.default
 
-The default value for the field. This can be a value or a callable object. If
-callable it will be called every time a new object is created.
+该字段的默认值. 它可以是一个值或者一个可调用对象。
+如果是一个可调用对象，将会在创建新对象时调用。
 
-The default can't be a mutable object (model instance, ``list``, ``set``, etc.),
-as a reference to the same instance of that object would be used as the default
-value in all new model instances. Instead, wrap the desired default in a
-callable. For example, if you want to specify a default ``dict`` for
-:class:`~django.contrib.postgres.fields.JSONField`, use a function::
+这个默认值不可以是一个可变对象(比如 ``模型实例`` , ``列表`` , ``集合`` 等等)。
+因为对于所有模型的一个新的实例来说，它们指向同一个引用。
+或者，把他们封装为一个可调用的对象。
+例如，有一个自定义的 :class:`~django.contrib.postgres.fields.JSONField`,想指定一个特定的字典值，可以这样::
 
     def contact_default():
         return {"email": "to1@example.com"}
 
     contact_info = JSONField("ContactInfo", default=contact_default)
 
-``lambda``\s can't be used for field options like ``default`` because they
-can't be :ref:`serialized by migrations <migration-serializing>`. See that
-documentation for other caveats.
+``lambda`` 表达式不能作为 ``default`` 的参数值，因为她们无法 :ref:`被migrations序列化 <migration-serializing>` 。
 
-For fields like :class:`ForeignKey` that map to model instances, defaults
-should be the value of the field they reference (``pk`` unless
-:attr:`~ForeignKey.to_field` is set) instead of model instances.
+对于将映射到模型实例的外键之类的字段，默认值应该是它们引用的字段的值(除非to字段设置为pk)，而不是模型实例。
 
-The default value is used when new model instances are created and a value
-isn't provided for the field. When the field is a primary key, the default is
-also used when the field is set to ``None``.
+对于将映射到模型实例的字段，例如 :class:`ForeignKey` 。其默认值应该是他们引用的字段值( 除非
+:attr:`~ForeignKey.to_field` 设置了 ``pk``)而不是模型实例。
+
+默认值会在新实例创建并且没有给该字段提供值时使用。如果字段为主键，默认值也会在设置为 ``None````None`` 时使用。
 
 ``editable``
 ------------
 
 .. attribute:: Field.editable
 
-If ``False``, the field will not be displayed in the admin or any other
-:class:`~django.forms.ModelForm`. They are also skipped during :ref:`model
-validation <validating-objects>`. Default is ``True``.
+如果设为 ``False`` , 这个字段将不会出现在admin或者其他 :class:`~django.forms.ModelForm` 中。
+同时也会跳过 :ref:`模型验证 <validating-objects>` 。 默认是 ``True``。
 
 ``error_messages``
 ------------------
 
 .. attribute:: Field.error_messages
 
-The ``error_messages`` argument lets you override the default messages that the
-field will raise. Pass in a dictionary with keys matching the error messages you
-want to override.
+ ``error_messages`` 参数用于重写默认的错误提示，通过字典的key来匹配将要改变的错误类型。
 
-Error message keys include ``null``, ``blank``, ``invalid``, ``invalid_choice``,
-``unique``, and ``unique_for_date``. Additional error message keys are
-specified for each field in the `Field types`_ section below.
+错误提示的key包括 ``null``, ``blank``, ``invalid``, ``invalid_choice``,
+``unique``, 和 ``unique_for_date`` 。
+下面的 `Field types`_ 中的 error_messages 的 keys 是不一样的。
 
 ``help_text``
 -------------
