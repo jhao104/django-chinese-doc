@@ -228,121 +228,110 @@ support tablespaces for indexes, this option is ignored.
 
 .. attribute:: Field.help_text
 
-Extra "help" text to be displayed with the form widget. It's useful for
-documentation even if your field isn't used on a form.
+表单部件显示的额外"帮助"信息。即使字段不是在表单上使用，它也很有用。
 
-Note that this value is *not* HTML-escaped in automatically-generated
-forms. This lets you include HTML in :attr:`~Field.help_text` if you so
-desire. For example::
+注意它 *不会* 自动转义HTML标签，这样就可以在
+ :attr:`~Field.help_text` 中定义html格式::
 
     help_text="Please use the following format: <em>YYYY-MM-DD</em>."
 
-Alternatively you can use plain text and
-``django.utils.html.escape()`` to escape any HTML special characters. Ensure
-that you escape any help text that may come from untrusted users to avoid a
-cross-site scripting attack.
+另外, 你可以使用简单文本和
+``django.utils.html.escape()`` 来避免任何HTML特定的字符。
+请确保你所使用的help text能够避免一些不信任用户的跨站脚本攻击。
 
 ``primary_key``
 ---------------
 
 .. attribute:: Field.primary_key
 
-If ``True``, this field is the primary key for the model.
+如果是 ``True``, 则该字段会成为模型的主键字段。
 
-If you don't specify ``primary_key=True`` for any field in your model, Django
-will automatically add an :class:`AutoField` to hold the primary key, so you
-don't need to set ``primary_key=True`` on any of your fields unless you want to
-override the default primary-key behavior. For more, see
-:ref:`automatic-primary-key-fields`.
+如果模型中没有字段设置了 ``primary_key=True`` , Django
+会自动添加一个 :class:`AutoField` 字段来作为主键，因此如果没有特定需要，可以不用设置
+``primary_key=True`` 。
+更多信息，请参考
+:ref:`automatic-primary-key-fields` 。
 
-``primary_key=True`` implies :attr:`null=False <Field.null>` and
-:attr:`unique=True <Field.unique>`. Only one primary key is allowed on an
-object.
+``primary_key=True`` 也就意味着 :attr:`null=False <Field.null>` 和
+:attr:`unique=True <Field.unique>` 。并且一个对象只能有一个主键。
 
-The primary key field is read-only. If you change the value of the primary
-key on an existing object and then save it, a new object will be created
-alongside the old one.
+主键字段是只读的，如果你修改了一条记录主键的值并且保存，那么将是创建一条新的记录而不是修改。
 
 ``unique``
 ----------
 
 .. attribute:: Field.unique
 
-If ``True``, this field must be unique throughout the table.
+如果为 ``True``, 改字段在表中必须唯一。
 
-This is enforced at the database level and by model validation. If
-you try to save a model with a duplicate value in a :attr:`~Field.unique`
-field, a :exc:`django.db.IntegrityError` will be raised by the model's
-:meth:`~django.db.models.Model.save` method.
+这是通过模型验证的数据库级别的强制性操作。如果你对 :attr:`~Field.unique`
+字段保存重复的值，:meth:`~django.db.models.Model.save` 方法将回抛出
+:exc:`django.db.IntegrityError` 异常。
 
-This option is valid on all field types except :class:`ManyToManyField`,
-:class:`OneToOneField`, and :class:`FileField`.
+这个选项适用于除了 :class:`ManyToManyField`,
+:class:`OneToOneField`, :class:`FileField` 的其他所有字段。
 
-Note that when ``unique`` is ``True``, you don't need to specify
-:attr:`~Field.db_index`, because ``unique`` implies the creation of an index.
+当设置了 ``unique`` 为 ``True`` 后，可以不必再指定
+:attr:`~Field.db_index`, 因为 ``unique`` 也会创建索引。
 
 ``unique_for_date``
 -------------------
 
 .. attribute:: Field.unique_for_date
 
-Set this to the name of a :class:`DateField` or :class:`DateTimeField` to
-require that this field be unique for the value of the date field.
+设置为 :class:`DateField` 或者 :class:`DateTimeField` 字段的名字，表示要求该字段对于相应的日期字段值是唯一的。
 
-For example, if you have a field ``title`` that has
-``unique_for_date="pub_date"``, then Django wouldn't allow the entry of two
-records with the same ``title`` and ``pub_date``.
+例如，字段 ``title`` 设置了
+``unique_for_date="pub_date"`` ，那么Django将不会允许在同一 ``pub_date`` 的两条记录的
+``title`` 相同。
 
-Note that if you set this to point to a :class:`DateTimeField`, only the date
-portion of the field will be considered. Besides, when :setting:`USE_TZ` is
-``True``, the check will be performed in the :ref:`current time zone
-<default-current-time-zone>` at the time the object gets saved.
+需要注意的是，如果你设置的是一个 :class:`DateTimeField`, 也只会考虑日期部分。
+此外，如果设置了 :setting:`USE_TZ` 为 ``True``,
+检查将以对象保存时的 :ref:`当前时区
+<default-current-time-zone>` 进行。
 
-This is enforced by :meth:`Model.validate_unique()` during model validation
-but not at the database level. If any :attr:`~Field.unique_for_date` constraint
-involves fields that are not part of a :class:`~django.forms.ModelForm` (for
-example, if one of the fields is listed in ``exclude`` or has
-:attr:`editable=False<Field.editable>`), :meth:`Model.validate_unique()` will
-skip validation for that particular constraint.
+这是在模型验证期间通过 :meth:`Model.validate_unique()` 强制执行的，
+而不是在数据库层级进行验证。
+如果 :attr:`~Field.unique_for_date` 约束涉及的字段不是
+:class:`~django.forms.ModelForm` 中的字段(例如， ``exclude`` 中列出的字段或者设置了
+:attr:`editable=False<Field.editable>`), :meth:`Model.validate_unique()` 将忽略该特殊的约束。
 
 ``unique_for_month``
 --------------------
 
 .. attribute:: Field.unique_for_month
 
-Like :attr:`~Field.unique_for_date`, but requires the field to be unique with
-respect to the month.
+和 :attr:`~Field.unique_for_date` 类似, 只是要求字段对于月份是唯一的。
 
 ``unique_for_year``
 -------------------
 
 .. attribute:: Field.unique_for_year
 
-Like :attr:`~Field.unique_for_date` and :attr:`~Field.unique_for_month`.
+和 :attr:`~Field.unique_for_date` 、 :attr:`~Field.unique_for_month` 类似。
 
 ``verbose_name``
 -------------------
 
 .. attribute:: Field.verbose_name
 
-A human-readable name for the field. If the verbose name isn't given, Django
-will automatically create it using the field's attribute name, converting
-underscores to spaces. See :ref:`Verbose field names <verbose-field-names>`.
+为字段设置的可读性更高的名称。如果用户没有定义改选项，
+Django会自动将自动创建，内容是该字段属性名中的下划线转换为空格的结果。可以参照
+:ref:`Verbose field names <verbose-field-names>`.
 
 ``validators``
 -------------------
 
 .. attribute:: Field.validators
 
-A list of validators to run for this field. See the :doc:`validators
-documentation </ref/validators>` for more information.
+该字段将要运行的一个Validator的列表。 更多信息参见 :doc:`validators
+文档</ref/validators>` 。
 
-Registering and fetching lookups
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+注册和查询
+~~~~~~~~~~~~
 
-``Field`` implements the :ref:`lookup registration API <lookup-registration-api>`.
-The API can be used to customize which lookups are available for a field class, and
-how lookups are fetched from a field.
+``Field`` 实现了 :ref:`查询注册API <lookup-registration-api>` 。
+该API 可以用于自定义一个字段类型的查询，以及如何从一个字段获取查询。
 
 .. _model-field-types:
 
@@ -356,10 +345,9 @@ Field types
 
 .. class:: AutoField(**options)
 
-An :class:`IntegerField` that automatically increments
-according to available IDs. You usually won't need to use this directly; a
-primary key field will automatically be added to your model if you don't specify
-otherwise. See :ref:`automatic-primary-key-fields`.
+一个根据实际ID自动增长的 :class:`IntegerField` 。
+通常不需要直接使用它,如果表中没有设置主键时，将会自动添加一个自增主键。参考
+:ref:`automatic-primary-key-fields` 。
 
 ``BigAutoField``
 ----------------
@@ -368,17 +356,16 @@ otherwise. See :ref:`automatic-primary-key-fields`.
 
 .. versionadded:: 1.10
 
-A 64-bit integer, much like an :class:`AutoField` except that it is
-guaranteed to fit numbers from ``1`` to ``9223372036854775807``.
+一个64位整数, 和 :class:`AutoField` 类似，不过它的范围是
+``1`` 到 ``9223372036854775807`` 。
 
 ``BigIntegerField``
 -------------------
 
 .. class:: BigIntegerField(**options)
 
-A 64-bit integer, much like an :class:`IntegerField` except that it is
-guaranteed to fit numbers from ``-9223372036854775808`` to
-``9223372036854775807``. The default form widget for this field is a
+一个64位整数, 和 :class:`IntegerField` 类似，不过它允许的值范围是
+``-9223372036854775808`` 到 ``9223372036854775807`` 。这个字段默认的表单组件是一个
 :class:`~django.forms.TextInput`.
 
 ``BinaryField``
@@ -386,26 +373,24 @@ guaranteed to fit numbers from ``-9223372036854775808`` to
 
 .. class:: BinaryField(**options)
 
-A field to store raw binary data. It only supports ``bytes`` assignment. Be
-aware that this field has limited functionality. For example, it is not possible
-to filter a queryset on a ``BinaryField`` value. It is also not possible to
-include a ``BinaryField`` in a :class:`~django.forms.ModelForm`.
+这是一个用来存储原始二进制码的字段。支持 ``bytes`` 赋值。 注意这个字段只有很有限的功能。
+比如，不能在一个 ``BinaryField`` 值的上进行查询过滤。
+:class:`~django.forms.ModelForm` 中也不允许包含 ``BinaryField`` 。
 
-.. admonition:: Abusing ``BinaryField``
+.. admonition:: 滥用 ``BinaryField``
 
-    Although you might think about storing files in the database, consider that
-    it is bad design in 99% of the cases. This field is *not* a replacement for
-    proper :doc:`static files </howto/static-files/index>` handling.
+    可能你想使用数据库来存储文件，但是99%的情况下这都是不好的设计。 这个字段 *不是* 代替
+    :doc:`静态文件 </howto/static-files/index>` 的最佳方式。
 
 ``BooleanField``
 ----------------
 
 .. class:: BooleanField(**options)
 
-A true/false field.
+一个 true/false 字段。
 
-The default form widget for this field is a
-:class:`~django.forms.CheckboxInput`.
+这个字段的默认表单部件是
+:class:`~django.forms.CheckboxInput` 。
 
 If you need to accept :attr:`~Field.null` values then use
 :class:`NullBooleanField` instead.
