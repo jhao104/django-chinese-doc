@@ -392,43 +392,39 @@ Field types
 这个字段的默认表单部件是
 :class:`~django.forms.CheckboxInput` 。
 
-If you need to accept :attr:`~Field.null` values then use
-:class:`NullBooleanField` instead.
+如果要允许 :attr:`~Field.null` 值，那么可以使用
+:class:`NullBooleanField` 代替。
 
-The default value of ``BooleanField`` is ``None`` when :attr:`Field.default`
-isn't defined.
+如果 :attr:`Field.default` 没有指定，
+ ``BooleanField`` 的默认值将是 ``None`` 。
+
 
 ``CharField``
 -------------
 
 .. class:: CharField(max_length=None, **options)
 
-A string field, for small- to large-sized strings.
+字符字段。
 
-For large amounts of text, use :class:`~django.db.models.TextField`.
+对于比较大的文本内容,请使用 :class:`~django.db.models.TextField` 类型。
 
-The default form widget for this field is a :class:`~django.forms.TextInput`.
+这个字段的默认表单部件是 :class:`~django.forms.TextInput`.
 
-:class:`CharField` has one extra required argument:
+:class:`CharField` 字段有个额外参数:
 
 .. attribute:: CharField.max_length
 
-    The maximum length (in characters) of the field. The max_length is enforced
-    at the database level and in Django's validation.
+    字段允许的最大字符串长度。这将在数据库中和表单验证时生效。
 
 .. note::
 
-    If you are writing an application that must be portable to multiple
-    database backends, you should be aware that there are restrictions on
-    ``max_length`` for some backends. Refer to the :doc:`database backend
-    notes </ref/databases>` for details.
+    如果你在写一个需要导出到多个不同数据库后端的应用，你需要注意某些后端对 ``max_length`` 有一些限制，
+    查看 :doc:`数据库后端注意事项 </ref/databases>` 来获取更多的细节。
 
 .. admonition:: MySQL users
 
-    If you are using this field with MySQLdb 1.2.2 and the ``utf8_bin``
-    collation (which is *not* the default), there are some issues to be aware
-    of. Refer to the :ref:`MySQL database notes <mysql-collation>` for
-    details.
+    如果你使用的是 MySQLdb 1.2.2 设置的是 ``utf8_bin`` 校对
+    (这 *不是* 默认项), 你必须了解一些问题。详细请参考 :ref:`MySQL 数据库注意事项 <mysql-collation>` 。
 
 ``CommaSeparatedIntegerField``
 ------------------------------
@@ -437,165 +433,154 @@ The default form widget for this field is a :class:`~django.forms.TextInput`.
 
 .. deprecated:: 1.9
 
-    This field is deprecated in favor of :class:`~django.db.models.CharField`
-    with ``validators=[``\ :func:`validate_comma_separated_integer_list
-    <django.core.validators.validate_comma_separated_integer_list>`\ ``]``.
+    这个字段可以使用 :class:`~django.db.models.CharField`
+    的 ``validators=[``\ :func:`validate_comma_separated_integer_list
+    <django.core.validators.validate_comma_separated_integer_list>`\ ``]`` 代替。
 
-A field of integers separated by commas. As in :class:`CharField`, the
-:attr:`~CharField.max_length` argument is required and the note about database
-portability mentioned there should be heeded.
+一个逗号分隔的整数字段。 和 :class:`CharField` 一样，
+:attr:`~CharField.max_length` 是必填参数，同时再数据库移植时也需要注意。
 
 ``DateField``
 -------------
 
 .. class:: DateField(auto_now=False, auto_now_add=False, **options)
 
-A date, represented in Python by a ``datetime.date`` instance. Has a few extra,
-optional arguments:
+日期, 表现为 Python中  ``datetime.date`` 的实例。但是有几个额外的设置参数:
 
 .. attribute:: DateField.auto_now
 
-    Automatically set the field to now every time the object is saved. Useful
-    for "last-modified" timestamps. Note that the current date is *always*
-    used; it's not just a default value that you can override.
+    当保存对象时，自动设置改字段为当前时间。比如用于字段 "修改时间"。
+    注意这会 *始终* 使用当前时间，并不是一个默认值。
 
-    The field is only automatically updated when calling :meth:`Model.save()
-    <django.db.models.Model.save>`. The field isn't updated when making updates
-    to other fields in other ways such as :meth:`QuerySet.update()
-    <django.db.models.query.QuerySet.update>`, though you can specify a custom
-    value for the field in an update like that.
+    这个字段只会在调用 :meth:`Model.save()
+    <django.db.models.Model.save>` 方法时自动更新。
+    更新其他字段或使用这他更新方法时，这个字段不会更新，比如 :meth:`QuerySet.update()
+    <django.db.models.query.QuerySet.update>`  方法。
 
 .. attribute:: DateField.auto_now_add
 
-    Automatically set the field to now when the object is first created. Useful
-    for creation of timestamps. Note that the current date is *always* used;
-    it's not just a default value that you can override. So even if you
-    set a value for this field when creating the object, it will be ignored.
-    If you want to be able to modify this field, set the following instead of
+    当字段被首次创建时被设置为当前时间。
+    适用于创建日期，注意这会 *始终* 使用当前时间，并不是一个可以重写的默认值。
+    因此就算你在创建时指定了日期，也会被忽略掉。如果你希望修改这个值，请设置以下内容，而不是
     ``auto_now_add=True``:
 
-    * For :class:`DateField`: ``default=date.today`` - from
+    * 对于 :class:`DateField`: ``default=date.today`` - from
       :meth:`datetime.date.today`
-    * For :class:`DateTimeField`: ``default=timezone.now`` - from
+    * 对于 :class:`DateTimeField`: ``default=timezone.now`` - from
       :func:`django.utils.timezone.now`
 
-The default form widget for this field is a
-:class:`~django.forms.TextInput`. The admin adds a JavaScript calendar,
-and a shortcut for "Today". Includes an additional ``invalid_date`` error
-message key.
+这个字段的默认表单部件是
+:class:`~django.forms.TextInput` 。在admin中会添加一个JavaScript的日期插件，带有一个
+"Today" 的快捷按钮。 也包含 ``invalid_date`` 错误消息。
 
-The options ``auto_now_add``, ``auto_now``, and ``default`` are mutually exclusive.
-Any combination of these options will result in an error.
-
-.. note::
-    As currently implemented, setting ``auto_now`` or ``auto_now_add`` to
-    ``True`` will cause the field to have ``editable=False`` and ``blank=True``
-    set.
+选项 ``auto_now_add``, ``auto_now``, 和 ``default`` 是相互排斥的，
+他们之间的任何组合将会发生错误的结果。
 
 .. note::
-    The ``auto_now`` and ``auto_now_add`` options will always use the date in
-    the :ref:`default timezone <default-current-time-zone>` at the moment of
-    creation or update. If you need something different, you may want to
-    consider simply using your own callable default or overriding ``save()``
-    instead of using ``auto_now`` or ``auto_now_add``; or using a
-    ``DateTimeField`` instead of a ``DateField`` and deciding how to handle the
-    conversion from datetime to date at display time.
+    在当前框架实现中, 设置 ``auto_now`` 或者 ``auto_now_add`` 为
+    ``True`` 都会使字段同时得到两个设置 ``editable=False`` 和 ``blank=True`` 。
+
+.. note::
+    ``auto_now`` 和 ``auto_now_add`` 这两个设置会在对象创建或更新时，总是使用
+    :ref:`default timezone <default-current-time-zone>` 的日期。
+    你可以考虑一下简单地使用你自己的默认调用或者重写
+    ``save()`` 方法来代替使用
+    ``auto_now`` 和 ``auto_now_add``;也可以使用
+    ``DateTimeField`` 类型代替 ``DateField`` ，然后在显示时间的时候再决定如何从
+    datetime 转换到 date。
 
 ``DateTimeField``
 -----------------
 
 .. class:: DateTimeField(auto_now=False, auto_now_add=False, **options)
 
-A date and time, represented in Python by a ``datetime.datetime`` instance.
-Takes the same extra arguments as :class:`DateField`.
+时间和日期, 表现为 Python 中的 ``datetime.datetime`` 实例。
+和 :class:`DateField` 有相同的额外参数。
 
-The default form widget for this field is a single
-:class:`~django.forms.TextInput`. The admin uses two separate
-:class:`~django.forms.TextInput` widgets with JavaScript shortcuts.
+默认的表单部件是一个
+:class:`~django.forms.TextInput` 。admin页面使用两个带有 JavaScript控件的
+:class:`~django.forms.TextInput` 。
 
 ``DecimalField``
 ----------------
 
 .. class:: DecimalField(max_digits=None, decimal_places=None, **options)
 
-A fixed-precision decimal number, represented in Python by a
-:class:`~decimal.Decimal` instance. Has two **required** arguments:
+十进制数，表现为Python中
+:class:`~decimal.Decimal` 实例，有两个 **必填** 参数:
 
 .. attribute:: DecimalField.max_digits
 
-    The maximum number of digits allowed in the number. Note that this number
-    must be greater than or equal to ``decimal_places``.
+    允许的最大位数包括小数点后的位数。必须大于等于
+    ``decimal_places``。
 
 .. attribute:: DecimalField.decimal_places
 
-    The number of decimal places to store with the number.
+    小数点后的位数。
 
-For example, to store numbers up to ``999`` with a resolution of 2 decimal
-places, you'd use::
+举个例子，要储存最大为 ``999`` 带有两位小数的数字，需要这样设置::
 
     models.DecimalField(..., max_digits=5, decimal_places=2)
 
-And to store numbers up to approximately one billion with a resolution of 10
-decimal places::
+而要存储那些将近10亿，并且要求达到小数点后十位精度的数字::
 
     models.DecimalField(..., max_digits=19, decimal_places=10)
 
-The default form widget for this field is a :class:`~django.forms.NumberInput`
-when :attr:`~django.forms.Field.localize` is ``False`` or
-:class:`~django.forms.TextInput` otherwise.
+该字段默认的表单部件是 :class:`~django.forms.NumberInput` ，
+如果 :attr:`~django.forms.Field.localize` 设置为 ``False`` 则是
+:class:`~django.forms.TextInput` 。
 
 .. note::
 
-    For more information about the differences between the
-    :class:`FloatField` and :class:`DecimalField` classes, please
-    see :ref:`FloatField vs. DecimalField <floatfield_vs_decimalfield>`.
+    关于更多
+    :class:`FloatField` 和 :class:`DecimalField` 的区别信息，请参考
+    :ref:`FloatField vs. DecimalField <floatfield_vs_decimalfield>` 。
 
 ``DurationField``
 -----------------
 
 .. class:: DurationField(**options)
 
-A field for storing periods of time - modeled in Python by
-:class:`~python:datetime.timedelta`. When used on PostgreSQL, the data type
-used is an ``interval`` and on Oracle the data type is ``INTERVAL DAY(9) TO
-SECOND(6)``. Otherwise a ``bigint`` of microseconds is used.
+用作存储一段时间的字段类型 - 类似Python中的
+:class:`~python:datetime.timedelta` 。.当数据库使用的是 PostgreSQL, 该数据类型使用的是一个 ``interval`` ，
+而在Oracle上，则使用的是 ``INTERVAL DAY(9) TO
+SECOND(6)`` 。其他情况使用微秒的的 ``bigint`` 。
 
 .. note::
 
-    Arithmetic with ``DurationField`` works in most cases. However on all
-    databases other than PostgreSQL, comparing the value of a ``DurationField``
-    to arithmetic on ``DateTimeField`` instances will not work as expected.
+    ``DurationField`` 的算数运算在多数情况下可以很好的工作。
+    然而，在除了 PostgreSQL之外的其他数据库中, 将 ``DurationField``
+    和 ``DateTimeField`` 的实例比较则不会得到正确的结果。
 
 ``EmailField``
 --------------
 
 .. class:: EmailField(max_length=254, **options)
 
-A :class:`CharField` that checks that the value is a valid email address. It
-uses :class:`~django.core.validators.EmailValidator` to validate the input.
+一个检查输入的email地址是否合法的 :class:`CharField` 类型。
+它使用 :class:`~django.core.validators.EmailValidator` 来验证输入合法性。
 
 ``FileField``
 -------------
 
 .. class:: FileField(upload_to=None, max_length=100, **options)
 
-A file-upload field.
+上传文件字段。
 
 .. note::
-    The ``primary_key`` and ``unique`` arguments are not supported, and will
-    raise a ``TypeError`` if used.
+    ``primary_key`` 和 ``unique`` 在这个字段中不支持, 如果使用在抛出
+    ``TypeError`` 异常。
 
-Has two optional arguments:
+拥有两个可选参数:
 
 .. attribute:: FileField.upload_to
 
-    This attribute provides a way of setting the upload directory and file name,
-    and can be set in two ways. In both cases, the value is passed to the
-    :meth:`Storage.save() <django.core.files.storage.Storage.save>` method.
+    用于设置文件路径和文件名,
+    有两种设置方法，但都是通过
+    :meth:`Storage.save() <django.core.files.storage.Storage.save>` 方法设置。
 
-    If you specify a string value, it may contain :func:`~time.strftime`
-    formatting, which will be replaced by the date/time of the file upload (so
-    that uploaded files don't fill up the given directory). For example::
+    你如果路劲包含 :func:`~time.strftime` 格式，将被替换为实际的 日期/时间 作为文件路径
+    (这样上传的文件就不会到指定的文件夹)。 例如::
 
         class MyModel(models.Model):
             # file will be uploaded to MEDIA_ROOT/uploads
@@ -604,37 +589,27 @@ Has two optional arguments:
             # file will be saved to MEDIA_ROOT/uploads/2015/01/30
             upload = models.FileField(upload_to='uploads/%Y/%m/%d/')
 
-    If you are using the default
-    :class:`~django.core.files.storage.FileSystemStorage`, the string value
-    will be appended to your :setting:`MEDIA_ROOT` path to form the location on
-    the local filesystem where uploaded files will be stored. If you are using
-    a different storage, check that storage's documentation to see how it
-    handles ``upload_to``.
+    如果使用了默认的
+    :class:`~django.core.files.storage.FileSystemStorage`, 这个字符串将会再添加
+    上 :setting:`MEDIA_ROOT` 路径。如果想使用其他储存方法，请查看储存文档如何处理
+    ``upload_to`` 。
 
-    ``upload_to`` may also be a callable, such as a function. This will be
-    called to obtain the upload path, including the filename. This callable must
-    accept two arguments and return a Unix-style path (with forward slashes)
-    to be passed along to the storage system. The two arguments are:
+    ``upload_to`` 也可以是一个可调用的对象。 将调用它来获取上传路径，包括文件名。
+    这个可调用对象必须接受两个参数，并且返回一个Unix 风格的路径（带有前向/）给存储系统。将传递的两个参数为:
 
     ======================  ===============================================
     Argument                Description
     ======================  ===============================================
-    ``instance``            An instance of the model where the
-                            ``FileField`` is defined. More specifically,
-                            this is the particular instance where the
-                            current file is being attached.
+    ``instance``            定义 ``FileField`` 的模型的实例
+                            更准确地说，就是当前文件的所在的那个实例。
 
-                            In most cases, this object will not have been
-                            saved to the database yet, so if it uses the
-                            default ``AutoField``, *it might not yet have a
-                            value for its primary key field*.
+                            大部分情况下，这个实例将还没有保存到数据库中，若它用到默认的
+                            ``AutoField`` 字段，它的主键字段还可能没有值。
 
-    ``filename``            The filename that was originally given to the
-                            file. This may or may not be taken into account
-                            when determining the final destination path.
+    ``filename``            最初给文件的文件名。在确定最终目标路径时，可能不会考虑到这一点。
     ======================  ===============================================
 
-    For example::
+    例如::
 
         def user_directory_path(instance, filename):
             # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
@@ -645,11 +620,10 @@ Has two optional arguments:
 
 .. attribute:: FileField.storage
 
-    A storage object, which handles the storage and retrieval of your
-    files. See :doc:`/topics/files` for details on how to provide this object.
+    一个Storage 对象，用于你的文件的存取。参见 :doc:`/topics/files` 查看如何提供这个对象的细节。
 
-The default form widget for this field is a
-:class:`~django.forms.ClearableFileInput`.
+这个字段的默认表单部件是一个
+:class:`~django.forms.ClearableFileInput` 。
 
 Using a :class:`FileField` or an :class:`ImageField` (see below) in a model
 takes a few steps:
