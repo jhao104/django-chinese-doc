@@ -625,78 +625,63 @@ SECOND(6)`` 。其他情况使用微秒的的 ``bigint`` 。
 这个字段的默认表单部件是一个
 :class:`~django.forms.ClearableFileInput` 。
 
-Using a :class:`FileField` or an :class:`ImageField` (see below) in a model
-takes a few steps:
+在模式中使用 :class:`FileField` 类型或 :class:`ImageField` (见下文) 需要如下几步:
 
-1. In your settings file, you'll need to define :setting:`MEDIA_ROOT` as the
-   full path to a directory where you'd like Django to store uploaded files.
-   (For performance, these files are not stored in the database.) Define
-   :setting:`MEDIA_URL` as the base public URL of that directory. Make sure
-   that this directory is writable by the Web server's user account.
+1. 在 settings 文件中, 将Django储存文件的的完整路径设置到 :setting:`MEDIA_ROOT` 项。
+   (从性能上考虑，不要将这些文件存在数据库中) 定义一个
+   :setting:`MEDIA_URL` 作为基础目录的URL。确保web server账户对这个目录有读写权限。
 
-2. Add the :class:`FileField` or :class:`ImageField` to your model, defining
-   the :attr:`~FileField.upload_to` option to specify a subdirectory of
-   :setting:`MEDIA_ROOT` to use for uploaded files.
+2. 添加 :class:`FileField` 或者 :class:`ImageField` 到模型中, 定义
+   属性 :attr:`~FileField.upload_to` 用来存放上传的文件，应该是
+   :setting:`MEDIA_ROOT` 的子目录。
 
-3. All that will be stored in your database is a path to the file
-   (relative to :setting:`MEDIA_ROOT`). You'll most likely want to use the
-   convenience :attr:`~django.db.models.fields.files.FieldFile.url` attribute
-   provided by Django. For example, if your :class:`ImageField` is called
-   ``mug_shot``, you can get the absolute path to your image in a template with
-   ``{{ object.mug_shot.url }}``.
+3. 数据库中存放的仅是这个文件的路径
+   (相对于 :setting:`MEDIA_ROOT`)。 然后使用 :attr:`~django.db.models.fields.files.FieldFile.url` 属性
+   来获取。例如, 一个叫做 ``mug_shot`` 的 :class:`ImageField` 字段，可以使用
+   ``{{ object.mug_shot.url }}`` 来获取它的绝对路径。
 
-For example, say your :setting:`MEDIA_ROOT` is set to ``'/home/media'``, and
-:attr:`~FileField.upload_to` is set to ``'photos/%Y/%m/%d'``. The ``'%Y/%m/%d'``
-part of :attr:`~FileField.upload_to` is :func:`~time.strftime` formatting;
-``'%Y'`` is the four-digit year, ``'%m'`` is the two-digit month and ``'%d'`` is
-the two-digit day. If you upload a file on Jan. 15, 2007, it will be saved in
-the directory ``/home/media/photos/2007/01/15``.
+假如, 你将 :setting:`MEDIA_ROOT` 设置为 ``'/home/media'``,
+:attr:`~FileField.upload_to` 属性设置为 ``'photos/%Y/%m/%d'`` 。
+:attr:`~FileField.upload_to` 的 ``'%Y/%m/%d'`` 部分是
+:func:`~time.strftime` 的格式化字符。
+``'%Y'`` 表示四位数的年份, ``'%m'`` 表示两位数的月份， ``'%d'`` 表示两位数的日份。
+如果文件上传时间是 Jan. 15, 2007,将被存到目录 ``/home/media/photos/2007/01/15`` 。
 
-If you wanted to retrieve the uploaded file's on-disk filename, or the file's
-size, you could use the :attr:`~django.core.files.File.name` and
-:attr:`~django.core.files.File.size` attributes respectively; for more
-information on the available attributes and methods, see the
-:class:`~django.core.files.File` class reference and the :doc:`/topics/files`
-topic guide.
+如果想要知道上传文件的磁盘文件名或文件大小，
+可以使用 :attr:`~django.core.files.File.name` 和
+:attr:`~django.core.files.File.size` 属性得到；关于更多支持的方法和属性。请参考
+:class:`~django.core.files.File` 的参考文档 :doc:`/topics/files` 。
 
 .. note::
-    The file is saved as part of saving the model in the database, so the actual
-    file name used on disk cannot be relied on until after the model has been
-    saved.
+    文件作为模型存储在数据库中的一部分，磁盘上文件名在模型保存完毕之前是不可靠的。
 
-The uploaded file's relative URL can be obtained using the
-:attr:`~django.db.models.fields.files.FieldFile.url` attribute. Internally,
-this calls the :meth:`~django.core.files.storage.Storage.url` method of the
-underlying :class:`~django.core.files.storage.Storage` class.
+
+上传的文件对应的URL可以通过使用
+:attr:`~django.db.models.fields.files.FieldFile.url` 属性获得. 其实在内部，是调用
+:class:`~django.core.files.storage.Storage` 类的 :meth:`~django.core.files.storage.Storage.url` 方法。
 
 .. _file-upload-security:
 
-Note that whenever you deal with uploaded files, you should pay close attention
-to where you're uploading them and what type of files they are, to avoid
-security holes. *Validate all uploaded files* so that you're sure the files are
-what you think they are. For example, if you blindly let somebody upload files,
-without validation, to a directory that's within your Web server's document
-root, then somebody could upload a CGI or PHP script and execute that script by
-visiting its URL on your site. Don't allow that.
+值得注意的是，无论任何时候处理上传文件时，都应该密切关注文件将被上传到哪里，上传的文件类型，以避免安全漏洞。
+*检查所有上传文件* 确保上传的文件是被允许的文件。
+例如，如果你盲目的允许其他人在无需认证的情况下上传文件至你的web服务器的root目录中，
+那么别人可以上传一个CGI或者PHP脚本然后通过访问一个你网站的URL来执行这个脚本。
+所以，不要允许这种事情发生。
 
-Also note that even an uploaded HTML file, since it can be executed by the
-browser (though not by the server), can pose security threats that are
-equivalent to XSS or CSRF attacks.
+甚至是上传HTML文件也需要注意，它可以通过浏览器（虽然不是服务器）执行，也可以引发相当于是XSS或者CSRF攻击的安全威胁。
 
-:class:`FileField` instances are created in your database as ``varchar``
-columns with a default max length of 100 characters. As with other fields, you
-can change the maximum length using the :attr:`~CharField.max_length` argument.
+:class:`FileField` 对象在数据库中以最大长度100个字节的 ``varchar`` 类型存在。
+和普通字段一样。也可以使用 :attr:`~CharField.max_length` 参数限制。
 
-``FileField`` and ``FieldFile``
+``FileField`` 和 ``FieldFile``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. currentmodule:: django.db.models.fields.files
 
 .. class:: FieldFile
 
-When you access a :class:`~django.db.models.FileField` on a model, you are
-given an instance of :class:`FieldFile` as a proxy for accessing the underlying
-file.
+当添加一个 :class:`~django.db.models.FileField` 字段到模型中时，实际上是一个
+:class:`FieldFile` 实例作为将要访问文件的代理。
 
 The API of :class:`FieldFile` mirrors that of :class:`~django.core.files.File`,
 with one key difference: *The object wrapped by the class is not necessarily a
