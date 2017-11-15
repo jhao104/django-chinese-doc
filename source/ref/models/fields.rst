@@ -703,81 +703,68 @@ methods that can be used to interact with the underlying file:
 
 .. attribute:: FieldFile.name
 
-The name of the file including the relative path from the root of the
-:class:`~django.core.files.storage.Storage` of the associated
-:class:`~django.db.models.FileField`.
+文件的名称，:class:`~django.core.files.storage.Storage` 的根路径，
+:class:`~django.db.models.FileField` 的相对路径。
 
 .. attribute:: FieldFile.size
 
-The result of the underlying :attr:`Storage.size()
-<django.core.files.storage.Storage.size>` method.
+下面 :attr:`Storage.size()
+<django.core.files.storage.Storage.size>` 方法的返回结果。
 
 .. attribute:: FieldFile.url
 
-A read-only property to access the file's relative URL by calling the
-:meth:`~django.core.files.storage.Storage.url` method of the underlying
-:class:`~django.core.files.storage.Storage` class.
+通过下面 :class:`~django.core.files.storage.Storage` 类的
+:meth:`~django.core.files.storage.Storage.url` 方法只读地访问文件的URL。
 
 .. method:: FieldFile.open(mode='rb')
 
-Opens or reopens the file associated with this instance in the specified
-``mode``. Unlike the standard Python ``open()`` method, it doesn't return a
-file descriptor.
+在指定 `模式` 下打开或重写与该实例相关联的文件，和Python的标准 ``open()``
+方法不同的是，它不返回文件描述符。
 
-Since the underlying file is opened implicitly when accessing it, it may be
-unnecessary to call this method except to reset the pointer to the underlying
-file or to change the ``mode``.
+由于底层文件在访问它时隐式地打开，因此调用此方法可能没有必要，除非将指针重置到底层文件或更改 `模式`。
 
 .. method:: FieldFile.close()
 
-Behaves like the standard Python ``file.close()`` method and closes the file
-associated with this instance.
+类似Python的 ``file.close()`` 方法，关闭相关文件。
 
 .. method:: FieldFile.save(name, content, save=True)
 
-This method takes a filename and file contents and passes them to the storage
-class for the field, then associates the stored file with the model field.
-If you want to manually associate file data with
-:class:`~django.db.models.FileField` instances on your model, the ``save()``
-method is used to persist that file data.
+这个方法会将文件名以及文件内容传递到字段的storage类中,并将模型字段与保存好的文件关联。
+I
+如果想要手动关联文件数据到你的模型中的
+:class:`~django.db.models.FileField` 实例,
+则 ``save()`` 方法总是用来保存该数据。
 
-Takes two required arguments: ``name`` which is the name of the file, and
-``content`` which is an object containing the file's contents.  The
-optional ``save`` argument controls whether or not the model instance is
-saved after the file associated with this field has been altered. Defaults to
-``True``.
+方法接受两个必选参数: ``name`` 文件名, 和
+``content`` 文件内容。  可选参数
+``save`` 控制模型实例在关联的文件被修改时是否保存，默认为
+``True`` 。
 
-Note that the ``content`` argument should be an instance of
-:class:`django.core.files.File`, not Python's built-in file object.
-You can construct a :class:`~django.core.files.File` from an existing
-Python file object like this::
+需要注意的是 ``content`` 参数必须是
+:class:`django.core.files.File` 的实例, 不是Python内建的文件对象。
+你可以用如下方法从一个已经存在的Python文件对象来构建 :class:`~django.core.files.File`::
 
     from django.core.files import File
     # Open an existing file using Python's built-in open()
     f = open('/path/to/hello.world')
     myfile = File(f)
 
-Or you can construct one from a Python string like this::
+或者，你可以像下面的一样从一个python字符串中构建::
 
     from django.core.files.base import ContentFile
     myfile = ContentFile("hello world")
 
-For more information, see :doc:`/topics/files`.
+其他更多信息, 参见 :doc:`/topics/files`.
 
 .. method:: FieldFile.delete(save=True)
 
-Deletes the file associated with this instance and clears all attributes on
-the field. Note: This method will close the file if it happens to be open when
-``delete()`` is called.
+删除与此实例关联的文件，并清除该字段的所有属性。
+注意:如果在调用 ``delete()`` 时有打开操作，该方法将关闭该文件。
 
-The optional ``save`` argument controls whether or not the model instance is
-saved after the file associated with this field has been deleted. Defaults to
-``True``.
+``save`` 控制模型实例在关联的文件被修改时是否保存，默认为
+``True`` 。
 
-Note that when a model is deleted, related files are not deleted. If you need
-to cleanup orphaned files, you'll need to handle it yourself (for instance,
-with a custom management command that can be run manually or scheduled to run
-periodically via e.g. cron).
+注意，model删除的时候，与之关联的文件并不会被删除。如果你要把文件也清理掉，你需要自己处理
 
 .. currentmodule:: django.db.models
 
@@ -786,110 +773,100 @@ periodically via e.g. cron).
 
 .. class:: FilePathField(path=None, match=None, recursive=False, max_length=100, **options)
 
-A :class:`CharField` whose choices are limited to the filenames in a certain
-directory on the filesystem. Has three special arguments, of which the first is
-**required**:
+一个 :class:`CharField` 内容只限于文件系统内特定目录下的文件名，有几个特殊参数, 其中第一个是
+**必须的**:
 
 .. attribute:: FilePathField.path
 
-    Required. The absolute filesystem path to a directory from which this
-    :class:`FilePathField` should get its choices. Example: ``"/home/images"``.
+    必传。 :class:`FilePathField` 应该得到的选择目录的绝对文件系统路径。例如: ``"/home/images"``.
 
 .. attribute:: FilePathField.match
 
-    Optional. A regular expression, as a string, that :class:`FilePathField`
-    will use to filter filenames. Note that the regex will be applied to the
-    base filename, not the full path. Example: ``"foo.*\.txt$"``, which will
-    match a file called ``foo23.txt`` but not ``bar.txt`` or ``foo23.png``.
+    可选。 一个字符串形式的正则表达式。:class:`FilePathField` 使用其过滤文件名。
+    regex将应用于基本文件名，而不是全部路径。例如：``"foo.*\.txt$"`` 将会匹配到
+    ``foo23.txt`` 但不会匹配到 ``bar.txt`` 或 ``foo23.png`` 。
 
 .. attribute:: FilePathField.recursive
 
-    Optional. Either ``True`` or ``False``. Default is ``False``. Specifies
-    whether all subdirectories of :attr:`~FilePathField.path` should be included
+    可选。 只能是 ``True`` 或者 ``False`` 。默认为 ``False`` 。声明是否包含所有子目录的 :attr:`~FilePathField.path` 。
 
 .. attribute:: FilePathField.allow_files
 
-    Optional.  Either ``True`` or ``False``.  Default is ``True``.  Specifies
-    whether files in the specified location should be included.  Either this or
-    :attr:`~FilePathField.allow_folders` must be ``True``.
+    可选。 只能是 ``True`` 或者 ``False`` 。默认为  ``True`` 。 声明是否包含指定位置的文件
+    该参数和
+    :attr:`~FilePathField.allow_folders` 必须有一个为 ``True`` 。
 
 .. attribute:: FilePathField.allow_folders
 
-    Optional.  Either ``True`` or ``False``.  Default is ``False``.  Specifies
-    whether folders in the specified location should be included.  Either this
-    or :attr:`~FilePathField.allow_files` must be ``True``.
+    可选。 只能是 ``True`` 或者 ``False`` 。默认为 ``False`` 。 声明是否包含指定位置的文件夹。 该参数
+    和 :attr:`~FilePathField.allow_files` 必须有一个为 ``True`` 。
 
-Of course, these arguments can be used together.
+当然，这些参数可以同时使用。
 
-The one potential gotcha is that :attr:`~FilePathField.match` applies to the
-base filename, not the full path. So, this example::
+有一点需要提醒的是 :attr:`~FilePathField.match` 只匹配基本文件名,
+而不是整个文件路径,例如::
 
     FilePathField(path="/home/images", match="foo.*", recursive=True)
 
-...will match ``/home/images/foo.png`` but not ``/home/images/foo/bar.png``
-because the :attr:`~FilePathField.match` applies to the base filename
-(``foo.png`` and ``bar.png``).
+...将会匹配 ``/home/images/foo.png`` 但不会匹配 ``/home/images/foo/bar.png``
+因为 :attr:`~FilePathField.match` 只作用于基本文件名
+(``foo.png`` 和 ``bar.png``)。
 
-:class:`FilePathField` instances are created in your database as ``varchar``
-columns with a default max length of 100 characters. As with other fields, you
-can change the maximum length using the :attr:`~CharField.max_length` argument.
+:class:`FilePathField` 再数据库中以 ``varchar`` 类型存在
+默认最大长度为 100 个字节。和普通一段一样，可以使用
+:attr:`~CharField.max_length` 参数修改长度限制。
 
 ``FloatField``
 --------------
 
 .. class:: FloatField(**options)
 
-A floating-point number represented in Python by a ``float`` instance.
+用Python的一个 ``float`` 实例来表示一个浮点数。
 
-The default form widget for this field is a :class:`~django.forms.NumberInput`
-when :attr:`~django.forms.Field.localize` is ``False`` or
-:class:`~django.forms.TextInput` otherwise.
+如果属性 :attr:`~django.forms.Field.localize` 为 ``False`` 则默认表单部件是一个 :class:`~django.forms.NumberInput` ，
+否则是一个
+:class:`~django.forms.TextInput` 。
 
 .. _floatfield_vs_decimalfield:
 
 .. admonition:: ``FloatField`` vs. ``DecimalField``
 
-    The :class:`FloatField` class is sometimes mixed up with the
-    :class:`DecimalField` class. Although they both represent real numbers, they
-    represent those numbers differently. ``FloatField`` uses Python's ``float``
-    type internally, while ``DecimalField`` uses Python's ``Decimal`` type. For
-    information on the difference between the two, see Python's documentation
-    for the :mod:`decimal` module.
+    有时候 :class:`FloatField` 类可能会和
+    :class:`DecimalField` 类产生混淆。虽然它们表示都表示实数，但是二者表示数字的方式不一样。
+    ``FloatField`` 使用Python内部的 ``float``
+    类型，而 ``DecimalField`` 使用的是Python的 ``Decimal`` 类型。
+    想要了解更多二者的差别, 可以查看Python文档中的
+    :mod:`decimal` 模块。
 
 ``ImageField``
 --------------
 
 .. class:: ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, **options)
 
-Inherits all attributes and methods from :class:`FileField`, but also
-validates that the uploaded object is a valid image.
+继承了:class:`FileField` 类的所有方法和属性，而且还对上传的对象进行校验，确保它是个有效的image。
 
-In addition to the special attributes that are available for :class:`FileField`,
-an :class:`ImageField` also has ``height`` and ``width`` attributes.
+除了从 :class:`FileField` 继承的属性外，
+:class:`ImageField` 类还增加了 ``height`` 和 ``width`` 属性。
 
-To facilitate querying on those attributes, :class:`ImageField` has two extra
-optional arguments:
+为了更便捷的去用这些属性值, :class:`ImageField` 有两个额外的可选参数:
 
 .. attribute:: ImageField.height_field
 
-    Name of a model field which will be auto-populated with the height of the
-    image each time the model instance is saved.
+    该属性的设定会在模型实例保存时,自动填充图片的高度。
 
 .. attribute:: ImageField.width_field
 
-    Name of a model field which will be auto-populated with the width of the
-    image each time the model instance is saved.
+    该属性的设定会在模型实例保存时,自动填充图片的宽度。
 
-Requires the `Pillow`_ library.
+ImageField需要 `Pillow`_ 库支持。
 
 .. _Pillow: https://pillow.readthedocs.io/en/latest/
 
-:class:`ImageField` instances are created in your database as ``varchar``
-columns with a default max length of 100 characters. As with other fields, you
-can change the maximum length using the :attr:`~CharField.max_length` argument.
+:class:`ImageField` 实例在数据库中以 ``varchar`` 类型存在，默认最大长度为100个字节，
+和普通字段一样。也可以使用 :attr:`~CharField.max_length` 参数限制。
 
-The default form widget for this field is a
-:class:`~django.forms.ClearableFileInput`.
+该字段默认的表单部件是一个
+:class:`~django.forms.ClearableFileInput` 。
 
 ``IntegerField``
 ----------------
