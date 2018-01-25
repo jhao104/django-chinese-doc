@@ -873,10 +873,9 @@ ImageField需要 `Pillow`_ 库支持。
 
 .. class:: IntegerField(**options)
 
-An integer. Values from ``-2147483648`` to ``2147483647`` are safe in all
-databases supported by Django. The default form widget for this field is a
-:class:`~django.forms.NumberInput` when :attr:`~django.forms.Field.localize`
-is ``False`` or :class:`~django.forms.TextInput` otherwise.
+一个整数。在Django所有支持的数据库中，``-2147483648`` 到 ``2147483647`` 范围才是合法的。
+如果设置了 :attr:`~django.forms.Field.localize` 为 ``False`` ,那么默认表单部件将是一个
+:class:`~django.forms.NumberInput` 否则是一个 :class:`~django.forms.TextInput` 。
 
 ``GenericIPAddressField``
 -------------------------
