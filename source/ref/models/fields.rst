@@ -882,40 +882,37 @@ ImageField需要 `Pillow`_ 库支持。
 
 .. class:: GenericIPAddressField(protocol='both', unpack_ipv4=False, **options)
 
-An IPv4 or IPv6 address, in string format (e.g. ``192.0.2.30`` or
-``2a02:42fe::4``). The default form widget for this field is a
+一条IPv4或IPv6地址, 字符串格式是 (e.g. ``192.0.2.30`` 或者
+``2a02:42fe::4``)。 默认的表单部件是
 :class:`~django.forms.TextInput`.
 
-The IPv6 address normalization follows :rfc:`4291#section-2.2` section 2.2,
-including using the IPv4 format suggested in paragraph 3 of that section, like
-``::ffff:192.0.2.0``. For example, ``2001:0::0:01`` would be normalized to
-``2001::1``, and ``::ffff:0a0a:0a0a`` to ``::ffff:10.10.10.10``. All characters
-are converted to lowercase.
+IPv6地址规范遵循 :rfc:`4291#section-2.2` 2.2 章节, 包括使用该部分第3段中建议的IPv4格式, 如
+``::ffff:192.0.2.0`` 。 例如, ``2001:0::0:01`` 将被转换成
+``2001::1``, ``::ffff:0a0a:0a0a`` 转换成 ``::ffff:10.10.10.10`` 。所有字符都转换为小写。
 
 .. attribute:: GenericIPAddressField.protocol
 
-    Limits valid inputs to the specified protocol.
-    Accepted values are ``'both'`` (default), ``'IPv4'``
-    or ``'IPv6'``. Matching is case insensitive.
+    限制指定协议的有效输入。接受的值为
+    ``'both'`` (默认), ``'IPv4'``
+    或 ``'IPv6'`` 。匹配不区分大小写。
 
 .. attribute:: GenericIPAddressField.unpack_ipv4
 
-    Unpacks IPv4 mapped addresses like ``::ffff:192.0.2.1``.
-    If this option is enabled that address would be unpacked to
-    ``192.0.2.1``. Default is disabled. Can only be used
-    when ``protocol`` is set to ``'both'``.
+    解析IPv4映射地址如 ``::ffff:192.0.2.1``.
+    如果启用该选项，则地址将被解析到
+    ``192.0.2.1`` 。默认是禁用。只有当
+    ``protocol`` 设置为 ``'both'`` 时才可以使用。
 
-If you allow for blank values, you have to allow for null values since blank
-values are stored as null.
+如果允许空值，则必须允许null值，因为空值存储为null。
 
 ``NullBooleanField``
 --------------------
 
 .. class:: NullBooleanField(**options)
 
-Like a :class:`BooleanField`, but allows ``NULL`` as one of the options. Use
-this instead of a :class:`BooleanField` with ``null=True``. The default form
-widget for this field is a :class:`~django.forms.NullBooleanSelect`.
+类似 :class:`BooleanField`, 但是它允许 ``NULL`` 值。
+可以用它来代替 :class:`BooleanField` 字段设置 ``null=True`` 的情况。它的默认表单是
+:class:`~django.forms.NullBooleanSelect` 。
 
 ``PositiveIntegerField``
 ------------------------
