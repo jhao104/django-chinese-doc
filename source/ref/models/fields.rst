@@ -919,29 +919,27 @@ IPv6地址规范遵循 :rfc:`4291#section-2.2` 2.2 章节, 包括使用该部分
 
 .. class:: PositiveIntegerField(**options)
 
-Like an :class:`IntegerField`, but must be either positive or zero (``0``).
-Values from ``0`` to ``2147483647`` are safe in all databases supported by
-Django. The value ``0`` is accepted for backward compatibility reasons.
+类似 :class:`IntegerField` 类型, 但必须是整数或者零 (``0``)。
+取值范围是 ``0`` 到 ``2147483647`` 。
+允许 ``0`` 是为了向后兼容。
 
 ``PositiveSmallIntegerField``
 -----------------------------
 
 .. class:: PositiveSmallIntegerField(**options)
 
-Like a :class:`PositiveIntegerField`, but only allows values under a certain
-(database-dependent) point. Values from ``0`` to ``32767`` are safe in all
-databases supported by Django.
+类似 :class:`PositiveIntegerField` 类型， 但其允许的值必须小于某个特定值
+(有数据库决定)。在Django所支持的数据库中 ``0`` 到 ``32767`` 内的值是绝对允许的。
 
 ``SlugField``
 -------------
 
 .. class:: SlugField(max_length=50, **options)
 
-:term:`Slug` is a newspaper term. A slug is a short label for something,
-containing only letters, numbers, underscores or hyphens. They're generally used
-in URLs.
+:term:`Slug` 是一个新闻术语， 通常叫做短标题。slug只能包含字母、数字、下划线或者是连字符。通常它们是用来放在URL里的。
 
-Like a CharField, you can specify :attr:`~CharField.max_length` (read the note
+
+类似 CharField 类型， 可以指定 :attr:`~CharField.max_length` (read the note
 about database portability and :attr:`~CharField.max_length` in that section,
 too). If :attr:`~CharField.max_length` is not specified, Django will use a
 default length of 50.
