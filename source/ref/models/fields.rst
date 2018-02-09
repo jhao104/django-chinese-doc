@@ -335,8 +335,8 @@ Django会自动将自动创建，内容是该字段属性名中的下划线转�
 
 .. _model-field-types:
 
-Field types
-===========
+字段类型
+==========
 
 .. currentmodule:: django.db.models
 
@@ -939,89 +939,82 @@ IPv6地址规范遵循 :rfc:`4291#section-2.2` 2.2 章节, 包括使用该部分
 :term:`Slug` 是一个新闻术语， 通常叫做短标题。slug只能包含字母、数字、下划线或者是连字符。通常它们是用来放在URL里的。
 
 
-类似 CharField 类型， 可以指定 :attr:`~CharField.max_length` (read the note
-about database portability and :attr:`~CharField.max_length` in that section,
-too). If :attr:`~CharField.max_length` is not specified, Django will use a
-default length of 50.
+类似 CharField 类型， 可以指定 :attr:`~CharField.max_length` (请参阅该部分中的有关数据库可移植性的说明和
+:attr:`~CharField.max_length` )
+如果没有指定 :attr:`~CharField.max_length` 属性，将默认使用50。
 
-Implies setting :attr:`Field.db_index` to ``True``.
+同时 :attr:`Field.db_index` 设置为 ``True`` 。
 
-It is often useful to automatically prepopulate a SlugField based on the value
-of some other value.  You can do this automatically in the admin using
-:attr:`~django.contrib.admin.ModelAdmin.prepopulated_fields`.
+比较可行的做法是根据其他值的内容自动预填 SlugField 的值。
+在admin中可以使用
+:attr:`~django.contrib.admin.ModelAdmin.prepopulated_fields` 来实现。
 
 .. attribute:: SlugField.allow_unicode
 
     .. versionadded:: 1.9
 
-    If ``True``, the field accepts Unicode letters in addition to ASCII
-    letters. Defaults to ``False``.
+    如果设置为 ``True``, 该字段除了ASCII之外，还接受Unicode字母。默认为 ``False``.
 
 ``SmallIntegerField``
 ---------------------
 
 .. class:: SmallIntegerField(**options)
 
-Like an :class:`IntegerField`, but only allows values under a certain
-(database-dependent) point. Values from ``-32768`` to ``32767`` are safe in all
-databases supported by Django.
+类似 :class:`IntegerField`, 但只允许某些特定的值
+(数据库决定)。 在Django所支持的数据库中 ``-32768`` 到 ``32767`` 之前是绝对允许的。
 
 ``TextField``
 -------------
 
 .. class:: TextField(**options)
 
-A large text field. The default form widget for this field is a
-:class:`~django.forms.Textarea`.
+大文本字段。默认的表单部件是一个
+:class:`~django.forms.Textarea` 。
 
-If you specify a ``max_length`` attribute, it will be reflected in the
-:class:`~django.forms.Textarea` widget of the auto-generated form field.
-However it is not enforced at the model or database level. Use a
-:class:`CharField` for that.
+如果指定了 ``max_length`` 属性, 它将会在渲染页面时表单部件
+:class:`~django.forms.Textarea` 中体现出来，但是却不会在模型和数据库中有这个限制。
+如果需要这样清使用
+:class:`CharField` 类型。
 
-.. admonition:: MySQL users
+.. admonition:: MySQL 用户
 
-    If you are using this field with MySQLdb 1.2.1p2 and the ``utf8_bin``
-    collation (which is *not* the default), there are some issues to be aware
-    of. Refer to the :ref:`MySQL database notes <mysql-collation>` for
-    details.
+    如果在 MySQLdb 1.2.1p2 中使用该字段，并且是 ``utf8_bin`` 排序规则(默认*不是* 这个)
+    则需要注意几个问题。参考 :ref:`MySQL database notes <mysql-collation>` 。
 
 ``TimeField``
 -------------
 
 .. class:: TimeField(auto_now=False, auto_now_add=False, **options)
 
-A time, represented in Python by a ``datetime.time`` instance. Accepts the same
-auto-population options as :class:`DateField`.
+时间字段, 类似于Python ``datetime.time`` 实例. 和 :class:`DateField` 具有相同的选项.
 
-The default form widget for this field is a :class:`~django.forms.TextInput`.
-The admin adds some JavaScript shortcuts.
+默认的表单部件是一个 :class:`~django.forms.TextInput`.
+在Admin中添加了一些JavaScript快捷方式。
 
 ``URLField``
 ------------
 
 .. class:: URLField(max_length=200, **options)
 
-A :class:`CharField` for a URL.
+一个 :class:`CharField` 类型的URL.
 
-The default form widget for this field is a :class:`~django.forms.TextInput`.
+默认的表单部件是一个 :class:`~django.forms.TextInput`.
 
-Like all :class:`CharField` subclasses, :class:`URLField` takes the optional
-:attr:`~CharField.max_length` argument. If you don't specify
-:attr:`~CharField.max_length`, a default of 200 is used.
+与所有 :class:`CharField` 子类一样, :class:`URLField` 接受
+:attr:`~CharField.max_length` 可选参数. 如果没有特别指定
+:attr:`~CharField.max_length` 默认长度是200.
 
 ``UUIDField``
 -------------
 
 .. class:: UUIDField(**options)
 
-A field for storing universally unique identifiers. Uses Python's
-:class:`~python:uuid.UUID` class. When used on PostgreSQL, this stores in a
-``uuid`` datatype, otherwise in a ``char(32)``.
+一个用于存储唯一标识符的字段. 使用 Python 的
+:class:`~python:uuid.UUID` 类. 如果使用 PostgreSQL, 将使用
+``uuid`` 数据类型储存, 其他情况是一个 ``char(32)``.
 
-Universally unique identifiers are a good alternative to :class:`AutoField` for
-:attr:`~Field.primary_key`. The database will not generate the UUID for you, so
-it is recommended to use :attr:`~Field.default`::
+惟一的标识符是很好用来替代 :class:`AutoField` 类型
+:attr:`~Field.primary_key` 的方法. 数据库不会自动生成UUID值, 所以最好使用 :attr:`~Field.default` 参数::
 
     import uuid
     from django.db import models
@@ -1030,18 +1023,17 @@ it is recommended to use :attr:`~Field.default`::
         id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
         # other fields
 
-Note that a callable (with the parentheses omitted) is passed to ``default``,
-not an instance of ``UUID``.
+注意传入的是一个可调用的对象(即一个省略括号的方法) 而不是传入一个 ``UUID`` 实例给 ``default`` .
 
-Relationship fields
-===================
+关系字段
+========
 
 .. module:: django.db.models.fields.related
    :synopsis: Related field types
 
 .. currentmodule:: django.db.models
 
-Django also defines a set of fields that represent relations.
+Django 同样定义了一系列的字段来描述数据库之间的关联.
 
 .. _ref-foreignkey:
 
@@ -1050,14 +1042,12 @@ Django also defines a set of fields that represent relations.
 
 .. class:: ForeignKey(othermodel, on_delete, **options)
 
-A many-to-one relationship. Requires a positional argument: the class to which
-the model is related.
+多对一关系. 需要一个位置参数: 与该模型关联的类.
 
 .. versionchanged:: 1.9
 
-    ``on_delete`` can now be used as the second positional argument (previously
-    it was typically only passed as a keyword argument). It will be a required
-    argument in Django 2.0.
+    ``on_delete`` 现在可以用作第二个位置参数(之前它通常只是作为一个关键字参数传递).
+    在Django 2.0中，这将是一个必传的参数。
 
 .. _recursive-relationships:
 
