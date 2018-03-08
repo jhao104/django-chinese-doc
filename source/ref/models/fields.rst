@@ -1051,14 +1051,13 @@ Django 同样定义了一系列的字段来描述数据库之间的关联.
 
 .. _recursive-relationships:
 
-To create a recursive relationship -- an object that has a many-to-one
-relationship with itself -- use ``models.ForeignKey('self',
+若要创建一个递归的关联 —— 对象与自己具有多对一的关系 —— 请使用
+``models.ForeignKey('self',
 on_delete=models.CASCADE)``.
 
 .. _lazy-relationships:
 
-If you need to create a relationship on a model that has not yet been defined,
-you can use the name of the model, rather than the model object itself::
+如果你需要关联到一个还没有定义的模型，你可以使用模型的名字而不用模型对象本身::
 
     from django.db import models
 
@@ -1073,9 +1072,7 @@ you can use the name of the model, rather than the model object itself::
         # ...
         pass
 
-Relationships defined this way on :ref:`abstract models
-<abstract-base-classes>` are resolved when the model is subclassed as a
-concrete model and are not relative to the abstract model's ``app_label``:
+在 :ref:`抽象模型 <abstract-base-classes>` 上以这种方式定义的关系在模型被作为具体模型进行子类化并且与抽象模型的 ``app_label`` 没有关联时:
 
 .. snippet::
     :filename: products/models.py
@@ -1102,10 +1099,7 @@ concrete model and are not relative to the abstract model's ``app_label``:
 
     # Car.manufacturer will point to `production.Manufacturer` here.
 
-To refer to models defined in another application, you can explicitly specify
-a model with the full application label. For example, if the ``Manufacturer``
-model above is defined in another application called ``production``, you'd
-need to use::
+若要引用在其它应用中定义的模型，必须使用带有完整标签名的模型来显式指定。例如，如果上面提到的 ``Manufacturer`` 模型是在一个名为 ``production`` 的应用中定义的，就应该这样使用它::
 
     class Car(models.Model):
         manufacturer = models.ForeignKey(
@@ -1113,24 +1107,16 @@ need to use::
             on_delete=models.CASCADE,
         )
 
-This sort of reference can be useful when resolving circular import
-dependencies between two applications.
+当两个应用有相互导入情况时，这种引用将会很有帮助。
 
-A database index is automatically created on the ``ForeignKey``. You can
-disable this by setting :attr:`~Field.db_index` to ``False``.  You may want to
-avoid the overhead of an index if you are creating a foreign key for
-consistency rather than joins, or if you will be creating an alternative index
-like a partial or multiple column index.
+``ForeignKey`` 会自动创建数据库索引。如果你创建外键是为了一致性而不是用来Join，或者如果你将创建其它索引例如部分或多列索引，也许想要避免索引的开销。
+这时可以通过设置 :attr:`~Field.db_index` 为 ``False`` 来取消。
 
-Database Representation
-~~~~~~~~~~~~~~~~~~~~~~~
+数据库中表示
+~~~~~~~~~~~
 
-Behind the scenes, Django appends ``"_id"`` to the field name to create its
-database column name. In the above example, the database table for the ``Car``
-model will have a ``manufacturer_id`` column. (You can change this explicitly by
-specifying :attr:`~Field.db_column`) However, your code should never have to
-deal with the database column name, unless you write custom SQL. You'll always
-deal with the field names of your model object.
+在背后，Django 会在字段名上添加 ``"_id"`` 来创建数据库中的列名。在上面的例子中，``Car`` 模型的数据库表将会拥有一个 ``manufacturer_id`` 列。
+（也可以显式指定 :attr:`~Field.db_column` ）。但是，你的代码永远不应该处理数据库中的列名称，除非你需要编写自定义的SQL。你应该只关注你的模型对象中的字段名称。
 
 .. _foreign-key-arguments:
 
