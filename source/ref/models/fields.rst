@@ -1113,26 +1113,22 @@ on_delete=models.CASCADE)``.
 这时可以通过设置 :attr:`~Field.db_index` 为 ``False`` 来取消。
 
 数据库中表示
-~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 在背后，Django 会在字段名上添加 ``"_id"`` 来创建数据库中的列名。在上面的例子中，``Car`` 模型的数据库表将会拥有一个 ``manufacturer_id`` 列。
 （也可以显式指定 :attr:`~Field.db_column` ）。但是，你的代码永远不应该处理数据库中的列名称，除非你需要编写自定义的SQL。你应该只关注你的模型对象中的字段名称。
 
 .. _foreign-key-arguments:
 
-Arguments
-~~~~~~~~~
+参数
+~~~~~~
 
-:class:`ForeignKey` accepts other arguments that define the details of how the
-relation works.
+:class:`ForeignKey` 接受一系列可选参数来标识关联关系的具体细节。
 
 .. attribute:: ForeignKey.on_delete
 
-    When an object referenced by a :class:`ForeignKey` is deleted, Django will
-    emulate the behavior of the SQL constraint specified by the
-    :attr:`on_delete` argument. For example, if you have a nullable
-    :class:`ForeignKey` and you want it to be set null when the referenced
-    object is deleted::
+    当一个 :class:`ForeignKey` 引用的对象被删除时, django将模拟 :attr:`on_delete` 参数指定的SQL约束行为。举个例子,
+    如果你有一个可以为空的 :class:`ForeignKey` ，在其引用的对象被删除的时你想把这个 :class:`ForeignKey` 设置为空. 可以这样::
 
         user = models.ForeignKey(
             User,
@@ -1143,40 +1139,32 @@ relation works.
 
     .. deprecated:: 1.9
 
-        :attr:`~ForeignKey.on_delete` will become a required argument in Django
-        2.0. In older versions it defaults to ``CASCADE``.
+        :attr:`~ForeignKey.on_delete` 在Django 2.0 将成为一个必需的参数。在旧版本默值认为 ``CASCADE``.
 
-The possible values for :attr:`~ForeignKey.on_delete` are found in
-:mod:`django.db.models`:
+:attr:`~ForeignKey.on_delete` 在
+:mod:`django.db.models` 中可选的值有:
 
 * .. attribute:: CASCADE
 
-    Cascade deletes. Django emulates the behavior of the SQL constraint ON
-    DELETE CASCADE and also deletes the object containing the ForeignKey.
+    级联删除。Django模拟了SQL约束在DELETE CASCADE上的行为，并删除ForeignKey的对象。
 
 * .. attribute:: PROTECT
 
-    Prevent deletion of the referenced object by raising
-    :exc:`~django.db.models.ProtectedError`, a subclass of
-    :exc:`django.db.IntegrityError`.
+    抛出 :exc:`~django.db.models.ProtectedError` 异常以阻止被引用对象的删除, 它是
+    :exc:`django.db.IntegrityError` 的一个子类.
 
 * .. attribute:: SET_NULL
 
-    Set the :class:`ForeignKey` null; this is only possible if
-    :attr:`~Field.null` is ``True``.
+    重新设置 :class:`ForeignKey` 为null; 仅在 :attr:`~Field.null` 设置 ``True`` 时才能使用.
 
 * .. attribute:: SET_DEFAULT
 
-    Set the :class:`ForeignKey` to its default value; a default for the
-    :class:`ForeignKey` must be set.
+    将 :class:`ForeignKey` 设置为默认值; 这时必须设置 :class:`ForeignKey` 的默认值参数.
 
 * .. function:: SET()
 
-    Set the :class:`ForeignKey` to the value passed to
-    :func:`~django.db.models.SET()`, or if a callable is passed in,
-    the result of calling it. In most cases, passing a callable will be
-    necessary to avoid executing queries at the time your models.py is
-    imported::
+    设置 :class:`ForeignKey` 为 :func:`~django.db.models.SET()` 的接收值, 如果传递的是一个可调用对象，则为调用后的结果。
+    在大部分情形下，传递一个可调用对象用于避免 models.py 在导入时执行查询::
 
         from django.conf import settings
         from django.contrib.auth import get_user_model
