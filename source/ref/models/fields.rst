@@ -1181,19 +1181,14 @@ on_delete=models.CASCADE)``.
 
 * .. attribute:: DO_NOTHING
 
-    Take no action. If your database backend enforces referential
-    integrity, this will cause an :exc:`~django.db.IntegrityError` unless
-    you manually add an SQL ``ON DELETE`` constraint to the database field.
+    不做任何动作. 如果删除关联数据时, 除非手动添加 ``ON DELETE`` 约束, 否则会引发 :exc:`~django.db.IntegrityError` 异常.
 
 .. attribute:: ForeignKey.limit_choices_to
 
-    Sets a limit to the available choices for this field when this field is
-    rendered using a ``ModelForm`` or the admin (by default, all objects
-    in the queryset are available to choose). Either a dictionary, a
-    :class:`~django.db.models.Q` object, or a callable returning a
-    dictionary or :class:`~django.db.models.Q` object can be used.
+    当这个字段使用 ``ModelForm`` 或者Admin 渲染时（默认情况下，查询集中的所有对象都可以使用）, 为这个字段设置一个可用的选项。
+    它可以是一个字典、一个 :class:`~django.db.models.Q` 对象或者一个返回字典或 :class:`~django.db.models.Q` 的可调用对象.
 
-    For example::
+    例如::
 
         staff_member = models.ForeignKey(
             User,
@@ -1201,48 +1196,36 @@ on_delete=models.CASCADE)``.
             limit_choices_to={'is_staff': True},
         )
 
-    causes the corresponding field on the ``ModelForm`` to list only ``Users``
-    that have ``is_staff=True``. This may be helpful in the Django admin.
+    这样使在 ``ModelForm`` 对应的字段只列出 ``Users`` 的 ``is_staff=True``. 这在Django 的Admin 中也可能有用处。
 
-    The callable form can be helpful, for instance, when used in conjunction
-    with the Python ``datetime`` module to limit selections by date range. For
-    example::
+    使用可调用对象的形式同样非常有用，比如和Python的 `datetime` 模块一起使用来限制选择的时间范围.
+    例如::
 
         def limit_pub_date_choices():
             return {'pub_date__lte': datetime.date.utcnow()}
 
         limit_choices_to = limit_pub_date_choices
 
-    If ``limit_choices_to`` is or returns a :class:`Q object
-    <django.db.models.Q>`, which is useful for :ref:`complex queries
-    <complex-lookups-with-q>`, then it will only have an effect on the choices
-    available in the admin when the field is not listed in
-    :attr:`~django.contrib.admin.ModelAdmin.raw_id_fields` in the
-    ``ModelAdmin`` for the model.
+    如果 ``limit_choices_to`` 本身或者返回的是一个 :class:`Q object
+    <django.db.models.Q>` 对象, 这对 :ref:`复合查询
+    <complex-lookups-with-q>` 很有用. 当字段没有在模型的 ``ModelAdmin`` 中的 :attr:`~django.contrib.admin.ModelAdmin.raw_id_fields` 中列出时,
+    它将只会影响Admin中的选项.
 
     .. note::
 
-        If a callable is used for ``limit_choices_to``, it will be invoked
-        every time a new form is instantiated. It may also be invoked when a
-        model is validated, for example by management commands or the admin.
-        The admin constructs querysets to validate its form inputs in various
-        edge cases multiple times, so there is a possibility your callable may
-        be invoked several times.
+        如果 ``limit_choices_to`` 是可调用对象, 那么这个对象将在每次创建新表单实例的时候调用.
+        它也可能在模型校验的时候调用, 例如被management命令或者Admin检验. Admin会多次构造查询集来验证表单在各种边缘情况下的输入,
+        所以这个可调用对象可能会被调用多次.
 
 .. attribute:: ForeignKey.related_name
 
-    The name to use for the relation from the related object back to this one.
-    It's also the default value for :attr:`related_query_name` (the name to use
-    for the reverse filter name from the target model). See the :ref:`related
-    objects documentation <backwards-related-objects>` for a full explanation
-    and example. Note that you must set this value when defining relations on
-    :ref:`abstract models <abstract-base-classes>`; and when you do so
-    :ref:`some special syntax <abstract-related-name>` is available.
+    这个名称用于使关联的对象反查到源对象. 它还是 :attr:`related_query_name` 的默认值（关联的模型进行反向过滤时使用的名称）.
+    完整的解释和示例参见 :ref:`关联对象文档 <backwards-related-objects>` .
+    请注意，在 :ref:`抽象模型 <abstract-base-classes>` 定义关系时，必须设置此值；
+    当您这样做时, 可以使用 :ref:`一些特殊语法 <abstract-related-name>` .
 
-    If you'd prefer Django not to create a backwards relation, set
-    ``related_name`` to ``'+'`` or end it with ``'+'``. For example, this will
-    ensure that the ``User`` model won't have a backwards relation to this
-    model::
+    如果你不想让Django创建反向关联, 可以设置 ``related_name`` 为 ``'+'`` 或者以 ``'+'`` 结尾. 例如,
+    下面这行将确保 ``User`` 模型将不会有到这个模型的反向关联::
 
         user = models.ForeignKey(
             User,
@@ -1252,10 +1235,9 @@ on_delete=models.CASCADE)``.
 
 .. attribute:: ForeignKey.related_query_name
 
-    The name to use for the reverse filter name from the target model. It
-    defaults to the value of :attr:`related_name` or
-    :attr:`~django.db.models.Options.default_related_name` if set, otherwise it
-    defaults to the name of the model::
+    这个名称用于目标模型的反向过滤. 如果设置了 :attr:`related_name` 或者
+    :attr:`~django.db.models.Options.default_related_name`, 将用它们作为默认值.
+    否则默认值就是模型的名称::
 
         # Declare the ForeignKey with related_query_name
         class Tag(models.Model):
@@ -1271,7 +1253,8 @@ on_delete=models.CASCADE)``.
         Article.objects.filter(tag__name="important")
 
     Like :attr:`related_name`, ``related_query_name`` supports app label and
-    class interpolation via :ref:`some special syntax <abstract-related-name>`.
+    class interpolation via .
+    像 :attr:`related_name` 一样, ``related_query_name`` 可以通过 :ref:`一些特殊语法 <abstract-related-name>` 来支持应用标签和类插值.
 
 .. attribute:: ForeignKey.to_field
 
