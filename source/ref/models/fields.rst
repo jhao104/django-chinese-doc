@@ -1258,43 +1258,30 @@ on_delete=models.CASCADE)``.
 
 .. attribute:: ForeignKey.to_field
 
-    The field on the related object that the relation is to. By default, Django
-    uses the primary key of the related object. If you reference a different
-    field, that field must have ``unique=True``.
+    关联到的关联对象的字段名称. 默认情况下, Django 使用关联对象的主键. 如果引用其他字段, 该字段必须具有 ``unique=True``.
 
 .. attribute:: ForeignKey.db_constraint
 
-    Controls whether or not a constraint should be created in the database for
-    this foreign key. The default is ``True``, and that's almost certainly what
-    you want; setting this to ``False`` can be very bad for data integrity.
-    That said, here are some scenarios where you might want to do this:
+    决定是否在数据库中为这个外键创建约束. 默认值为 ``True``, 这个符合大多数场景; 将此设置为 ``False`` 会对数据完整性非常不利.
+    即便如此，有一些场景你也许需要这么设置：
 
-    * You have legacy data that is not valid.
-    * You're sharding your database.
+    * 有遗留的无效数据.
+    * 正在对数据库缩容.
 
-    If this is set to ``False``, accessing a related object that doesn't exist
-    will raise its ``DoesNotExist`` exception.
+    如果设置成 ``False``时，访问一个不存在的关联对象将抛出 ``DoesNotExist`` 异常.
 
 .. attribute:: ForeignKey.swappable
 
-    Controls the migration framework's reaction if this :class:`ForeignKey`
-    is pointing at a swappable model. If it is ``True`` - the default -
-    then if the :class:`ForeignKey` is pointing at a model which matches
-    the current value of ``settings.AUTH_USER_MODEL`` (or another swappable
-    model setting) the relationship will be stored in the migration using
-    a reference to the setting, not to the model directly.
+    如果该 :class:`ForeignKey` 指向一个可切换swappable的模型, 该属性将决定迁移框架的行为.
+    如果设置为 ``True`` -默认值- ，那么如果 :class:`ForeignKey` 指向的模型与 ``settings.AUTH_USER_MODEL`` 匹配（或其它可切换的模型），
+    该关联关系会被保存在迁移migration中，且使用的是对setting 中引用而不是直接对模型的引用。
 
-    You only want to override this to be ``False`` if you are sure your
-    model should always point towards the swapped-in model - for example,
-    if it is a profile model designed specifically for your custom user model.
+    只有当你的模型想永远指向切换后的模型 —— 例如如果它是专门为你的自定义用户模型设计的模型时，这时就可以将它设置成 ``False``.
 
-    Setting it to ``False`` does not mean you can reference a swappable model
-    even if it is swapped out - ``False`` just means that the migrations made
-    with this ForeignKey will always reference the exact model you specify
-    (so it will fail hard if the user tries to run with a User model you don't
-    support, for example).
+    设置为 ``False`` 并不表示你可以引用可切换的模型,即使在它被切换出去之后 —— ``False`` 只是表示生成的迁移中ForeignKey 将始终引用你指定的准确模型
+    （所以，如果用户试图允许一个你不支持的User 模型时将会失败）。
 
-    If in doubt, leave it to its default of ``True``.
+    如果对此有疑问，请保留它的默认值 ``True``.
 
 ``ManyToManyField``
 -------------------
