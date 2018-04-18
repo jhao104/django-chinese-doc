@@ -1288,107 +1288,85 @@ on_delete=models.CASCADE)``.
 
 .. class:: ManyToManyField(othermodel, **options)
 
-A many-to-many relationship. Requires a positional argument: the class to
-which the model is related, which works exactly the same as it does for
-:class:`ForeignKey`, including :ref:`recursive <recursive-relationships>` and
-:ref:`lazy <lazy-relationships>` relationships.
+一个多对多关联关系. 必须传入一个关键字参数：与该模型关联的类，它与 :class:`ForeignKey` 的完全一样，包括
+:ref:`recursive <recursive-relationships>` 和
+:ref:`lazy <lazy-relationships>` 关系类型.
 
-Related objects can be added, removed, or created with the field's
-:class:`~django.db.models.fields.related.RelatedManager`.
+可以通过字段的 :class:`~django.db.models.fields.related.RelatedManager` 进行关联对象的添加/删除和创建.
 
-Database Representation
-~~~~~~~~~~~~~~~~~~~~~~~
+数据库表示
+~~~~~~~~~~~~
 
-Behind the scenes, Django creates an intermediary join table to represent the
-many-to-many relationship. By default, this table name is generated using the
-name of the many-to-many field and the name of the table for the model that
-contains it. Since some databases don't support table names above a certain
-length, these table names will be automatically truncated to 64 characters and a
-uniqueness hash will be used. This means you might see table names like
-``author_books_9cdf4``; this is perfectly normal.  You can manually provide the
-name of the join table using the :attr:`~ManyToManyField.db_table` option.
+在数据库层, Django 通过创建一个中间表来表示多对多关系.
+默认情况下, 这张中间表的名称是由使用多对多字段的名称和包含这张表的模型的名称组合产生.
+由于某些数据库表名字支持的长度有限, 这种情况下, 表的名称将自动截短到64个字符并加上一个唯一哈希值.
+这意味着你可能会看到像 ``author_books_9cdf4`` 这样的表名；这是没有问题的. 你可以使用
+:attr:`~ManyToManyField.db_table` 选项手动提供中间表的名称.
 
 .. _manytomany-arguments:
 
-Arguments
-~~~~~~~~~
+参数
+~~~~~~~
 
-:class:`ManyToManyField` accepts an extra set of arguments -- all optional --
-that control how the relationship functions.
+:class:`ManyToManyField` 接收一个参数集来控制关联关系功能 -- 所有选项 -- 都是可选的.
 
 .. attribute:: ManyToManyField.related_name
 
-    Same as :attr:`ForeignKey.related_name`.
+    和 :attr:`ForeignKey.related_name` 相同.
 
 .. attribute:: ManyToManyField.related_query_name
 
-    Same as :attr:`ForeignKey.related_query_name`.
+    和 :attr:`ForeignKey.related_query_name` 相同.
 
 .. attribute:: ManyToManyField.limit_choices_to
 
-    Same as :attr:`ForeignKey.limit_choices_to`.
+    和 :attr:`ForeignKey.limit_choices_to` 相同.
 
-    ``limit_choices_to`` has no effect when used on a ``ManyToManyField`` with a
-    custom intermediate table specified using the
-    :attr:`~ManyToManyField.through` parameter.
+    如果 ``ManyToManyField`` 使用
+    :attr:`~ManyToManyField.through` 自定义中间表时, ``limit_choices_to`` 无效.
 
 .. attribute:: ManyToManyField.symmetrical
 
-    Only used in the definition of ManyToManyFields on self. Consider the
-    following model::
+    只用于与自身进行关联的ManyToManyField. 例如下面的模型::
 
         from django.db import models
 
         class Person(models.Model):
             friends = models.ManyToManyField("self")
 
-    When Django processes this model, it identifies that it has a
-    :class:`ManyToManyField` on itself, and as a result, it doesn't add a
-    ``person_set`` attribute to the ``Person`` class. Instead, the
-    :class:`ManyToManyField` is assumed to be symmetrical -- that is, if I am
-    your friend, then you are my friend.
 
-    If you do not want symmetry in many-to-many relationships with ``self``, set
-    :attr:`~ManyToManyField.symmetrical` to ``False``. This will force Django to
-    add the descriptor for the reverse relationship, allowing
-    :class:`ManyToManyField` relationships to be non-symmetrical.
+    当Django 处理这个模型的时候, 它定义了该模型具有一个与自身具有多对多关联的 :class:`ManyToManyField`.
+    因此它不会向 ``Person`` 类添加 ``person_set`` 属性. Django会假定这个 :class:`ManyToManyField` 字段是对称的
+    —— 即, 如果我是你的朋友，那么你也是我的朋友.
+
+    如果你希望与 ``self`` 进行多对多关联的关系是非对称的，可以设置
+    :attr:`~ManyToManyField.symmetrical` 为 ``False``.
+    这会强制让Django给反向的关联关系添加一个描述器, 以使得 :class:`ManyToManyField` 的关联关系不是对称的.
 
 .. attribute:: ManyToManyField.through
 
-    Django will automatically generate a table to manage many-to-many
-    relationships. However, if you want to manually specify the intermediary
-    table, you can use the :attr:`~ManyToManyField.through` option to specify
-    the Django model that represents the intermediate table that you want to
-    use.
+    Django会自动创建一个表来管理多对多关系. 不过, 如果你希望手动指定这个中间表, 可以使用
+    :attr:`~ManyToManyField.through` 选项来告诉Django模型你想使用的中间表.
 
-    The most common use for this option is when you want to associate
-    :ref:`extra data with a many-to-many relationship
+    这个选项最常见的使用场景是用来 :ref:`关联更多的数据
     <intermediary-manytomany>`.
 
-    If you don't specify an explicit ``through`` model, there is still an
-    implicit ``through`` model class you can use to directly access the table
-    created to hold the association. It has three fields to link the models.
+    如果没有显式指定 ``through`` 的模型, 仍然会有一个隐式的 ``through`` 模型类，
+    你可以用它来直接访问对应的表示关联关系的数据表. 它由三个字段来连接模型。
 
-    If the source and target models differ, the following fields are
-    generated:
+    如果源模型和目标模型不相同, 则生成以下字段:
 
-    * ``id``: the primary key of the relation.
-    * ``<containing_model>_id``: the ``id`` of the model that declares the
-      ``ManyToManyField``.
-    * ``<other_model>_id``: the ``id`` of the model that the
-      ``ManyToManyField`` points to.
+    * ``id``: 关系的主键.
+    * ``<containing_model>_id``: 声明 ``ManyToManyField`` 的模型的 ``id``.
+    * ``<other_model>_id``: 被 ``ManyToManyField`` 选项指向的模型的 ``id``.
 
-    If the ``ManyToManyField`` points from and to the same model, the following
-    fields are generated:
+    如果 ``ManyToManyField`` 选项的源模型和目标模型是同一个, 则生成以下字段:
 
-    * ``id``: the primary key of the relation.
-    * ``from_<model>_id``: the ``id`` of the instance which points at the
-      model (i.e. the source instance).
-    * ``to_<model>_id``: the ``id`` of the instance to which the relationship
-      points (i.e. the target model instance).
+    * ``id``: 关系的主键.
+    * ``from_<model>_id``: 源模型实例的 ``id``.
+    * ``to_<model>_id``: 目标模型实例的 ``id``.
 
-    This class can be used to query associated records for a given model
-    instance like a normal model.
+    这个类可以让一个给定的模型像普通的模型那样查询与之相关联的记录。
 
 .. attribute:: ManyToManyField.through_fields
 
