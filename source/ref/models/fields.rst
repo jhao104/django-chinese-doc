@@ -8,7 +8,7 @@
 .. currentmodule:: django.db.models
 
 本文档包含了Django提供的全部模型 :class:`Field` 包括
-`字段选项`_ 和 `field types`_ 的API参考。
+`字段选项`_ 和 `字段类型`_ 的API参考。
 
 .. seealso::
 
@@ -221,7 +221,7 @@ support tablespaces for indexes, this option is ignored.
 
 错误提示的key包括 ``null``, ``blank``, ``invalid``, ``invalid_choice``,
 ``unique``, 和 ``unique_for_date`` 。
-下面的 `Field types`_ 中的 error_messages 的 keys 是不一样的。
+下面的 `字段类型`_ 中的 error_messages 的 keys 是不一样的。
 
 ``help_text``
 -------------
@@ -1370,10 +1370,8 @@ on_delete=models.CASCADE)``.
 
 .. attribute:: ManyToManyField.through_fields
 
-    Only used when a custom intermediary model is specified. Django will
-    normally determine which fields of the intermediary model to use in order
-    to establish a many-to-many relationship automatically. However,
-    consider the following models::
+    只能在自定义中间模型的时候使用. 通常情况下Django会自行决定使用中间模型的哪些字段来建立多对多关联.
+    但是，在如下模型中::
 
         from django.db import models
 
@@ -1398,102 +1396,71 @@ on_delete=models.CASCADE)``.
             )
             invite_reason = models.CharField(max_length=64)
 
-    ``Membership`` has *two* foreign keys to ``Person`` (``person`` and
-    ``inviter``), which makes the relationship ambiguous and Django can't know
-    which one to use. In this case, you must explicitly specify which
-    foreign keys Django should use using ``through_fields``, as in the example
-    above.
+    ``Membership`` 有 *两个* 到 ``Person`` 到外键(``person`` 和
+    ``inviter``), 这样会导致关系不清晰, Django不知道使用哪一个外键。 在这种情况下,
+    必须使用 ``through_fields`` 明确指定Django应该使用哪些外键，就像上面例子一样.
 
-    ``through_fields`` accepts a 2-tuple ``('field1', 'field2')``, where
-    ``field1`` is the name of the foreign key to the model the
-    :class:`ManyToManyField` is defined on (``group`` in this case), and
-    ``field2`` the name of the foreign key to the target model (``person``
-    in this case).
+    ``through_fields`` 接受一个二元元组 ``('field1', 'field2')``,
+    其中 ``field1`` 是指向定义了 :class:`ManyToManyField` 的模型的外键名字(本例中是 ``group``),
+    ``field2`` 就是目标模型的外键的名 (本例中是 ``person``).
 
-    When you have more than one foreign key on an intermediary model to any
-    (or even both) of the models participating in a many-to-many relationship,
-    you *must* specify ``through_fields``. This also applies to
-    :ref:`recursive relationships <recursive-relationships>`
-    when an intermediary model is used and there are more than two
-    foreign keys to the model, or you want to explicitly specify which two
-    Django should use.
+    当中间模型具有多个外键指向多对多关联关系模型中的任何一个（或两个）时, 就 *必须* 指定 ``through_fields``.
+    当用到中间模型有多个外键指向该模型时，而你想显式指定Django应该用到的两个字段, 这同样适用于
+    :ref:`递归关联关系 <recursive-relationships>`.
 
-    Recursive relationships using an intermediary model are always defined as
-    non-symmetrical -- that is, with :attr:`symmetrical=False <ManyToManyField.symmetrical>`
-    -- therefore, there is the concept of a "source" and a "target". In that
-    case ``'field1'`` will be treated as the "source" of the relationship and
-    ``'field2'`` as the "target".
+    递归的关联关系使用的中间模型始终定义为非对称的 -- 也就是 :attr:`symmetrical=False <ManyToManyField.symmetrical>`
+    -- 所以具有源和目标的概念. 这种情况下，``'field1'`` 将作为关系的源，而 ``'field2'`` 作为目标.
+
 
 .. attribute:: ManyToManyField.db_table
 
-    The name of the table to create for storing the many-to-many data. If this
-    is not provided, Django will assume a default name based upon the names of:
-    the table for the model defining the relationship and the name of the field
-    itself.
+    用于存储多对多关系数据而创建的表的名称. 如果没有设置, Django将基于定义关联关系的模型和字段设置一个默认名称.
 
 .. attribute:: ManyToManyField.db_constraint
 
-    Controls whether or not constraints should be created in the database for
-    the foreign keys in the intermediary table. The default is ``True``, and
-    that's almost certainly what you want; setting this to ``False`` can be
-    very bad for data integrity. That said, here are some scenarios where you
-    might want to do this:
+    决定是否为中间表中的外键创建约束. 默认值 ``True``，这适合大多数场景；
+    如将此设置为 ``False`` 可能对数据完整性非常友好. 即便如此，有一些场景也许需要这么设置：
 
-    * You have legacy data that is not valid.
-    * You're sharding your database.
+    * 存在遗留的无效数据.
+    * 正要对数据库缩容.
 
-    It is an error to pass both ``db_constraint`` and ``through``.
+    不可以同时设置 ``db_constraint`` 和 ``through``.
 
 .. attribute:: ManyToManyField.swappable
 
-    Controls the migration framework's reaction if this :class:`ManyToManyField`
-    is pointing at a swappable model. If it is ``True`` - the default -
-    then if the :class:`ManyToManyField` is pointing at a model which matches
-    the current value of ``settings.AUTH_USER_MODEL`` (or another swappable
-    model setting) the relationship will be stored in the migration using
-    a reference to the setting, not to the model directly.
+    如果该 :class:`ManyToManyField` 指向一个可切换swappable的模型, 该属性将决定迁移框架的行为.
+    如果设置为 ``True``, -默认值- ，那么如果 :class:`ManyToManyField` 指向的模型与
+    ``settings.AUTH_USER_MODEL`` 匹配（或其它可切换的模型）,
+    该关联关系会被保存在迁移migration中，且使用的是对setting 中引用而不是直接对模型的引用.
 
-    You only want to override this to be ``False`` if you are sure your
-    model should always point towards the swapped-in model - for example,
-    if it is a profile model designed specifically for your custom user model.
+    如果对此有疑问，请保留它的默认值 ``True``.
 
-    If in doubt, leave it to its default of ``True``.
+:class:`ManyToManyField` 不支持 :attr:`~Field.validators`.
 
-:class:`ManyToManyField` does not support :attr:`~Field.validators`.
-
-:attr:`~Field.null` has no effect since there is no way to require a
-relationship at the database level.
+:attr:`~Field.null` 不起任何作用，因为在数据库层不需要关系.
 
 ``OneToOneField``
 -----------------
 
 .. class:: OneToOneField(othermodel, on_delete, parent_link=False, **options)
 
-A one-to-one relationship. Conceptually, this is similar to a
-:class:`ForeignKey` with :attr:`unique=True <Field.unique>`, but the
-"reverse" side of the relation will directly return a single object.
+一对一关联关系. 在概念上, 它类似于设置了 :attr:`unique=True <Field.unique>`
+的 :class:`ForeignKey`, 但是，一对一关系的“reverse”部分将直接返回单个对象.
 
 .. versionchanged:: 1.9
 
-    ``on_delete`` can now be used as the second positional argument (previously
-    it was typically only passed as a keyword argument). It will be a required
-    argument in Django 2.0.
+    ``on_delete`` 现在可以用作第二个位置参数 (以前它通常只作为关键字参数传递).
+     在Django 2.0中，这将是一个必传的参数.
 
-This is most useful as the primary key of a model which "extends"
-another model in some way; :ref:`multi-table-inheritance` is
-implemented by adding an implicit one-to-one relation from the child
-model to the parent model, for example.
+这是最有效的一种方式,即作为一个模型的主键,在某种程度上又“扩展”了另一个模型;
+例如，:ref:`multi-table-inheritance` 就是通过将一个隐式一对一关系从子模型添加到父模型来实现的.
 
-One positional argument is required: the class to which the model will be
-related. This works exactly the same as it does for :class:`ForeignKey`,
-including all the options regarding :ref:`recursive <recursive-relationships>`
-and :ref:`lazy <lazy-relationships>` relationships.
+需要一个位置参数：与该模型关联的类. 它的工作方式与 :class:`ForeignKey` 完全一致,
+包括所有与 :ref:`recursive <recursive-relationships>` 和 :ref:`lazy <lazy-relationships>` 相关的选项.
 
-If you do not specify the :attr:`~ForeignKey.related_name` argument for
-the ``OneToOneField``, Django will use the lower-case name of the current model
-as default value.
+如果没有指定 ``OneToOneField`` 的 :attr:`~ForeignKey.related_name` 参数，Django将使用当前模型的小写的名称作为默认值.
 
-With the following example::
+例如下面例子::
 
     from django.conf import settings
     from django.db import models
@@ -1509,7 +1476,7 @@ With the following example::
             related_name='supervisor_of',
         )
 
-your resulting ``User`` model will have the following attributes::
+这将使 ``User`` 模型具有以下属性::
 
     >>> user = User.objects.get(pk=1)
     >>> hasattr(user, 'myspecialuser')
@@ -1517,9 +1484,8 @@ your resulting ``User`` model will have the following attributes::
     >>> hasattr(user, 'supervisor_of')
     True
 
-A ``DoesNotExist`` exception is raised when accessing the reverse relationship
-if an entry in the related table doesn't exist. For example, if a user doesn't
-have a supervisor designated by ``MySpecialUser``::
+反向访问关联关系时, 如果关联的对象不存在对应的实例, 将抛出 ``DoesNotExist`` 异常.
+例如, 如果一个 ``User`` 没有 ``MySpecialUser`` 指定的supervisor::
 
     >>> user.supervisor_of
     Traceback (most recent call last):
@@ -1528,179 +1494,149 @@ have a supervisor designated by ``MySpecialUser``::
 
 .. _onetoone-arguments:
 
-Additionally, ``OneToOneField`` accepts all of the extra arguments
-accepted by :class:`ForeignKey`, plus one extra argument:
+除此之外, ``OneToOneField`` 除了接收 :class:`ForeignKey` 接收的所有额外的参数之外, 还有另外一个参数:
 
 .. attribute:: OneToOneField.parent_link
 
-    When ``True`` and used in a model which inherits from another
-    :term:`concrete model`, indicates that this field should be used as the
-    link back to the parent class, rather than the extra
-    ``OneToOneField`` which would normally be implicitly created by
-    subclassing.
+    当它为 ``True`` 并在继承自另一个 :term:`concrete model` 的模型中使用时，
+    表示该字段应该用于反查的父类的链接，而不是在子类化时隐式创建的 ``OneToOneField``.
 
-See :doc:`One-to-one relationships </topics/db/examples/one_to_one>` for usage
-examples of ``OneToOneField``.
+``OneToOneField`` 的使用示例参见 :doc:`One-to-one关联关系 </topics/db/examples/one_to_one>`.
 
-Field API reference
-===================
+Field API参考
+================
 
 .. class:: Field
 
-    ``Field`` is an abstract class that represents a database table column.
-    Django uses fields to create the database table (:meth:`db_type`), to map
-    Python types to database (:meth:`get_prep_value`) and vice-versa
-    (:meth:`from_db_value`).
+    ``Field`` 是一个抽象的类, 用来表示数据库中的表的列.
 
-    A field is thus a fundamental piece in different Django APIs, notably,
-    :class:`models <django.db.models.Model>` and :class:`querysets
-    <django.db.models.query.QuerySet>`.
+    Django使用字段创建数据库表(:meth:`db_type`), 将Python类型映射到数据库(:meth:`get_prep_value`),
+    反之亦然(:meth:`from_db_value`).
 
-    In models, a field is instantiated as a class attribute and represents a
-    particular table column, see :doc:`/topics/db/models`. It has attributes
-    such as :attr:`null` and :attr:`unique`, and methods that Django uses to
-    map the field value to database-specific values.
+    在各个版本的Django API中field是最根本的部分, 尤其是
+    :class:`models <django.db.models.Model>` 和
+    :class:`querysets <django.db.models.query.QuerySet>`.
 
-    A ``Field`` is a subclass of
-    :class:`~django.db.models.lookups.RegisterLookupMixin` and thus both
-    :class:`~django.db.models.Transform` and
-    :class:`~django.db.models.Lookup` can be registered on it to be used
-    in ``QuerySet``\s (e.g. ``field_name__exact="foo"``). All :ref:`built-in
-    lookups <field-lookups>` are registered by default.
+    在模型中, 字段被实例化为类的属性, 并表现为一个特定的表的列，
+    详情参考 :doc:`/topics/db/models`.
+    它具有许多属性，如 :attr:`null` 和 :attr:`unique` 等, 以及用于将字段值映射到数据库特定值的方法.
 
-    All of Django's built-in fields, such as :class:`CharField`, are particular
-    implementations of ``Field``. If you need a custom field, you can either
-    subclass any of the built-in fields or write a ``Field`` from scratch. In
-    either case, see :doc:`/howto/custom-model-fields`.
+    ``Field`` 是 :class:`~django.db.models.lookups.RegisterLookupMixin` 的子类，
+    因此可以在其上注册 :class:`~django.db.models.Transform` 和
+    :class:`~django.db.models.Lookup`，也就可以在 ``QuerySet`` 中使用(例如 ``field_name__="foo"``).
+    所有 :ref:`内置查询 <field-lookups>` 都是默认注册好的.
+
+    Django的所有内建字段，如 :class:`CharField` 都是 ``Field`` 的特殊实现.
+    如果需要自定义字段，则可以将任何内置字段重载，也可以重写一个新的 ``Field``.
+    无论哪种情况，请参考 :doc:`/howto/custom-model-fields`.
 
     .. attribute:: description
 
-        A verbose description of the field, e.g. for the
-        :mod:`django.contrib.admindocs` application.
+        字段的详细描述，例如用于 :mod:`django.contrib.admindocs` 应用程序.
 
-        The description can be of the form::
+        描述可以是以下形式::
 
             description = _("String (up to %(max_length)s)")
 
-        where the arguments are interpolated from the field's ``__dict__``.
+        其中参数从字段的 ``__dict__`` 去获取.
 
-    To map a ``Field`` to a database-specific type, Django exposes several
-    methods:
+    为了将 ``Field`` 映​​射到数据库特定类型，Django开放了几种方法:
 
     .. method:: get_internal_type()
 
-        Returns a string naming this field for backend specific purposes.
-        By default, it returns the class name.
+        返回一个命名此字段的字符串用于后端特定用途. 默认情况下, 它返回类名.
 
-        See :ref:`emulating-built-in-field-types` for usage in custom fields.
+        有关自定义字段中的用法，请参见 :ref:`emulating-built-in-field-types`.
 
     .. method:: db_type(connection)
 
-        Returns the database column data type for the :class:`Field`, taking
-        into account the ``connection``.
+        返回 :class:`Field` 的数据库列数据类型，同时考虑 ``connection``.
 
-        See :ref:`custom-database-types` for usage in custom fields.
+        有关自定义字段中使用 :ref:`custom-database-types`.
 
     .. method:: rel_db_type(connection)
 
         .. versionadded:: 1.10
 
-        Returns the database column data type for fields such as ``ForeignKey``
-        and ``OneToOneField`` that point to the :class:`Field`, taking
-        into account the ``connection``.
+        返回指向 :class:`Field` 的字段的数据库列数据类型，例如 ``ForeignKey`` 和 ``OneToOneField``,
+        并考虑 ``connection``.
 
-        See :ref:`custom-database-types` for usage in custom fields.
+        有关自定义字段中使用 :ref:`custom-database-types`.
 
-    There are three main situations where Django needs to interact with the
-    database backend and fields:
+    有三种主要情况，Django需要与数据库后端和字段交互:
 
-    * when it queries the database (Python value -> database backend value)
-    * when it loads data from the database (database backend value -> Python
+    * 当它查询数据库 (Python value -> database backend value)
+    * 当它从数据库加载数据 (database backend value -> Python
       value)
-    * when it saves to the database (Python value -> database backend value)
+    * 当它保存到数据库 (Python value -> database backend value)
 
-    When querying, :meth:`get_db_prep_value` and :meth:`get_prep_value` are used:
+    查询时, :meth:`get_db_prep_value` 和 :meth:`get_prep_value` 将被用到:
 
     .. method:: get_prep_value(value)
 
-        ``value`` is the current value of the model's attribute, and the method
-        should return data in a format that has been prepared for use as a
-        parameter in a query.
+        ``value`` 是模型属性的当前值, 该方法应返回用作查询的参数的格式数据.
 
-        See :ref:`converting-python-objects-to-query-values` for usage.
+        有关使用方法，请参阅 :ref:`converting-python-objects-to-query-values`.
 
     .. method:: get_db_prep_value(value, connection, prepared=False)
 
-        Converts ``value`` to a backend-specific value. By default it returns
-        ``value`` if ``prepared=True`` and :meth:`~Field.get_prep_value` if is
-        ``False``.
+        将 ``value`` 转换为特定后端值. 如果设置 ``prepared=True``，则默认返回 ``value``.
+        如果为 ``False`` 则返回 :meth:`~Field.get_prep_value`.
 
-        See :ref:`converting-query-values-to-database-values` for usage.
+        有关使用方法，请参阅 :ref:`converting-query-values-to-database-values`.
 
-    When loading data, :meth:`from_db_value` is used:
+    加载数据时 :meth:`from_db_value` 将被使用:
 
     .. method:: from_db_value(value, expression, connection, context)
 
-        Converts a value as returned by the database to a Python object. It is
-        the reverse of :meth:`get_prep_value`.
+        将数据库返回的值转换为Python对象. 它与 :meth:`get_prep_value` 相反.
 
-        This method is not used for most built-in fields as the database
-        backend already returns the correct Python type, or the backend itself
-        does the conversion.
+        此方法不使用于大多数内置字段, 因为这些字段在数据库后端已返回正确的Python类型，或后端本身执行转换.
 
-        See :ref:`converting-values-to-python-objects` for usage.
+        有关使用方法，请参阅  :ref:`converting-values-to-python-objects`.
 
         .. note::
 
-            For performance reasons, ``from_db_value`` is not implemented as a
-            no-op on fields which do not require it (all Django fields).
-            Consequently you may not call ``super`` in your definition.
+            出于性能原因，``from_db_value`` 没有在不需要它的字段上实现(所有Django字段).
+            因此，您不能在定义中调用 ``super``.
 
-    When saving, :meth:`pre_save` and :meth:`get_db_prep_save` are used:
+    保存数据时, :meth:`pre_save` 和 :meth:`get_db_prep_save` 将被使用:
 
     .. method:: get_db_prep_save(value, connection)
 
-        Same as the :meth:`get_db_prep_value`, but called when the field value
-        must be *saved* to the database. By default returns
+        类似于 :meth:`get_db_prep_value`, 但仅仅在字段值一定会 *保存* 到数据库时调用. 默认返回
         :meth:`get_db_prep_value`.
 
     .. method:: pre_save(model_instance, add)
 
-        Method called prior to :meth:`get_db_prep_save` to prepare the value
-        before being saved (e.g. for :attr:`DateField.auto_now`).
+        在 ``get_db_prep_save()`` 之前调用, 以在保存之前准备好值. (e.g. for :attr:`DateField.auto_now`).
 
-        ``model_instance`` is the instance this field belongs to and ``add``
-        is whether the instance is being saved to the database for the first
-        time.
+        ``model_instance`` 是该字段所属的实例， ``add`` 是首次将实例保存到数据库.
 
-        It should return the value of the appropriate attribute from
-        ``model_instance`` for this field. The attribute name is in
-        ``self.attname`` (this is set up by :class:`~django.db.models.Field`).
+        它会返回此字段的 ``model_instance`` 适当属性的值. 属性名称位于 ``self.attname``
+        (这个由 :class:`~django.db.models.Field` 设置)
 
-        See :ref:`preprocessing-values-before-saving` for usage.
+        有关使用方法，请参阅 :ref:`preprocessing-values-before-saving`.
 
-    Fields often receive their values as a different type, either from
-    serialization or from forms.
+    字段通常以不同的类型接收它们的值，无论是序列化还是表单.
 
     .. method:: to_python(value)
 
-        Converts the value into the correct Python object. It acts as the
-        reverse of :meth:`value_to_string`, and is also called in
-        :meth:`~django.db.models.Model.clean`.
+        将value值转换为正确的python对象. 它作为 :meth:`value_to_string` 的反向操作，也是在
+        :meth:`~django.db.models.Model.clean` 中调用.
 
-        See :ref:`converting-values-to-python-objects` for usage.
+        有关使用方法，请参阅 :ref:`converting-values-to-python-objects`.
 
-    Besides saving to the database, the field also needs to know how to
-    serialize its value:
+    除了保存到数据库，字段还需要知道如何序列化值:
 
     .. method:: value_to_string(obj)
 
-        Converts ``obj`` to a string. Used to serialize the value of the field.
+        将 ``obj`` 转换成字符串. 用于序列化字段的值.
 
-        See :ref:`converting-model-field-to-serialization` for usage.
+        有关使用方法，请参阅  :ref:`converting-model-field-to-serialization`.
 
-    When using :class:`model forms <django.forms.ModelForm>`, the ``Field``
-    needs to know which form field it should be represented by:
+    使用 :class:`model forms <django.forms.ModelForm>` 时, ``Field``
+    需要知道应由哪个表单字段表示:
 
     .. method:: formfield(form_class=None, choices_form_class=None, **kwargs)
 
