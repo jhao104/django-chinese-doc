@@ -1640,37 +1640,34 @@ Field API参考
 
     .. method:: formfield(form_class=None, choices_form_class=None, **kwargs)
 
-        Returns the default :class:`django.forms.Field` of this field for
-        :class:`~django.forms.ModelForm`.
+        返回 :class:`~django.forms.ModelForm` 该字段的默认 :class:`django.forms.Field`.
 
-        By default, if both ``form_class`` and ``choices_form_class`` are
-        ``None``, it uses :class:`~django.forms.CharField`. If the field has
-        :attr:`~django.db.models.Field.choices` and ``choices_form_class``
-        isn't specified, it uses :class:`~django.forms.TypedChoiceField`.
+        默认情况下, 如果 ``form_class`` 和 ``choices_form_class`` 都是 ``None``,
+        则使用 :class:`~django.forms.CharField`. 如果字段没有指定
+        :attr:`~django.db.models.Field.choices` 和 ``choices_form_class``,
+        则使用 :class:`~django.forms.TypedChoiceField`.
 
-        See :ref:`specifying-form-field-for-model-field` for usage.
+        有关用法, 参见 :ref:`specifying-form-field-for-model-field`.
 
     .. method:: deconstruct()
 
-        Returns a 4-tuple with enough information to recreate the field:
+        返回足够多信息的4元元祖, 用来重新创建字段:
 
-        1. The name of the field on the model.
-        2. The import path of the field (e.g. ``"django.db.models.IntegerField"``).
-           This should be the most portable version, so less specific may be better.
-        3. A list of positional arguments.
-        4. A dict of keyword arguments.
+        1. 模型中的字段名称.
+        2. 字段的导入路径 (e.g. ``"django.db.models.IntegerField"``).
+            这最好是能够兼容的版本，所以不要太具体更好.
+        3. 位置参数列表.
+        4. 关键词参数列表.
 
-        This method must be added to fields prior to 1.7 to migrate its data
-        using :doc:`/topics/migrations`.
+        必须将此方法添加到1.7之前的字段, 才能使用 :doc:`/topics/migrations` 迁移其数据.
 
 .. _model-field-attributes:
 
-=========================
-Field attribute reference
-=========================
+===============
+字段属性参考
+===============
 
-Every ``Field`` instance contains several attributes that allow
-introspecting its behavior. Use these attributes instead of ``isinstance``
+每个 ``Field`` 实例包含几个允许内省其行为的属性. Use these attributes instead of ``isinstance``
 checks when you need to write code that depends on a field's functionality.
 These attributes can be used together with the :ref:`Model._meta API
 <model-meta-field-api>` to narrow down a search for specific field types.
