@@ -1667,84 +1667,67 @@ Field API参考
 字段属性参考
 ===============
 
-每个 ``Field`` 实例包含几个允许内省其行为的属性. Use these attributes instead of ``isinstance``
-checks when you need to write code that depends on a field's functionality.
-These attributes can be used together with the :ref:`Model._meta API
-<model-meta-field-api>` to narrow down a search for specific field types.
-Custom model fields should implement these flags.
+每个 ``Field`` 实例包含几个允许内省其行为的属性. 当需要编写依赖于字段功能的代码时，就可以使用这些属性而不是 ``isinstance`` 检查.
+这些属性可以与 :ref:`Model._meta API
+<model-meta-field-api>` 一起使用, 缩小搜索特定字段类型的范围.自定义模型字段应实现这些标志.
 
-Attributes for fields
-=====================
+字段属性
+=========
 
 .. attribute:: Field.auto_created
 
-     Boolean flag that indicates if the field was automatically created, such
-     as the ``OneToOneField`` used by model inheritance.
+    布尔标志, 指示是否自动创建字段, 例如模型继承使用的 ``OneToOneField``.
 
 .. attribute:: Field.concrete
 
-    Boolean flag that indicates if the field has a database column associated
-    with it.
+    布尔标志, 指示字段是否具有与其相关联的数据库列.
 
 .. attribute:: Field.hidden
 
-    Boolean flag that indicates if a field is used to back another non-hidden
-    field's functionality (e.g. the ``content_type`` and ``object_id`` fields
-    that make up a ``GenericForeignKey``). The ``hidden`` flag is used to
-    distinguish what constitutes the public subset of fields on the model from
-    all the fields on the model.
+    布尔标志, 指示字段是否用于支持另一个非隐藏字段的功能. (e.g. ``content_type`` 和 ``object_id`` 构成了字段 ``GenericForeignKey``).
+    ``hidden`` 标志用于区分模型上的公共字段子集构成模型上的所有字段.
 
     .. note::
 
         :meth:`Options.get_fields()
         <django.db.models.options.Options.get_fields()>`
-        excludes hidden fields by default. Pass in ``include_hidden=True`` to
-        return hidden fields in the results.
+        默认不返回隐藏字段. 可以通过设置 ``include_hidden=True`` 返回隐藏字段.
 
 .. attribute:: Field.is_relation
 
-    Boolean flag that indicates if a field contains references to one or
-    more other models for its functionality (e.g. ``ForeignKey``,
+    布尔标志，表示字段是否包含对一个或多个其他模型的引用. (e.g. ``ForeignKey``,
     ``ManyToManyField``, ``OneToOneField``, etc.).
 
 .. attribute:: Field.model
 
-    Returns the model on which the field is defined. If a field is defined on
-    a superclass of a model, ``model`` will refer to the superclass, not the
-    class of the instance.
+    返回定义字段的模型。如果在模型的超类上定义了一个字段，``model`` 将引用父类，而不是实例的类.
 
-Attributes for fields with relations
-====================================
+关系字段属性
+=============
 
-These attributes are used to query for the cardinality and other details of a
-relation. These attribute are present on all fields; however, they will only
-have boolean values (rather than ``None``) if the field is a relation type
-(:attr:`Field.is_relation=True <Field.is_relation>`).
+这些属性用于查询关系的基数和其他详细信息. 这些属性存在于所有字段中; 但是, 如果该字段是关系类型 ( :attr:`Field.is_relation=True <Field.is_relation>`)
+它们将只有布尔值 (而不是 ``None``).
 
 .. attribute:: Field.many_to_many
 
-    Boolean flag that is ``True`` if the field has a many-to-many relation;
-    ``False`` otherwise. The only field included with Django where this is
-    ``True`` is ``ManyToManyField``.
+    布尔标志, 如果该字段具有多对多关系，则为 ``True``; 否则 ``False``. Django中只有 ``ManyToManyField`` 为 ``True``.
 
 .. attribute:: Field.many_to_one
 
-    Boolean flag that is ``True`` if the field has a many-to-one relation, such
-    as a ``ForeignKey``; ``False`` otherwise.
+    布尔标志, 如果字段具有多对一关联关系则为 ``True``. 比如 ``ForeignKey``; 其他为 ``False``.
 
 .. attribute:: Field.one_to_many
 
-    Boolean flag that is ``True`` if the field has a one-to-many relation, such
-    as a ``GenericRelation`` or the reverse of a ``ForeignKey``; ``False``
-    otherwise.
+    布尔标志, 如果字段具有一对多关联关系则为 ``True`` . 比如
+    ``GenericRelation`` 或者反向 ``ForeignKey``; 其他情况为 ``False``.
 
 .. attribute:: Field.one_to_one
 
-    Boolean flag that is ``True`` if the field has a one-to-one relation, such
-    as a ``OneToOneField``; ``False`` otherwise.
+    布尔标志, 如果字段具有一对一关联关系则为 ``True`` .比如
+    ``OneToOneField``; 其他情况为 ``False``.
 
 .. attribute:: Field.related_model
 
-    Points to the model the field relates to. For example, ``Author`` in
-    ``ForeignKey(Author, on_delete=models.CASCADE)``. The ``related_model`` for
-    a ``GenericForeignKey`` is always ``None``.
+    指向字段关联的模型. 例如,
+    ``ForeignKey(Author, on_delete=models.CASCADE)`` 中的 ``Author`` .
+    ``GenericForeignKey`` 中的 ``related_model`` 始终为 ``None``.
