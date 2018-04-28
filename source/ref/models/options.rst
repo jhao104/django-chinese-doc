@@ -1,13 +1,11 @@
 ======================
-Model ``Meta`` options
+模型 ``Meta`` 选项
 ======================
 
-This document explains all the possible :ref:`metadata options
-<meta-options>` that you can give your model in its internal
-``class Meta``.
+本篇文档阐述所有可用的 :ref:`metadata 选项 <meta-options>`,  你可以在模型的 ``Meta 类`` 中设置它们.
 
-Available ``Meta`` options
-==========================
+``Meta`` 可用选项
+==================
 
 .. currentmodule:: django.db.models
 
@@ -16,24 +14,22 @@ Available ``Meta`` options
 
 .. attribute:: Options.abstract
 
-    If ``abstract = True``, this model will be an
-    :ref:`abstract base class <abstract-base-classes>`.
+    如果设置 ``abstract = True``, 改模型将成为
+    :ref:`抽象基类 <abstract-base-classes>`.
 
 ``app_label``
 -------------
 
 .. attribute:: Options.app_label
 
-    If a model is defined outside of an application in
-    :setting:`INSTALLED_APPS`, it must declare which app it belongs to::
+    如果模型定义在 :setting:`INSTALLED_APPS` 之外, 那么必须声明其属于哪个app::
 
         app_label = 'myapp'
 
     .. versionadded:: 1.9
 
-    If you want to represent a model with the format ``app_label.object_name``
-    or ``app_label.model_name`` you can use ``model._meta.label``
-    or ``model._meta.label_lower`` respectively.
+    如果想要使用 ``app_label.object_name`` 或者 ``app_label.model_name`` 来表示模型, 可以分别使用 ``model._meta.label`` 和
+    ``model._meta.label_lower``.
 
 ``base_manager_name``
 ---------------------
@@ -42,25 +38,23 @@ Available ``Meta`` options
 
     .. versionadded:: 1.10
 
-    The name of the manager to use for the model's
-    :attr:`~django.db.models.Model._base_manager`.
+    模型中 :attr:`~django.db.models.Model._base_manager` 所使用的manager名称.
 
 ``db_table``
 ------------
 
 .. attribute:: Options.db_table
 
-    The name of the database table to use for the model::
+    该模型所使用的数据库表的名称::
 
         db_table = 'music_album'
 
 .. _table-names:
 
-Table names
+数据库表面
 ~~~~~~~~~~~
 
-To save you time, Django automatically derives the name of the database table
-from the name of your model class and the app that contains it. A model's
+为节省时间, Django自动使用模型的名称和包含此模型的app名称来生成表名. A model's
 database table name is constructed by joining the model's "app label" -- the
 name you used in :djadmin:`manage.py startapp <startapp>` -- to the model's
 class name, with an underscore between them.
