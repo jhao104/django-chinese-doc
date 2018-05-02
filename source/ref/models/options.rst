@@ -51,53 +51,41 @@
 
 .. _table-names:
 
-数据库表面
+数据库表名
 ~~~~~~~~~~~
 
-为节省时间, Django自动使用模型的名称和包含此模型的app名称来生成表名. A model's
-database table name is constructed by joining the model's "app label" -- the
-name you used in :djadmin:`manage.py startapp <startapp>` -- to the model's
-class name, with an underscore between them.
+为节省时间, Django自动使用模型的名称和包含此模型的app名称来生成表名. 模型在数据库中的表名由模型的"app label" --
+即在 :djadmin:`manage.py startapp <startapp>` 中使用的名字和模型的类名通过下划线连接组成.
 
-For example, if you have an app ``bookstore`` (as created by
-``manage.py startapp bookstore``), a model defined as ``class Book`` will have
-a database table named ``bookstore_book``.
+举个例子, 如果你有个名为 ``bookstore`` (通过
+``manage.py startapp bookstore`` 创建的) 的应用, 定义在 ``class Book`` 中的模型的数据库中的表名为 ``bookstore_book``.
 
-To override the database table name, use the ``db_table`` parameter in
-``class Meta``.
+如果要重新数据库中的表名, 可以使用 ``class Meta`` 中的 ``db_table`` 参数.
 
-If your database table name is an SQL reserved word, or contains characters that
-aren't allowed in Python variable names -- notably, the hyphen -- that's OK.
-Django quotes column and table names behind the scenes.
+如果你的数据库表名称是SQL保留字, 或包含Python变量名称中不允许的字符,特别是连字符 —-  这都不是问题. Django是在后台引用列和表名.
 
-.. admonition:: Use lowercase table names for MySQL
+.. admonition:: 使用小写字符串作为 MySQL 表名
 
-    It is strongly advised that you use lowercase table names when you override
-    the table name via ``db_table``, particularly if you are using the MySQL
-    backend. See the :ref:`MySQL notes <mysql-notes>` for more details.
+    当你使用 ``db_table`` 重写数据库中表名时， 强烈建议你使用小写字符作为表名. 尤其是在使用MySQL作为后台数据库时.
+    详情参见 :ref:`MySQL注意事项 <mysql-notes>` .
 
-.. admonition:: Table name quoting for Oracle
+.. admonition:: Oracle中表名称的引号处理
 
-   In order to meet the 30-char limitation Oracle has on table names,
-   and match the usual conventions for Oracle databases, Django may shorten
-   table names and turn them all-uppercase. To prevent such transformations,
-   use a quoted name as the value for ``db_table``::
+   为了遵从Oracle中30个字符的限制, 以及一些常见的约定, Django会缩短表的名称，而且会把它全部转为大写.
+   如果你不想名称按照预定设置发生变化, 可以在 ``db_table`` 的值外面加上引号来避免这种情况::
 
        db_table = '"name_left_in_lowercase"'
 
-   Such quoted names can also be used with Django's other supported database
-   backends; except for Oracle, however, the quotes have no effect. See the
-   :ref:`Oracle notes <oracle-notes>` for more details.
+   这种带引号的名称也可以与Django所支持的其它数据库后端一起使用；但Oracle除外, 引号没有效果.
+   详情参见 :ref:`Oracle 注意事项 <oracle-notes>`.
 
 ``db_tablespace``
 -----------------
 
 .. attribute:: Options.db_tablespace
 
-    The name of the :doc:`database tablespace </topics/db/tablespaces>` to use
-    for this model. The default is the project's :setting:`DEFAULT_TABLESPACE`
-    setting, if set. If the backend doesn't support tablespaces, this option is
-    ignored.
+    当前模型所使用的 :doc:`database tablespace </topics/db/tablespaces>` 的名字.
+    默认值是项目设置中的 :setting:`DEFAULT_TABLESPACE`,如果后端并不支持表空间，这个选项可以忽略.
 
 ``default_manager_name``
 ------------------------
@@ -106,8 +94,8 @@ Django quotes column and table names behind the scenes.
 
     .. versionadded:: 1.10
 
-    The name of the manager to use for the model's
-    :attr:`~django.db.models.Model._default_manager`.
+    模型中
+    :attr:`~django.db.models.Model._default_manager` 用到的管理器名称.
 
 ``default_related_name``
 ------------------------
