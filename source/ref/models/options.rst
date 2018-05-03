@@ -102,22 +102,19 @@
 
 .. attribute:: Options.default_related_name
 
-    The name that will be used by default for the relation from a related object
-    back to this one. The default is ``<model_name>_set``.
+    从关联的对象反向查找当前对象用到的默认名称. 默认为 ``<model_name>_set``.
 
-    This option also sets :attr:`~ForeignKey.related_query_name`.
+    这个选项还设置 :attr:`~ForeignKey.related_query_name`.
 
-    As the reverse name for a field should be unique, be careful if you intend
-    to subclass your model. To work around name collisions, part of the name
-    should contain ``'%(app_label)s'`` and ``'%(model_name)s'``, which are
-    replaced respectively by the name of the application the model is in,
-    and the name of the model, both lowercased. See the paragraph on
-    :ref:`related names for abstract models <abstract-related-name>`.
+    一个字段的反向名称应该是唯一的, 当子类化你的模型时, 要格外小心.
+    为了规避名称冲突，名称应该含有 ``'%(app_label)s'`` 和 ``'%(model_name)s'``,
+    它们会被该模型所在的应用标签的名称和模型的名称替换，二者都是小写的.
+    详情请参考
+    :ref:`抽象模型的relate names <abstract-related-name>`.
 
     .. deprecated:: 1.10
 
-        This attribute now affects ``related_query_name``. The old query lookup
-        name is deprecated::
+        该属性名现在只影响 ``related_query_name``. 旧的查询名已弃用::
 
             from django.db import models
 
@@ -143,67 +140,57 @@
 
 .. attribute:: Options.get_latest_by
 
-    The name of an orderable field in the model, typically a :class:`DateField`,
-    :class:`DateTimeField`, or :class:`IntegerField`. This specifies the default
-    field to use in your model :class:`Manager`’s
-    :meth:`~django.db.models.query.QuerySet.latest` and
-    :meth:`~django.db.models.query.QuerySet.earliest` methods.
+    模型中可以用来排序的字段, 比如 :class:`DateField`,
+    :class:`DateTimeField`, 或者 :class:`IntegerField`. 它用来指定
+    模型中 :class:`Manager` 的
+    :meth:`~django.db.models.query.QuerySet.latest` 和
+    :meth:`~django.db.models.query.QuerySet.earliest` 方法的模型字段.
 
-    Example::
+    例如::
 
         get_latest_by = "order_date"
 
-    See the :meth:`~django.db.models.query.QuerySet.latest` docs for more.
+    详情请参考文档 :meth:`~django.db.models.query.QuerySet.latest` .
 
 ``managed``
 -----------
 
 .. attribute:: Options.managed
 
-    Defaults to ``True``, meaning Django will create the appropriate database
-    tables in :djadmin:`migrate` or as part of migrations and remove them as
-    part of a :djadmin:`flush` management command. That is, Django
-    *manages* the database tables' lifecycles.
+    默认为 ``True``, 意味着Django将在 :djadmin:`migrate` 或作为迁移的一部分中创建适当的数据库表，
+    并将它们作为一个 :djadmin:`flush` management命令的一部分删除.
+    也就是说，Django *管理* 数据库表的生命周期.
 
-    If ``False``, no database table creation or deletion operations will be
-    performed for this model. This is useful if the model represents an existing
-    table or a database view that has been created by some other means. This is
-    the *only* difference when ``managed=False``. All other aspects of
-    model handling are exactly the same as normal. This includes
+    如果为 ``False``, Django 就不会为当前模型创建和删除数据表.
+    这种适用于,当前模型使用一个已经存在的通过其它方法创建的数据表或数据库视图.
+    这是设置了 ``managed=False`` 的 *唯一* 不同之处.
+    其它任何方面处理都和通常一样. 这包括:
 
-    1. Adding an automatic primary key field to the model if you don't
-       declare it.  To avoid confusion for later code readers, it's
-       recommended to specify all the columns from the database table you
-       are modeling when using unmanaged models.
+    1. 如果没有声明，会自动向模型中添加一个自增主键.
+       为了避免给后面的代码读者带来混乱，当你在使用未被管理的模型时，
+       强烈推荐你指定(specify)数据表中所有的列.
 
-    2. If a model with ``managed=False`` contains a
-       :class:`~django.db.models.ManyToManyField` that points to another
-       unmanaged model, then the intermediate table for the many-to-many
-       join will also not be created. However, the intermediary table
-       between one managed and one unmanaged model *will* be created.
+    2. 如果模型设置了 ``managed=False`` 并且包含
+       :class:`~django.db.models.ManyToManyField`, 且这个多对多关联关系也指向一个没被管理(unmanaged)的模型,
+       那么这两个未被管理的模型的多对多关系的中间表也不会被创建. 但是,
+       一个被管理模型和一个未被管理模型之间的中间表就 *会* 被创建.
 
-       If you need to change this default behavior, create the intermediary
-       table as an explicit model (with ``managed`` set as needed) and use
-       the :attr:`ManyToManyField.through` attribute to make the relation
-       use your custom model.
+       如果需要修改这一默认行为，请将中间表创建为显式模型(根据需要设置 ``managed``)，
+       并使用 :attr:`ManyToManyField.through` . 通过属性使关系使用您的定制模型.
 
-    For tests involving models with ``managed=False``, it's up to you to ensure
-    the correct tables are created as part of the test setup.
+    对于涉及 ``managed=False`` 模型的测试, 在测试之前, 必须要确保在测试启动时已经创建了正确的数据表。
 
-    If you're interested in changing the Python-level behavior of a model class,
-    you *could* use ``managed=False`` and create a copy of an existing model.
-    However, there's a better approach for that situation: :ref:`proxy-models`.
+    如果你对在Python层面修改模型类行为感兴趣, 可以设置 ``managed=False``,
+    并且为模型创建一个副本. 不过在这种场景下还有个更好的办法就是使用 :ref:`proxy-models`.
 
 ``order_with_respect_to``
 -------------------------
 
 .. attribute:: Options.order_with_respect_to
 
-    Makes this object orderable with respect to the given field, usually a
-    ``ForeignKey``. This can be used to make related objects orderable with
-    respect to a parent object. For example, if an ``Answer`` relates to a
-    ``Question`` object, and a question has more than one answer, and the order
-    of answers matters, you'd do this::
+    使此对象相对于给定字段可以排序, 通常为 ``ForeignKey``.
+    这可以用于使关联的对象相对于父对象可排序. 比如, 如果 ``Answer`` 和 ``Question`` 关联,
+    一个问题有至少一个答案, 并且答案的顺序非常重要，你可以这样做::
 
         from django.db import models
 
@@ -218,25 +205,21 @@
             class Meta:
                 order_with_respect_to = 'question'
 
-    When ``order_with_respect_to`` is set, two additional methods are provided to
-    retrieve and to set the order of the related objects: ``get_RELATED_order()``
-    and ``set_RELATED_order()``, where ``RELATED`` is the lowercased model name. For
-    example, assuming that a ``Question`` object has multiple related ``Answer``
-    objects, the list returned contains the primary keys of the related ``Answer``
-    objects::
+    如果设置了 ``order_with_respect_to`` , 模型会提供两个额外的用于设置和获取关联对象顺序的方法
+    ``get_RELATED_order()`` 和 ``set_RELATED_order()``, ``RELATED`` 就行模型名称的小写字符串.
+    例如, 假设一个 ``Question`` 对象有很多关联的 ``Answer`` 对象, 返回含有与之关联 ``Answer`` 对象主键的列表::
 
         >>> question = Question.objects.get(id=1)
         >>> question.get_answer_order()
         [1, 2, 3]
 
-    The order of a ``Question`` object's related ``Answer`` objects can be set by
-    passing in a list of ``Answer`` primary keys::
+    ``Question`` 对象关联的 ``Answer`` 对象的顺序， 可以通过传入一个包含 ``Answer`` 主键的列表来设置::
 
         >>> question.set_answer_order([3, 1, 2])
 
-    The related objects also get two methods, ``get_next_in_order()`` and
-    ``get_previous_in_order()``, which can be used to access those objects in their
-    proper order. Assuming the ``Answer`` objects are ordered by ``id``::
+    与之关联的对象也有两个方法, ``get_next_in_order()`` 和
+    ``get_previous_in_order()``, 用于按照合适的顺序访问它们.
+    假设 ``Answer`` 对象按照 ``id`` 排序 ::
 
         >>> answer = Answer.objects.get(id=2)
         >>> answer.get_next_in_order()
@@ -244,93 +227,80 @@
         >>> answer.get_previous_in_order()
         <Answer: 1>
 
-.. admonition:: ``order_with_respect_to`` implicitly sets the ``ordering`` option
+.. admonition:: ``order_with_respect_to`` 隐式设置 ``ordering`` 选项
 
-    Internally, ``order_with_respect_to`` adds an additional field/database
-    column named ``_order`` and sets the model's :attr:`~Options.ordering`
-    option to this field. Consequently, ``order_with_respect_to`` and
-    ``ordering`` cannot be used together, and the ordering added by
-    ``order_with_respect_to`` will apply whenever you obtain a list of objects
-    of this model.
+    在内部, ``order_with_respect_to`` 加了一个名为 ``_order`` 的附加字段/数据库列.
+    并将该模型的 :attr:`~Options.ordering` 设置为此选项, 因此,
+    ``order_with_respect_to`` 和 ``ordering`` 不能一起使用,
+    每当你获得此模型的对象列表的时候，将使用 ``order_with_respect_to`` 的排序.
 
-.. admonition:: Changing ``order_with_respect_to``
+.. admonition:: 修改 ``order_with_respect_to`` 时
 
-    Because ``order_with_respect_to`` adds a new database column, be sure to
-    make and apply the appropriate migrations if you add or change
-    ``order_with_respect_to`` after your initial :djadmin:`migrate`.
+    因为 ``order_with_respect_to`` 添加了一个新的数据库列,
+    所以在初始化 :djadmin:`migrate` 之后添加或更改 ``order_with_respect_to`` 时，请确保进行相应的迁移操作.
 
 ``ordering``
 ------------
 
 .. attribute:: Options.ordering
 
-    The default ordering for the object, for use when obtaining lists of objects::
+    对象默认的顺序, 在获取对象的列表时使用::
 
         ordering = ['-order_date']
 
-    This is a tuple or list of strings. Each string is a field name with an optional
-    "-" prefix, which indicates descending order. Fields without a leading "-" will
-    be ordered ascending. Use the string "?" to order randomly.
+    它是一个字符串的列表或元组. 每个字符串是一个字段名, 前面带有可选的“-”前缀表示倒序.
+    前面没有“-”的字段表示升序. 使用字符串“？”来表示随机排序.
 
-    For example, to order by a ``pub_date`` field ascending, use this::
+    例如, 按照字段 ``pub_date`` 升序排列, 这样使用::
 
         ordering = ['pub_date']
 
-    To order by ``pub_date`` descending, use this::
+    按照字段 ``pub_date`` 降序排列, 这样使用::
 
         ordering = ['-pub_date']
 
-    To order by ``pub_date`` descending, then by ``author`` ascending, use this::
+    按照字段 ``pub_date`` 降序, 然后按照字段 ``author`` 升序, 这样使用::
 
         ordering = ['-pub_date', 'author']
 
-    Default ordering also affects :ref:`aggregation queries
+    默认排序也会影响 :ref:`聚合查询
     <aggregation-ordering-interaction>`.
 
 .. warning::
 
-    Ordering is not a free operation. Each field you add to the ordering
-    incurs a cost to your database. Each foreign key you add will
-    implicitly include all of its default orderings as well.
+    排序并不是没有任何代价的操作. 你向ordering属性添加的每个字段都会产生数据库额外的开销.
+    添加的每个外键也会隐式包含它的默认顺序.
 
-    If a query doesn't have an ordering specified, results are returned from
-    the database in an unspecified order. A particular ordering is guaranteed
-    only when ordering by a set of fields that uniquely identify each object in
-    the results. For example, if a ``name`` field isn't unique, ordering by it
-    won't guarantee objects with the same name always appear in the same order.
+    如果查询没有指定顺序, 则会以未指定的顺序从数据库返回结果. 仅当排序的一组字段可以唯一标识结果中的每个对象时,
+    才能保证稳定排序. 例如, 如果 ``name`` 字段不唯一, 则由其排序不会保证具有相同名称的对象总是以相同的顺序显示.
 
 ``permissions``
 ---------------
 
 .. attribute:: Options.permissions
 
-    Extra permissions to enter into the permissions table when creating this object.
-    Add, delete and change permissions are automatically created for each
-    model. This example specifies an extra permission, ``can_deliver_pizzas``::
+    创建对象时写入权限表中额外的权限. 每个模型将自动创建增加、删除和修改权限. 下面例子创建一个额外的权限 ``can_deliver_pizzas``::
 
         permissions = (("can_deliver_pizzas", "Can deliver pizzas"),)
 
-    This is a list or tuple of 2-tuples in the format ``(permission_code,
-    human_readable_permission_name)``.
+    它是一个包含二元元组的列表或元组, 格式为 ``(权限编码, 书面的权限名称)``.
 
 ``default_permissions``
 ------------------------------
 
 .. attribute:: Options.default_permissions
 
-    Defaults to ``('add', 'change', 'delete')``. You may customize this list,
-    for example, by setting this to an empty list if your app doesn't require
-    any of the default permissions. It must be specified on the model before
-    the model is created by :djadmin:`migrate` in order to prevent any omitted
-    permissions from being created.
+    默认为 ``('add', 'change', 'delete')``. 也可以自定义这个列表,
+    例如, 如果你的应用不需要默认权限中的任何一项, 可以把它设置成空列表.
+    这个属性必须在模型被 :djadmin:`migrate` 命令创建之前指定，避免一些遗漏的权限被创建.
 
 ``proxy``
 ---------
 
 .. attribute:: Options.proxy
 
-    If ``proxy = True``, a model which subclasses another model will be treated as
-    a :ref:`proxy model <proxy-models>`.
+    如果设置为 ``proxy = True``,如果它是另一个模型的子类，将会视为一个
+    :ref:`代理模型 <proxy-models>`.
 
 ``required_db_features``
 ------------------------
@@ -339,12 +309,9 @@
 
     .. versionadded:: 1.9
 
-    List of database features that the current connection should have so that
-    the model is considered during the migration phase. For example, if you set
-    this list to ``['gis_enabled']``, the model will only be synchronized on
-    GIS-enabled databases. It's also useful to skip some models when testing
-    with several database backends. Avoid relations between models that may or
-    may not be created as the ORM doesn't handle this.
+    当前连接的数据库应该具有的功能列表, 以便在迁移阶段考虑该模型.
+    例如,如果将此列表设置为 ``['gis_enabled']``, 则模型将仅在启用GIS的数据库上同步.
+    在使用多个数据库后端进行测试时, 用于跳过某些模型也很有用. 避免与ORM无关的模型之间的关系.
 
 ``required_db_vendor``
 ----------------------
@@ -353,75 +320,61 @@
 
     .. versionadded:: 1.9
 
-    Name of a supported database vendor that this model is specific to. Current
-    built-in vendor names are: ``sqlite``, ``postgresql``, ``mysql``,
-    ``oracle``. If this attribute is not empty and the current connection vendor
-    doesn't match it, the model will not be synchronized.
+    该模型所特有的受支持的数据库种类的名称. 当前的内置数据库名称有: ``sqlite``, ``postgresql``, ``mysql``, ``oracle``.
+    如果该属性不是空, 且当前连接的数据库不匹配, 则模型将不会同步.
 
 ``select_on_save``
 ------------------
 
 .. attribute:: Options.select_on_save
 
-    Determines if Django will use the pre-1.6
-    :meth:`django.db.models.Model.save()` algorithm. The old algorithm
-    uses ``SELECT`` to determine if there is an existing row to be updated.
-    The new algorithm tries an ``UPDATE`` directly. In some rare cases the
-    ``UPDATE`` of an existing row isn't visible to Django. An example is the
-    PostgreSQL ``ON UPDATE`` trigger which returns ``NULL``. In such cases the
-    new algorithm will end up doing an ``INSERT`` even when a row exists in
-    the database.
+    该选项决定Django是否采用1.6之前的 :meth:`django.db.models.Model.save()` 算法.
+    旧的算法先使用 ``SELECT`` 来判断是否存在需要更新的行. 而新的算法直接尝试使用 ``UPDATE``.
+    在某些少见的情况下， Django对已存在行的 ``UPDATE`` 操作不可访问. 比如,
+    PostgreSQL的返回 ``NULL`` 的 ``ON UPDATE`` 触发器.
+    这种情况下，新式的算法最终会执行 ``INSERT`` 操作，即使这一行已经在数据库中存在.
 
-    Usually there is no need to set this attribute. The default is
-    ``False``.
+    通常这个属性不需要设置. 默认为 ``False``.
 
-    See :meth:`django.db.models.Model.save()` for more about the old and
-    new saving algorithm.
+    关于旧式和新式两种保存算法, 请参见 :meth:`django.db.models.Model.save()`.
 
 ``unique_together``
 -------------------
 
 .. attribute:: Options.unique_together
 
-    Sets of field names that, taken together, must be unique::
+    用来设置的不重复的字段组合::
 
         unique_together = (("driver", "restaurant"),)
 
-    This is a tuple of tuples that must be unique when considered together.
-    It's used in the Django admin and is enforced at the database level (i.e., the
-    appropriate ``UNIQUE`` statements are included in the ``CREATE TABLE``
-    statement).
+    它是一个元组的元组, 组合起来的时候必须是唯一的. 它在Django admin层面使用,
+    在数据库层上进行数据约束(比如，在 ``CREATE TABLE`` 语句中使用 ``UNIQUE`` 语句).
 
-    For convenience, unique_together can be a single tuple when dealing with a single
-    set of fields::
+    为了方便起见, 处理单一字段的集合时, ``unique_together`` 可以是一维的元组::
 
         unique_together = ("driver", "restaurant")
 
-    A :class:`~django.db.models.ManyToManyField` cannot be included in
-    unique_together. (It's not clear what that would even mean!) If you
-    need to validate uniqueness related to a
-    :class:`~django.db.models.ManyToManyField`, try using a signal or
-    an explicit :attr:`through <ManyToManyField.through>` model.
+    :class:`~django.db.models.ManyToManyField` 不能用在
+    unique_together中. (不清楚这样的含义是什么!), 如果需要验证
+    :class:`~django.db.models.ManyToManyField` 关联的唯一性, 可以尝试使用signal或者显式的
+    :attr:`through <ManyToManyField.through>` 模型.
 
-    The ``ValidationError`` raised during model validation when the constraint
-    is violated has the ``unique_together`` error code.
+    当违反 ``unique_together`` 约束时, 模型校验期间会抛出 ``ValidationError`` 异常.
 
 ``index_together``
 ------------------
 
 .. attribute:: Options.index_together
 
-    Sets of field names that, taken together, are indexed::
+    用来设置带有索引的字段组合::
 
         index_together = [
             ["pub_date", "deadline"],
         ]
 
-    This list of fields will be indexed together (i.e. the appropriate
-    ``CREATE INDEX`` statement will be issued.)
+    将会为列表中的字段建立索引 (i.e. 会在 ``CREATE INDEX`` 语句中使用.)
 
-    For convenience, ``index_together`` can be a single list when dealing with a single
-    set of fields::
+    为了方便起见, 处理单一字段的集合时, ``index_together`` 可以是一维的列表::
 
         index_together = ["pub_date", "deadline"]
 
@@ -430,26 +383,25 @@
 
 .. attribute:: Options.verbose_name
 
-    A human-readable name for the object, singular::
+    对象的一个书面描述名字, 单数形式::
 
         verbose_name = "pizza"
 
-    If this isn't given, Django will use a munged version of the class name:
-    ``CamelCase`` becomes ``camel case``.
+    如果此项没有设置, Django会把类名拆分开来作为描述名, 比如 ``CamelCase`` 会变成 ``camel case``.
 
 ``verbose_name_plural``
 -----------------------
 
 .. attribute:: Options.verbose_name_plural
 
-    The plural name for the object::
+    该对象复数形式的名称::
 
         verbose_name_plural = "stories"
 
-    If this isn't given, Django will use :attr:`~Options.verbose_name` + ``"s"``.
+    如果没有设置, Django 将使用 :attr:`~Options.verbose_name` + ``"s"``.
 
-Read-only ``Meta`` attributes
-=============================
+``Meta`` 只读属性
+==================
 
 ``label``
 ---------
@@ -458,7 +410,7 @@ Read-only ``Meta`` attributes
 
     .. versionadded:: 1.9
 
-    Representation of the object, returns ``app_label.object_name``, e.g.
+    对象的表示, 返回 ``app_label.object_name``, e.g.
     ``'polls.Question'``.
 
 ``label_lower``
@@ -468,5 +420,5 @@ Read-only ``Meta`` attributes
 
     .. versionadded:: 1.9
 
-    Representation of the model, returns ``app_label.model_name``, e.g.
+    模型的表示, 返回 ``app_label.model_name``, e.g.
     ``'polls.question'``.
