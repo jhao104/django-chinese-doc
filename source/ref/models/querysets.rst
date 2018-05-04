@@ -1,135 +1,102 @@
-==========================
-``QuerySet`` API reference
-==========================
+========================
+``QuerySet`` API 参考
+========================
 
 .. currentmodule:: django.db.models.query
 
-This document describes the details of the ``QuerySet`` API. It builds on the
-material presented in the :doc:`model </topics/db/models>` and :doc:`database
-query </topics/db/queries>` guides, so you'll probably want to read and
-understand those documents before reading this one.
+本篇文档包含 ``QuerySet`` API的详细信息. 它建立在 :doc:`模型 </topics/db/models>` 和
+:doc:`数据库查询 </topics/db/queries>` 指南之上, 所以在阅读本文档之前, 你需要先阅读和理解这两部分的文档.
 
-Throughout this reference we'll use the :ref:`example Weblog models
-<queryset-model-example>` presented in the :doc:`database query guide
-</topics/db/queries>`.
+本文档将通篇使用在 :doc:`数据库查询指南
+</topics/db/queries>` 中用到的 :ref:`WebBlog模型例子
+<queryset-model-example>`.
 
 .. _when-querysets-are-evaluated:
 
-When ``QuerySet``\s are evaluated
-=================================
+``QuerySet`` 何时求值
+======================
 
-Internally, a ``QuerySet`` can be constructed, filtered, sliced, and generally
-passed around without actually hitting the database. No database activity
-actually occurs until you do something to evaluate the queryset.
+实际上, 当一个 ``QuerySet`` 被创建, 过滤, 切片和传递时并不会实际操作数据库.
+在对查询集做求值之前, 不会产生任何实际的数据库操作.
 
-You can evaluate a ``QuerySet`` in the following ways:
+``QuerySet`` 求值有以下几种方式:
 
-* **Iteration.** A ``QuerySet`` is iterable, and it executes its database
-  query the first time you iterate over it. For example, this will print
-  the headline of all entries in the database::
+* **迭代.** ``QuerySet`` 是可迭代的, 当它被首次迭代是会执行数据库查询. 例如,
+  下面的语句会将数据库中所有Entry的headline打印出来::
 
       for e in Entry.objects.all():
           print(e.headline)
 
-  Note: Don't use this if all you want to do is determine if at least one
-  result exists. It's more efficient to use :meth:`~QuerySet.exists`.
+  主要: 不要使用上面语句来验证数据库中是否存在某条记录, 使用 :meth:`~QuerySet.exists` 方法更高效.
 
-* **Slicing.** As explained in :ref:`limiting-querysets`, a ``QuerySet`` can
-  be sliced, using Python's array-slicing syntax. Slicing an unevaluated
-  ``QuerySet`` usually returns another unevaluated ``QuerySet``, but Django
-  will execute the database query if you use the "step" parameter of slice
-  syntax, and will return a list. Slicing a ``QuerySet`` that has been
-  evaluated also returns a list.
+* **切片.** 正如 :ref:`limiting-querysets` 中描述一样, 可以使用Python的序列切片语法对 ``QuerySet`` 进行切片操作,
+  对一个未求值的 ``QuerySet`` 进行切片操作会返回另一个未求值的 ``QuerySet``,
+  但是如果使用了 "step" 参数, Django将执行数据库查询, 然后返回查询结果的列表.
+  对已经求值过的 ``QuerySet`` 切片也是返回一个列表.
 
-  Also note that even though slicing an unevaluated ``QuerySet`` returns
-  another unevaluated ``QuerySet``, modifying it further (e.g., adding
-  more filters, or modifying ordering) is not allowed, since that does not
-  translate well into SQL and it would not have a clear meaning either.
+  需要注意的是, 对未求值的 ``QuerySet`` 切片返回的 ``QuerySet`` 不可以再进行修改操作(e.g.,
+  新增过滤器, 或者修改排序). 因为这样不难再转化成SQL而且这样的需求没有实际意义.
 
-* **Pickling/Caching.** See the following section for details of what
-  is involved when `pickling QuerySets`_. The important thing for the
-  purposes of this section is that the results are read from the database.
+* **Pickling/缓存.** 有关 `pickling QuerySets`_ 的细节, 请参阅 `pickling QuerySets`_ 部份.
+  这里提到它的目的是强调序列化时会读取数据库.
 
-* **repr().** A ``QuerySet`` is evaluated when you call ``repr()`` on it.
-  This is for convenience in the Python interactive interpreter, so you can
-  immediately see your results when using the API interactively.
+* **repr().** 当对 ``QuerySet`` 调用 ``repr()`` 方法时会对其求值.
+  这是为了在Python交互式解释器中使用方便, 这样就可以在交互式解释器中使用这个API立即看到结果.
 
-* **len().** A ``QuerySet`` is evaluated when you call ``len()`` on it.
-  This, as you might expect, returns the length of the result list.
+* **len().** 当对 ``QuerySet`` 调用 ``len()`` 方法时会对其求值.
+  正如猜想那样，会返回查询集的长度.
 
-  Note: If you only need to determine the number of records in the set (and
-  don't need the actual objects), it's much more efficient to handle a count
-  at the database level using SQL's ``SELECT COUNT(*)``. Django provides a
-  :meth:`~QuerySet.count` method for precisely this reason.
+  注意: 如果只是想确认集合中的记录条数(而并不需要实际对象), 使用SQL的 ``SELECT COUNT(*)`` 来处理数据库级别的计数更有效.
+  Django为此提供了 :meth:`~QuerySet.count` 方法.
 
-* **list().** Force evaluation of a ``QuerySet`` by calling ``list()`` on
-  it. For example::
+* **list().** 对 ``QuerySet`` 调用 ``list()`` 可以对其进行强制求值, 例如::
 
       entry_list = list(Entry.objects.all())
 
-* **bool().** Testing a ``QuerySet`` in a boolean context, such as using
-  ``bool()``, ``or``, ``and`` or an ``if`` statement, will cause the query
-  to be executed. If there is at least one result, the ``QuerySet`` is
-  ``True``, otherwise ``False``. For example::
+* **bool().** 试探 ``QuerySet`` 的布尔值, 例如使用 ``bool()``, ``or``, ``and`` 或者 ``if`` 判断,
+  都触发求值操作. 如果结果至少包含一条记录, 则 ``QuerySet`` 为 ``True``, 否则为 ``False``. 例如::
 
       if Entry.objects.filter(headline="Test"):
-         print("There is at least one Entry with the headline Test")
+         print("Entry 中至少有一条记录的headline为Test")
 
-  Note: If you only want to determine if at least one result exists (and don't
-  need the actual objects), it's more efficient to use :meth:`~QuerySet.exists`.
+  注意: 如果只是想确认结果中是否至少存在一条记录(并且不需要实际对象), 使用 :meth:`~QuerySet.exists` 方法更加高效.
 
 .. _pickling QuerySets:
 
-Pickling ``QuerySet``\s
+Pickling ``QuerySet``
 -----------------------
 
-If you :mod:`pickle` a ``QuerySet``, this will force all the results to be loaded
-into memory prior to pickling. Pickling is usually used as a precursor to
-caching and when the cached queryset is reloaded, you want the results to
-already be present and ready for use (reading from the database can take some
-time, defeating the purpose of caching). This means that when you unpickle a
-``QuerySet``, it contains the results at the moment it was pickled, rather
-than the results that are currently in the database.
+如果对 ``QuerySet`` 进行 :mod:`pickle` 操作, 它将在Pickle之前强制将所有的结果加载到内存中.
+Pickling 通常用缓存之前, 当下次重新加载缓存的查询集时, 其结果已经就是能够直接使用的了(免去了再次从数据库读取的耗时).
+也就是说当unpickle ``QuerySet`` 时, 就是从数据库中查询的结果.
 
-If you only want to pickle the necessary information to recreate the
-``QuerySet`` from the database at a later time, pickle the ``query`` attribute
-of the ``QuerySet``. You can then recreate the original ``QuerySet`` (without
-any results loaded) using some code like this::
+如果只是想序列化部分必要的信息, 以便后面可以从数据库中重建 ``Queryset``, 那只序列化 ``QuerySet`` 的 ``query`` 属性即可.
+接下来就可以使用下面的代码重建原来的 ``QuerySet`` (这个过程没有数据库读取)::
 
     >>> import pickle
     >>> query = pickle.loads(s)     # Assuming 's' is the pickled string.
     >>> qs = MyModel.objects.all()
     >>> qs.query = query            # Restore the original 'query'.
 
-The ``query`` attribute is an opaque object. It represents the internals of
-the query construction and is not part of the public API. However, it is safe
-(and fully supported) to pickle and unpickle the attribute's contents as
-described here.
+``query`` 属性是一个不透明的对象. 它表示查询的内部结构, 不属于公开的API. 即便如此, 对于本节提到的序列化和反序列化来说, 它仍是安全和被完全支持的.
 
-.. admonition:: You can't share pickles between versions
+.. admonition:: 不同版本间不能共享Pickle结果
 
-    Pickles of ``QuerySets`` are only valid for the version of Django that
-    was used to generate them. If you generate a pickle using Django
-    version N, there is no guarantee that pickle will be readable with
-    Django version N+1. Pickles should not be used as part of a long-term
-    archival strategy.
+    ``QuerySets`` 的Pickle只能用于生成它们的Django版本中. 如果使用Django的版本N生成一个Pickle,
+    不保证这个Pickle在Django 的版本N+1中可以读取. Pickle不可用于归档的长期策略.
 
-    Since pickle compatibility errors can be difficult to diagnose, such as
-    silently corrupted objects, a ``RuntimeWarning`` is raised when you try to
-    unpickle a queryset in a Django version that is different than the one in
-    which it was pickled.
+    因为Pickle兼容性的错误很难诊断例如产生损坏的对象， 当试图Unpickle的查询集与Pickle时的Django 版本不同时，将引发一个 ``RuntimeWarning``.
 
 .. _queryset-api:
 
 ``QuerySet`` API
 ================
 
-Here's the formal declaration of a ``QuerySet``:
+下面是对 ``QuerySet`` 的正式定义:
 
 .. class:: QuerySet(model=None, query=None, using=None)
 
-    Usually when you'll interact with a ``QuerySet`` you'll use it by
-    :ref:`chaining filters <chaining-filters>`. To make this work, most
+    通常使用 ``QuerySet`` 时会以 :ref:`链式过滤 <chaining-filters>` 来使用. To make this work, most
     ``QuerySet`` methods return new querysets. These methods are covered in
     detail later in this section.
 
