@@ -80,7 +80,7 @@ Django提供一个抽象层（Models）以构建和操作你的web应用中的�
 
 * **查询集:**
   :doc:`执行查询 <topics/db/queries>` |
-  :doc:`查询集方法参考 <ref/models/querysets>` |
+  :doc:`QuerySet方法参考 <ref/models/querysets>` |
   :doc:`查找语法 <ref/models/lookups>`
 
 * **模型实例:**

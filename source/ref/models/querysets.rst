@@ -96,120 +96,95 @@ Pickling 通常用缓存之前, 当下次重新加载缓存的查询集时, 其�
 
 .. class:: QuerySet(model=None, query=None, using=None)
 
-    通常使用 ``QuerySet`` 时会以 :ref:`链式过滤 <chaining-filters>` 来使用. To make this work, most
-    ``QuerySet`` methods return new querysets. These methods are covered in
-    detail later in this section.
+    通常使用 ``QuerySet`` 时会以 :ref:`链式过滤 <chaining-filters>` 来使用. 因此大部分
+    ``QuerySet`` 方法返回的是一个新的查询集. 本节将会详细介绍这些方法.
 
-    The ``QuerySet`` class has two public attributes you can use for
-    introspection:
+    ``QuerySet`` 类具有两个可用于自省的公共属性:
 
     .. attribute:: ordered
 
-        ``True`` if the ``QuerySet`` is ordered — i.e. has an
-        :meth:`order_by()` clause or a default ordering on the model.
-        ``False`` otherwise.
+        如果 ``QuerySet`` 是有序的则为 ``True``  — 例如
+        :meth:`order_by()` 子句或者模型默认的排序. 否则为 ``False`` .
 
     .. attribute:: db
 
-        The database that will be used if this query is executed now.
+        如果执行查询, 将使用该数据库.
 
     .. note::
 
-        The ``query`` parameter to :class:`QuerySet` exists so that specialized
-        query subclasses such as
-        :class:`~django.contrib.gis.db.models.GeoQuerySet` can reconstruct
-        internal query state. The value of the parameter is an opaque
-        representation of that query state and is not part of a public API.
-        To put it simply: if you need to ask, you don't need to use it.
+        :class:`QuerySet` 存在 ``query`` 参数是为了让具有特殊查询用途的子类如
+        :class:`~django.contrib.gis.db.models.GeoQuerySet` 可以重新构造内部查询状态.
+        这个参数的值是查询状态的不透明表示， 不是一个公开的API.
+        简而言之：如果你有疑问，其实你实际上不需要使用它.
 
 .. currentmodule:: django.db.models.query.QuerySet
 
-Methods that return new ``QuerySet``\s
---------------------------------------
+返回新 ``QuerySet`` 的方法
+----------------------------
 
-Django provides a range of ``QuerySet`` refinement methods that modify either
-the types of results returned by the ``QuerySet`` or the way its SQL query is
-executed.
+Django提供了一系列的 ``QuerySet`` 筛选方法，用于修改 ``QuerySet`` 返回的结果类型或者SQL的查询方式.
 
 ``filter()``
 ~~~~~~~~~~~~
 
 .. method:: filter(**kwargs)
 
-Returns a new ``QuerySet`` containing objects that match the given lookup
-parameters.
+返回一个新的包含满足查询参数的 ``QuerySet`` 对象.
 
-The lookup parameters (``**kwargs``) should be in the format described in
-`Field lookups`_ below. Multiple parameters are joined via ``AND`` in the
-underlying SQL statement.
+查询参数(``**kwargs``) 必须满足下文 `Field lookups`_ 的格式.
 
-If you need to execute more complex queries (for example, queries with ``OR`` statements),
-you can use :class:`Q objects <django.db.models.Q>`.
+如果需要更复杂的查询 (例如 ``OR`` 语句), 可以使用 :class:`Q查询 <django.db.models.Q>`.
 
 ``exclude()``
 ~~~~~~~~~~~~~
 
 .. method:: exclude(**kwargs)
 
-Returns a new ``QuerySet`` containing objects that do *not* match the given
-lookup parameters.
+返回一个新的不包含满足查询参数的 ``QuerySet`` 对象.
 
-The lookup parameters (``**kwargs``) should be in the format described in
-`Field lookups`_ below. Multiple parameters are joined via ``AND`` in the
-underlying SQL statement, and the whole thing is enclosed in a ``NOT()``.
+查询参数(``**kwargs``) 必须满足下文 `Field lookups`_ 的格式. 在底层SQL语句中, 多个参数通过 ``AND`` 连接.
+然后所查的内容都会被放入 ``NOT()`` 句子中.
 
-This example excludes all entries whose ``pub_date`` is later than 2005-1-3
-AND whose ``headline`` is "Hello"::
+下面的示例排除所有 ``pub_date`` 大于2005-1-3 且 ``headline`` 为“Hello”的记录::
 
     Entry.objects.exclude(pub_date__gt=datetime.date(2005, 1, 3), headline='Hello')
 
-In SQL terms, that evaluates to::
+用SQL语句表示, 它等同于::
 
     SELECT ...
     WHERE NOT (pub_date > '2005-1-3' AND headline = 'Hello')
 
-This example excludes all entries whose ``pub_date`` is later than 2005-1-3
-OR whose headline is "Hello"::
+下面示例排序所有 whose ``pub_date`` 大于 2005-1-3 或者
+headline 为 "Hello"的记录::
 
     Entry.objects.exclude(pub_date__gt=datetime.date(2005, 1, 3)).exclude(headline='Hello')
 
-In SQL terms, that evaluates to::
+用SQL语句表示, 它等同于::
 
     SELECT ...
     WHERE NOT pub_date > '2005-1-3'
     AND NOT headline = 'Hello'
 
-Note the second example is more restrictive.
+第二个例子过滤更严格.
 
-If you need to execute more complex queries (for example, queries with ``OR`` statements),
-you can use :class:`Q objects <django.db.models.Q>`.
+如果需要更复杂的查询 (例如 ``OR`` 语句), 可以使用 :class:`Q查询 <django.db.models.Q>`.
 
 ``annotate()``
 ~~~~~~~~~~~~~~
 
 .. method:: annotate(*args, **kwargs)
 
-Annotates each object in the ``QuerySet`` with the provided list of :doc:`query
-expressions </ref/models/expressions>`. An expression may be a simple value, a
-reference to a field on the model (or any related models), or an aggregate
-expression (averages, sums, etc.) that has been computed over the objects that
-are related to the objects in the ``QuerySet``.
+使用 :doc:`查询表达式 </ref/models/expressions>` 注解 ``QuerySet`` 中的每个对象.
+表达式可以是简单的值、模型或关联模型的字段引用,或者是对与 ``QuerySet`` 中对象相关的对象进行计算的聚合表达式(平均值、总和等).
 
-Each argument to ``annotate()`` is an annotation that will be added
-to each object in the ``QuerySet`` that is returned.
+``annotate()`` 的每个参数都是一个注解，将添加到返回的 ``QuerySet`` 中的每个对象中.
 
-The aggregation functions that are provided by Django are described
-in `Aggregation Functions`_ below.
+Django提供的聚合函数在下文的 `Aggregation Functions`_ 文档中有详细介绍.
 
-Annotations specified using keyword arguments will use the keyword as
-the alias for the annotation. Anonymous arguments will have an alias
-generated for them based upon the name of the aggregate function and
-the model field that is being aggregated. Only aggregate expressions
-that reference a single field can be anonymous arguments. Everything
-else must be a keyword argument.
+关键字参数指定的注解将使用关键字作为注解的别名. 匿名参数的别名将基于聚合函数的名称和模型的字段生成.
+只有引用单个字段的聚合表达式才可以使用匿名参数. 其它所有形式都必须用关键字参数.
 
-For example, if you were manipulating a list of blogs, you may want
-to determine how many entries have been made in each blog::
+例如，如果操作一个Blog列表，如果想知道每个Blog有多少Entry::
 
     >>> from django.db.models import Count
     >>> q = Blog.objects.annotate(Count('entry'))
@@ -220,17 +195,14 @@ to determine how many entries have been made in each blog::
     >>> q[0].entry__count
     42
 
-The ``Blog`` model doesn't define an ``entry__count`` attribute by itself,
-but by using a keyword argument to specify the aggregate function, you can
-control the name of the annotation::
+``Blog`` 模型本身并没有定义 ``entry__count`` 属性, 但是如果使用关键字参数来指定聚合函数. 就生成了相应注解名称的属性::
 
     >>> q = Blog.objects.annotate(number_of_entries=Count('entry'))
     # The number of entries on the first blog, using the name provided
     >>> q[0].number_of_entries
     42
 
-For an in-depth discussion of aggregation, see :doc:`the topic guide on
-Aggregation </topics/db/aggregation>`.
+有关聚合的深入讨论,参考 :doc:`聚合主题指南 </topics/db/aggregation>`.
 
 ``order_by()``
 ~~~~~~~~~~~~~~
