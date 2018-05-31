@@ -209,50 +209,39 @@ Django提供的聚合函数在下文的 `Aggregation Functions`_ 文档中有详
 
 .. method:: order_by(*fields)
 
-By default, results returned by a ``QuerySet`` are ordered by the ordering
-tuple given by the ``ordering`` option in the model's ``Meta``. You can
-override this on a per-``QuerySet`` basis by using the ``order_by`` method.
+默认情况下， ``QuerySet`` 返回的结果是根据模型 ``Meta`` 中的 ``ordering`` 选项给出的排序元组排序.
+也可以使用 ``order_by`` 方法给每个 ``QuerySet`` 指定特定的排序.
 
-Example::
+例如::
 
     Entry.objects.filter(pub_date__year=2005).order_by('-pub_date', 'headline')
 
-The result above will be ordered by ``pub_date`` descending, then by
-``headline`` ascending. The negative sign in front of ``"-pub_date"`` indicates
-*descending* order. Ascending order is implied. To order randomly, use ``"?"``,
-like so::
+上面结果将根据 ``pub_date`` 降序, 按 ``headline`` 升序. ``"-pub_date"`` 前面的负号表示
+*降序* 排列. 隐式形式是升序排列, 使用 ``"?"`` 表示随机排序, 例如::
 
     Entry.objects.order_by('?')
 
-Note: ``order_by('?')`` queries may be expensive and slow, depending on the
-database backend you're using.
+注意: ``order_by('?')`` 查询可能会耗费资源且很慢, 这也取决于使用的数据库.
 
-To order by a field in a different model, use the same syntax as when you are
-querying across model relations. That is, the name of the field, followed by a
-double underscore (``__``), followed by the name of the field in the new model,
-and so on for as many models as you want to join. For example::
+若要按照另外一个模型中的字段排序, 可以使用查询关联模型时的语法. 即通过字段的名称后面跟上两个下划线(``__``),
+再跟上新模型中的字段的名称,像这样::
 
     Entry.objects.order_by('blog__name', 'headline')
 
-If you try to order by a field that is a relation to another model, Django will
-use the default ordering on the related model, or order by the related model's
-primary key if there is no :attr:`Meta.ordering
-<django.db.models.Options.ordering>` specified. For example, since the ``Blog``
-model has no default ordering specified::
+如果根据关联模型字段排序, Django将使用关联的模型的默认排序, 或者如果没有指定 :attr:`Meta.ordering
+<django.db.models.Options.ordering>`  将通过关联的模型的主键排序. 例如, 因为 ``Blog`` 模型没有指定默认的排序::
 
     Entry.objects.order_by('blog')
 
-...is identical to::
+...其等价于::
 
     Entry.objects.order_by('blog__id')
 
-If ``Blog`` had ``ordering = ['name']``, then the first queryset would be
-identical to::
+如果 ``Blog`` 设置了 ``ordering = ['name']``, 那么第一个查询等价于::
 
     Entry.objects.order_by('blog__name')
 
-It is also possible to order a queryset by a related field, without incurring
-the cost of a JOIN, by referring to the ``_id`` of the related field::
+通过引用相关字段的 ``_id`` , 同样可以通过相关字段来排序查询集，而不会导致JOIN开销::
 
     # No Join
     Entry.objects.order_by('blog_id')
@@ -260,21 +249,19 @@ the cost of a JOIN, by referring to the ``_id`` of the related field::
     # Join
     Entry.objects.order_by('blog__id')
 
-You can also order by :doc:`query expressions </ref/models/expressions>` by
-calling ``asc()`` or ``desc()`` on the expression::
+你也可以通过 :doc:`查询表达式 </ref/models/expressions>` 调用
+ ``asc()`` 或者 ``desc()`` 排序::
 
     Entry.objects.order_by(Coalesce('summary', 'headline').desc())
 
-Be cautious when ordering by fields in related models if you are also using
-:meth:`distinct()`. See the note in :meth:`distinct` for an explanation of how
-related model ordering can change the expected results.
+当使用关联模型排序还使用到了 :meth:`distinct()` 时需要注意,
+:meth:`distinct` 中有说明关联模型的排序如何会对预期结果产生影响.
 
 .. note::
-    It is permissible to specify a multi-valued field to order the results by
-    (for example, a :class:`~django.db.models.ManyToManyField` field, or the
-    reverse relation of a :class:`~django.db.models.ForeignKey` field).
+    指定一个多值字段来排序结果(例如, 一个 :class:`~django.db.models.ManyToManyField` 字段,
+    或者 :class:`~django.db.models.ForeignKey` 的反向关联字段)
 
-    Consider this case::
+    考虑下面这种情况::
 
          class Event(Model):
             parent = models.ForeignKey(
@@ -286,78 +273,55 @@ related model ordering can change the expected results.
 
          Event.objects.order_by('children__date')
 
-    Here, there could potentially be multiple ordering data for each ``Event``;
-    each ``Event`` with multiple ``children`` will be returned multiple times
-    into the new ``QuerySet`` that ``order_by()`` creates. In other words,
-    using ``order_by()`` on the ``QuerySet`` could return more items than you
-    were working on to begin with - which is probably neither expected nor
-    useful.
+    在这里，每个 ``Event`` 可能有多个排序数据；具有多个 ``children`` 的每个 ``Event`` 将被多次返回到 ``order_by()``
+    创建的新的 ``QuerySet`` 中. 换句话说, 用 ``order_by()`` 方法对 ``QuerySet`` 对象进行操作会返回一个扩大版的新
+    ``QuerySet`` 对象——新增的条目也许并没有什么用，你也用不着它们.
 
-    Thus, take care when using multi-valued field to order the results. **If**
-    you can be sure that there will only be one ordering piece of data for each
-    of the items you're ordering, this approach should not present problems. If
-    not, make sure the results are what you expect.
+    因此，当使用多值字段对结果进行排序时要格外小心. **如果**可以确保每个排序项只有一个排序数据,
+    这种方法不会出现问题. 如果不确定，请确保结果是你期望的.
 
-There's no way to specify whether ordering should be case sensitive. With
-respect to case-sensitivity, Django will order results however your database
-backend normally orders them.
 
-You can order by a field converted to lowercase with
-:class:`~django.db.models.functions.Lower` which will achieve case-consistent
-ordering::
+是没有方法指定排序是否对大小写敏感. 对于大小写的敏感性, Django将根据数据库中的排序方式给出排序结果.
+
+你可以通过 :class:`~django.db.models.functions.Lower` 将字段转换为小写来排序, 这样就能达到大小写一致的排序::
 
     Entry.objects.order_by(Lower('headline').desc())
 
-If you don't want any ordering to be applied to a query, not even the default
-ordering, call :meth:`order_by()` with no parameters.
+如果你不需要查询做任何排序,默认排序也不需要! 可以调用不带参数的 :meth:`order_by()` .
 
-You can tell if a query is ordered or not by checking the
-:attr:`.QuerySet.ordered` attribute, which will be ``True`` if the
-``QuerySet`` has been ordered in any way.
+可以通过检查 :attr:`.QuerySet.ordered` 来判断查询结果是否有序. 不论 ``QuerySet`` 以任何方式排序，它将是 ``True``.
 
-Each ``order_by()`` call will clear any previous ordering. For example, this
-query will be ordered by ``pub_date`` and not ``headline``::
+每个 ``order_by()`` 都会清除它之前的所有排序. 例如, 下面查询将会按照
+``pub_date`` 排序而不是 ``headline``::
 
     Entry.objects.order_by('headline').order_by('pub_date')
 
 .. warning::
 
-    Ordering is not a free operation. Each field you add to the ordering
-    incurs a cost to your database. Each foreign key you add will
-    implicitly include all of its default orderings as well.
+    排序不是没有开销的操作. 添加到排序中的每个字段都将带来数据库的开销. 添加的每个外键也都将隐式包含进它的默认排序.
 
-    If a query doesn't have an ordering specified, results are returned from
-    the database in an unspecified order. A particular ordering is guaranteed
-    only when ordering by a set of fields that uniquely identify each object in
-    the results. For example, if a ``name`` field isn't unique, ordering by it
-    won't guarantee objects with the same name always appear in the same order.
+    如果查询没有指定顺序，则会以未指定的顺序从数据库返回结果. 仅当通过唯一标识结果中的每个对象的一组字段排序时，
+    才能保证特定的排序。 例如，如果 ``name`` 字段不唯一，由其排序则不会保证具有相同名称的对象总是以相同的顺序显示.
 
 ``reverse()``
 ~~~~~~~~~~~~~
 
 .. method:: reverse()
 
-Use the ``reverse()`` method to reverse the order in which a queryset's
-elements are returned. Calling ``reverse()`` a second time restores the
-ordering back to the normal direction.
+ ``reverse()`` 方法用于反向排序QuerySet中的元素. 再次调用 ``reverse()`` 将恢复原有排序.
 
-To retrieve the "last" five items in a queryset, you could do this::
+比如要获取QuerySet中的最后五个元素,可以这样::
 
     my_queryset.reverse()[:5]
 
-Note that this is not quite the same as slicing from the end of a sequence in
-Python. The above example will return the last item first, then the
-penultimate item and so on. If we had a Python sequence and looked at
-``seq[-5:]``, we would see the fifth-last item first. Django doesn't support
-that mode of access (slicing from the end), because it's not possible to do it
-efficiently in SQL.
+注意, 这和Python中的在列表末尾切片不一样. 上面例子将先返回最后一个元素,然后是倒数第二个,依次类推.
+如果在Python序列中调用 ``seq[-5:]``, 我们将先看到返回的倒数第五个元素. Django 并不支持这种模式访问(从末尾切片),
+因此这不好在SQL中高效实现.
 
-Also, note that ``reverse()`` should generally only be called on a ``QuerySet``
-which has a defined ordering (e.g., when querying against a model which defines
-a default ordering, or when using :meth:`order_by()`). If no such ordering is
-defined for a given ``QuerySet``, calling ``reverse()`` on it has no real
-effect (the ordering was undefined prior to calling ``reverse()``, and will
-remain undefined afterward).
+同时, ``reverse()`` 也只能在定义了ordering的 ``QuerySet`` 上调用
+(e.g., 一个定义了默认排序的模型，或者使用了 :meth:`order_by()` 方法).
+如果给定的 ``QuerySet`` 没有定义这样的ordering，那么调用 ``reverse()`` 就没有实际效果
+(``reverse()`` 之前没有定义ordering, 之后也将保持未定义).
 
 ``distinct()``
 ~~~~~~~~~~~~~~
