@@ -328,32 +328,20 @@ Django提供的聚合函数在下文的 `Aggregation Functions`_ 文档中有详
 
 .. method:: distinct(*fields)
 
-Returns a new ``QuerySet`` that uses ``SELECT DISTINCT`` in its SQL query. This
-eliminates duplicate rows from the query results.
+返回一个在SQL查询中使用 ``SELECT DISTINCT`` 句子的 ``QuerySet``.  它将去除查询结果中重复的行.
 
-By default, a ``QuerySet`` will not eliminate duplicate rows. In practice, this
-is rarely a problem, because simple queries such as ``Blog.objects.all()``
-don't introduce the possibility of duplicate result rows. However, if your
-query spans multiple tables, it's possible to get duplicate results when a
-``QuerySet`` is evaluated. That's when you'd use ``distinct()``.
+默认情况下, ``QuerySet`` 不会进行去重操作. 而在实际情况中, 这一般不会有问题, 因为像 ``Blog.objects.all()`` 这样简答的查询不会引入重复的行.
+但是, 在跨多表查询时， ``QuerySet`` 可能就会包含重复的结果. 这时候就应该使用 ``distinct()``.
 
 .. note::
-    Any fields used in an :meth:`order_by` call are included in the SQL
-    ``SELECT`` columns. This can sometimes lead to unexpected results when used
-    in conjunction with ``distinct()``. If you order by fields from a related
-    model, those fields will be added to the selected columns and they may make
-    otherwise duplicate rows appear to be distinct. Since the extra columns
-    don't appear in the returned results (they are only there to support
-    ordering), it sometimes looks like non-distinct results are being returned.
+    :meth:`order_by` 调用中使用的任何字段都包含在SQL的 ``SELECT`` 列当中. 当和 ``distinct()``一起使用时，可能会导致意料之外的结果.
+    如果根据关联模型的字段排序，那么这个字段将被添加到查询字段中，这样它们可能会使其他本来是重复的行看起来不同了.
+    而由于这个额外的字段不会出现在返回的结果中(它们只用于排序)，所以这时看起来返回的结果并不正确.
 
-    Similarly, if you use a :meth:`values()` query to restrict the columns
-    selected, the columns used in any :meth:`order_by()` (or default model
-    ordering) will still be involved and may affect uniqueness of the results.
+    类似地，如果使用 :meth:`values()` 查询来限制所选的列，那么 :meth:`order_by()` (或默认的模型排序)中使用的列仍然会涉及，并可能影响结果的唯一性。
 
-    The moral here is that if you are using ``distinct()`` be careful about
-    ordering by related models. Similarly, when using ``distinct()`` and
-    :meth:`values()` together, be careful when ordering by fields not in the
-    :meth:`values()` call.
+    上面的意思是，如果您使用的是 `distinct()`` ，那么使用相关模型字段排序时一定得小心。同样，
+    当将 `distinct()`` 和 :meth:`values()` 一起使用时，请注意字段在不在 :meth:`values()` 中。
 
 On PostgreSQL only, you can pass positional arguments (``*fields``) in order to
 specify the names of fields to which the ``DISTINCT`` should apply. This
