@@ -277,7 +277,7 @@ Django提供的聚合函数在下文的 `Aggregation Functions`_ 文档中有详
     创建的新的 ``QuerySet`` 中. 换句话说, 用 ``order_by()`` 方法对 ``QuerySet`` 对象进行操作会返回一个扩大版的新
     ``QuerySet`` 对象——新增的条目也许并没有什么用，你也用不着它们.
 
-    因此，当使用多值字段对结果进行排序时要格外小心. **如果**可以确保每个排序项只有一个排序数据,
+    因此，当使用多值字段对结果进行排序时要格外小心. **如果** 可以确保每个排序项只有一个排序数据,
     这种方法不会出现问题. 如果不确定，请确保结果是你期望的.
 
 
@@ -333,33 +333,28 @@ Django提供的聚合函数在下文的 `Aggregation Functions`_ 文档中有详
 默认情况下, ``QuerySet`` 不会进行去重操作. 而在实际情况中, 这一般不会有问题, 因为像 ``Blog.objects.all()`` 这样简答的查询不会引入重复的行.
 但是, 在跨多表查询时， ``QuerySet`` 可能就会包含重复的结果. 这时候就应该使用 ``distinct()``.
 
-.. note::
-    :meth:`order_by` 调用中使用的任何字段都包含在SQL的 ``SELECT`` 列当中. 当和 ``distinct()``一起使用时，可能会导致意料之外的结果.
+.. note ::
+    :meth:`order_by` 调用中使用的任何字段都包含在SQL的 ``SELECT`` 列当中. 当和 ``distinct()`` 一起使用时，可能会导致意料之外的结果.
     如果根据关联模型的字段排序，那么这个字段将被添加到查询字段中，这样它们可能会使其他本来是重复的行看起来不同了.
     而由于这个额外的字段不会出现在返回的结果中(它们只用于排序)，所以这时看起来返回的结果并不正确.
 
     类似地，如果使用 :meth:`values()` 查询来限制所选的列，那么 :meth:`order_by()` (或默认的模型排序)中使用的列仍然会涉及，并可能影响结果的唯一性。
 
-    上面的意思是，如果您使用的是 `distinct()`` ，那么使用相关模型字段排序时一定得小心。同样，
-    当将 `distinct()`` 和 :meth:`values()` 一起使用时，请注意字段在不在 :meth:`values()` 中。
+    上面的意思是，如果您使用的是 ``distinct()`` ，那么使用相关模型字段排序时一定得小心。同样，
+    当将 ``distinct()`` 和 :meth:`values()` 一起使用时，请注意字段在不在 :meth:`values()` 中。
 
-On PostgreSQL only, you can pass positional arguments (``*fields``) in order to
-specify the names of fields to which the ``DISTINCT`` should apply. This
-translates to a ``SELECT DISTINCT ON`` SQL query. Here's the difference. For a
-normal ``distinct()`` call, the database compares *each* field in each row when
-determining which rows are distinct. For a ``distinct()`` call with specified
-field names, the database will only compare the specified field names.
+仅在PostgreSQL上, 可以传递位置参数(``*fields``), 用来指定 ``DISTINCT`` 应该应用到的字段的名称.
+转换为SQL查询上的 ``SELECT DISTINCT ON``. 区别于其他的普通 ``distinct()`` 调用,
+数据库在确定哪些行是不同的时候比较每一行中的每个字段. 对于具有指定字段名的 ``distinct()`` 调用, 数据库将只比较指定字段名.
 
 .. note::
-    When you specify field names, you *must* provide an ``order_by()`` in the
-    ``QuerySet``, and the fields in ``order_by()`` must start with the fields in
-    ``distinct()``, in the same order.
 
-    For example, ``SELECT DISTINCT ON (a)`` gives you the first row for each
-    value in column ``a``. If you don't specify an order, you'll get some
-    arbitrary row.
+    当指定字段名时, *必须* 在 ``QuerySet`` 中使用 ``order_by()``, ``order_by()`` 中的字段必须和 ``distinct()`` 字段顺序相同.
 
-Examples (those after the first will only work on PostgreSQL)::
+    例如, ``SELECT DISTINCT ON (a)`` 为每个列 ``a`` 中提供第一行, 如果没有指定顺序就会返回随机的一行.
+
+
+示例 (除第一个例子,其他仅在PostgreSQL上有效)::
 
     >>> Author.objects.distinct()
     [...]
@@ -380,33 +375,25 @@ Examples (those after the first will only work on PostgreSQL)::
     [...]
 
 .. note::
-    Keep in mind that :meth:`order_by` uses any default related model ordering
-    that has been defined. You might have to explicitly order by the relation
-    ``_id`` or referenced field to make sure the ``DISTINCT ON`` expressions
-    match those at the beginning of the ``ORDER BY`` clause. For example, if
-    the ``Blog`` model defined an :attr:`~django.db.models.Options.ordering` by
-    ``name``::
+    注意, :meth:`order_by` 使用在定义了默认排序的关联模型中时，可能需要使用关联 ``_id`` 或者关联字段显式排序,
+    以 ``DISTINCT ON`` 表达式与 ``ORDER BY`` 子句开头的表达式匹配. 例如，如果 ``Blog`` 模型按定义了一个
+    按 ``name`` 的 :attr:`~django.db.models.Options.ordering`::
 
         Entry.objects.order_by('blog').distinct('blog')
 
-    ...wouldn't work because the query would be ordered by ``blog__name`` thus
-    mismatching the ``DISTINCT ON`` expression. You'd have to explicitly order
-    by the relation `_id` field (``blog_id`` in this case) or the referenced
-    one (``blog__pk``) to make sure both expressions match.
+    ...将不会生效, 因为查询时将会使用 ``blog_name`` 排序, 这与 ``DISTINCT ON`` 表达式不匹配. 这种情况下必须使用关联 `_id` 字段
+     (该例中为 ``blog_id`` ) 或者引用的字段(``blog__pk``) 显式排序, 保证两个表达式匹配.
 
 ``values()``
 ~~~~~~~~~~~~
 
 .. method:: values(*fields)
 
-Returns a ``QuerySet`` that returns dictionaries, rather than model instances,
-when used as an iterable.
+返回一个 ``QuerySet`` ，该 ``QuerySet`` 返回字典，而不是可迭代的模型实例.
 
-Each of those dictionaries represents an object, with the keys corresponding to
-the attribute names of model objects.
+每个字典都表示一个对象, 其键对应于模型对象的属性名.
 
-This example compares the dictionaries of ``values()`` with the normal model
-objects::
+这个例子比较了 ``values()`` 字典和普通模型对象::
 
     # This list contains a Blog object.
     >>> Blog.objects.filter(name__startswith='Beatles')
@@ -416,31 +403,23 @@ objects::
     >>> Blog.objects.filter(name__startswith='Beatles').values()
     <QuerySet [{'id': 1, 'name': 'Beatles Blog', 'tagline': 'All the latest Beatles news.'}]>
 
-The ``values()`` method takes optional positional arguments, ``*fields``, which
-specify field names to which the ``SELECT`` should be limited. If you specify
-the fields, each dictionary will contain only the field keys/values for the
-fields you specify. If you don't specify the fields, each dictionary will
-contain a key and value for every field in the database table.
+``values()`` 方法接受可选位置参数 ``*fields``, 其作用是用于指定 ``SELECT`` 中限制的字段名.
+如果设置了限制字段, 那个所有字典只会包含指定的 键/值. 如果没有指定字段, 那么所有字段将包含数据库表中所有字段的键值.
 
-Example::
+例子::
 
     >>> Blog.objects.values()
     <QuerySet [{'id': 1, 'name': 'Beatles Blog', 'tagline': 'All the latest Beatles news.'}]>
     >>> Blog.objects.values('id', 'name')
     <QuerySet [{'id': 1, 'name': 'Beatles Blog'}]>
 
-A few subtleties that are worth mentioning:
+值得注意的几点:
 
-* If you have a field called ``foo`` that is a
-  :class:`~django.db.models.ForeignKey`, the default ``values()`` call
-  will return a dictionary key called ``foo_id``, since this is the name
-  of the hidden model attribute that stores the actual value (the ``foo``
-  attribute refers to the related model). When you are calling
-  ``values()`` and passing in field names, you can pass in either ``foo``
-  or ``foo_id`` and you will get back the same thing (the dictionary key
-  will match the field name you passed in).
+* 如果有一个名为 ``foo`` 的 :class:`~django.db.models.ForeignKey` 字段, 那么调用默认的 ``values()`` 返回的字典将
+  包含一个 ``foo_id`` 的键, 因为这是存储实际值的隐藏模型属性名称(``foo`` 属性引用相关的模型). 当调用 ``values()`` 并传入字段名时,
+  您可以传入 ``foo`` 或 ``foo_id``, 返回相同的内容(字典键会匹配传入的字段名).
 
-  For example::
+  示例::
 
     >>> Entry.objects.values()
     <QuerySet [{'blog_id': 1, 'headline': 'First Entry', ...}, ...]>
@@ -451,36 +430,24 @@ A few subtleties that are worth mentioning:
     >>> Entry.objects.values('blog_id')
     <QuerySet [{'blog_id': 1}, ...]>
 
-* When using ``values()`` together with :meth:`distinct()`, be aware that
-  ordering can affect the results. See the note in :meth:`distinct` for
-  details.
+* 当同时使用 ``values()`` 和 ``distinct()`` 时, 注意排序会影响结果. 详细信息请参阅 :meth:`distinct` 中的注释.
 
-* If you use a ``values()`` clause after an :meth:`extra()` call,
-  any fields defined by a ``select`` argument in the :meth:`extra()` must
-  be explicitly included in the ``values()`` call. Any :meth:`extra()` call
-  made after a ``values()`` call will have its extra selected fields
-  ignored.
+* 如果在 :meth:`extra()` 调用之后使用 ``values()`` 子句, 那么在 :meth:`extra()` 中的 ``select`` 参数定义的任何字段都必须显式包含
+  在 ``values()`` 中. 在 ``values()`` 之后进行的任何 :meth:`extra()` 都将忽略其selected的额外字段.
 
-* Calling :meth:`only()` and :meth:`defer()` after ``values()`` doesn't make
-  sense, so doing so will raise a ``NotImplementedError``.
+* 在 ``values()`` 之后调用 :meth:`only()` 和 :meth:`defer()` 不太合理, 因此这么做会引发 ``NotImplementedError``.
 
-It is useful when you know you're only going to need values from a small number
-of the available fields and you won't need the functionality of a model
-instance object. It's more efficient to select only the fields you need to use.
+当只需要少量可用字段的值, 并且不需要模型实例对象的功能时, 只选择需要使用的字段会更有效.
 
-Finally, note that you can call ``filter()``, ``order_by()``, etc. after the
-``values()`` call, that means that these two calls are identical::
+最后, 可以在 ``values()`` 调用之后调用 ``filter()`` 、 ``order_by()`` 等, 这意味着下面这两个调用是相同的::
 
     Blog.objects.values().order_by('id')
     Blog.objects.order_by('id').values()
 
-The people who made Django prefer to put all the SQL-affecting methods first,
-followed (optionally) by any output-affecting methods (such as ``values()``),
-but it doesn't really matter. This is your chance to really flaunt your
-individualism.
+Django的开发者喜欢将所有影响sql的方法放在前面(可选), 然后才是影响输出的方法(例如 ``values()`` ),
+但是实际上无所谓, 这是卖弄你个性的好机会.
 
-You can also refer to fields on related models with reverse relations through
-``OneToOneField``, ``ForeignKey`` and ``ManyToManyField`` attributes::
+还可以通过 ``OneToOneField``, ``ForeignKey`` 和 ``ManyToManyField`` 属性来引用具有反向关系的相关模型的字段::
 
     >>> Blog.objects.values('name', 'entry__headline')
     <QuerySet [{'name': 'My blog', 'entry__headline': 'An entry'},
@@ -488,28 +455,23 @@ You can also refer to fields on related models with reverse relations through
 
 .. warning::
 
-   Because :class:`~django.db.models.ManyToManyField` attributes and reverse
-   relations can have multiple related rows, including these can have a
-   multiplier effect on the size of your result set. This will be especially
-   pronounced if you include multiple such fields in your ``values()`` query,
-   in which case all possible combinations will be returned.
+   因为 :class:`~django.db.models.ManyToManyField` 字段和反向关联关系可以有多个关联的行,
+   包括这些行可能会使结果集倍数放大.如果在 ``values()`` 查询中包含多个此类字段，这会特别明显，
+   在这种情况下，将返回所有可能的组合.
 
 ``values_list()``
 ~~~~~~~~~~~~~~~~~
 
 .. method:: values_list(*fields, flat=False)
 
-This is similar to ``values()`` except that instead of returning dictionaries,
-it returns tuples when iterated over. Each tuple contains the value from the
-respective field passed into the ``values_list()`` call — so the first item is
-the first field, etc. For example::
+它与 ``values()`` 非常类似, 只是在迭代时返回的是元组而不是字典.
+每个元组包含传递到 ``values_list()`` 的相应字段的值——因此第一个项是第一个字段, etc. 例如::
 
     >>> Entry.objects.values_list('id', 'headline')
     [(1, 'First entry'), ...]
 
-If you only pass in a single field, you can also pass in the ``flat``
-parameter. If ``True``, this will mean the returned results are single values,
-rather than one-tuples. An example should make the difference clearer::
+如果只传递了一个字段, 可以使用 ``flat`` 参数. 如何设置为 ``True``, 返回的结果将会是单个值而不是元组,
+下面的例子更容易理解其作用::
 
     >>> Entry.objects.values_list('id').order_by('id')
     [(1,), (2,), (3,), ...]
@@ -517,13 +479,11 @@ rather than one-tuples. An example should make the difference clearer::
     >>> Entry.objects.values_list('id', flat=True).order_by('id')
     [1, 2, 3, ...]
 
-It is an error to pass in ``flat`` when there is more than one field.
+如果传入多个字段同时设置了 ``flat`` 时将产生错误.
 
-If you don't pass any values to ``values_list()``, it will return all the
-fields in the model, in the order they were declared.
+如果没有向``values_list()`` 中传入字段, 那么它将会返回模型中所有字段, 顺序为模型在定义的顺序.
 
-A common need is to get a specific field value of a certain model instance. To
-achieve that, use ``values_list()`` followed by a ``get()`` call::
+一个常见的需求是获取某个模型实例的特定字段值. 使用 ``values_list()`` 跟上 ``get()`` 调用来实现::
 
     >>> Entry.objects.values_list('headline', flat=True).get(pk=1)
     'First entry'
