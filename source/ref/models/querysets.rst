@@ -488,14 +488,11 @@ Django的开发者喜欢将所有影响sql的方法放在前面(可选), 然后�
     >>> Entry.objects.values_list('headline', flat=True).get(pk=1)
     'First entry'
 
-``values()`` and ``values_list()`` are both intended as optimizations for a
-specific use case: retrieving a subset of data without the overhead of creating
-a model instance. This metaphor falls apart when dealing with many-to-many and
-other multivalued relations (such as the one-to-many relation of a reverse
-foreign key) because the "one row, one object" assumption doesn't hold.
+这个比喻在处理多对多和其他多值关系（例如反向外键的一对多关系）时分歧，因为“一行一对象”的假设不成立
+``values()`` 和 ``values_list()`` 都是用于特定用例的优化: 检索数据子集而不需要创建模型实例.
+但是在处理多对多和其他多值关系(比如反向外键的一对多关系)时不适用, 因为“一行，一个对象”的假设都成立.
 
-For example, notice the behavior when querying across a
-:class:`~django.db.models.ManyToManyField`::
+例子，注意下面通过 :class:`~django.db.models.ManyToManyField` 进行查询时的行为::
 
     >>> Author.objects.values_list('name', 'entry__headline')
     [('Noam Chomsky', 'Impressions of Gaza'),
@@ -503,11 +500,9 @@ For example, notice the behavior when querying across a
      ('George Orwell', 'In Defence of English Cooking'),
      ('Don Quixote', None)]
 
-Authors with multiple entries appear multiple times and authors without any
-entries have ``None`` for the entry headline.
+具有多个entry的Author会多次出现，而没有任何entry的Author则是 ``None``.
 
-Similarly, when querying a reverse foreign key, ``None`` appears for entries
-not having any author::
+类似地, 当查询反向外键时. 对于没有entry的Author仍然是 ``None`` ::
 
     >>> Entry.objects.values_list('authors')
     [('Noam Chomsky',), ('George Orwell',), (None,)]
@@ -517,23 +512,17 @@ not having any author::
 
 .. method:: dates(field, kind, order='ASC')
 
-Returns a ``QuerySet`` that evaluates to a list of :class:`datetime.date`
-objects representing all available dates of a particular kind within the
-contents of the ``QuerySet``.
+返回一个计算结果为 :class:`datetime.date` 列表的 ``QuerySet``. 内容是 ``QuerySet`` 中某一特定类型的所有可用日期.
 
-``field`` should be the name of a ``DateField`` of your model.
-``kind`` should be either ``"year"``, ``"month"`` or ``"day"``. Each
-``datetime.date`` object in the result list is "truncated" to the given
-``type``.
+``field`` 是模型中 ``DateField`` 字段的名称.
+``kind`` 接受 ``"year"`` 、 ``"month"`` 或者 ``"day"`` 参数. 结果中每个
+``datetime.date`` 对象都会返回按指定的 ``type`` 截断的结果.
 
-* ``"year"`` returns a list of all distinct year values for the field.
-* ``"month"`` returns a list of all distinct year/month values for the
-  field.
-* ``"day"`` returns a list of all distinct year/month/day values for the
-  field.
+* ``"year"`` 返回字段的所有不同年份值的列表.
+* ``"month"`` 返回字段的所有不同 year/month 的列表.
+* ``"day"`` 返回字段的所有不同 year/month/day 的列表.
 
-``order``, which defaults to ``'ASC'``, should be either ``'ASC'`` or
-``'DESC'``. This specifies how to order the results.
+``order``, 默认为 ``'ASC'``, 接受 ``'ASC'`` 和 ``'DESC'`` 两种参数. 用于指定排序方式.
 
 Examples::
 
@@ -553,39 +542,30 @@ Examples::
 
 .. method:: datetimes(field_name, kind, order='ASC', tzinfo=None)
 
-Returns a ``QuerySet`` that evaluates to a list of :class:`datetime.datetime`
-objects representing all available dates of a particular kind within the
-contents of the ``QuerySet``.
+返回一个计算结果为 :class:`datetime.datetime` 列表的 ``QuerySet``. 内容是 ``QuerySet`` 中某一特定类型的所有可用日期.
 
-``field_name`` should be the name of a ``DateTimeField`` of your model.
 
-``kind`` should be either ``"year"``, ``"month"``, ``"day"``, ``"hour"``,
-``"minute"`` or ``"second"``. Each ``datetime.datetime`` object in the result
-list is "truncated" to the given ``type``.
+``field_name`` 是模型中 ``DateTimeField`` 字段的名称.
 
-``order``, which defaults to ``'ASC'``, should be either ``'ASC'`` or
-``'DESC'``. This specifies how to order the results.
+``kind`` 接受 ``"year"``, ``"month"``, ``"day"``, ``"hour"``,
+``"minute"`` 和 ``"second"`` 参数. 结果中每个
+``datetime.datetime`` 对象都会返回按指定的 ``type`` 截断的结果.
 
-``tzinfo`` defines the time zone to which datetimes are converted prior to
-truncation. Indeed, a given datetime has different representations depending
-on the time zone in use. This parameter must be a :class:`datetime.tzinfo`
-object. If it's ``None``, Django uses the :ref:`current time zone
-<default-current-time-zone>`. It has no effect when :setting:`USE_TZ` is
-``False``.
+``order``, 默认为 ``'ASC'``, 接受 ``'ASC'`` 和 ``'DESC'`` 两种参数. 用于指定排序方式.
+
+``tzinfo`` 定义在截断之前将数据时间转换到的时区. 这取决于使用的时区. 此参数必须是 :class:`datetime.tzinfo` 对象.
+如果传入为 ``None``, Django 会使用 :ref:`当前时区 <default-current-time-zone>`. 当 :setting:`USE_TZ` 设置为 ``False`` 时该项无效.
 
 .. _database-time-zone-definitions:
 
 .. note::
 
-    This function performs time zone conversions directly in the database.
-    As a consequence, your database must be able to interpret the value of
-    ``tzinfo.tzname(None)``. This translates into the following requirements:
+    此函数直接在数据库中执行时区转换。因此，您的数据库必须能够解析 ``tzinfo.tzname(None)`` 的值。这意味着以下要求:
 
-    - SQLite: install pytz_ — conversions are actually performed in Python.
-    - PostgreSQL: no requirements (see `Time Zones`_).
-    - Oracle: no requirements (see `Choosing a Time Zone File`_).
-    - MySQL: install pytz_ and load the time zone tables with
-      `mysql_tzinfo_to_sql`_.
+    - SQLite: 安装 pytz_ — 转换过程其实是在Python中完成.
+    - PostgreSQL: 没有要求 (参考 `Time Zones`_).
+    - Oracle: 没有要求 (参考 `Choosing a Time Zone File`_).
+    - MySQL: 安装 pytz_ 并且时使用 `mysql_tzinfo_to_sql`_ 加载时区表.
 
     .. _pytz: http://pytz.sourceforge.net/
     .. _Time Zones: https://www.postgresql.org/docs/current/static/datatype-datetime.html#DATATYPE-TIMEZONES
