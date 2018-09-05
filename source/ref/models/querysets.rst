@@ -577,11 +577,9 @@ Examples::
 
 .. method:: none()
 
-Calling none() will create a queryset that never returns any objects and no
-query will be executed when accessing the results. A qs.none() queryset
-is an instance of ``EmptyQuerySet``.
+调用 ``none()`` 会返回一个不反悔任何对象的查询集,并且当访问该查询集时也不会执行任何查询. 比如 qs.none() 的查询集其实就是``EmptyQuerySet`` 的一个实例.
 
-Examples::
+例如::
 
     >>> Entry.objects.none()
     <QuerySet []>
@@ -594,64 +592,55 @@ Examples::
 
 .. method:: all()
 
-Returns a *copy* of the current ``QuerySet`` (or ``QuerySet`` subclass).  This
-can be useful in situations where you might want to pass in either a model
-manager or a ``QuerySet`` and do further filtering on the result. After calling
-``all()`` on either object, you'll definitely have a ``QuerySet`` to work with.
+返回当前 ``QuerySet`` 的一个 *copy*  (或者 ``QuerySet`` 子类). 它可以用于当你需要传入模型管理器或者对结果做进一步过滤.
+无论以哪种方式调用 ``all()`` , 都可以获得一个可以正常工作的 ``QuerySet``.
 
-When a ``QuerySet`` is :ref:`evaluated <when-querysets-are-evaluated>`, it
-typically caches its results. If the data in the database might have changed
-since a ``QuerySet`` was evaluated, you can get updated results for the same
-query by calling ``all()`` on a previously evaluated ``QuerySet``.
+当 ``QuerySet`` 被 :ref:`求值 <when-querysets-are-evaluated>`, Django会缓存其结果.
+如果在此之后数据库中的值发生了改变. 可以通过调用求值前调用的 ``all()`` 来获取更新后的数据.
 
 ``select_related()``
 ~~~~~~~~~~~~~~~~~~~~
 
 .. method:: select_related(*fields)
 
-Returns a ``QuerySet`` that will "follow" foreign-key relationships, selecting
-additional related-object data when it executes its query. This is a
-performance booster which results in a single more complex query but means
-later use of foreign-key relationships won't require database queries.
+返回一个“遵循”外键关系的 ``QuerySet``, 在执行查询时可以选择其他关联对象的数据.
+这是一个性能增强, 这样可以做更复杂的查询，而且意味着以后使用外键关系不需要再次做数据库查询.
 
-The following examples illustrate the difference between plain lookups and
-``select_related()`` lookups. Here's standard lookup::
+下面的例子解释了普通查询和 ``select_related()`` 查询的区别, 下面是一个标准查询::
 
-    # Hits the database.
+    # 访问数据库
     e = Entry.objects.get(id=5)
 
-    # Hits the database again to get the related Blog object.
+    # 再次访问数据库以得到关联的Blog对象.
     b = e.blog
 
-And here's ``select_related`` lookup::
+下面是 ``select_related`` 查询::
 
-    # Hits the database.
+    # 访问数据库
     e = Entry.objects.select_related('blog').get(id=5)
 
-    # Doesn't hit the database, because e.blog has been prepopulated
-    # in the previous query.
+    # 不会访问数据库，因为e.blog已经
+    # 在前面的查询中填写好.
     b = e.blog
 
-You can use ``select_related()`` with any queryset of objects::
+``select_related()`` 可以用于objects的所有查询集::
 
     from django.utils import timezone
 
-    # Find all the blogs with entries scheduled to be published in the future.
+    # 找到所有pub_date在当前时间之后的blog.
     blogs = set()
 
     for e in Entry.objects.filter(pub_date__gt=timezone.now()).select_related('blog'):
-        # Without select_related(), this would make a database query for each
-        # loop iteration in order to fetch the related blog for each entry.
+        # 如果没有使用select_related(), 每次循环都将执行数据库查询来获得每个entry关联的blog
         blogs.add(e.blog)
 
-The order of ``filter()`` and ``select_related()`` chaining isn't important.
-These querysets are equivalent::
+``filter()`` 和 ``select_related()`` 的使用顺序并无影响.
+下两个两个查询集时等同的::
 
     Entry.objects.filter(pub_date__gt=timezone.now()).select_related('blog')
     Entry.objects.select_related('blog').filter(pub_date__gt=timezone.now())
 
-You can follow foreign keys in a similar way to querying them. If you have the
-following models::
+同样也可以按照类似的方式来查询外键. 例如下面的模型::
 
     from django.db import models
 
@@ -672,24 +661,23 @@ following models::
         # ...
         author = models.ForeignKey(Person, on_delete=models.CASCADE)
 
-... then a call to ``Book.objects.select_related('author__hometown').get(id=4)``
-will cache the related ``Person`` *and* the related ``City``::
+... 然后调用 ``Book.objects.select_related('author__hometown').get(id=4)``
+将缓存相关的 ``Person`` *和* 与之相关的 ``City``::
 
     b = Book.objects.select_related('author__hometown').get(id=4)
-    p = b.author         # Doesn't hit the database.
-    c = p.hometown       # Doesn't hit the database.
+    p = b.author         # 不会访问数据库
+    c = p.hometown       # 不会访问数据库
 
-    b = Book.objects.get(id=4) # No select_related() in this example.
-    p = b.author         # Hits the database.
-    c = p.hometown       # Hits the database.
+    b = Book.objects.get(id=4) # 本例不使用 select_related()
+    p = b.author         # 访问数据库
+    c = p.hometown       # 访问数据库
 
-You can refer to any :class:`~django.db.models.ForeignKey` or
-:class:`~django.db.models.OneToOneField` relation in the list of fields
-passed to ``select_related()``.
+``select_related()`` 的字段接受任何 :class:`~django.db.models.ForeignKey` 和
+:class:`~django.db.models.OneToOneField` 关联字段.
 
-You can also refer to the reverse direction of a
-:class:`~django.db.models.OneToOneField` in the list of fields passed to
-``select_related`` — that is, you can traverse a
+还可以给 ``select_related`` 传递
+:class:`~django.db.models.OneToOneField` 的反向字段
+ — that is, you can traverse a
 :class:`~django.db.models.OneToOneField` back to the object on which the field
 is defined. Instead of specifying the field name, use the :attr:`related_name
 <django.db.models.ForeignKey.related_name>` for the field on the related object.
