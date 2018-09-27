@@ -676,59 +676,45 @@ Examples::
 :class:`~django.db.models.OneToOneField` 关联字段.
 
 还可以给 ``select_related`` 传递
-:class:`~django.db.models.OneToOneField` 的反向字段
- — that is, you can traverse a
-:class:`~django.db.models.OneToOneField` back to the object on which the field
-is defined. Instead of specifying the field name, use the :attr:`related_name
-<django.db.models.ForeignKey.related_name>` for the field on the related object.
+:class:`~django.db.models.OneToOneField` 的反向字段 — 这样可以回溯到定义 :class:`~django.db.models.OneToOneField` 字段的对象.
+这样可以使用关联字段对象的 :attr:`related_name
+<django.db.models.ForeignKey.related_name>` 而不用指定字段名称.
 
-There may be some situations where you wish to call ``select_related()`` with a
-lot of related objects, or where you don't know all of the relations. In these
-cases it is possible to call ``select_related()`` with no arguments. This will
-follow all non-null foreign keys it can find - nullable foreign keys must be
-specified. This is not recommended in most cases as it is likely to make the
-underlying query more complex, and return more data, than is actually needed.
+``select_related()`` 的使用场景是当有很多关联对象，或者你不知道所有的关联关系时.
+这时可以使用不带参数的 ``select_related()`` . 它可以找到所有不能为空的外键，可以为空的外键必须明确指定.
+但是多数情况下不建议这样做, 因为它会使底层的查询变得非常复杂并且返回的数据并不都是真正需要的.
 
-If you need to clear the list of related fields added by past calls of
-``select_related`` on a ``QuerySet``, you can pass ``None`` as a parameter::
+如果需要清除 ``QuerySet`` 上以前的 ``select_related`` 调用添加的关联字段，可以传递一个 ``None`` 作为参数::
 
    >>> without_relations = queryset.select_related(None)
 
-Chaining ``select_related`` calls works in a similar way to other methods -
-that is that ``select_related('foo', 'bar')`` is equivalent to
-``select_related('foo').select_related('bar')``.
+链式调用 ``select_related`` 的工作方式与其它方法类似 — 也就是说,
+``select_related('foo', 'bar')`` 等同于 ``select_related('foo').select_related('bar')``.
 
 ``prefetch_related()``
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. method:: prefetch_related(*lookups)
 
-Returns a ``QuerySet`` that will automatically retrieve, in a single batch,
-related objects for each of the specified lookups.
+返回一个 ``QuerySet`` ，它将在单个批处理中为每个指定查询自动检索相关对象.
 
-This has a similar purpose to ``select_related``, in that both are designed to
-stop the deluge of database queries that is caused by accessing related objects,
-but the strategy is quite different.
+它和 ``select_related`` 具体相同的目的, 两者都是用来防止查询关联对象时导致过多的数据库查询,
+但是两者的做法是完全不同的.
 
-``select_related`` works by creating an SQL join and including the fields of the
-related object in the ``SELECT`` statement. For this reason, ``select_related``
-gets the related objects in the same database query. However, to avoid the much
-larger result set that would result from joining across a 'many' relationship,
-``select_related`` is limited to single-valued relationships - foreign key and
-one-to-one.
+``select_related`` 通过在 ``SELECT`` 中声明关联字段,使用Join语句关联多个表实现.
+因此, ``select_related`` 使用一次数据库查询得到关联对象.
+但是, 为了避免关联'多个'关联关系导致查询集太多庞大,
+``select_related`` 仅限使用于单值关系 - 外键和一对一.
 
-``prefetch_related``, on the other hand, does a separate lookup for each
-relationship, and does the 'joining' in Python. This allows it to prefetch
-many-to-many and many-to-one objects, which cannot be done using
-``select_related``, in addition to the foreign key and one-to-one relationships
-that are supported by ``select_related``. It also supports prefetching of
-:class:`~django.contrib.contenttypes.fields.GenericRelation` and
-:class:`~django.contrib.contenttypes.fields.GenericForeignKey`, however, it
-must be restricted to a homogeneous set of results. For example, prefetching
-objects referenced by a ``GenericForeignKey`` is only supported if the query
-is restricted to one ``ContentType``.
+``prefetch_related`` 则不同, 它为每个关联关系做一次查询, 然后在Python中做'joining'.
+这使其支持除 ``select_related`` 支持的外键、一对一关系外, 还支持多对多和多对一关系.
+它还支持 prefetching
+:class:`~django.contrib.contenttypes.fields.GenericRelation` 和
+:class:`~django.contrib.contenttypes.fields.GenericForeignKey`,
+但是, 它必须限于一组均匀的结果. 例如, 仅当查询被限制为一个 ``ContentType`` 时,
+才支持预取由 ``GenericForeignKey` 引用的对象.
 
-For example, suppose you have these models::
+例子, 假设有如下模型::
 
     from django.db import models
 
@@ -745,24 +731,22 @@ For example, suppose you have these models::
                 ", ".join(topping.name for topping in self.toppings.all()),
             )
 
-and run::
+然后运行::
 
     >>> Pizza.objects.all()
     ["Hawaiian (ham, pineapple)", "Seafood (prawns, smoked salmon)"...
 
-The problem with this is that every time ``Pizza.__str__()`` asks for
-``self.toppings.all()`` it has to query the database, so
-``Pizza.objects.all()`` will run a query on the Toppings table for **every**
-item in the Pizza ``QuerySet``.
+现在的问题是每次调用 ``Pizza.__str__()`` 都会触发
+``self.toppings.all()``, 它一定会查询数据库, 因此
+``Pizza.objects.all()`` 将会为Pizza ``QuerySet`` 中的
+**每个** 元素到Toppings表进行查询.
 
-We can reduce to just two queries using ``prefetch_related``:
+可以使用 ``prefetch_related`` 将其减少为两次查询:
 
     >>> Pizza.objects.all().prefetch_related('toppings')
 
-This implies a ``self.toppings.all()`` for each ``Pizza``; now each time
-``self.toppings.all()`` is called, instead of having to go to the database for
-the items, it will find them in a prefetched ``QuerySet`` cache that was
-populated in a single query.
+这意味着每个 ``Pizza`` 都做了 ``self.toppings.all()``; 但是现在每次调用
+``self.toppings.all()`` 时, 它不必去数据库查询内容, 它会在一个预取的 ``QuerySet`` 缓存中找到,这个缓存一次查询就会生成.
 
 That is, all the relevant toppings will have been fetched in a single query,
 and used to make ``QuerySets`` that have a pre-filled cache of the relevant
