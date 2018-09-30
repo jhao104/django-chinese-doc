@@ -712,7 +712,7 @@ Examples::
 :class:`~django.contrib.contenttypes.fields.GenericRelation` 和
 :class:`~django.contrib.contenttypes.fields.GenericForeignKey`,
 但是, 它必须限于一组均匀的结果. 例如, 仅当查询被限制为一个 ``ContentType`` 时,
-才支持预取由 ``GenericForeignKey` 引用的对象.
+才支持预取由 ``GenericForeignKey`` 引用的对象.
 
 例子, 假设有如下模型::
 
@@ -748,141 +748,112 @@ Examples::
 这意味着每个 ``Pizza`` 都做了 ``self.toppings.all()``; 但是现在每次调用
 ``self.toppings.all()`` 时, 它不必去数据库查询内容, 它会在一个预取的 ``QuerySet`` 缓存中找到,这个缓存一次查询就会生成.
 
-That is, all the relevant toppings will have been fetched in a single query,
-and used to make ``QuerySets`` that have a pre-filled cache of the relevant
-results; these ``QuerySets`` are then used in the ``self.toppings.all()`` calls.
+也就是说，所有关联的topping都会在一个查询中获取, 作为 ``QuerySets`` 关联结果的预填充缓存;
+然后这些 ``QuerySets`` 用于 ``self.toppings.all()`` 调用.
 
-The additional queries in ``prefetch_related()`` are executed after the
-``QuerySet`` has begun to be evaluated and the primary query has been executed.
+``prefetch_related()`` 的附加查询是在
+``QuerySet`` 开始计算且主查询已执行完毕后执行.
 
-If you have an iterable of model instances, you can prefetch related attributes
-on those instances using the :func:`~django.db.models.prefetch_related_objects`
-function.
+如果有一个可迭代的模型实例，则可以使用 :func:`~django.db.models.prefetch_related_objects`
+函数在这些实例上预取相关属性.
 
-Note that the result cache of the primary ``QuerySet`` and all specified related
-objects will then be fully loaded into memory. This changes the typical
-behavior of ``QuerySets``, which normally try to avoid loading all objects into
-memory before they are needed, even after a query has been executed in the
-database.
+注意，主要 ``QuerySet`` 的结果缓存和所有指定的相关对象将被完全加载到内存中.
+这不同于 ``QuerySets`` 的典型行为, 通常会尽量避免在需要之前将所有对象加载到内存中, 即使在数据库中执行了查询后.
 
 .. note::
 
-    Remember that, as always with ``QuerySets``, any subsequent chained methods
-    which imply a different database query will ignore previously cached
-    results, and retrieve data using a fresh database query. So, if you write
-    the following:
+    请记住，与 ``QuerySets`` 一样, 任何后续的连接方法隐含不同的数据库查询时将忽略之前缓存的结果,
+    并使用新的数据库查询检索数据. 所以像下面的代码:
 
         >>> pizzas = Pizza.objects.prefetch_related('toppings')
         >>> [list(pizza.toppings.filter(spicy=True)) for pizza in pizzas]
 
-    ...then the fact that ``pizza.toppings.all()`` has been prefetched will not
-    help you. The ``prefetch_related('toppings')`` implied
-    ``pizza.toppings.all()``, but ``pizza.toppings.filter()`` is a new and
-    different query. The prefetched cache can't help here; in fact it hurts
-    performance, since you have done a database query that you haven't used. So
-    use this feature with caution!
+    ...那么事实上预取的 ``pizza.toppings.all()`` 不会有任何帮助.
+    ``prefetch_related('toppings')`` 隐含了
+    ``pizza.toppings.all()``, 但是 ``pizza.toppings.filter()`` 是一个完全不同的新查询.
+    预取的缓存对它毫无帮助; 实际上它会影响性能, 因为做了一个毫无用处的数据库查询. 所有使用这个功能的时候一定小心!
 
-You can also use the normal join syntax to do related fields of related
-fields. Suppose we have an additional model to the example above::
+您可以使用普通join语法来执行相关字段的相关字段. 假设上面例子中还有一个额外的模型::
 
     class Restaurant(models.Model):
         pizzas = models.ManyToManyField(Pizza, related_name='restaurants')
         best_pizza = models.ForeignKey(Pizza, related_name='championed_by')
 
-The following are all legal:
+下面都是合法的:
 
     >>> Restaurant.objects.prefetch_related('pizzas__toppings')
 
-This will prefetch all pizzas belonging to restaurants, and all toppings
-belonging to those pizzas. This will result in a total of 3 database queries -
-one for the restaurants, one for the pizzas, and one for the toppings.
+这将预取所有属于restaurant的pizza,所有属于pizza的topping.
+这将产生总共3个数据库查询 - 一个用于restaurant，一个用于pizza，一个用于topping.
 
     >>> Restaurant.objects.prefetch_related('best_pizza__toppings')
 
-This will fetch the best pizza and all the toppings for the best pizza for each
-restaurant. This will be done in 3 database queries - one for the restaurants,
-one for the 'best pizzas', and one for one for the toppings.
+这将预取所有best pizza,每个restaurant的 best pizza的topping.
+这将产生总共3个数据库查询 - 一个用于restaurant，一个用于best pizza，一个用于topping.
 
-Of course, the ``best_pizza`` relationship could also be fetched using
-``select_related`` to reduce the query count to 2:
+当然, ``best_pizza`` 关系可以使用
+``select_related`` 来获取，这样可以将数据库查询减少为2:
 
     >>> Restaurant.objects.select_related('best_pizza').prefetch_related('best_pizza__toppings')
 
-Since the prefetch is executed after the main query (which includes the joins
-needed by ``select_related``), it is able to detect that the ``best_pizza``
-objects have already been fetched, and it will skip fetching them again.
+因为预取在主查询(那个包括 ``select_related`` 所需的join）之后执行,
+因此它能够检测到 ``best_pizza`` 对象已经被提取, 并且它会跳过不在获取它们.
 
-Chaining ``prefetch_related`` calls will accumulate the lookups that are
-prefetched. To clear any ``prefetch_related`` behavior, pass ``None`` as a
-parameter:
+链式的 ``prefetch_related`` 调用将会累计预取的查询. 如果要清除 ``prefetch_related`` 的行为,
+可以通过传入参数 ``None`` 的方式实现:
 
    >>> non_prefetched = qs.prefetch_related(None)
 
-One difference to note when using ``prefetch_related`` is that objects created
-by a query can be shared between the different objects that they are related to
-i.e. a single Python model instance can appear at more than one point in the
-tree of objects that are returned. This will normally happen with foreign key
-relationships. Typically this behavior will not be a problem, and will in fact
-save both memory and CPU time.
+使用 ``prefetch_related`` 时需要注意的一点是，查询创建的对象可以在它们相关的不同对象之间共享，
+即在返回的对象树中，单个Python模型实例可以出现在多个点上.
+它通常会在与外键的关系中出现. 这种行为不是一个缺点，实际上会节省内存和CPU时间.
 
-While ``prefetch_related`` supports prefetching ``GenericForeignKey``
-relationships, the number of queries will depend on the data. Since a
-``GenericForeignKey`` can reference data in multiple tables, one query per table
-referenced is needed, rather than one query for all the items. There could be
-additional queries on the ``ContentType`` table if the relevant rows have not
-already been fetched.
+虽然 ``prefetch_related`` 支持预取 ``GenericForeignKey`` 关系,但查询的数量将取决于数据.
+由于 ``GenericForeignKey`` 可以引用多个表中的数据, 因此需要对每个表引用一个查询,而不是对所有项进行查询.
+如果相关的行还没有被获取，那么ContentType表上可能会有额外的查询.
 
-``prefetch_related`` in most cases will be implemented using an SQL query that
-uses the 'IN' operator. This means that for a large ``QuerySet`` a large 'IN' clause
-could be generated, which, depending on the database, might have performance
-problems of its own when it comes to parsing or executing the SQL query. Always
-profile for your use case!
+``prefetch_related`` 在多数情况下会使用“IN”运算符的SQL查询来实现.
+这意味着对于大型 ``QuerySet`` 可能生成一个较大的“IN”子句,
+在解析或执行SQL查询时是否会有性能性能问题这取决于数据库.一定为您的用例配置文件!
 
-Note that if you use ``iterator()`` to run the query, ``prefetch_related()``
-calls will be ignored since these two optimizations do not make sense together.
+请注意，如果您使用 ``iterator()`` 来运行查询, 则会忽略 ``prefetch_related()`` 调用,
+因为这两个优化一起使用并没有意义.
 
-You can use the :class:`~django.db.models.Prefetch` object to further control
-the prefetch operation.
+:class:`~django.db.models.Prefetch` 对象可以进一步控制预取操作.
 
-In its simplest form ``Prefetch`` is equivalent to the traditional string based
-lookups:
+在其最简单的形式中, ``Prefetch`` 等效于传统的基于字符串的查找:
 
     >>> from django.db.models import Prefetch
     >>> Restaurant.objects.prefetch_related(Prefetch('pizzas__toppings'))
 
-You can provide a custom queryset with the optional ``queryset`` argument.
-This can be used to change the default ordering of the queryset:
+可以使用可选的 ``queryset`` 参数提供自定义查询集. 下面代码可以用于更改查询集的默认顺序:
 
     >>> Restaurant.objects.prefetch_related(
     ...     Prefetch('pizzas__toppings', queryset=Toppings.objects.order_by('name')))
 
-Or to call :meth:`~django.db.models.query.QuerySet.select_related()` when
-applicable to reduce the number of queries even further:
+或者在适当时调用 :meth:`~django.db.models.query.QuerySet.select_related()`
+以减少查询数量:
 
     >>> Pizza.objects.prefetch_related(
     ...     Prefetch('restaurants', queryset=Restaurant.objects.select_related('best_pizza')))
 
-You can also assign the prefetched result to a custom attribute with the optional
-``to_attr`` argument. The result will be stored directly in a list.
+还可以使用可选的 ``to_attr`` 参数将预取结果分配给自定义属性.结果将直接存储在列表中.
 
-This allows prefetching the same relation multiple times with a different
-``QuerySet``; for instance:
+下面代码允许使用不同的 ``QuerySet`` 多次预取相同的关系;例如:
 
     >>> vegetarian_pizzas = Pizza.objects.filter(vegetarian=True)
     >>> Restaurant.objects.prefetch_related(
     ...     Prefetch('pizzas', to_attr='menu'),
     ...     Prefetch('pizzas', queryset=vegetarian_pizzas, to_attr='vegetarian_menu'))
 
-Lookups created with custom ``to_attr`` can still be traversed as usual by other
-lookups:
+使用自定义 ``to_attr`` 创建的查找仍然可以像同样一样被其他查找遍历:
 
     >>> vegetarian_pizzas = Pizza.objects.filter(vegetarian=True)
     >>> Restaurant.objects.prefetch_related(
     ...     Prefetch('pizzas', queryset=vegetarian_pizzas, to_attr='vegetarian_menu'),
     ...     'vegetarian_menu__toppings')
 
-Using ``to_attr`` is recommended when filtering down the prefetch result as it is
-less ambiguous than storing a filtered result in the related manager's cache:
+在过滤预取结果时, 建议使用 ``to_attr``, 因为它比在相关管理器的缓存中存储经过过滤的结果更模糊:
 
     >>> queryset = Pizza.objects.filter(vegetarian=True)
     >>>
@@ -896,17 +867,15 @@ less ambiguous than storing a filtered result in the related manager's cache:
     ...     Prefetch('pizzas', queryset=queryset))
     >>> vegetarian_pizzas = restaurants[0].pizzas.all()
 
-Custom prefetching also works with single related relations like
-forward ``ForeignKey`` or ``OneToOneField``. Generally you'll want to use
-:meth:`select_related()` for these relations, but there are a number of cases
-where prefetching with a custom ``QuerySet`` is useful:
+自定义预取也适用于单个相关关系, 例如前向 ``ForeignKey`` 和 ``OneToOneField``.
+一般是使用 :meth:`select_related()` 来获取这些关系,
+但是在下面情况下使用自定义的 ``QuerySet`` 预取更加有用:
 
-* You want to use a ``QuerySet`` that performs further prefetching
-  on related models.
+* 想要在相关模型上执行进一步预取的 ``QuerySet``.
 
-* You want to prefetch only a subset of the related objects.
+* 希望仅预取相关对象的子集.
 
-* You want to use performance optimization techniques like
+* 希望使用性能优化,比如
   :meth:`deferred fields <defer()>`:
 
     >>> queryset = Pizza.objects.only('name')
@@ -916,110 +885,96 @@ where prefetching with a custom ``QuerySet`` is useful:
 
 .. note::
 
-    The ordering of lookups matters.
+    查找的顺序很重要.
 
-    Take the following examples:
+    请看下面的例子:
 
        >>> prefetch_related('pizzas__toppings', 'pizzas')
 
-    This works even though it's unordered because ``'pizzas__toppings'``
-    already contains all the needed information, therefore the second argument
-    ``'pizzas'`` is actually redundant.
+    即使它无序也可以正常工作, 因为 ``'pizzas__toppings'`` 已经包含了所有需要的信息，
+    第二个参数 ``'pizzas'`` 实际上是多余的.
 
         >>> prefetch_related('pizzas__toppings', Prefetch('pizzas', queryset=Pizza.objects.all()))
 
-    This will raise a ``ValueError`` because of the attempt to redefine the
-    queryset of a previously seen lookup. Note that an implicit queryset was
-    created to traverse ``'pizzas'`` as part of the ``'pizzas__toppings'``
-    lookup.
+    这将引发 ``ValueError``, 因为它试图重新定义先前看到的查询的查询集.
+    注意,创建隐式queryset是为了遍历 ``“pizzas”``,
+    作为 ``“pizzas__toppings”`` 查找的一部分.
 
         >>> prefetch_related('pizza_list__toppings', Prefetch('pizzas', to_attr='pizza_list'))
 
-    This will trigger an ``AttributeError`` because ``'pizza_list'`` doesn't exist yet
-    when ``'pizza_list__toppings'`` is being processed.
+    这将触发一个 ``AttributeError`` 错误, 因为在处理 ``pizza_list__toppings`` 时,
+    ``pizza_list`` 还不存在.
 
-    This consideration is not limited to the use of ``Prefetch`` objects. Some
-    advanced techniques may require that the lookups be performed in a
-    specific order to avoid creating extra queries; therefore it's recommended
-    to always carefully order ``prefetch_related`` arguments.
+    这些考虑不限于 ``Prefetch``. 一些高级特性可能要求以特定的顺序执行查找, 来避免创建额外的查询;
+    因此, 建议总是慎重地安排 ``prefetch_related`` 参数.
 
 ``extra()``
 ~~~~~~~~~~~
 
 .. method:: extra(select=None, where=None, params=None, tables=None, order_by=None, select_params=None)
 
-Sometimes, the Django query syntax by itself can't easily express a complex
-``WHERE`` clause. For these edge cases, Django provides the ``extra()``
-``QuerySet`` modifier — a hook for injecting specific clauses into the SQL
-generated by a ``QuerySet``.
+有时候, Django查询语法不能很好地表达复杂的 ``WHERE`` 子句.
+对于这些边缘情况, Django提供了 ``QuerySet`` ``extra()`` 修饰符——
+一个将特定的子句注入 ``QuerySet`` 生成的SQL的钩子.
 
-.. admonition:: Use this method as a last resort
+.. admonition:: 这是实在没有办法的情况下使用的方法
 
-    This is an old API that we aim to deprecate at some point in the future.
-    Use it only if you cannot express your query using other queryset methods.
-    If you do need to use it, please `file a ticket
-    <https://code.djangoproject.com/newticket>`_ using the `QuerySet.extra
+    这是一个旧的API, 我们的目标是在将来的某个时候弃用.
+    仅当您无法使用其他查询方法表达您的查询时才使用它.
+    如果您确实需要使用它，请 `file a ticket
+    <https://code.djangoproject.com/newticket>`_ 您用例中的 `QuerySet.extra
     keyword <https://code.djangoproject.com/query?status=assigned&status=new&keywords=~QuerySet.extra>`_
-    with your use case (please check the list of existing tickets first) so
-    that we can enhance the QuerySet API to allow removing ``extra()``. We are
-    no longer improving or fixing bugs for this method.
+    (请先检查现有ticket列表是否已存在), 以便我们可以增强QuerySet API，最终移除 ``extra()`` 方法.
+    我们不再为这个方法改进或修复bug.
 
-    For example, this use of ``extra()``::
+    例如这样是使用 ``extra()``::
 
         >>> qs.extra(
         ...     select={'val': "select col from sometable where othercol = %s"},
         ...     select_params=(someparam,),
         ... )
 
-    is equivalent to::
+    相等于::
 
         >>> qs.annotate(val=RawSQL("select col from sometable where othercol = %s", (someparam,)))
 
-    The main benefit of using :class:`~django.db.models.expressions.RawSQL` is
-    that you can set ``output_field`` if needed. The main downside is that if
-    you refer to some table alias of the queryset in the raw SQL, then it is
-    possible that Django might change that alias (for example, when the
-    queryset is used as a subquery in yet another query).
+    使用 :class:`~django.db.models.expressions.RawSQL` 的好处在于可以根据需要设置
+    ``output_field``.  主要的缺点是, 如果您在原始SQL中引用了查询器的某些表别名,
+    那么Django可能会更改该别名(例如，当查询集用作另一个查询中的子查询)时.
 
 .. warning::
 
-    You should be very careful whenever you use ``extra()``. Every time you use
-    it, you should escape any parameters that the user can control by using
-    ``params`` in order to protect against SQL injection attacks . Please
-    read more about :ref:`SQL injection protection <sql-injection-protection>`.
+    无论何时都需要非常谨慎的使用 ``extra()``. 每次使用它时,
+    都应该转义用户可以使用 ``params`` 控制的任何参数,
+    以防止SQL注入攻击. 请详细了解 :ref:`SQL注入保护 <sql-injection-protection>`.
 
-By definition, these extra lookups may not be portable to different database
-engines (because you're explicitly writing SQL code) and violate the DRY
-principle, so you should avoid them if possible.
+由于产品差异的原因,这些自定义的查询难以保障在不同的数据库之间兼容(因为你手写SQL代码的原因),
+而且违背了DRY原则,所以如非必要,还是尽量避免写 ``extra``.
 
-Specify one or more of ``params``, ``select``, ``where`` or ``tables``. None
-of the arguments is required, but you should use at least one of them.
+
+``extra`` 可以指定一个或多个 ``where``,``select``,``params`` 或者 ``tables``.
+这些参数都不是必须的，但是至少要使用一个.
 
 * ``select``
 
-  The ``select`` argument lets you put extra fields in the ``SELECT``
-  clause.  It should be a dictionary mapping attribute names to SQL
-  clauses to use to calculate that attribute.
+  ``select`` 参数可以让你在 ``SELECT`` 子句中添加其他字段信息, 它是一个字典,
+  存放着属性名到SQL子句的映射.
 
-  Example::
+  例如::
 
       Entry.objects.extra(select={'is_recent': "pub_date > '2006-01-01'"})
 
-  As a result, each ``Entry`` object will have an extra attribute,
-  ``is_recent``, a boolean representing whether the entry's ``pub_date``
-  is greater than Jan. 1, 2006.
+  这样结果集中每个 ``Entry`` 都带有一个额外属性 ``is_recent``,
+  它是一个布尔值,表示 ``pub_date`` 是在 Jan. 1. 2006 之后.
 
-  Django inserts the given SQL snippet directly into the ``SELECT``
-  statement, so the resulting SQL of the above example would be something
-  like::
+  Django 会直接在 ``SELECT`` 中加入对应的SQL片段, 所以上面例子的SQL应该类似这样::
 
       SELECT blog_entry.*, (pub_date > '2006-01-01') AS is_recent
       FROM blog_entry;
 
 
-  The next example is more advanced; it does a subquery to give each
-  resulting ``Blog`` object an ``entry_count`` attribute, an integer count
-  of associated ``Entry`` objects::
+  下面是一个高级的用法例子; 它会执行一个子查询, 为每个
+  ``Blog`` 对象提供一个 ``entry_count`` 属性, 一个关联的 ``Entry`` 对象的个数::
 
       Blog.objects.extra(
           select={
@@ -1027,141 +982,111 @@ of the arguments is required, but you should use at least one of them.
           },
       )
 
-  In this particular case, we're exploiting the fact that the query will
-  already contain the ``blog_blog`` table in its ``FROM`` clause.
+  在这个特例中, 需要了解一个事实， 就是 ``blog_blog`` 表已经存在于 ``FROM`` 从句中.
 
-  The resulting SQL of the above example would be::
+  上面例子的执行SQL将是::
 
       SELECT blog_blog.*, (SELECT COUNT(*) FROM blog_entry WHERE blog_entry.blog_id = blog_blog.id) AS entry_count
       FROM blog_blog;
 
-  Note that the parentheses required by most database engines around
-  subqueries are not required in Django's ``select`` clauses. Also note
-  that some database backends, such as some MySQL versions, don't support
-  subqueries.
+  要注意的是，大多数数据库需要在子句两端添加括号,
+  而在 Django 的 ``select`` 子句中却无须这样.
+  另请注意，某些数据库后台(如某些MySQL版本)不支持子查询.
 
-  In some rare cases, you might wish to pass parameters to the SQL
-  fragments in ``extra(select=...)``. For this purpose, use the
-  ``select_params`` parameter. Since ``select_params`` is a sequence and
-  the ``select`` attribute is a dictionary, some care is required so that
-  the parameters are matched up correctly with the extra select pieces.
-  In this situation, you should use a :class:`collections.OrderedDict` for
-  the ``select`` value, not just a normal Python dictionary.
+  在少数情况下，您可能希望将参数传递到 ``extra(select=...)`` 中的SQL片段.
+  为此,可以使用 ``select_params`` 参数. 由于 ``select_params`` 是一个序列.
+  并且 ``select`` 属性是字典,因此需要注意使参数与额外的选择片段正确匹配.
+  在这种情况下, 需要 :class:`collections.OrderedDict`  作为 ``select`` 值,
+  而不仅仅是普通的Python字典.
 
-  This will work, for example::
+  比如下面例子::
 
       Blog.objects.extra(
           select=OrderedDict([('a', '%s'), ('b', '%s')]),
           select_params=('one', 'two'))
 
-  If you need to use a literal ``%s`` inside your select string, use
-  the sequence ``%%s``.
+  如果需要在select字符串中使用文本 ``%s``, 请使用 ``%%s``.
 
 * ``where`` / ``tables``
 
-  You can define explicit SQL ``WHERE`` clauses — perhaps to perform
-  non-explicit joins — by using ``where``. You can manually add tables to
-  the SQL ``FROM`` clause by using ``tables``.
+  可以使用 ``WHERE`` 显式定义SQL ``where`` 子句.
+  您可以通过 ``FROM`` 手动将表添加到SQL ``tables`` 子句.
 
-  ``where`` and ``tables`` both take a list of strings. All ``where``
-  parameters are "AND"ed to any other search criteria.
+  ``where`` 和 ``tables`` 都接受字符串列表.
+  所有 ``where`` 参数均通过“AND”连接其他条件.
 
-  Example::
+  例如::
 
       Entry.objects.extra(where=["foo='a' OR bar = 'a'", "baz = 'a'"])
 
-  ...translates (roughly) into the following SQL::
+  ...(大致)相当于成以下SQL::
 
       SELECT * FROM blog_entry WHERE (foo='a' OR bar='a') AND (baz='a')
 
-  Be careful when using the ``tables`` parameter if you're specifying
-  tables that are already used in the query. When you add extra tables
-  via the ``tables`` parameter, Django assumes you want that table
-  included an extra time, if it is already included. That creates a
-  problem, since the table name will then be given an alias. If a table
-  appears multiple times in an SQL statement, the second and subsequent
-  occurrences must use aliases so the database can tell them apart. If
-  you're referring to the extra table you added in the extra ``where``
-  parameter this is going to cause errors.
+  如果要指定已在查询中使用的表, 请在谨慎使用 ``tables`` 参数.
+  通过 ``tables`` 参数添加额外的表时, Django会假定您希望该表包含额外的时间(如果已包括).
+  这会产生一个问题, 因为表名将会被赋予一个别名. 如果表在SQL语句中多次出现,
+  则第二次和后续出现必须使用别名,以便数据库可以区分它们.
+  如果在 ``where`` 参数中指定了添加的额外表,这将导致错误.
 
-  Normally you'll only be adding extra tables that don't already appear
-  in the query. However, if the case outlined above does occur, there are
-  a few solutions. First, see if you can get by without including the
-  extra table and use the one already in the query. If that isn't
-  possible, put your ``extra()`` call at the front of the queryset
-  construction so that your table is the first use of that table.
-  Finally, if all else fails, look at the query produced and rewrite your
-  ``where`` addition to use the alias given to your extra table. The
-  alias will be the same each time you construct the queryset in the same
-  way, so you can rely upon the alias name to not change.
+  通常,您只需添加尚未显示在查询中的额外表. 然而,如果发生上述情况,则有几种解决方案.
+  首先,看看你是否可以不包括额外的表,并使用已经在查询中的一个.
+  如果不可能, 请将 ``extra()`` 调用放在查询集结构的前面, 以便您的表是该表的第一次使用.
+  最后, 如果所有失败,请查看生成的查询并重写 ``where`` 添加以使用给您的额外表的别名.
+  每次以相同的方式构造查询集时,别名将是相同的,因此您可以依靠别名不更改.
 
 * ``order_by``
 
-  If you need to order the resulting queryset using some of the new
-  fields or tables you have included via ``extra()`` use the ``order_by``
-  parameter to ``extra()`` and pass in a sequence of strings. These
-  strings should either be model fields (as in the normal
-  :meth:`order_by()` method on querysets), of the form
-  ``table_name.column_name`` or an alias for a column that you specified
-  in the ``select`` parameter to ``extra()``.
+  如果需要使用通过 ``extra()`` 包含的新字段或表来对结果查询进行排序,
+  请使用 ``extra()`` 的 ``order_by`` 参数并传入一个字符串序列.
+  这些字符串应该是模型字段(和查询集的普通 :meth:`order_by()` 方法一样),
+  形式为 ``extra()`` 带 ``table_name.column_name`` 或 ``select`` 中的别名参数.
 
-  For example::
+  例如::
 
       q = Entry.objects.extra(select={'is_recent': "pub_date > '2006-01-01'"})
       q = q.extra(order_by = ['-is_recent'])
 
-  This would sort all the items for which ``is_recent`` is true to the
-  front of the result set (``True`` sorts before ``False`` in a
-  descending ordering).
+  这会将所有 ``is_recent`` 为true的项排到最前面(在降序排列中 ``True`` 位于 ``False`` 前面).
 
-  This shows, by the way, that you can make multiple calls to ``extra()``
-  and it will behave as you expect (adding new constraints each time).
+  顺便说一句, 你可以多次调用 ``extra()``,它会按照期望(每次添加新的约束)运行.
 
 * ``params``
 
-  The ``where`` parameter described above may use standard Python
-  database string placeholders — ``'%s'`` to indicate parameters the
-  database engine should automatically quote. The ``params`` argument is
-  a list of any extra parameters to be substituted.
+  上述 ``where`` 参数可以使用标准Python数据库字符串占位符 - ``'%s'`` 来指示数据库引擎应自动引用的参数.
+  ``params`` 参数是要替换的任何额外参数的列表.
 
-  Example::
+  例如::
 
       Entry.objects.extra(where=['headline=%s'], params=['Lennon'])
 
-  Always use ``params`` instead of embedding values directly into
-  ``where`` because ``params`` will ensure values are quoted correctly
-  according to your particular backend. For example, quotes will be
-  escaped correctly.
+  一定要使用 ``params`` 而不是将直接值嵌入 ``where``,
+  因为 ``params`` 会确保根据数据库后台正确引用值. 比如, 引号会被正确转义.
 
-  Bad::
+  错误用法::
 
       Entry.objects.extra(where=["headline='Lennon'"])
 
-  Good::
+  正确用法::
 
       Entry.objects.extra(where=['headline=%s'], params=['Lennon'])
 
 .. warning::
 
-    If you are performing queries on MySQL, note that MySQL's silent type coercion
-    may cause unexpected results when mixing types. If you query on a string
-    type column, but with an integer value, MySQL will coerce the types of all values
-    in the table to an integer before performing the comparison. For example, if your
-    table contains the values ``'abc'``, ``'def'`` and you query for ``WHERE mycolumn=0``,
-    both rows will match. To prevent this, perform the correct typecasting
-    before using the value in a query.
+    如果您在MySQL上执行查询,请注意MySQL的静默类型强制可能会在混合类型时导致意外结果.
+    如果查询字符串类型列,但使用整数值,MySQL将强制表中所有值的类型为整数,然后再执行比较.
+    例如,如果表中包含值 ``“abc”`` 、 ``“def”``,并且查询 ``WHERE mycolumn=0`` ,
+    那么这两行都将匹配上.为了防止这种情况,在使用查询中的值之前执行正确的类型转换.
 
 ``defer()``
 ~~~~~~~~~~~
 
 .. method:: defer(*fields)
 
-In some complex data-modeling situations, your models might contain a lot of
-fields, some of which could contain a lot of data (for example, text fields),
-or require expensive processing to convert them to Python objects. If you are
-using the results of a queryset in some situation where you don't know
-if you need those particular fields when you initially fetch the data, you can
-tell Django not to retrieve them from the database.
+在一些复杂的数据建模情况下,你的模型可能包含大量字段,
+其中一些可能包含大量数据(例如文本字段),或者将它们转换为Python对象的处理比较耗时.
+当你初次获取数据时不知道是否需要这些特定字段的情况下,
+如果你正在使用查询集的结果,你可以告诉Django不要从数据库中检索它们.
 
 This is done by passing the names of the fields to not load to ``defer()``::
 
