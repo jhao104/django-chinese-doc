@@ -1165,49 +1165,42 @@ Examples::
 
 .. method:: only(*fields)
 
-The ``only()`` method is more or less the opposite of :meth:`defer()`. You call
-it with the fields that should *not* be deferred when retrieving a model.  If
-you have a model where almost all the fields need to be deferred, using
-``only()`` to specify the complementary set of fields can result in simpler
-code.
+``only()`` 方法或多或少与 :meth:`defer()` 相反. 你可以在检索模型时在 *不* 延迟加载的字段使用过它.
+如果你的模型几乎所有的字段都需要延迟加载, 那么使用 ``only()`` 来指定加载字段会使代码变得简单.
 
-Suppose you have a model with fields ``name``, ``age`` and ``biography``. The
-following two querysets are the same, in terms of deferred fields::
+假设你有一个包含 ``name``, ``age`` 和 ``biography`` 三个字段的模型. 就延迟加载来说,
+下面两个querysets等价::
 
     Person.objects.defer("age", "biography")
     Person.objects.only("name")
 
-Whenever you call ``only()`` it *replaces* the set of fields to load
-immediately. The method's name is mnemonic: **only** those fields are loaded
-immediately; the remainder are deferred. Thus, successive calls to ``only()``
-result in only the final fields being considered::
+只要调用 ``only()``,它就会立即替换要加载的字段集.
+该方法的名称可以帮助记忆: **只有** 那些字段被立即加载;其余的延迟.
+因此, 对 ``only()`` 的连续调用只会考虑最终字段::
 
-    # This will defer all fields except the headline.
+    # 这会延迟加载除了headline的所有字段.
     Entry.objects.only("body", "rating").only("headline")
 
-Since ``defer()`` acts incrementally (adding fields to the deferred list), you
-can combine calls to ``only()`` and ``defer()`` and things will behave
-logically::
+由于 ``defer()`` 以递增方式运行(向延迟列表中添加字段),
+因此你可以组合 ``only()`` 和 ``defer()`` 调用,
+使它们合乎逻辑地工作.::
 
-    # Final result is that everything except "headline" is deferred.
+    # 最终除了 "headline" 都被延迟加载
     Entry.objects.only("headline", "body").defer("body")
 
-    # Final result loads headline and body immediately (only() replaces any
-    # existing set of fields).
+    # 最终结果立即加载标题和正文
+    # (only()替换字段集中任何字段).
     Entry.objects.defer("body").only("headline", "body")
 
-All of the cautions in the note for the :meth:`defer` documentation apply to
-``only()`` as well. Use it cautiously and only after exhausting your other
-options.
+:meth:`defer` 文档注释中的所有注意事项也适用于 ``only()``. 请谨慎使用它,
+只有在没有其它选择时才使用.
 
-Using :meth:`only` and omitting a field requested using :meth:`select_related`
-is an error as well.
+仅使用 :meth:`only` 时用 :meth:`select_related` 省略字段也会导致错误.
 
 .. note::
 
-    When calling :meth:`~django.db.models.Model.save()` for instances with
-    deferred fields, only the loaded fields will be saved. See
-    :meth:`~django.db.models.Model.save()` for more details.
+    当对具有延迟(`deferred`)字段的实例调用 :meth:`~django.db.models.Model.save()` 时,
+    仅保存加载的字段. 有关详细信息，请参见 :meth:`~django.db.models.Model.save()`.
 
 ``using()``
 ~~~~~~~~~~~
