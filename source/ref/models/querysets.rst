@@ -1083,69 +1083,55 @@ Examples::
 
 .. method:: defer(*fields)
 
-在一些复杂的数据建模情况下,你的模型可能包含大量字段,
+在一些复杂的数据建模情况下,模型中可能包含大量字段,
 其中一些可能包含大量数据(例如文本字段),或者将它们转换为Python对象的处理比较耗时.
-当你初次获取数据时不知道是否需要这些特定字段的情况下,
-如果你正在使用查询集的结果,你可以告诉Django不要从数据库中检索它们.
+初次获取数据时不知道是否需要这些特定字段的情况下,
+使用查询集的结果时,可以告诉Django不要从数据库中检索它们.
 
-This is done by passing the names of the fields to not load to ``defer()``::
+它通过传递字段名称到 ``defer()`` 实现不加载::
 
     Entry.objects.defer("headline", "body")
 
-A queryset that has deferred fields will still return model instances. Each
-deferred field will be retrieved from the database if you access that field
-(one at a time, not all the deferred fields at once).
+查询集中 ``deferred`` 字段仍会返回在模型实例中.
+当访问该字段时才会从数据库中检索.(每次只检索一个, 而不是一次性检索所有 ``deferred`` 字段).
 
-You can make multiple calls to ``defer()``. Each call adds new fields to the
-deferred set::
+可以多次调用 ``defer()``. 每次调用都会添加新的字段的 ``deferred`` 集::
 
     # Defers both the body and headline fields.
     Entry.objects.defer("body").filter(rating=5).defer("headline")
 
-The order in which fields are added to the deferred set does not matter.
-Calling ``defer()`` with a field name that has already been deferred is
-harmless (the field will still be deferred).
+字段添加到  ``deferred`` 集的顺序无关紧要.
+对已经在 ``deferred`` 集中的字段再次调用 ``defer()`` 也没有影响
+(该字段仍然是 ``deferred``).
 
-You can defer loading of fields in related models (if the related models are
-loading via :meth:`select_related()`) by using the standard double-underscore
-notation to separate related fields::
+可以 ``延迟`` 加载关联模型中的字段(如果关联模型是通过 :meth:`select_related()` 加载的),
+方法是使用标准的双下划线表示法来分离关联字段::
 
     Blog.objects.select_related().defer("entry__headline", "entry__body")
 
-If you want to clear the set of deferred fields, pass ``None`` as a parameter
-to ``defer()``::
+如果要清除 ``deferred`` 字段, 调用 ``defer()`` 传入一个 ``None`` 参数即可 ::
 
     # Load all fields immediately.
     my_queryset.defer(None)
 
-Some fields in a model won't be deferred, even if you ask for them. You can
-never defer the loading of the primary key. If you are using
-:meth:`select_related()` to retrieve related models, you shouldn't defer the
-loading of the field that connects from the primary model to the related
-one, doing so will result in an error.
+模型中有些字段即使设置了延迟加载也不会延迟, 比如永远不能延迟加载主键.
+如果使用 :meth:`select_related()` 检索关联模型, 则不能延迟加载从主模型连接到关联模型的字段,
+否则会抛出异常.
 
 .. note::
 
-    The ``defer()`` method (and its cousin, :meth:`only()`, below) are only for
-    advanced use-cases. They provide an optimization for when you have analyzed
-    your queries closely and understand *exactly* what information you need and
-    have measured that the difference between returning the fields you need and
-    the full set of fields for the model will be significant.
+    ``defer()`` 方法(及其表亲, 下文中的 :meth:`only()`)仅适用于高级用例.
+    它们用于提供一种优化, 当你仔细分析查询并且完全了解需要什么信息,
+    知道返回需要的字段与返回模型的全部字段之间的区别非常重要.
 
-    Even if you think you are in the advanced use-case situation, **only use
-    defer() when you cannot, at queryset load time, determine if you will need
-    the extra fields or not**. If you are frequently loading and using a
-    particular subset of your data, the best choice you can make is to
-    normalize your models and put the non-loaded data into a separate model
-    (and database table). If the columns *must* stay in the one table for some
-    reason, create a model with ``Meta.managed = False`` (see the
-    :attr:`managed attribute <django.db.models.Options.managed>` documentation)
-    containing just the fields you normally need to load and use that where you
-    might otherwise call ``defer()``. This makes your code more explicit to the
-    reader, is slightly faster and consumes a little less memory in the Python
-    process.
+    即使你认为你是在这种情况下, ** 只有当你在查询集加载时不能确定是否需要额外的字段时使用 ``defer()``**.
+    如果你经常加载和使用特定的数据子集, 最好的选择是规范你的模型, 将不加载的数据放入单独的模型(或数据库表).
+    如果列由于某种原因必须保留在一个表中, 请创建一个具有 ``Meta.managed = False``
+    (请参阅 :attr:`managed attribute <django.db.models.Options.managed> 文档)的模型,
+    只包含你通常需要加载和使用的, 否则就调用 ``defer()`` 的字段.
+    这可以使你的代码对读者更加清晰, 并且在Python进程中消耗更少的内存,加载稍微更快一些.
 
-    For example, both of these models use the same underlying database table::
+    例如，这两个模型使用相同的底层数据库表::
 
         class CommonlyUsedModel(models.Model):
             f1 = models.CharField(max_length=10)
@@ -1161,19 +1147,18 @@ one, doing so will result in an error.
             class Meta:
                 db_table = 'app_largetable'
 
-        # Two equivalent QuerySets:
+        # 两个查询等价:
         CommonlyUsedModel.objects.all()
         ManagedModel.objects.all().defer('f2')
 
-    If many fields need to be duplicated in the unmanaged model, it may be best
-    to create an abstract model with the shared fields and then have the
-    unmanaged and managed models inherit from the abstract model.
+    如果需要在非托管(`unmanaged`)模型中复制多个字段,
+    最好使用共享字段创建一个抽象模型,
+    然后让非托管模型和托管模型从抽象模型继承.
 
 .. note::
 
-    When calling :meth:`~django.db.models.Model.save()` for instances with
-    deferred fields, only the loaded fields will be saved. See
-    :meth:`~django.db.models.Model.save()` for more details.
+    当对具有延迟(`deferred`)字段的实例调用 :meth:`~django.db.models.Model.save()` 时,
+    仅保存加载的字段. 有关详细信息，请参见 :meth:`~django.db.models.Model.save()`.
 
 ``only()``
 ~~~~~~~~~~
