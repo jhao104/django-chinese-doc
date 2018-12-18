@@ -1124,10 +1124,10 @@ Examples::
     它们用于提供一种优化, 当你仔细分析查询并且完全了解需要什么信息,
     知道返回需要的字段与返回模型的全部字段之间的区别非常重要.
 
-    即使你认为你是在这种情况下, ** 只有当你在查询集加载时不能确定是否需要额外的字段时使用 ``defer()``**.
+    即使你认为你是在这种情况下,  只有当你在查询集加载时不能确定是否需要额外的字段时使用 ``defer()``.
     如果你经常加载和使用特定的数据子集, 最好的选择是规范你的模型, 将不加载的数据放入单独的模型(或数据库表).
     如果列由于某种原因必须保留在一个表中, 请创建一个具有 ``Meta.managed = False``
-    (请参阅 :attr:`managed attribute <django.db.models.Options.managed> 文档)的模型,
+    (请参阅 :attr:`managed attribute <django.db.models.Options.managed>` 文档)的模型,
     只包含你通常需要加载和使用的, 否则就调用 ``defer()`` 的字段.
     这可以使你的代码对读者更加清晰, 并且在Python进程中消耗更少的内存,加载稍微更快一些.
 
@@ -1207,17 +1207,15 @@ Examples::
 
 .. method:: using(alias)
 
-This method is for controlling which database the ``QuerySet`` will be
-evaluated against if you are using more than one database.  The only argument
-this method takes is the alias of a database, as defined in
-:setting:`DATABASES`.
+如果使用多个数据库，该方法用于控制 ``QuerySet`` 在哪个数据库上求值.
+该方法的唯一参数是数据库的别名，定义在 :setting:`DATABASES` 中.
 
-For example::
+例如::
 
-    # queries the database with the 'default' alias.
+    # 使用别名为 'default' 的数据库.
     >>> Entry.objects.all()
 
-    # queries the database with the 'backup' alias
+    # 使用别名为 'backup' 的数据库
     >>> Entry.objects.using('backup')
 
 ``select_for_update()``
@@ -1225,54 +1223,42 @@ For example::
 
 .. method:: select_for_update(nowait=False)
 
-Returns a queryset that will lock rows until the end of the transaction,
-generating a ``SELECT ... FOR UPDATE`` SQL statement on supported databases.
+返回一个锁住行直到事务结束的查询集,
+如果数据库支持，它将生成一个 ``SELECT ... FOR UPDATE`` 语句.
 
-For example::
+例如::
 
     entries = Entry.objects.select_for_update().filter(author=request.user)
 
-All matched entries will be locked until the end of the transaction block,
-meaning that other transactions will be prevented from changing or acquiring
-locks on them.
+所有匹配的行将被锁定,直到事务结束.这样可以通过锁防止数据被其它事务修改.
 
-Usually, if another transaction has already acquired a lock on one of the
-selected rows, the query will block until the lock is released. If this is
-not the behavior you want, call ``select_for_update(nowait=True)``. This will
-make the call non-blocking. If a conflicting lock is already acquired by
-another transaction, :exc:`~django.db.DatabaseError` will be raised when the
-queryset is evaluated.
+通常,如果所选的行已经被另一个事务锁住,那么查询将被阻塞,直到释放锁为止.
+如果你不希望这样,那么可以调用 ``select_for_update(nowait=True)``.
+这将使调用非阻塞方式.如果冲突锁已经被另一个事务获取, 则在计算queryset时将引发 :exc:`~django.db.DatabaseError`.
 
-Currently, the ``postgresql``, ``oracle``, and ``mysql`` database
-backends support ``select_for_update()``. However, MySQL has no support for the
-``nowait`` argument. Obviously, users of external third-party backends should
-check with their backend's documentation for specifics in those cases.
+目前, ``postgresql`` 、 ``oracle`` 和 ``mysql`` 数据库后端都支持
+``select_for_update()``. 但是, MySQL 不支持 ``nowait`` 参数.
+所以, 使用其他第三方数据库后端的用户应该查看下他们的文档以了解这一细节.
 
-Passing ``nowait=True`` to ``select_for_update()`` using database backends that
-do not support ``nowait``, such as MySQL, will cause a
-:exc:`~django.db.DatabaseError` to be raised. This is in order to prevent code
-unexpectedly blocking.
+使用像MySQL这种不支持 ``nowait`` 参数的数据库, 在调用 ``select_for_update()`` 时传入 ``nowait=True``
+会导致 :exc:`~django.db.DatabaseError` . 这是为了防止代码被意外阻塞.
 
-Evaluating a queryset with ``select_for_update()`` in autocommit mode on
-backends which support ``SELECT ... FOR UPDATE`` is a
-:exc:`~django.db.transaction.TransactionManagementError` error because the
-rows are not locked in that case. If allowed, this would facilitate data
-corruption and could easily be caused by calling code that expects to be run in
-a transaction outside of one.
+如果在自动提交模式下在支持 ``SELECT ... FOR UPDATE`` 的数据库后端使用  ``select_for_update()`` 会导致
+:exc:`~django.db.transaction.TransactionManagementError` 错误.
+因为这种情况下行不会被锁定. 如果允许这种调用可能会造成数据损坏, 而且这也很有可能在事务外被调用.
 
-Using ``select_for_update()`` on backends which do not support
-``SELECT ... FOR UPDATE`` (such as SQLite) will have no effect.
-``SELECT ... FOR UPDATE`` will not be added to the query, and an error isn't
-raised if ``select_for_update()`` is used in autocommit mode.
+``select_for_update()`` 使用在不支持
+``SELECT ... FOR UPDATE`` 的数据库后端(比如 SQLite) 将没有效果.
+``SELECT ... FOR UPDATE`` 不会被添加到查询中, 并且在自动给提交模式下使用
+``select_for_update()`` 也不会报错.
 
 .. warning::
 
-    Although ``select_for_update()`` normally fails in autocommit mode, since
-    :class:`~django.test.TestCase` automatically wraps each test in a
-    transaction, calling ``select_for_update()`` in a ``TestCase`` even outside
-    an :func:`~django.db.transaction.atomic()` block will (perhaps unexpectedly)
-    pass without raising a ``TransactionManagementError``. To properly test
-    ``select_for_update()`` you should use
+    虽然 ``select_for_update()`` 在自动提交模式下通常会失败, 因为
+    :class:`~django.test.TestCase` 会自动将每个测试包装在一个事务中,
+    即使在 :func:`~django.db.transaction.atomic()` 块之外调用 ``TestCase`` 的
+    ``select_for_update()`` 也会在(可能会有意外)不引发 ``TransactionManagementError``
+    的情况下通过. 但是要正确地测试 ``select_for_update()``, 请务必使用
     :class:`~django.test.TransactionTestCase`.
 
 ``raw()``
@@ -1280,49 +1266,46 @@ raised if ``select_for_update()`` is used in autocommit mode.
 
 .. method:: raw(raw_query, params=None, translations=None)
 
-Takes a raw SQL query, executes it, and returns a
-``django.db.models.query.RawQuerySet`` instance. This ``RawQuerySet`` instance
-can be iterated over just like an normal ``QuerySet`` to provide object instances.
+提供原始SQL查询, 执行并返回一个
+``django.db.models.query.RawQuerySet`` 实例.
+这个 ``RawQuerySet`` 实例可以迭代获取实例对象，就像普通的 ``QuerySet`` 实例一样.
 
-See the :doc:`/topics/db/sql` for more information.
+更多信息参见 :doc:`/topics/db/sql` .
 
 .. warning::
 
-  ``raw()`` always triggers a new query and doesn't account for previous
-  filtering. As such, it should generally be called from the ``Manager`` or
-  from a fresh ``QuerySet`` instance.
+  ``raw()`` 永远都是触发一个新的查询,和之前的filter无关.
+  因此通常应该是从``Manager`` 或者新的``QuerySet`` 实例调用.
 
-Methods that do not return ``QuerySet``\s
+不返回 ``QuerySet`` 的方法
 -----------------------------------------
 
-The following ``QuerySet`` methods evaluate the ``QuerySet`` and return
-something *other than* a ``QuerySet``.
+下面的 ``QuerySet`` 方法计算 ``QuerySet`` 但返回的
+*不是* ``QuerySet``.
 
-These methods do not use a cache (see :ref:`caching-and-querysets`). Rather,
-they query the database each time they're called.
+这些方法不会使用 (see :ref:`caching-and-querysets`). 当然,
+这些方法每次被调用都会查询数据库.
 
 ``get()``
 ~~~~~~~~~
 
 .. method:: get(**kwargs)
 
-Returns the object matching the given lookup parameters, which should be in
-the format described in `Field lookups`_.
+返回根据查询参数匹配到的对象, 参数格式应该符合 `Field lookups`_ 要求.
 
-``get()`` raises :exc:`~django.core.exceptions.MultipleObjectsReturned` if more
-than one object was found. The
-:exc:`~django.core.exceptions.MultipleObjectsReturned` exception is an
-attribute of the model class.
+如果 ``get()`` 匹配到多个对象将会抛出 :exc:`~django.core.exceptions.MultipleObjectsReturned`.
+:exc:`~django.core.exceptions.MultipleObjectsReturned` 异常是模型类的属性.
 
-``get()`` raises a :exc:`~django.db.models.Model.DoesNotExist` exception if an
-object wasn't found for the given parameters. This exception is an attribute
-of the model class. Example::
+如果 ``get()`` 根据查询参数没有匹配到对象将会抛出 :exc:`~django.db.models.Model.DoesNotExist` 异常.
+这个异常也是模型类的属性.
+
+例子::
 
     Entry.objects.get(id='foo') # raises Entry.DoesNotExist
 
-The :exc:`~django.db.models.Model.DoesNotExist` exception inherits from
-:exc:`django.core.exceptions.ObjectDoesNotExist`, so you can target multiple
-:exc:`~django.db.models.Model.DoesNotExist` exceptions. Example::
+:exc:`~django.db.models.Model.DoesNotExist` 异常继承自
+:exc:`django.core.exceptions.ObjectDoesNotExist`, 因此可以同时捕获多个so you can target multiple
+:exc:`~django.db.models.Model.DoesNotExist` 异常. 例如::
 
     from django.core.exceptions import ObjectDoesNotExist
     try:
@@ -1331,8 +1314,7 @@ The :exc:`~django.db.models.Model.DoesNotExist` exception inherits from
     except ObjectDoesNotExist:
         print("Either the entry or blog doesn't exist.")
 
-If you expect a queryset to return one row, you can use ``get()`` without any
-arguments to return the object for that row::
+如果希望queryset返回一行, 则可以使用 ``get()`` 而不使用任何参数来返回该行对象::
 
     entry = Entry.objects.filter(...).exclude(...).get()
 
