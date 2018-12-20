@@ -1358,7 +1358,7 @@ Examples::
         obj = Person(first_name='John', last_name='Lennon', birthday=date(1940, 10, 9))
         obj.save()
 
-如果模型的字段数量较多的话,这种模式就不好非用了.上面的例子可以用
+如果模型的字段数量较多的话,这种模式就不好用了.上面的例子可以用
 ``get_or_create()`` 重写::
 
     obj, created = Person.objects.get_or_create(
@@ -1382,7 +1382,7 @@ Examples::
 
 用文字描述就是, 以任何不包含双下划线的非 ``'defaults'`` 关键字参数开始(双下划线表示非准确的查找).
 然后添加 ``defaults`` 的内容，必要时会覆盖原键值, 将结果用作模型类的关键字参数.
-如上所述，这是对所使用算法简单描述,但是它包含了所有相关的细节.
+如上所述，这是对所使用算法的简单描述, 但是它包含了所有相关的细节.
 只是其内部实现有更多的错误检查,和处理一些额外的边缘条件;
 如果您感兴趣，请阅读代码.
 
@@ -1392,7 +1392,7 @@ Examples::
     Foo.objects.get_or_create(defaults__exact='bar', defaults={'defaults': 'baz'})
 
 ``get_or_create()`` 方法和 :meth:`create()` 有相同的错误行为,
-如果你手动指定了主键,并且查询的对象需要创建且数据库中主键已经重复,
+如果你手动指定了主键, 并且查询的对象需要创建且数据库中主键已经重复,
 则会导致 :exc:`~django.db.IntegrityError` 异常.
 
 这种方法是原子性的, 假设正确使用底层数据库、数据库配置没有问题和其他行为都正确.
@@ -1402,11 +1402,11 @@ Examples::
 那么该方法很容易出现竞争条件, 导致同时插入具有相同参数的多行.
 
 如果你使用的是Mysql数据库, 请使用 ``READ COMMITTED`` 隔离级别而不是 ``REPEATABLE READ`` (默认的),
-否则可能会出现 ``get_or_create`` 抛出 :exc:`~django.db.IntegrityError` 异常,但使用
+否则可能会出现 ``get_or_create`` 抛出 :exc:`~django.db.IntegrityError` 异常, 但使用
 :meth:`~django.db.models.query.QuerySet.get` 调用却没有对象.
 
 最后在讲一点,在Django视图中使用 ``get_or_create()`` 时.
-请一定只在 ``POST`` 请求中使用,除非你有很充分的理由.
+请一定只在 ``POST`` 请求中使用, 除非你有很充分的理由.
 ``GET`` 请求不应该去修改数据. 而 ``POST`` 则用于修改数据.有关信息请参考HTTP规范中的
 :rfc:`Safe methods <7231#section-4.2.1>`.
 
