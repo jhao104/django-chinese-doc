@@ -1323,38 +1323,34 @@ Examples::
 
 .. method:: create(**kwargs)
 
-A convenience method for creating an object and saving it all in one step.  Thus::
+一个一次性创建对象并保存的快捷方法.  例如::
 
     p = Person.objects.create(first_name="Bruce", last_name="Springsteen")
 
-and::
+和::
 
     p = Person(first_name="Bruce", last_name="Springsteen")
     p.save(force_insert=True)
 
-are equivalent.
+是一样的.
 
-The :ref:`force_insert <ref-models-force-insert>` parameter is documented
-elsewhere, but all it means is that a new object will always be created.
-Normally you won't need to worry about this. However, if your model contains a
-manual primary key value that you set and if that value already exists in the
-database, a call to ``create()`` will fail with an
-:exc:`~django.db.IntegrityError` since primary keys must be unique. Be
-prepared to handle the exception if you are using manual primary keys.
+参数 :ref:`force_insert <ref-models-force-insert>` 在其他的文档中有介绍,
+它意味着一个新的对象一定会被创建. 正常情况下,你不必担心这点. 然而,
+如果你的model中有一个手动设置主键,并且这个值已经存在于数据库中,
+调用 ``create()`` 将会失败并且触发 :exc:`~django.db.IntegrityError`,
+因为主键必须是唯一的. 如果你手动设置了主键,做好异常处理的准备.
 
 ``get_or_create()``
 ~~~~~~~~~~~~~~~~~~~
 
 .. method:: get_or_create(defaults=None, **kwargs)
 
-A convenience method for looking up an object with the given ``kwargs`` (may be
-empty if your model has defaults for all fields), creating one if necessary.
+一个通过给定 ``kwargs`` 参数(如果模型中所有字段都有默认值,则可以为空)查询对象的快捷方法, 没有的话则创建一个.
 
-Returns a tuple of ``(object, created)``, where ``object`` is the retrieved or
-created object and ``created`` is a boolean specifying whether a new object was
-created.
+返回一个元组 ``(object, created)``, 元组中的 ``object`` 是查到的或者被创建的对象,
+``created`` 则是表示是否是新创建的布尔值.
 
-This is meant as a shortcut to boilerplatish code. For example::
+这主要用作样板代码的一种快捷方式. 像这样::
 
     try:
         obj = Person.objects.get(first_name='John', last_name='Lennon')
@@ -1362,8 +1358,8 @@ This is meant as a shortcut to boilerplatish code. For example::
         obj = Person(first_name='John', last_name='Lennon', birthday=date(1940, 10, 9))
         obj.save()
 
-This pattern gets quite unwieldy as the number of fields in a model goes up.
-The above example can be rewritten using ``get_or_create()`` like so::
+如果模型的字段数量较多的话,这种模式就不好非用了.上面的例子可以用
+``get_or_create()`` 重写::
 
     obj, created = Person.objects.get_or_create(
         first_name='John',
@@ -1371,67 +1367,55 @@ The above example can be rewritten using ``get_or_create()`` like so::
         defaults={'birthday': date(1940, 10, 9)},
     )
 
-Any keyword arguments passed to ``get_or_create()`` — *except* an optional one
-called ``defaults`` — will be used in a :meth:`get()` call. If an object is
-found, ``get_or_create()`` returns a tuple of that object and ``False``. If
-multiple objects are found, ``get_or_create`` raises
-:exc:`~django.core.exceptions.MultipleObjectsReturned`. If an object is *not*
-found, ``get_or_create()`` will instantiate and save a new object, returning a
-tuple of the new object and ``True``. The new object will be created roughly
-according to this algorithm::
+所有传入 ``get_or_create()`` 的参数 — *除了* 一个可选参数
+``defaults`` 都会用于 :meth:`get()` 调用. 如果能查到对象,
+``get_or_create()`` 将返回包含这个对象和 ``False`` 的元组.
+如果查到了多个对象, ``get_or_create`` 将引发
+:exc:`~django.core.exceptions.MultipleObjectsReturned` 异常.
+如果 *没有* 查到对象, ``get_or_create()`` 将实例化一个新对象并保存,
+返回包含这个新对象和 ``True`` 的元组. 新对象按如下逻辑创建::
 
     params = {k: v for k, v in kwargs.items() if '__' not in k}
     params.update(defaults)
     obj = self.model(**params)
     obj.save()
 
-In English, that means start with any non-``'defaults'`` keyword argument that
-doesn't contain a double underscore (which would indicate a non-exact lookup).
-Then add the contents of ``defaults``, overriding any keys if necessary, and
-use the result as the keyword arguments to the model class. As hinted at
-above, this is a simplification of the algorithm that is used, but it contains
-all the pertinent details. The internal implementation has some more
-error-checking than this and handles some extra edge-conditions; if you're
-interested, read the code.
+用文字描述就是, 以任何不包含双下划线的非 ``'defaults'`` 关键字参数开始(双下划线表示非准确的查找).
+然后添加 ``defaults`` 的内容，必要时会覆盖原键值, 将结果用作模型类的关键字参数.
+如上所述，这是对所使用算法简单描述,但是它包含了所有相关的细节.
+只是其内部实现有更多的错误检查,和处理一些额外的边缘条件;
+如果您感兴趣，请阅读代码.
 
-If you have a field named ``defaults`` and want to use it as an exact lookup in
-``get_or_create()``, just use ``'defaults__exact'``, like so::
+如果你有一个名为 ``defaults`` 的字段,想用 ``get_or_create()`` 对其精准查找,
+可以使用 ``'defaults__exact'``, 像这样::
 
     Foo.objects.get_or_create(defaults__exact='bar', defaults={'defaults': 'baz'})
 
-The ``get_or_create()`` method has similar error behavior to :meth:`create()`
-when you're using manually specified primary keys. If an object needs to be
-created and the key already exists in the database, an
-:exc:`~django.db.IntegrityError` will be raised.
+``get_or_create()`` 方法和 :meth:`create()` 有相同的错误行为,
+如果你手动指定了主键,并且查询的对象需要创建且数据库中主键已经重复,
+则会导致 :exc:`~django.db.IntegrityError` 异常.
 
-This method is atomic assuming correct usage, correct database configuration,
-and correct behavior of the underlying database. However, if uniqueness is not
-enforced at the database level for the ``kwargs`` used in a ``get_or_create``
-call (see :attr:`~django.db.models.Field.unique` or
-:attr:`~django.db.models.Options.unique_together`), this method is prone to a
-race-condition which can result in multiple rows with the same parameters being
-inserted simultaneously.
+这种方法是原子性的, 假设正确使用底层数据库、数据库配置没有问题和其他行为都正确.
+但是, 如果在调用 ``get_or_create`` 中使用的 ``kwargs`` 在数据库级别上没有强制唯一性
+(请参阅 :attr:`~django.db.models.Field.unique` 和
+:attr:`~django.db.models.Options.unique_together` ),
+那么该方法很容易出现竞争条件, 导致同时插入具有相同参数的多行.
 
-If you are using MySQL, be sure to use the ``READ COMMITTED`` isolation level
-rather than ``REPEATABLE READ`` (the default), otherwise you may see cases
-where ``get_or_create`` will raise an :exc:`~django.db.IntegrityError` but the
-object won't appear in a subsequent :meth:`~django.db.models.query.QuerySet.get`
-call.
+如果你使用的是Mysql数据库, 请使用 ``READ COMMITTED`` 隔离级别而不是 ``REPEATABLE READ`` (默认的),
+否则可能会出现 ``get_or_create`` 抛出 :exc:`~django.db.IntegrityError` 异常,但使用
+:meth:`~django.db.models.query.QuerySet.get` 调用却没有对象.
 
-Finally, a word on using ``get_or_create()`` in Django views. Please make sure
-to use it only in ``POST`` requests unless you have a good reason not to.
-``GET`` requests shouldn't have any effect on data. Instead, use ``POST``
-whenever a request to a page has a side effect on your data. For more, see
-:rfc:`Safe methods <7231#section-4.2.1>` in the HTTP spec.
+最后在讲一点,在Django视图中使用 ``get_or_create()`` 时.
+请一定只在 ``POST`` 请求中使用,除非你有很充分的理由.
+``GET`` 请求不应该去修改数据. 而 ``POST`` 则用于修改数据.有关信息请参考HTTP规范中的
+:rfc:`Safe methods <7231#section-4.2.1>`.
 
 .. warning::
 
-  You can use ``get_or_create()`` through :class:`~django.db.models.ManyToManyField`
-  attributes and reverse relations. In that case you will restrict the queries
-  inside the context of that relation. That could lead you to some integrity
-  problems if you don't use it consistently.
+  你可以通过 :class:`~django.db.models.ManyToManyField` 属性和反向关系来使用 ``get_or_create()``.
+  但在这种情况下, 需要在该关系的上下文中限制查询. 如果不经常使用它，可能会导致一些完整性问题.
 
-  Being the following models::
+  根据下面的模型::
 
       class Chapter(models.Model):
           title = models.CharField(max_length=255, unique=True)
@@ -1440,8 +1424,8 @@ whenever a request to a page has a side effect on your data. For more, see
           title = models.CharField(max_length=256)
           chapters = models.ManyToManyField(Chapter)
 
-  You can use ``get_or_create()`` through Book's chapters field, but it only
-  fetches inside the context of that book::
+  您可以通过Book 的 chapter字段使用 ``get_or_create()``,
+  但是它只会获取该Book 内部的上下文::
 
       >>> book = Book.objects.create(title="Ulysses")
       >>> book.chapters.get_or_create(title="Telemachus")
@@ -1453,10 +1437,9 @@ whenever a request to a page has a side effect on your data. For more, see
       >>> book.chapters.get_or_create(title="Chapter 1")
       # Raises IntegrityError
 
-  This is happening because it's trying to get or create "Chapter 1" through the
-  book "Ulysses", but it can't do any of them: the relation can't fetch that
-  chapter because it isn't related to that book, but it can't create it either
-  because ``title`` field should be unique.
+  发生这个错误是因为它尝试通过Book “Ulysses” 获取或者创建“Chapter 1”,
+  但它是不可以的: 关联关系不能获取这个chapter, 因为它与这个book不关联,
+  但因为 ``title`` 字段是唯一的,所以它也不能创建.
 
 ``update_or_create()``
 ~~~~~~~~~~~~~~~~~~~~~~
