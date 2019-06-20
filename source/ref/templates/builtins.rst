@@ -2026,7 +2026,7 @@ individual elements of the sequence.
 Returns a slice of the list.
 
 Uses the same syntax as Python's list slicing. See
-http://www.diveintopython3.net/native-datatypes.html#slicinglists
+https://www.cmi.ac.in/~madhavan/courses/prog2-2012/docs/diveintopython3/native-datatypes.html#slicinglists
 for an introduction.
 
 Example::
