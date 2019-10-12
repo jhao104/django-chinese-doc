@@ -1446,19 +1446,17 @@ Examples::
 
 .. method:: update_or_create(defaults=None, **kwargs)
 
-A convenience method for updating an object with the given ``kwargs``, creating
-a new one if necessary. The ``defaults`` is a dictionary of (field, value)
-pairs used to update the object.
+一个通过给定 ``kwargs`` 参数来更新对象的快捷方法, ``defaults`` 是由(键/值)组成的字典,
+用于查找要更新对象, 如果对象不存在则新建一个。
 
-Returns a tuple of ``(object, created)``, where ``object`` is the created or
-updated object and ``created`` is a boolean specifying whether a new object was
-created.
+返回一个元组 ``(object, created)``, 其中 ``object`` 是被创建或更新的对象, ``created`` 是一个
+布尔值, 表示是否是新创建的对象.
 
-The ``update_or_create`` method tries to fetch an object from database based on
-the given ``kwargs``. If a match is found, it updates the fields passed in the
-``defaults`` dictionary.
 
-This is meant as a shortcut to boilerplatish code. For example::
+``update_or_create`` 方式尝试根据传入的 ``kwargs`` 参数到数据库中获取对象,
+如果成功匹配则会根据 ``defaults`` 字典中的数据更新字段.
+
+这是用于某种情况的快捷方式. 例如::
 
     defaults = {'first_name': 'Bob'}
     try:
@@ -1472,20 +1470,18 @@ This is meant as a shortcut to boilerplatish code. For example::
         obj = Person(**new_values)
         obj.save()
 
-This pattern gets quite unwieldy as the number of fields in a model goes up.
-The above example can be rewritten using ``update_or_create()`` like so::
+但是随着模型中字段数量的增加，这种模式将会变得越来越笨拙.
+上面的例子可以通过 ``update_or_create()`` 来重写, 如下::
 
     obj, created = Person.objects.update_or_create(
         first_name='John', last_name='Lennon',
         defaults={'first_name': 'Bob'},
     )
 
-For detailed description how names passed in ``kwargs`` are resolved see
-:meth:`get_or_create`.
+关于传入的 ``kwargs`` 中的名称是如何被解析, 请参考 :meth:`get_or_create`.
 
-As described above in :meth:`get_or_create`, this method is prone to a
-race-condition which can result in multiple rows being inserted simultaneously
-if uniqueness is not enforced at the database level.
+和上文 :meth:`get_or_create` 描述的一样, 改方法容易导致竞争条件,
+如果在数据库级别没有设置强制唯一性, 则会导致同时插入多个行.
 
 ``bulk_create()``
 ~~~~~~~~~~~~~~~~~
