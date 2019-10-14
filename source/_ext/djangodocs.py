@@ -6,18 +6,20 @@ import os
 import re
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive
+from docutils.statemachine import ViewList
 from sphinx import addnodes
-from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.domains.std import Cmdoption
-# from sphinx.util.console import bold
 from sphinx.util.nodes import set_source_info
+from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.directives import CodeBlock
+from sphinx.domains.std import Cmdoption
+from sphinx.errors import ExtensionError
+from sphinx.util import logging
+# from sphinx.util.console import bold
+from sphinx.writers.html import HTMLTranslator as SphinxHTMLTranslator
 
-try:
-    from sphinx.writers.html import SmartyPantsHTMLTranslator as HTMLTranslator
-except ImportError:  # Sphinx 1.6+
-    from sphinx.writers.html import HTMLTranslator
-
+logger = logging.getLogger(__name__)
 # RE for option descriptions without a '--' prefix
 simple_option_desc_re = re.compile(
     r'([-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$)')
@@ -44,7 +46,7 @@ def setup(app):
         rolename="lookup",
         indextemplate="pair: %s; field lookup type",
     )
-    app.add_description_unit(
+    app.add_object_type(
         directivename="django-admin",
         rolename="djadmin",
         indextemplate="pair: %s; django-admin command",
@@ -54,7 +56,21 @@ def setup(app):
     app.add_config_value('django_next_version', '0.0', True)
     app.add_directive('versionadded', VersionDirective)
     app.add_directive('versionchanged', VersionDirective)
+    app.set_translator('json', DjangoHTMLTranslator)
+    app.set_translator('html', DjangoHTMLTranslator)
+
     app.add_builder(DjangoStandaloneHTMLBuilder)
+
+    app.add_node(
+        ConsoleNode,
+        html=(visit_console_html, None),
+        latex=(visit_console_dummy, depart_console_dummy),
+        man=(visit_console_dummy, depart_console_dummy),
+        text=(visit_console_dummy, depart_console_dummy),
+        texinfo=(visit_console_dummy, depart_console_dummy),
+    )
+    app.add_directive('console', ConsoleDirective)
+    app.connect('html-page-context', html_page_context_hook)
 
     # register the snippet directive
     app.add_directive('snippet', SnippetWithFilename)
@@ -66,8 +82,7 @@ def setup(app):
                  man=(visit_snippet_literal, depart_snippet_literal),
                  text=(visit_snippet_literal, depart_snippet_literal),
                  texinfo=(visit_snippet_literal, depart_snippet_literal))
-    app.set_translator('djangohtml', DjangoHTMLTranslator)
-    app.set_translator('json', DjangoHTMLTranslator)
+
     return {'parallel_read_safe': True}
 
 
@@ -115,7 +130,7 @@ def visit_snippet(self, node):
                                                    linenos=linenos,
                                                    **highlight_args)
     starttag = self.starttag(node, 'div', suffix='',
-                             CLASS='highlight-%s snippet' % lang)
+                             CLASS='highlight-%s' % lang)
     self.body.append(starttag)
     self.body.append('<div class="snippet-filename">%s</div>\n''' % (fname,))
     self.body.append(highlighted)
@@ -225,11 +240,15 @@ class VersionDirective(Directive):
         node['type'] = self.name
         if self.content:
             self.state.nested_parse(self.content, self.content_offset, node)
-        env.note_versionchange(node['type'], node['version'], node, self.lineno)
+        try:
+            env.get_domain('changeset').note_changeset(node)
+        except ExtensionError:
+            # Sphinx < 1.8: Domain 'changeset' is not registered
+            env.note_versionchange(node['type'], node['version'], node, self.lineno)
         return ret
 
 
-class DjangoHTMLTranslator(HTMLTranslator):
+class DjangoHTMLTranslator(SphinxHTMLTranslator):
     """
     Django-specific reST to HTML tweaks.
     """
@@ -263,7 +282,7 @@ class DjangoHTMLTranslator(HTMLTranslator):
     # FIXME: these messages are all hardcoded in English. We need to change
     # that to accommodate other language docs, but I can't work out how to make
     # that work.
-    #
+
     version_text = {
         'versionchanged': 'Changed in Django %s',
         'versionadded': 'New in Django %s',
@@ -274,10 +293,11 @@ class DjangoHTMLTranslator(HTMLTranslator):
             self.starttag(node, 'div', CLASS=node['type'])
         )
         version_text = self.version_text.get(node['type'])
+
         if version_text:
             title = "%s%s" % (
                 version_text % node['version'],
-                ":" if len(node) else "."
+                ":" if node else "."
             )
             self.body.append('<span class="title">%s</span> ' % title)
 
@@ -289,7 +309,7 @@ class DjangoHTMLTranslator(HTMLTranslator):
         old_ids = node.get('ids', [])
         node['ids'] = ['s-' + i for i in old_ids]
         node['ids'].extend(old_ids)
-        # super().visit_section(node)
+        super().visit_section(node)
         node['ids'] = old_ids
 
 
@@ -309,8 +329,8 @@ class DjangoStandaloneHTMLBuilder(StandaloneHTMLBuilder):
     name = 'djangohtml'
 
     def finish(self):
-        # super().finish()
-        # self.info(bold("writing templatebuiltins.js..."))
+        super().finish()
+        # logger.info(bold("writing templatebuiltins.js..."))
         xrefs = self.env.domaindata["std"]["objects"]
         templatebuiltins = {
             "ttags": [
@@ -327,3 +347,174 @@ class DjangoStandaloneHTMLBuilder(StandaloneHTMLBuilder):
             fp.write('var django_template_builtins = ')
             json.dump(templatebuiltins, fp)
             fp.write(';\n')
+
+
+class ConsoleNode(nodes.literal_block):
+    """
+    Custom node to override the visit/depart event handlers at registration
+    time. Wrap a literal_block object and defer to it.
+    """
+    tagname = 'ConsoleNode'
+
+    def __init__(self, litblk_obj):
+        self.wrapped = litblk_obj
+
+    def __getattr__(self, attr):
+        if attr == 'wrapped':
+            return self.__dict__.wrapped
+        return getattr(self.wrapped, attr)
+
+
+def visit_console_dummy(self, node):
+    """Defer to the corresponding parent's handler."""
+    self.visit_literal_block(node)
+
+
+def depart_console_dummy(self, node):
+    """Defer to the corresponding parent's handler."""
+    self.depart_literal_block(node)
+
+
+def visit_console_html(self, node):
+    """Generate HTML for the console directive."""
+    if self.builder.name in ('djangohtml', 'json') and node['win_console_text']:
+        # Put a mark on the document object signaling the fact the directive
+        # has been used on it.
+        self.document._console_directive_used_flag = True
+        uid = node['uid']
+        self.body.append('''\
+<div class="console-block" id="console-block-%(id)s">
+<input class="c-tab-unix" id="c-tab-%(id)s-unix" type="radio" name="console-%(id)s" checked>
+<label for="c-tab-%(id)s-unix" title="Linux/macOS">&#xf17c/&#xf179</label>
+<input class="c-tab-win" id="c-tab-%(id)s-win" type="radio" name="console-%(id)s">
+<label for="c-tab-%(id)s-win" title="Windows">&#xf17a</label>
+<section class="c-content-unix" id="c-content-%(id)s-unix">\n''' % {'id': uid})
+        try:
+            self.visit_literal_block(node)
+        except nodes.SkipNode:
+            pass
+        self.body.append('</section>\n')
+
+        self.body.append('<section class="c-content-win" id="c-content-%(id)s-win">\n' % {'id': uid})
+        win_text = node['win_console_text']
+        highlight_args = {'force': True}
+        if 'linenos' in node:
+            linenos = node['linenos']
+        else:
+            linenos = win_text.count('\n') >= self.highlightlinenothreshold - 1
+
+        def warner(msg):
+            self.builder.warn(msg, (self.builder.current_docname, node.line))
+
+        highlighted = self.highlighter.highlight_block(
+            win_text, 'doscon', warn=warner, linenos=linenos, **highlight_args
+        )
+        self.body.append(highlighted)
+        self.body.append('</section>\n')
+        self.body.append('</div>\n')
+        raise nodes.SkipNode
+    else:
+        self.visit_literal_block(node)
+
+
+class ConsoleDirective(CodeBlock):
+    """
+    A reStructuredText directive which renders a two-tab code block in which
+    the second tab shows a Windows command line equivalent of the usual
+    Unix-oriented examples.
+    """
+    required_arguments = 0
+    # The 'doscon' Pygments formatter needs a prompt like this. '>' alone
+    # won't do it because then it simply paints the whole command line as a
+    # grey comment with no highlighting at all.
+    WIN_PROMPT = r'...\> '
+
+    def run(self):
+
+        def args_to_win(cmdline):
+            changed = False
+            out = []
+            for token in cmdline.split():
+                if token[:2] == './':
+                    token = token[2:]
+                    changed = True
+                elif token[:2] == '~/':
+                    token = '%HOMEPATH%\\' + token[2:]
+                    changed = True
+                elif token == 'make':
+                    token = 'make.bat'
+                    changed = True
+                if '://' not in token and 'git' not in cmdline:
+                    out.append(token.replace('/', '\\'))
+                    changed = True
+                else:
+                    out.append(token)
+            if changed:
+                return ' '.join(out)
+            return cmdline
+
+        def cmdline_to_win(line):
+            if line.startswith('# '):
+                return 'REM ' + args_to_win(line[2:])
+            if line.startswith('$ # '):
+                return 'REM ' + args_to_win(line[4:])
+            if line.startswith('$ ./manage.py'):
+                return 'manage.py ' + args_to_win(line[13:])
+            if line.startswith('$ manage.py'):
+                return 'manage.py ' + args_to_win(line[11:])
+            if line.startswith('$ ./runtests.py'):
+                return 'runtests.py ' + args_to_win(line[15:])
+            if line.startswith('$ ./'):
+                return args_to_win(line[4:])
+            if line.startswith('$ python3'):
+                return 'py ' + args_to_win(line[9:])
+            if line.startswith('$ python'):
+                return 'py ' + args_to_win(line[8:])
+            if line.startswith('$ '):
+                return args_to_win(line[2:])
+            return None
+
+        def code_block_to_win(content):
+            bchanged = False
+            lines = []
+            for line in content:
+                modline = cmdline_to_win(line)
+                if modline is None:
+                    lines.append(line)
+                else:
+                    lines.append(self.WIN_PROMPT + modline)
+                    bchanged = True
+            if bchanged:
+                return ViewList(lines)
+            return None
+
+        env = self.state.document.settings.env
+        self.arguments = ['console']
+        lit_blk_obj = super().run()[0]
+
+        # Only do work when the djangohtml HTML Sphinx builder is being used,
+        # invoke the default behavior for the rest.
+        if env.app.builder.name not in ('djangohtml', 'json'):
+            return [lit_blk_obj]
+
+        lit_blk_obj['uid'] = '%s' % env.new_serialno('console')
+        # Only add the tabbed UI if there is actually a Windows-specific
+        # version of the CLI example.
+        win_content = code_block_to_win(self.content)
+        if win_content is None:
+            lit_blk_obj['win_console_text'] = None
+        else:
+            self.content = win_content
+            lit_blk_obj['win_console_text'] = super().run()[0].rawsource
+
+        # Replace the literal_node object returned by Sphinx's CodeBlock with
+        # the ConsoleNode wrapper.
+        return [ConsoleNode(lit_blk_obj)]
+
+
+def html_page_context_hook(app, pagename, templatename, context, doctree):
+    # Put a bool on the context used to render the template. It's used to
+    # control inclusion of console-tabs.css and activation of the JavaScript.
+    # This way it's include only from HTML files rendered from reST files where
+    # the ConsoleDirective is used.
+    context['include_console_assets'] = getattr(doctree, '_console_directive_used_flag', False)

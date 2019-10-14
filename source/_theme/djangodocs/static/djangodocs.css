@@ -96,7 +96,6 @@ table.docutils { border-collapse:collapse; }
 dt > tt.literal { white-space: normal; }
 #sidebar .literal { color:white; background:transparent; font-size:11px; }
 h4 .literal { color: #234f32; font-size: 13px; }
-pre { font-size:small; background:#E0FFB8; border:1px solid #94da3a; border-width:1px 0; margin: 1em 0; padding: .3em .4em; overflow: hidden; line-height: 1.3em; white-space: pre-wrap;}
 dt .literal, table .literal { background:none; }
 #bd a.reference { text-decoration: none; }
 #bd a.reference tt.literal { border-bottom: 1px #234f32 dotted; }
@@ -138,5 +137,25 @@ div#contents ul { margin-bottom: 0;}
 div#contents ul li { margin-bottom: 0;}
 div#contents ul ul li { margin-top: 0.3em;}
 
-/*** IE hacks ***/
-* pre { width: 100%; }
+/** Customer Style **/
+#docs-content {
+    font-family: "Roboto", Corbel, Avenir, "Lucida Grande", "Lucida Sans", sans-serif;
+    line-height: 1.5em;
+}
+
+#yui-main .section {
+    padding: 10px 0 20px;
+}
+#yui-main code.literal {
+    font-weight: 700;
+}
+tt, code, kbd, pre, samp {
+    font-family: "Fira Mono", Consolas, Menlo, Monaco, "Courier New", Courier, monospace;
+    font-variant-ligatures: no-common-ligatures;
+    text-rendering: optimizeSpeed;
+    color: #0C4B33;
+    font-size: 1em;
+}
+p {
+    margin: 1em 0;
+}

@@ -1480,7 +1480,7 @@ Examples::
 
 关于传入的 ``kwargs`` 中的名称是如何被解析, 请参考 :meth:`get_or_create`.
 
-和上文 :meth:`get_or_create` 描述的一样, 改方法容易导致竞争条件,
+和上文 :meth:`get_or_create` 描述的一样, 该方法容易导致竞争条件,
 如果在数据库级别没有设置强制唯一性, 则会导致同时插入多个行.
 
 ``bulk_create()``
@@ -1488,24 +1488,20 @@ Examples::
 
 .. method:: bulk_create(objs, batch_size=None)
 
-This method inserts the provided list of objects into the database in an
-efficient manner (generally only 1 query, no matter how many objects there
-are)::
+该方法提供了一个批量操作用于同时向数据库中插入一组对象(无论有多少对象, 通常只做一次查询)::
 
     >>> Entry.objects.bulk_create([
     ...     Entry(headline='This is a test'),
     ...     Entry(headline='This is only a test'),
     ... ])
 
-This has a number of caveats though:
+不过, 有几点需要注意:
 
-* The model's ``save()`` method will not be called, and the ``pre_save`` and
-  ``post_save`` signals will not be sent.
-* It does not work with child models in a multi-table inheritance scenario.
-* If the model's primary key is an :class:`~django.db.models.AutoField` it
-  does not retrieve and set the primary key attribute, as ``save()`` does,
-  unless the database backend supports it (currently PostgreSQL).
-* It does not work with many-to-many relationships.
+* 模型的 ``save()`` 方法不会被调用, 并且 ``pre_save`` 和
+  ``post_save`` 信号也不会被发送.
+* 它不适用于多表继承场景中的子模型.
+* 如果模型的主键是 :class:`~django.db.models.AutoField` , 那么它不会像 ``save()`` 方法那样自动检索并设置主键, 除非使用的数据库后端支持(当前只有 PostgreSQL).
+* 它不适用于多对多关系.
 
 .. versionchanged:: 1.9
 

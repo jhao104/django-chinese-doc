@@ -49,7 +49,7 @@ if 'spelling' in sys.argv:
     extensions.append("sphinxcontrib.spelling")
 
 # Spelling language.
-spelling_lang = 'zh-Hans'
+spelling_lang = 'en_US'
 
 # Location of word list.
 spelling_word_list_filename = 'spelling_wordlist'
@@ -76,23 +76,24 @@ copyright = 'Django Software Foundation and contributors'
 # built documents.
 #
 # The short X.Y version.
-version = '1.10.0'
+version = '1.10'
 # The full version, including alpha/beta/rc tags.
-try:
-    from django import VERSION, get_version
-except ImportError:
-    release = version
-else:
-    def django_release():
-        pep440ver = get_version()
-        if VERSION[3:5] == ('alpha', 0) and 'dev' not in pep440ver:
-            return pep440ver + '.dev'
-        return pep440ver
-
-    release = django_release()
+# try:
+#     from django import VERSION, get_version
+# except ImportError:
+#     release = version
+# else:
+#     def django_release():
+#         pep440ver = get_version()
+#         if VERSION[3:5] == ('alpha', 0) and 'dev' not in pep440ver:
+#             return pep440ver + '.dev'
+#         return pep440ver
+#
+#     release = django_release()
+release = '1.10'
 
 # The "development version" of Django
-django_next_version = '3.1'
+django_next_version = '1.11'
 
 extlinks = {
     'commit': ('https://github.com/django/django/commit/%s', ''),
@@ -134,7 +135,7 @@ add_module_names = False
 show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'trac'
+# pygments_style = 'trac'
 
 # Links to Python's docs should reference the most recent version of the 3.x
 # branch, which is located at this URL.
