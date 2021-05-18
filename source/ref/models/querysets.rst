@@ -1673,82 +1673,68 @@ Django提供的所有聚合函数在下文的
 
 .. method:: exists()
 
-Returns ``True`` if the :class:`.QuerySet` contains any results, and ``False``
-if not. This tries to perform the query in the simplest and fastest way
-possible, but it *does* execute nearly the same query as a normal
-:class:`.QuerySet` query.
+如果 :class:`.QuerySet` 包含数据则返回 ``True``, 否则返回 ``False``.
+该方式使用最简单也最快的方式完成查询, 且它执行的 *查询* 和一般的
+:class:`.QuerySet` 查询几乎相同.
 
-:meth:`~.QuerySet.exists` is useful for searches relating to both
-object membership in a :class:`.QuerySet` and to the existence of any objects in
-a :class:`.QuerySet`, particularly in the context of a large :class:`.QuerySet`.
+:meth:`~.QuerySet.exists` 对搜索 :class:`.QuerySet` 以及其关联对象是否存在相当有用, 特别是对于体量比较大的 :class:`.QuerySet`.
 
-The most efficient method of finding whether a model with a unique field
-(e.g. ``primary_key``) is a member of a :class:`.QuerySet` is::
+查找一个具有唯一字段(e.g. ``primary_key``)模型的 :class:`.QuerySet` 中是否具有指定成员的最高效方式::
 
     entry = Entry.objects.get(pk=123)
     if some_queryset.filter(pk=entry.pk).exists():
         print("Entry contained in queryset")
 
-Which will be faster than the following which requires evaluating and iterating
-through the entire queryset::
+它会比下面这种求值再遍历的方式快很多::
 
     if entry in some_queryset:
        print("Entry contained in QuerySet")
 
-And to find whether a queryset contains any items::
+查询queryset是否有值::
 
     if some_queryset.exists():
         print("There is at least one object in some_queryset")
 
-Which will be faster than::
+将快于::
 
     if some_queryset:
         print("There is at least one object in some_queryset")
 
-... but not by a large degree (hence needing a large queryset for efficiency
-gains).
+... 但效果不是很明显 (因此在很大的查询集中才需要这样做来提高效率).
 
-Additionally, if a ``some_queryset`` has not yet been evaluated, but you know
-that it will be at some point, then using ``some_queryset.exists()`` will do
-more overall work (one query for the existence check plus an extra one to later
-retrieve the results) than simply using ``bool(some_queryset)``, which
-retrieves the results and then checks if any were returned.
+另外, 如果 ``some_queryset`` 还没有被求值, 但你知道它将来会被求值,
+那么使用 ``some_queryset.exists()`` 会比直接使用 ``bool(some_queryset)`` 做多余的工作. 后者会求值并检查是否有结果.
 
 ``update()``
 ~~~~~~~~~~~~
 
 .. method:: update(**kwargs)
 
-Performs an SQL update query for the specified fields, and returns
-the number of rows matched (which may not be equal to the number of rows
-updated if some rows already have the new value).
+对指定字段执行更新语句返回受影响的行数(如果某些行已具备新值, 则可能不等于更新的行数).
 
-For example, to turn comments off for all blog entries published in 2010,
-you could do this::
+例如, 对2010年发布的博客启用评论::
 
     >>> Entry.objects.filter(pub_date__year=2010).update(comments_on=False)
 
-(This assumes your ``Entry`` model has fields ``pub_date`` and ``comments_on``.)
+(假设 ``Entry`` 模型具有 ``pub_date`` 和 ``comments_on`` 字段.)
 
-You can update multiple fields — there's no limit on how many. For example,
-here we update the ``comments_on`` and ``headline`` fields::
+update没有数量限制可以同时更新多个字段.
+例如, 同时更新 ``comments_on`` 和 ``headline`` 字段::
 
     >>> Entry.objects.filter(pub_date__year=2010).update(comments_on=False, headline='This is old')
 
-The ``update()`` method is applied instantly, and the only restriction on the
-:class:`.QuerySet` that is updated is that it can only update columns in the
-model's main table, not on related models. You can't do this, for example::
+``update()`` 方法是立即执行的, :class:`.QuerySet` update的唯一限制是它只可以更新模型主表中的字段, 不可以更新关联模型.
+例如下面这种::
 
     >>> Entry.objects.update(blog__name='foo') # Won't work!
 
-Filtering based on related fields is still possible, though::
+可以通过关联模型进行过滤, 例如::
 
     >>> Entry.objects.filter(blog__id=1).update(comments_on=True)
 
-You cannot call ``update()`` on a :class:`.QuerySet` that has had a slice taken
-or can otherwise no longer be filtered.
+无法对已切片的或者无法进行过滤的 :class:`.QuerySet` 调用 ``update()`` 方法.
 
-The ``update()`` method returns the number of affected rows::
+``update()`` 会返回受影响的行数::
 
     >>> Entry.objects.filter(id=64).update(comments_on=True)
     1
@@ -1759,30 +1745,23 @@ The ``update()`` method returns the number of affected rows::
     >>> Entry.objects.filter(pub_date__year=2010).update(comments_on=False)
     132
 
-If you're just updating a record and don't need to do anything with the model
-object, the most efficient approach is to call ``update()``, rather than
-loading the model object into memory. For example, instead of doing this::
+如果你仅仅是想更新记录而不需要做其他操作, 那么调用 ``update()`` 是最高效的方法, 而不是将数据加载到内存, 例如下面这种是不建议的::
 
     e = Entry.objects.get(id=10)
     e.comments_on = False
     e.save()
 
-...do this::
+...正确做法::
 
     Entry.objects.filter(id=10).update(comments_on=False)
 
-Using ``update()`` also prevents a race condition wherein something might
-change in your database in the short period of time between loading the object
-and calling ``save()``.
+使用 ``update()`` 还可以防止在加载对象和调用 ``save()`` 这时间段内数据库某些内容发生更改导致的竞争条件.
 
-Finally, realize that ``update()`` does an update at the SQL level and, thus,
-does not call any ``save()`` methods on your models, nor does it emit the
-:attr:`~django.db.models.signals.pre_save` or
-:attr:`~django.db.models.signals.post_save` signals (which are a consequence of
-calling :meth:`Model.save() <django.db.models.Model.save>`). If you want to
-update a bunch of records for a model that has a custom
-:meth:`~django.db.models.Model.save()` method, loop over them and call
-:meth:`~django.db.models.Model.save()`, like this::
+最后, 需要知道 ``update()`` 是在SQL级执行更新, 因此它不会调用模型的 ``save()`` 方法, 也不会触发
+:attr:`~django.db.models.signals.pre_save` 和
+:attr:`~django.db.models.signals.post_save` 信号. 如果业务需要调用模型自己的
+:meth:`~django.db.models.Model.save()` 方法, 那么请遍历结果集调用
+:meth:`~django.db.models.Model.save()`, 例如::
 
     for e in Entry.objects.filter(pub_date__year=2010):
         e.comments_on = False
