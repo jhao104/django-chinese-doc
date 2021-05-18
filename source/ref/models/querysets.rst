@@ -1565,30 +1565,20 @@ Examples::
 
 .. method:: iterator()
 
-Evaluates the ``QuerySet`` (by performing the query) and returns an iterator
-(see :pep:`234`) over the results. A ``QuerySet`` typically caches its results
-internally so that repeated evaluations do not result in additional queries. In
-contrast, ``iterator()`` will read results directly, without doing any caching
-at the ``QuerySet`` level (internally, the default iterator calls ``iterator()``
-and caches the return value). For a ``QuerySet`` which returns a large number of
-objects that you only need to access once, this can result in better
-performance and a significant reduction in memory.
+计算 ``QuerySet`` (执行数据库查询) 返回一个迭代器
+(see :pep:`234`). 通常 ``QuerySet`` 会在其内部缓存结果来防止重复查询. 相反 ``iterator()`` 会直接读取结果不会在
+``QuerySet`` 级别执行缓存操作. 对于返回大量对象且只查询一次的 ``QuerySet``, 这可以带来更好的性能并显着降低内存.
 
-Note that using ``iterator()`` on a ``QuerySet`` which has already been
-evaluated will force it to evaluate again, repeating the query.
+注意对已经求值过的 ``QuerySet`` 调用 ``iterator()`` 会使其强制再计算, 导致重复查询.
 
-Also, use of ``iterator()`` causes previous ``prefetch_related()`` calls to be
-ignored since these two optimizations do not make sense together.
+另外, ``iterator()`` 会导致已调用的 ``prefetch_related()`` 方法被忽略.
 
 .. warning::
 
-    Some Python database drivers like ``psycopg2`` perform caching if using
-    client side cursors (instantiated with ``connection.cursor()`` and what
-    Django's ORM uses). Using ``iterator()`` does not affect caching at the
-    database driver level. To disable this caching, look at `server side
-    cursors`_.
+    一些Python的数据库驱动比如 ``psycopg2`` 使用客户端游标执行缓存(实例化 ``connection.cursor()`` 配合
+    Django's ORM使用). 使用 ``iterator()`` 不会影响到数据库层级的缓存. 如果要禁用此缓存, 请查看 `服务端游标`_.
 
-.. _server side cursors: http://initd.org/psycopg/docs/usage.html#server-side-cursors
+.. _服务端游标: http://initd.org/psycopg/docs/usage.html#server-side-cursors
 
 ``latest()``
 ~~~~~~~~~~~~
