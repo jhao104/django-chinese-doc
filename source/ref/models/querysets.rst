@@ -1505,58 +1505,45 @@ Examples::
 
 .. versionchanged:: 1.9
 
-    Support for using ``bulk_create()`` with proxy models was added.
+    新增 ``bulk_create()`` 对代理模型(proxy models)支持.
 
 .. versionchanged:: 1.10
 
-    Support for setting primary keys on objects created using ``bulk_create()``
-    when using PostgreSQL was added.
+    新增PostgreSQL数据库使用 ``bulk_create()`` 插入数据时设置主键.
 
-The ``batch_size`` parameter controls how many objects are created in single
-query. The default is to create all objects in one batch, except for SQLite
-where the default is such that at most 999 variables per query are used.
+参数 ``batch_size`` 用于控制单次创建的对象数. 默认情况下, 除SQLite外一次性创建所有对象, SQLite单次最多支持999个.
 
 ``count()``
 ~~~~~~~~~~~
 
 .. method:: count()
 
-Returns an integer representing the number of objects in the database matching
-the ``QuerySet``. The ``count()`` method never raises exceptions.
+返回数据查询结果集 ``QuerySet`` 中的对象数量. ``count()`` 不会抛出异常.
 
-Example::
+例子::
 
-    # Returns the total number of entries in the database.
+    # 返回数据库中所有条目数量.
     Entry.objects.count()
 
-    # Returns the number of entries whose headline contains 'Lennon'
+    # 返回数据库中headline包含'Lennon'的条目数量
     Entry.objects.filter(headline__contains='Lennon').count()
 
-A ``count()`` call performs a ``SELECT COUNT(*)`` behind the scenes, so you
-should always use ``count()`` rather than loading all of the record into Python
-objects and calling ``len()`` on the result (unless you need to load the
-objects into memory anyway, in which case ``len()`` will be faster).
+``count()`` 在后台执行的是 ``SELECT COUNT(*)`` , 因此请务必使用 ``count()`` 而不是将所有记录加载成Python对象然后调用 ``len()`` 函数
+(除非你有其他需要必须要将其加载到内存中, 这种情况 ``len()`` 会比较快).
 
-Depending on which database you're using (e.g. PostgreSQL vs. MySQL),
-``count()`` may return a long integer instead of a normal Python integer. This
-is an underlying implementation quirk that shouldn't pose any real-world
-problems.
+根据使用的数据库不同 (e.g. PostgreSQL vs. MySQL),
+``count()`` 方法可能返回的是一个长整型而不是Python整数.
 
-Note that if you want the number of items in a ``QuerySet`` and are also
-retrieving model instances from it (for example, by iterating over it), it's
-probably more efficient to use ``len(queryset)`` which won't cause an extra
-database query like ``count()`` would.
+注意,如果你想计算 ``QuerySet`` 中的项目个数并且希望遍历每个数据对象(例如, 通过迭代它), 使用 ``len(queryset)`` 将会更好, 它不会像 ``count()`` 产生额外的数据库查询.
 
 ``in_bulk()``
 ~~~~~~~~~~~~~
 
 .. method:: in_bulk(id_list=None)
 
-Takes a list of primary-key values and returns a dictionary mapping each
-primary-key value to an instance of the object with the given ID. If a list
-isn't provided, all objects in the queryset are returned.
+接收一个主键组成的列表, 返回一个字典, 字典的key为传入的主键ID, value为匹配的对象实例. 如果不传入id_list, 那么将返回整个查询集的内容.
 
-Example::
+例子::
 
     >>> Blog.objects.in_bulk([1])
     {1: <Blog: Beatles Blog>}
@@ -1567,75 +1554,58 @@ Example::
     >>> Blog.objects.in_bulk()
     {1: <Blog: Beatles Blog>, 2: <Blog: Cheddar Talk>, 3: <Blog: Django Weblog>}
 
-If you pass ``in_bulk()`` an empty list, you'll get an empty dictionary.
+如果传入空列表到 ``in_bulk()`` , 将返回一个空字典.
 
 .. versionchanged:: 1.10
 
-    In older versions, ``id_list`` was a required argument.
+    在此之前版本, ``id_list`` 为必传参数.
 
 ``iterator()``
 ~~~~~~~~~~~~~~
 
 .. method:: iterator()
 
-Evaluates the ``QuerySet`` (by performing the query) and returns an iterator
-(see :pep:`234`) over the results. A ``QuerySet`` typically caches its results
-internally so that repeated evaluations do not result in additional queries. In
-contrast, ``iterator()`` will read results directly, without doing any caching
-at the ``QuerySet`` level (internally, the default iterator calls ``iterator()``
-and caches the return value). For a ``QuerySet`` which returns a large number of
-objects that you only need to access once, this can result in better
-performance and a significant reduction in memory.
+计算 ``QuerySet`` (执行数据库查询) 返回一个迭代器
+(see :pep:`234`). 通常 ``QuerySet`` 会在其内部缓存结果来防止重复查询. 相反 ``iterator()`` 会直接读取结果不会在
+``QuerySet`` 级别执行缓存操作. 对于返回大量对象且只查询一次的 ``QuerySet``, 这可以带来更好的性能并显着降低内存.
 
-Note that using ``iterator()`` on a ``QuerySet`` which has already been
-evaluated will force it to evaluate again, repeating the query.
+注意对已经求值过的 ``QuerySet`` 调用 ``iterator()`` 会使其强制再计算, 导致重复查询.
 
-Also, use of ``iterator()`` causes previous ``prefetch_related()`` calls to be
-ignored since these two optimizations do not make sense together.
+另外, ``iterator()`` 会导致已调用的 ``prefetch_related()`` 方法被忽略.
 
 .. warning::
 
-    Some Python database drivers like ``psycopg2`` perform caching if using
-    client side cursors (instantiated with ``connection.cursor()`` and what
-    Django's ORM uses). Using ``iterator()`` does not affect caching at the
-    database driver level. To disable this caching, look at `server side
-    cursors`_.
+    一些Python的数据库驱动比如 ``psycopg2`` 使用客户端游标执行缓存(实例化 ``connection.cursor()`` 配合
+    Django's ORM使用). 使用 ``iterator()`` 不会影响到数据库层级的缓存. 如果要禁用此缓存, 请查看 `服务端游标`_.
 
-.. _server side cursors: http://initd.org/psycopg/docs/usage.html#server-side-cursors
+.. _服务端游标: http://initd.org/psycopg/docs/usage.html#server-side-cursors
 
 ``latest()``
 ~~~~~~~~~~~~
 
 .. method:: latest(field_name=None)
 
-Returns the latest object in the table, by date, using the ``field_name``
-provided as the date field.
+接收一个 ``field_name`` 日期字段, 返回表中最新的一个对象.
 
-This example returns the latest ``Entry`` in the table, according to the
-``pub_date`` field::
+下面例子返回表中 ``pub_date`` 最近的一个 ``Entry`` ::
 
     Entry.objects.latest('pub_date')
 
-If your model's :ref:`Meta <meta-options>` specifies
-:attr:`~django.db.models.Options.get_latest_by`, you can leave off the
-``field_name`` argument to ``earliest()`` or ``latest()``. Django will use the
-field specified in :attr:`~django.db.models.Options.get_latest_by` by default.
+如果在模型的 :ref:`Meta <meta-options>` 中指定了
+:attr:`~django.db.models.Options.get_latest_by`, 则可以调用 ``earliest()`` 和 ``latest()`` 不传入 ``field_name`` .
+Django 将默认使用 :attr:`~django.db.models.Options.get_latest_by` 指定的字段.
 
-Like :meth:`get()`, ``earliest()`` and ``latest()`` raise
-:exc:`~django.db.models.Model.DoesNotExist` if there is no object with the
-given parameters.
+和 :meth:`get()` 方法一样, 如果查不到有效对象 ``earliest()`` 和 ``latest()`` 也会抛出
+:exc:`~django.db.models.Model.DoesNotExist` 异常.
 
-Note that ``earliest()`` and ``latest()`` exist purely for convenience and
-readability.
+注意, ``earliest()`` 和 ``latest()`` 的存仅是为了方便和可读性.
 
-.. admonition:: ``earliest()`` and ``latest()`` may return instances with null dates.
+.. admonition:: ``earliest()`` 和 ``latest()`` 可以返回日期为null的实例.
 
-    Since ordering is delegated to the database, results on fields that allow
-    null values may be ordered differently if you use different databases. For
-    example, PostgreSQL and MySQL sort null values as if they are higher than
-    non-null values, while SQLite does the opposite.
+    因为排序是在数据库中执行的, 如果使用了不同的数据库返回的null值顺序可能会不同.
+    比如PostgreSQL和MySQL中的null值的顺序高于非null值,而在SQLite中则相反.
 
-    You may want to filter out null values::
+    可以像这样过滤掉非空值::
 
         Entry.objects.filter(pub_date__isnull=False).latest('pub_date')
 
@@ -1644,24 +1614,21 @@ readability.
 
 .. method:: earliest(field_name=None)
 
-Works otherwise like :meth:`~django.db.models.query.QuerySet.latest` except
-the direction is changed.
+和 :meth:`~django.db.models.query.QuerySet.latest` 一样, 除了方向相反.
 
 ``first()``
 ~~~~~~~~~~~
 
 .. method:: first()
 
-Returns the first object matched by the queryset, or ``None`` if there
-is no matching object. If the ``QuerySet`` has no ordering defined, then the
-queryset is automatically ordered by the primary key.
+返回结果集中的第一个对象, 如果没有查询到内容则返回 ``None``.
+如果 ``QuerySet`` 没有设置排序, 则默认按照主键排序.
 
-Example::
+例子::
 
     p = Article.objects.order_by('title', 'pub_date').first()
 
-Note that ``first()`` is a convenience method, the following code sample is
-equivalent to the above example::
+注意 ``first()`` 是提供的一个快捷方法, 它的功能和下面例子作用一样::
 
     try:
         p = Article.objects.order_by('title', 'pub_date')[0]
@@ -1673,125 +1640,101 @@ equivalent to the above example::
 
 .. method:: last()
 
-Works like  :meth:`first()`, but returns the last object in the queryset.
+功能类似  :meth:`first()`, 只是它返回结果集的最后一个对象.
 
 ``aggregate()``
 ~~~~~~~~~~~~~~~
 
 .. method:: aggregate(*args, **kwargs)
 
-Returns a dictionary of aggregate values (averages, sums, etc.) calculated over
-the ``QuerySet``. Each argument to ``aggregate()`` specifies a value that will
-be included in the dictionary that is returned.
+从 ``QuerySet`` 中计算聚合值 (均值, 求和等)并以字典形式返回. ``aggregate()`` 中一个参数对应字典的一组值.
 
-The aggregation functions that are provided by Django are described in
-`Aggregation Functions`_ below. Since aggregates are also :doc:`query
-expressions </ref/models/expressions>`, you may combine aggregates with other
-aggregates or values to create complex aggregates.
+Django提供的所有聚合函数在下文的
+`聚合函数`_ 中查看. 因为聚合也是 :doc:`查询表达式 </ref/models/expressions>`, 因此可以结合多个聚合创建复杂的聚合.
 
-Aggregates specified using keyword arguments will use the keyword as the name
-for the annotation. Anonymous arguments will have a name generated for them
-based upon the name of the aggregate function and the model field that is being
-aggregated. Complex aggregates cannot use anonymous arguments and must specify
-a keyword argument as an alias.
+聚合时使用了关键字参数将以关键字为名称返回. 如果是匿名参数将以聚合函数的名称和聚合字段的名称组合为名字返回.
+复杂聚合不支持匿名参数必须指定关键字参数.
 
-For example, when you are working with blog entries, you may want to know the
-number of authors that have contributed blog entries::
+例如, 在博客的例子中查询作者名下的博文数量::
 
     >>> from django.db.models import Count
     >>> q = Blog.objects.aggregate(Count('entry'))
     {'entry__count': 16}
 
-By using a keyword argument to specify the aggregate function, you can
-control the name of the aggregation value that is returned::
+如果使用关键字参数就可以指定聚合返回的值::
 
     >>> q = Blog.objects.aggregate(number_of_entries=Count('entry'))
     {'number_of_entries': 16}
 
-For an in-depth discussion of aggregation, see :doc:`the topic guide on
-Aggregation </topics/db/aggregation>`.
+更加详细的介绍请查看 :doc:`聚合 </topics/db/aggregation>`.
 
 ``exists()``
 ~~~~~~~~~~~~
 
 .. method:: exists()
 
-Returns ``True`` if the :class:`.QuerySet` contains any results, and ``False``
-if not. This tries to perform the query in the simplest and fastest way
-possible, but it *does* execute nearly the same query as a normal
-:class:`.QuerySet` query.
+如果 :class:`.QuerySet` 包含数据则返回 ``True``, 否则返回 ``False``.
+该方式使用最简单也最快的方式完成查询, 且它执行的 *查询* 和一般的
+:class:`.QuerySet` 查询几乎相同.
 
-:meth:`~.QuerySet.exists` is useful for searches relating to both
-object membership in a :class:`.QuerySet` and to the existence of any objects in
-a :class:`.QuerySet`, particularly in the context of a large :class:`.QuerySet`.
+:meth:`~.QuerySet.exists` 对搜索 :class:`.QuerySet` 以及其关联对象是否存在相当有用, 特别是对于体量比较大的 :class:`.QuerySet`.
 
-The most efficient method of finding whether a model with a unique field
-(e.g. ``primary_key``) is a member of a :class:`.QuerySet` is::
+查找一个具有唯一字段(e.g. ``primary_key``)模型的 :class:`.QuerySet` 中是否具有指定成员的最高效方式::
 
     entry = Entry.objects.get(pk=123)
     if some_queryset.filter(pk=entry.pk).exists():
         print("Entry contained in queryset")
 
-Which will be faster than the following which requires evaluating and iterating
-through the entire queryset::
+它会比下面这种求值再遍历的方式快很多::
 
     if entry in some_queryset:
        print("Entry contained in QuerySet")
 
-And to find whether a queryset contains any items::
+查询queryset是否有值::
 
     if some_queryset.exists():
         print("There is at least one object in some_queryset")
 
-Which will be faster than::
+将快于::
 
     if some_queryset:
         print("There is at least one object in some_queryset")
 
-... but not by a large degree (hence needing a large queryset for efficiency
-gains).
+... 但效果不是很明显 (因此在很大的查询集中才需要这样做来提高效率).
 
-Additionally, if a ``some_queryset`` has not yet been evaluated, but you know
-that it will be at some point, then using ``some_queryset.exists()`` will do
-more overall work (one query for the existence check plus an extra one to later
-retrieve the results) than simply using ``bool(some_queryset)``, which
-retrieves the results and then checks if any were returned.
+另外, 如果 ``some_queryset`` 还没有被求值, 但你知道它将来会被求值,
+那么使用 ``some_queryset.exists()`` 会比直接使用 ``bool(some_queryset)`` 做多余的工作. 后者会求值并检查是否有结果.
 
 ``update()``
 ~~~~~~~~~~~~
 
 .. method:: update(**kwargs)
 
-Performs an SQL update query for the specified fields, and returns
-the number of rows matched (which may not be equal to the number of rows
-updated if some rows already have the new value).
+对指定字段执行更新语句返回受影响的行数(如果某些行已具备新值, 则可能不等于更新的行数).
 
-For example, to turn comments off for all blog entries published in 2010,
-you could do this::
+例如, 对2010年发布的博客启用评论::
 
     >>> Entry.objects.filter(pub_date__year=2010).update(comments_on=False)
 
-(This assumes your ``Entry`` model has fields ``pub_date`` and ``comments_on``.)
+(假设 ``Entry`` 模型具有 ``pub_date`` 和 ``comments_on`` 字段.)
 
-You can update multiple fields — there's no limit on how many. For example,
-here we update the ``comments_on`` and ``headline`` fields::
+update没有数量限制可以同时更新多个字段.
+例如, 同时更新 ``comments_on`` 和 ``headline`` 字段::
 
     >>> Entry.objects.filter(pub_date__year=2010).update(comments_on=False, headline='This is old')
 
-The ``update()`` method is applied instantly, and the only restriction on the
-:class:`.QuerySet` that is updated is that it can only update columns in the
-model's main table, not on related models. You can't do this, for example::
+``update()`` 方法是立即执行的, :class:`.QuerySet` update的唯一限制是它只可以更新模型主表中的字段, 不可以更新关联模型.
+例如下面这种::
 
     >>> Entry.objects.update(blog__name='foo') # Won't work!
 
-Filtering based on related fields is still possible, though::
+可以通过关联模型进行过滤, 例如::
 
     >>> Entry.objects.filter(blog__id=1).update(comments_on=True)
 
-You cannot call ``update()`` on a :class:`.QuerySet` that has had a slice taken
-or can otherwise no longer be filtered.
+无法对已切片的或者无法进行过滤的 :class:`.QuerySet` 调用 ``update()`` 方法.
 
-The ``update()`` method returns the number of affected rows::
+``update()`` 会返回受影响的行数::
 
     >>> Entry.objects.filter(id=64).update(comments_on=True)
     1
@@ -1802,30 +1745,23 @@ The ``update()`` method returns the number of affected rows::
     >>> Entry.objects.filter(pub_date__year=2010).update(comments_on=False)
     132
 
-If you're just updating a record and don't need to do anything with the model
-object, the most efficient approach is to call ``update()``, rather than
-loading the model object into memory. For example, instead of doing this::
+如果你仅仅是想更新记录而不需要做其他操作, 那么调用 ``update()`` 是最高效的方法, 而不是将数据加载到内存, 例如下面这种是不建议的::
 
     e = Entry.objects.get(id=10)
     e.comments_on = False
     e.save()
 
-...do this::
+...正确做法::
 
     Entry.objects.filter(id=10).update(comments_on=False)
 
-Using ``update()`` also prevents a race condition wherein something might
-change in your database in the short period of time between loading the object
-and calling ``save()``.
+使用 ``update()`` 还可以防止在加载对象和调用 ``save()`` 这时间段内数据库某些内容发生更改导致的竞争条件.
 
-Finally, realize that ``update()`` does an update at the SQL level and, thus,
-does not call any ``save()`` methods on your models, nor does it emit the
-:attr:`~django.db.models.signals.pre_save` or
-:attr:`~django.db.models.signals.post_save` signals (which are a consequence of
-calling :meth:`Model.save() <django.db.models.Model.save>`). If you want to
-update a bunch of records for a model that has a custom
-:meth:`~django.db.models.Model.save()` method, loop over them and call
-:meth:`~django.db.models.Model.save()`, like this::
+最后, 需要知道 ``update()`` 是在SQL级执行更新, 因此它不会调用模型的 ``save()`` 方法, 也不会触发
+:attr:`~django.db.models.signals.pre_save` 和
+:attr:`~django.db.models.signals.post_save` 信号. 如果业务需要调用模型自己的
+:meth:`~django.db.models.Model.save()` 方法, 那么请遍历结果集调用
+:meth:`~django.db.models.Model.save()`, 例如::
 
     for e in Entry.objects.filter(pub_date__year=2010):
         e.comments_on = False
@@ -2559,7 +2495,7 @@ SQL equivalents::
 
     SELECT ... WHERE title REGEXP '(?i)^(an?|the) +'; -- SQLite
 
-.. _aggregation-functions:
+.. _聚合函数:
 
 Aggregation functions
 ---------------------
