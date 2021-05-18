@@ -1585,34 +1585,27 @@ Examples::
 
 .. method:: latest(field_name=None)
 
-Returns the latest object in the table, by date, using the ``field_name``
-provided as the date field.
+接收一个 ``field_name`` 日期字段, 返回表中最新的一个对象.
 
-This example returns the latest ``Entry`` in the table, according to the
-``pub_date`` field::
+下面例子返回表中 ``pub_date`` 最近的一个 ``Entry`` ::
 
     Entry.objects.latest('pub_date')
 
-If your model's :ref:`Meta <meta-options>` specifies
-:attr:`~django.db.models.Options.get_latest_by`, you can leave off the
-``field_name`` argument to ``earliest()`` or ``latest()``. Django will use the
-field specified in :attr:`~django.db.models.Options.get_latest_by` by default.
+如果在模型的 :ref:`Meta <meta-options>` 中指定了
+:attr:`~django.db.models.Options.get_latest_by`, 则可以调用 ``earliest()`` 和 ``latest()`` 不传入 ``field_name`` .
+Django 将默认使用 :attr:`~django.db.models.Options.get_latest_by` 指定的字段.
 
-Like :meth:`get()`, ``earliest()`` and ``latest()`` raise
-:exc:`~django.db.models.Model.DoesNotExist` if there is no object with the
-given parameters.
+和 :meth:`get()` 方法一样, 如果查不到有效对象 ``earliest()`` 和 ``latest()`` 也会抛出
+:exc:`~django.db.models.Model.DoesNotExist` 异常.
 
-Note that ``earliest()`` and ``latest()`` exist purely for convenience and
-readability.
+注意, ``earliest()`` 和 ``latest()`` 的存仅是为了方便和可读性.
 
-.. admonition:: ``earliest()`` and ``latest()`` may return instances with null dates.
+.. admonition:: ``earliest()`` 和 ``latest()`` 可以返回日期为null的实例.
 
-    Since ordering is delegated to the database, results on fields that allow
-    null values may be ordered differently if you use different databases. For
-    example, PostgreSQL and MySQL sort null values as if they are higher than
-    non-null values, while SQLite does the opposite.
+    因为排序是在数据库中执行的, 如果使用了不同的数据库返回的null值顺序可能会不同.
+    比如PostgreSQL和MySQL中的null值的顺序高于非null值,而在SQLite中则相反.
 
-    You may want to filter out null values::
+    可以像这样过滤掉非空值::
 
         Entry.objects.filter(pub_date__isnull=False).latest('pub_date')
 
@@ -1621,24 +1614,21 @@ readability.
 
 .. method:: earliest(field_name=None)
 
-Works otherwise like :meth:`~django.db.models.query.QuerySet.latest` except
-the direction is changed.
+和 :meth:`~django.db.models.query.QuerySet.latest` 一样, 除了方向相反.
 
 ``first()``
 ~~~~~~~~~~~
 
 .. method:: first()
 
-Returns the first object matched by the queryset, or ``None`` if there
-is no matching object. If the ``QuerySet`` has no ordering defined, then the
-queryset is automatically ordered by the primary key.
+返回结果集中的第一个对象, 如果没有查询到内容则返回 ``None``.
+如果 ``QuerySet`` 没有设置排序, 则默认按照主键排序.
 
-Example::
+例子::
 
     p = Article.objects.order_by('title', 'pub_date').first()
 
-Note that ``first()`` is a convenience method, the following code sample is
-equivalent to the above example::
+注意 ``first()`` 是提供的一个快捷方法, 它的功能和下面例子作用一样::
 
     try:
         p = Article.objects.order_by('title', 'pub_date')[0]
@@ -1650,43 +1640,33 @@ equivalent to the above example::
 
 .. method:: last()
 
-Works like  :meth:`first()`, but returns the last object in the queryset.
+功能类似  :meth:`first()`, 只是它返回结果集的最后一个对象.
 
 ``aggregate()``
 ~~~~~~~~~~~~~~~
 
 .. method:: aggregate(*args, **kwargs)
 
-Returns a dictionary of aggregate values (averages, sums, etc.) calculated over
-the ``QuerySet``. Each argument to ``aggregate()`` specifies a value that will
-be included in the dictionary that is returned.
+从 ``QuerySet`` 中计算聚合值 (均值, 求和等)并以字典形式返回. ``aggregate()`` 中一个参数对应字典的一组值.
 
-The aggregation functions that are provided by Django are described in
-`Aggregation Functions`_ below. Since aggregates are also :doc:`query
-expressions </ref/models/expressions>`, you may combine aggregates with other
-aggregates or values to create complex aggregates.
+Django提供的所有聚合函数在下文的
+`聚合函数`_ 中查看. 因为聚合也是 :doc:`查询表达式 </ref/models/expressions>`, 因此可以结合多个聚合创建复杂的聚合.
 
-Aggregates specified using keyword arguments will use the keyword as the name
-for the annotation. Anonymous arguments will have a name generated for them
-based upon the name of the aggregate function and the model field that is being
-aggregated. Complex aggregates cannot use anonymous arguments and must specify
-a keyword argument as an alias.
+聚合时使用了关键字参数将以关键字为名称返回. 如果是匿名参数将以聚合函数的名称和聚合字段的名称组合为名字返回.
+复杂聚合不支持匿名参数必须指定关键字参数.
 
-For example, when you are working with blog entries, you may want to know the
-number of authors that have contributed blog entries::
+例如, 在博客的例子中查询作者名下的博文数量::
 
     >>> from django.db.models import Count
     >>> q = Blog.objects.aggregate(Count('entry'))
     {'entry__count': 16}
 
-By using a keyword argument to specify the aggregate function, you can
-control the name of the aggregation value that is returned::
+如果使用关键字参数就可以指定聚合返回的值::
 
     >>> q = Blog.objects.aggregate(number_of_entries=Count('entry'))
     {'number_of_entries': 16}
 
-For an in-depth discussion of aggregation, see :doc:`the topic guide on
-Aggregation </topics/db/aggregation>`.
+更加详细的介绍请查看 :doc:`聚合 </topics/db/aggregation>`.
 
 ``exists()``
 ~~~~~~~~~~~~
@@ -2536,7 +2516,7 @@ SQL equivalents::
 
     SELECT ... WHERE title REGEXP '(?i)^(an?|the) +'; -- SQLite
 
-.. _aggregation-functions:
+.. _聚合函数:
 
 Aggregation functions
 ---------------------
