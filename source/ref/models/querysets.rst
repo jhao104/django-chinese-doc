@@ -1505,58 +1505,45 @@ Examples::
 
 .. versionchanged:: 1.9
 
-    Support for using ``bulk_create()`` with proxy models was added.
+    新增 ``bulk_create()`` 对代理模型(proxy models)支持.
 
 .. versionchanged:: 1.10
 
-    Support for setting primary keys on objects created using ``bulk_create()``
-    when using PostgreSQL was added.
+    新增PostgreSQL数据库使用 ``bulk_create()`` 插入数据时设置主键.
 
-The ``batch_size`` parameter controls how many objects are created in single
-query. The default is to create all objects in one batch, except for SQLite
-where the default is such that at most 999 variables per query are used.
+参数 ``batch_size`` 用于控制单次创建的对象数. 默认情况下, 除SQLite外一次性创建所有对象, SQLite单次最多支持999个.
 
 ``count()``
 ~~~~~~~~~~~
 
 .. method:: count()
 
-Returns an integer representing the number of objects in the database matching
-the ``QuerySet``. The ``count()`` method never raises exceptions.
+返回数据查询结果集 ``QuerySet`` 中的对象数量. ``count()`` 不会抛出异常.
 
-Example::
+例子::
 
-    # Returns the total number of entries in the database.
+    # 返回数据库中所有条目数量.
     Entry.objects.count()
 
-    # Returns the number of entries whose headline contains 'Lennon'
+    # 返回数据库中headline包含'Lennon'的条目数量
     Entry.objects.filter(headline__contains='Lennon').count()
 
-A ``count()`` call performs a ``SELECT COUNT(*)`` behind the scenes, so you
-should always use ``count()`` rather than loading all of the record into Python
-objects and calling ``len()`` on the result (unless you need to load the
-objects into memory anyway, in which case ``len()`` will be faster).
+``count()`` 在后台执行的是 ``SELECT COUNT(*)`` , 因此请务必使用 ``count()`` 而不是将所有记录加载成Python对象然后调用 ``len()`` 函数
+(除非你有其他需要必须要将其加载到内存中, 这种情况 ``len()`` 会比较快).
 
-Depending on which database you're using (e.g. PostgreSQL vs. MySQL),
-``count()`` may return a long integer instead of a normal Python integer. This
-is an underlying implementation quirk that shouldn't pose any real-world
-problems.
+根据使用的数据库不同 (e.g. PostgreSQL vs. MySQL),
+``count()`` 方法可能返回的是一个长整型而不是Python整数.
 
-Note that if you want the number of items in a ``QuerySet`` and are also
-retrieving model instances from it (for example, by iterating over it), it's
-probably more efficient to use ``len(queryset)`` which won't cause an extra
-database query like ``count()`` would.
+注意,如果你想计算 ``QuerySet`` 中的项目个数并且希望遍历每个数据对象(例如, 通过迭代它), 使用 ``len(queryset)`` 将会更好, 它不会像 ``count()`` 产生额外的数据库查询.
 
 ``in_bulk()``
 ~~~~~~~~~~~~~
 
 .. method:: in_bulk(id_list=None)
 
-Takes a list of primary-key values and returns a dictionary mapping each
-primary-key value to an instance of the object with the given ID. If a list
-isn't provided, all objects in the queryset are returned.
+接收一个主键组成的列表, 返回一个字典, 字典的key为传入的主键ID, value为匹配的对象实例. 如果不传入id_list, 那么将返回整个查询集的内容.
 
-Example::
+例子::
 
     >>> Blog.objects.in_bulk([1])
     {1: <Blog: Beatles Blog>}
@@ -1567,11 +1554,11 @@ Example::
     >>> Blog.objects.in_bulk()
     {1: <Blog: Beatles Blog>, 2: <Blog: Cheddar Talk>, 3: <Blog: Django Weblog>}
 
-If you pass ``in_bulk()`` an empty list, you'll get an empty dictionary.
+如果传入空列表到 ``in_bulk()`` , 将返回一个空字典.
 
 .. versionchanged:: 1.10
 
-    In older versions, ``id_list`` was a required argument.
+    在此之前版本, ``id_list`` 为必传参数.
 
 ``iterator()``
 ~~~~~~~~~~~~~~
