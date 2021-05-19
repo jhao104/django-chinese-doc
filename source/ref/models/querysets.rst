@@ -131,7 +131,7 @@ Django提供了一系列的 ``QuerySet`` 筛选方法，用于修改 ``QuerySet`
 
 返回一个新的包含满足查询参数的 ``QuerySet`` 对象.
 
-查询参数(``**kwargs``) 必须满足下文 `Field lookups`_ 的格式.
+查询参数(``**kwargs``) 必须满足下文 `Field 查询`_ 的格式.
 
 如果需要更复杂的查询 (例如 ``OR`` 语句), 可以使用 :class:`Q查询 <django.db.models.Q>`.
 
@@ -142,7 +142,7 @@ Django提供了一系列的 ``QuerySet`` 筛选方法，用于修改 ``QuerySet`
 
 返回一个新的不包含满足查询参数的 ``QuerySet`` 对象.
 
-查询参数(``**kwargs``) 必须满足下文 `Field lookups`_ 的格式. 在底层SQL语句中, 多个参数通过 ``AND`` 连接.
+查询参数(``**kwargs``) 必须满足下文 `Field 查询`_ 的格式. 在底层SQL语句中, 多个参数通过 ``AND`` 连接.
 然后所查的内容都会被放入 ``NOT()`` 句子中.
 
 下面的示例排除所有 ``pub_date`` 大于2005-1-3 且 ``headline`` 为“Hello”的记录::
@@ -179,7 +179,7 @@ headline 为 "Hello"的记录::
 
 ``annotate()`` 的每个参数都是一个注解，将添加到返回的 ``QuerySet`` 中的每个对象中.
 
-Django提供的聚合函数在下文的 `Aggregation Functions`_ 文档中有详细介绍.
+Django提供的聚合函数在下文的 `聚合函数`_ 文档中有详细介绍.
 
 关键字参数指定的注解将使用关键字作为注解的别名. 匿名参数的别名将基于聚合函数的名称和模型的字段生成.
 只有引用单个字段的聚合表达式才可以使用匿名参数. 其它所有形式都必须用关键字参数.
@@ -1291,7 +1291,7 @@ Examples::
 
 .. method:: get(**kwargs)
 
-返回根据查询参数匹配到的对象, 参数格式应该符合 `Field lookups`_ 要求.
+返回根据查询参数匹配到的对象, 参数格式应该符合 `Field 查询`_ 要求.
 
 如果 ``get()`` 匹配到多个对象将会抛出 :exc:`~django.core.exceptions.MultipleObjectsReturned`.
 :exc:`~django.core.exceptions.MultipleObjectsReturned` 异常是模型类的属性.
@@ -1772,15 +1772,11 @@ update没有数量限制可以同时更新多个字段.
 
 .. method:: delete()
 
-Performs an SQL delete query on all rows in the :class:`.QuerySet` and
-returns the number of objects deleted and a dictionary with the number of
-deletions per object type.
+执行SQL删除语句, 删除 :class:`.QuerySet` 所有行, 返回删除数量和每个删除的对象与其数量组成的字典.
 
-The ``delete()`` is applied instantly. You cannot call ``delete()`` on a
-:class:`.QuerySet` that has had a slice taken or can otherwise no longer be
-filtered.
+``delete()`` 是立即生效的. 不能对已切片和不能过滤的 :class:`.QuerySet` 调用t ``delete()`` 方法.
 
-For example, to delete all the entries in a particular blog::
+例如, 删除指定博客的所有条目::
 
     >>> b = Blog.objects.get(pk=1)
 
@@ -1790,12 +1786,10 @@ For example, to delete all the entries in a particular blog::
 
 .. versionchanged:: 1.9
 
-    The return value describing the number of objects deleted was added.
+    新增返回删除对象及数量情况.
 
-By default, Django's :class:`~django.db.models.ForeignKey` emulates the SQL
-constraint ``ON DELETE CASCADE`` — in other words, any objects with foreign
-keys pointing at the objects to be deleted will be deleted along with them.
-For example::
+Django的 :class:`~django.db.models.ForeignKey` 仿效了SQL的 ``ON DELETE CASCADE`` 约束, — 换句话讲, 默认情况下任何对象别删除时与其关联的外键对象也会被删除.
+例如::
 
     >>> blogs = Blog.objects.all()
 
@@ -1803,134 +1797,118 @@ For example::
     >>> blogs.delete()
     (5, {'weblog.Blog': 1, 'weblog.Entry': 2, 'weblog.Entry_authors': 2})
 
-This cascade behavior is customizable via the
-:attr:`~django.db.models.ForeignKey.on_delete` argument to the
-:class:`~django.db.models.ForeignKey`.
+这个行为可以通过 :class:`~django.db.models.ForeignKey` 的
+:attr:`~django.db.models.ForeignKey.on_delete` 参数进行设置.
 
-The ``delete()`` method does a bulk delete and does not call any ``delete()``
-methods on your models. It does, however, emit the
-:data:`~django.db.models.signals.pre_delete` and
-:data:`~django.db.models.signals.post_delete` signals for all deleted objects
-(including cascaded deletions).
+``delete()`` 方法是批量删除, 它不会调用模型的 ``delete()`` 方法, 但是会为每一个删除的对象触发
+:data:`~django.db.models.signals.pre_delete` 和
+:data:`~django.db.models.signals.post_delete` 信号
+(包含级联删除).
 
-Django needs to fetch objects into memory to send signals and handle cascades.
-However, if there are no cascades and no signals, then Django may take a
-fast-path and delete objects without fetching into memory. For large
-deletes this can result in significantly reduced memory usage. The amount of
-executed queries can be reduced, too.
+Django需要将对象加载到内存才可以处理级联和发送信号.
+但是, 如果没有级联处理和信号操作, Django会采取快速方式删除对象而不需要加载到内存.
+对于大型的查询这可以减少内存消耗和执行查询的量.
 
-ForeignKeys which are set to :attr:`~django.db.models.ForeignKey.on_delete`
-``DO_NOTHING`` do not prevent taking the fast-path in deletion.
+ForeignKeys :attr:`~django.db.models.ForeignKey.on_delete` 设置为
+``DO_NOTHING`` 时不会阻止快速删除.
 
-Note that the queries generated in object deletion is an implementation
-detail subject to change.
+注意，在对象删除中生成的查询是具体实现, 可能会有更改.
 
 ``as_manager()``
 ~~~~~~~~~~~~~~~~
 
 .. classmethod:: as_manager()
 
-Class method that returns an instance of :class:`~django.db.models.Manager`
-with a copy of the ``QuerySet``’s methods. See
-:ref:`create-manager-with-queryset-methods` for more details.
+类方法, 返回一个带有 ``QuerySet`` 方法的 :class:`~django.db.models.Manager` 实例. 有关详细信息请参考
+:ref:`create-manager-with-queryset-methods`.
 
 .. _field-lookups:
 
-``Field`` lookups
+``Field`` 查询
 -----------------
 
-Field lookups are how you specify the meat of an SQL ``WHERE`` clause. They're
-specified as keyword arguments to the ``QuerySet`` methods :meth:`filter()`,
-:meth:`exclude()` and :meth:`get()`.
+Field查询就是SQL中的 ``WHERE`` 语句. 它们以 ``QuerySet`` 的 :meth:`filter()`
+:meth:`exclude()`  :meth:`get()` 方法的关键字参数实现.
 
-For an introduction, see :ref:`models and database queries documentation
+详细介绍参见 :ref:`模型和数据库查询文档
 <field-lookups-intro>`.
 
-Django's built-in lookups are listed below. It is also possible to write
-:doc:`custom lookups </howto/custom-lookups>` for model fields.
+Django内置查询如下. 同时也支持为模型字段
+:doc:`自定义查询 </howto/custom-lookups>`.
 
-As a convenience when no lookup type is provided (like in
-``Entry.objects.get(id=14)``) the lookup type is assumed to be :lookup:`exact`.
+为了方便起见, 当没有提供查询类型时(例如
+``Entry.objects.get(id=14)``), 查询类型会被假定为 :lookup:`exact`.
 
 .. fieldlookup:: exact
 
 ``exact``
 ~~~~~~~~~
 
-Exact match. If the value provided for comparison is ``None``, it will be
-interpreted as an SQL ``NULL`` (see :lookup:`isnull` for more details).
+精确匹配. 如果提供的查询值为 ``None`` 将会被解释为SQL的 ``NULL`` (详见 :lookup:`isnull`).
 
-Examples::
+例如::
 
     Entry.objects.get(id__exact=14)
     Entry.objects.get(id__exact=None)
 
-SQL equivalents::
+等价于SQL::
 
     SELECT ... WHERE id = 14;
     SELECT ... WHERE id IS NULL;
 
-.. admonition:: MySQL comparisons
+.. admonition:: MySQL查询
 
-    In MySQL, a database table's "collation" setting determines whether
-    ``exact`` comparisons are case-sensitive. This is a database setting, *not*
-    a Django setting. It's possible to configure your MySQL tables to use
-    case-sensitive comparisons, but some trade-offs are involved. For more
-    information about this, see the :ref:`collation section <mysql-collation>`
-    in the :doc:`databases </ref/databases>` documentation.
+    在Mysql中, 数据表的 "COLLATE" 设置项会影响到
+    ``exact`` 查询时大小写敏感. 这属于数据库的设置, *不是* Django的设置.
+    这会影响到查询时的大小写敏感, 但也有解决方案. 参考 :doc:`数据库 </ref/databases>` 文档中的 :ref:`collation section <mysql-collation>`.
 
 .. fieldlookup:: iexact
 
 ``iexact``
 ~~~~~~~~~~
 
-Case-insensitive exact match. If the value provided for comparison is ``None``,
-it will be interpreted as an SQL ``NULL`` (see :lookup:`isnull` for more
-details).
+大小写不敏感的精确匹配. 如果提供的查询值为 ``None`` 将会被解释为SQL的 ``NULL`` (详见 :lookup:`isnull`).
 
-Example::
+例如::
 
     Blog.objects.get(name__iexact='beatles blog')
     Blog.objects.get(name__iexact=None)
 
-SQL equivalents::
+等价于SQL::
 
     SELECT ... WHERE name ILIKE 'beatles blog';
     SELECT ... WHERE name IS NULL;
 
-Note the first query will match ``'Beatles Blog'``, ``'beatles blog'``,
-``'BeAtLes BLoG'``, etc.
+注意第一个查询可以匹配到 ``'Beatles Blog'``, ``'beatles blog'``,
+``'BeAtLes BLoG'`` 等等.
 
-.. admonition:: SQLite users
+.. admonition:: SQLite用户
 
-    When using the SQLite backend and Unicode (non-ASCII) strings, bear in
-    mind the :ref:`database note <sqlite-string-matching>` about string
-    comparisons. SQLite does not do case-insensitive matching for Unicode
-    strings.
+    当使用SQLite数据库和Unicode(非ASCII)字符时, 请注意 :ref:`数据库备注 <sqlite-string-matching>` 中的字符串比较. SQLite在匹配Unicode字符时大小写不敏感.
 
 .. fieldlookup:: contains
 
 ``contains``
 ~~~~~~~~~~~~
 
-Case-sensitive containment test.
+大小写敏感的包含查询.
 
-Example::
+例如::
 
     Entry.objects.get(headline__contains='Lennon')
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE headline LIKE '%Lennon%';
 
-Note this will match the headline ``'Lennon honored today'`` but not ``'lennon
+注意这可以匹配 ``'Lennon honored today'`` 但匹配不到 ``'lennon
 honored today'``.
 
-.. admonition:: SQLite users
+.. admonition:: SQLite用户
 
-    SQLite doesn't support case-sensitive ``LIKE`` statements; ``contains``
-    acts like ``icontains`` for SQLite. See the :ref:`database note
-    <sqlite-string-matching>` for more information.
+    SQLite 不支持大小写敏感的 ``LIKE`` 语句; ``contains``
+    在SQLite中作用和 ``icontains`` 一样. 详见 :ref:`数据库备注
+    <sqlite-string-matching>` .
 
 
 .. fieldlookup:: icontains
@@ -1938,57 +1916,51 @@ honored today'``.
 ``icontains``
 ~~~~~~~~~~~~~
 
-Case-insensitive containment test.
+大小写不敏感的包含查询.
 
-Example::
+例如::
 
     Entry.objects.get(headline__icontains='Lennon')
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE headline ILIKE '%Lennon%';
 
-.. admonition:: SQLite users
+.. admonition:: SQLite用户
 
-    When using the SQLite backend and Unicode (non-ASCII) strings, bear in
-    mind the :ref:`database note <sqlite-string-matching>` about string
-    comparisons.
+    当使用SQLite数据库和Unicode(非ASCII)字符时, 请注意 :ref:`数据库备注 <sqlite-string-matching>` 中的字符串比较.
 
 .. fieldlookup:: in
 
 ``in``
 ~~~~~~
 
-In a given list.
+存在于给定列表中.
 
-Example::
+例如::
 
     Entry.objects.filter(id__in=[1, 3, 4])
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE id IN (1, 3, 4);
 
-You can also use a queryset to dynamically evaluate the list of values
-instead of providing a list of literal values::
+这里并不是一定要传入一个具有明确值的列表, 也可以嵌套传入一个查询集来查询::
 
     inner_qs = Blog.objects.filter(name__contains='Cheddar')
     entries = Entry.objects.filter(blog__in=inner_qs)
 
-This queryset will be evaluated as subselect statement::
+该查询将被视为一个子查询::
 
     SELECT ... WHERE blog.id IN (SELECT id FROM ... WHERE NAME LIKE '%Cheddar%')
 
-If you pass in a ``QuerySet`` resulting from ``values()`` or ``values_list()``
-as the value to an ``__in`` lookup, you need to ensure you are only extracting
-one field in the result. For example, this will work (filtering on the blog
-names)::
+如果传入的 ``QuerySet`` 调用了 ``values()`` 或者 ``values_list()`` 作为 ``__in`` 查询的参数, 那么你需要确保只提取了一个字段
+例如, 下面这种做法是正确的::
 
     inner_qs = Blog.objects.filter(name__contains='Ch').values('name')
     entries = Entry.objects.filter(blog__name__in=inner_qs)
 
-This example will raise an exception, since the inner query is trying to
-extract two field values, where only one is expected::
+下面这种会抛出一个异常, 因为 ``__in`` 查询只需要一个字段确提取了两个::
 
     # Bad code! Will raise a TypeError.
     inner_qs = Blog.objects.filter(name__contains='Ch').values('name', 'id')
@@ -1996,21 +1968,17 @@ extract two field values, where only one is expected::
 
 .. _nested-queries-performance:
 
-.. admonition:: Performance considerations
+.. admonition:: 性能考量
 
-    Be cautious about using nested queries and understand your database
-    server's performance characteristics (if in doubt, benchmark!). Some
-    database backends, most notably MySQL, don't optimize nested queries very
-    well. It is more efficient, in those cases, to extract a list of values
-    and then pass that into the second query. That is, execute two queries
-    instead of one::
+    请谨慎使用嵌套查询除非你非常了解数据库服务性能(如果不是,请做好基准测试!). 有些数据库, 尤其是MySQL并不能很好的优化嵌套查询.
+    这种情况下, 先提取一组列表值, 然后再将其传递到第二个查询中会更有效. 也就是说分两次查询而不是一次查询::
 
         values = Blog.objects.filter(
                 name__contains='Cheddar').values_list('pk', flat=True)
         entries = Entry.objects.filter(blog__in=list(values))
 
-    Note the ``list()`` call around the Blog ``QuerySet`` to force execution of
-    the first query. Without it, a nested query would be executed, because
+    注意第一个查询中Blog ``QuerySet`` 调用 ``list()`` 会强制执行查询.
+    如果不调用它一样会导致嵌套查询, 因为
     :ref:`querysets-are-lazy`.
 
 .. fieldlookup:: gt
@@ -2018,13 +1986,13 @@ extract two field values, where only one is expected::
 ``gt``
 ~~~~~~
 
-Greater than.
+大于查询.
 
-Example::
+例如::
 
     Entry.objects.filter(id__gt=4)
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE id > 4;
 
@@ -2033,134 +2001,126 @@ SQL equivalent::
 ``gte``
 ~~~~~~~
 
-Greater than or equal to.
+大于等于查询.
 
 .. fieldlookup:: lt
 
 ``lt``
 ~~~~~~
 
-Less than.
+小于查询.
 
 .. fieldlookup:: lte
 
 ``lte``
 ~~~~~~~
 
-Less than or equal to.
+小于等于查询.
 
 .. fieldlookup:: startswith
 
 ``startswith``
 ~~~~~~~~~~~~~~
 
-Case-sensitive starts-with.
+大小写敏感的前缀查询.
 
-Example::
+例如::
 
     Entry.objects.filter(headline__startswith='Will')
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE headline LIKE 'Will%';
 
-SQLite doesn't support case-sensitive ``LIKE`` statements; ``startswith`` acts
-like ``istartswith`` for SQLite.
+SQLite不支持大小写敏感的 ``LIKE`` 语句; SQLite下 ``startswith`` 被作为
+``istartswith`` 执行.
 
 .. fieldlookup:: istartswith
 
 ``istartswith``
 ~~~~~~~~~~~~~~~
 
-Case-insensitive starts-with.
+大小写不敏感的前缀查询.
 
-Example::
+例如::
 
     Entry.objects.filter(headline__istartswith='will')
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE headline ILIKE 'Will%';
 
-.. admonition:: SQLite users
+.. admonition:: SQLite用户
 
-    When using the SQLite backend and Unicode (non-ASCII) strings, bear in
-    mind the :ref:`database note <sqlite-string-matching>` about string
-    comparisons.
+    当使用SQLite数据库和Unicode(非ASCII)字符时, 请注意 :ref:`数据库备注 <sqlite-string-matching>` 中的字符串比较.
 
 .. fieldlookup:: endswith
 
 ``endswith``
 ~~~~~~~~~~~~
 
-Case-sensitive ends-with.
+大小写敏感的后缀查询.
 
-Example::
+例如::
 
     Entry.objects.filter(headline__endswith='cats')
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE headline LIKE '%cats';
 
-.. admonition:: SQLite users
+.. admonition:: SQLite用户
 
-    SQLite doesn't support case-sensitive ``LIKE`` statements; ``endswith``
-    acts like ``iendswith`` for SQLite. Refer to the :ref:`database note
-    <sqlite-string-matching>` documentation for more.
+    SQLite不支持大小写敏感的 ``LIKE`` 语句; SQLite下 ``endswith`` 被作为 ``iendswith`` 执行.
+    请注意 :ref:`数据库备注 <sqlite-string-matching>` 中的字符串比较.
 
 .. fieldlookup:: iendswith
 
 ``iendswith``
 ~~~~~~~~~~~~~
 
-Case-insensitive ends-with.
+大小写不敏感的后缀查询.
 
-Example::
+例如::
 
     Entry.objects.filter(headline__iendswith='will')
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE headline ILIKE '%will'
 
-.. admonition:: SQLite users
+.. admonition:: SQLite用户
 
-    When using the SQLite backend and Unicode (non-ASCII) strings, bear in
-    mind the :ref:`database note <sqlite-string-matching>` about string
-    comparisons.
+    当使用SQLite数据库和Unicode(非ASCII)字符时, 请注意 :ref:`数据库备注 <sqlite-string-matching>` 中的字符串比较.
 
 .. fieldlookup:: range
 
 ``range``
 ~~~~~~~~~
 
-Range test (inclusive).
+范围查询(包含边界值).
 
-Example::
+例如::
 
     import datetime
     start_date = datetime.date(2005, 1, 1)
     end_date = datetime.date(2005, 3, 31)
     Entry.objects.filter(pub_date__range=(start_date, end_date))
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE pub_date BETWEEN '2005-01-01' and '2005-03-31';
 
-You can use ``range`` anywhere you can use ``BETWEEN`` in SQL — for dates,
-numbers and even characters.
+SQL中支持 ``BETWEEN`` 的地方都支持 ``range``  — 比如日期,数字,甚至字符串.
 
 .. warning::
 
-    Filtering a ``DateTimeField`` with dates won't include items on the last
-    day, because the bounds are interpreted as "0am on the given date". If
-    ``pub_date`` was a ``DateTimeField``, the above expression would be turned
-    into this SQL::
+    用日期过滤 ``DateTimeField`` 不会包含最后一天的数据, 因为查询范围的边界值会被解释成"给定日期的零点".
+    比如如果 ``pub_date`` 的类型为 ``DateTimeField``, 那么上面的查询就会变成这样的SQL::
 
         SELECT ... WHERE pub_date BETWEEN '2005-01-01 00:00:00' and '2005-03-31 00:00:00';
 
-    Generally speaking, you can't mix dates and datetimes.
+    一般来讲, 不要把date和datetime混在一起使用.
 
 .. fieldlookup:: date
 
@@ -2169,252 +2129,225 @@ numbers and even characters.
 
 .. versionadded:: 1.9
 
-For datetime fields, casts the value as date. Allows chaining additional field
-lookups. Takes a date value.
+接收日期值. datetime字段会被转换为date. 可以再跟上额外查询.
 
-Example::
+例如::
 
     Entry.objects.filter(pub_date__date=datetime.date(2005, 1, 1))
     Entry.objects.filter(pub_date__date__gt=datetime.date(2005, 1, 1))
 
-(No equivalent SQL code fragment is included for this lookup because
-implementation of the relevant query varies among different database engines.)
+(本次查询没有给出等价的SQL片段, 因为不同的数据库引擎对此的实现不尽相同.)
 
-When :setting:`USE_TZ` is ``True``, fields are converted to the current time
-zone before filtering.
+:setting:`USE_TZ` 设置为 ``True`` 时, 执行过滤前字段会被转换为当前的时区.
 
 .. fieldlookup:: year
 
 ``year``
 ~~~~~~~~
 
-For date and datetime fields, an exact year match. Allows chaining additional
-field lookups. Takes an integer year.
+接收整数类型年份值,匹配精确年份. 可以再跟上额外查询.
 
-Example::
+例如::
 
     Entry.objects.filter(pub_date__year=2005)
     Entry.objects.filter(pub_date__year__gte=2005)
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE pub_date BETWEEN '2005-01-01' AND '2005-12-31';
     SELECT ... WHERE pub_date >= '2005-01-01';
 
-(The exact SQL syntax varies for each database engine.)
+(确切的SQL语句因数据库而异.)
 
-When :setting:`USE_TZ` is ``True``, datetime fields are converted to the
-current time zone before filtering.
+:setting:`USE_TZ` 设置为 ``True`` 时, datetime字段会在过滤前转换到当前时区.
 
 .. versionchanged:: 1.9
 
-    Allowed chaining additional field lookups.
+    允许跟上额外查询.
 
 .. fieldlookup:: month
 
 ``month``
 ~~~~~~~~~
 
-For date and datetime fields, an exact month match. Allows chaining additional
-field lookups. Takes an integer 1 (January) through 12 (December).
+接收1 (一月)至12 (十二月) 的整数. 用于date和datetime字段精确匹配月份. 允许跟上额外查询
 
-Example::
+例如::
 
     Entry.objects.filter(pub_date__month=12)
     Entry.objects.filter(pub_date__month__gte=6)
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE EXTRACT('month' FROM pub_date) = '12';
     SELECT ... WHERE EXTRACT('month' FROM pub_date) >= '6';
 
-(The exact SQL syntax varies for each database engine.)
+(确切的SQL语句因数据库而异.)
 
-When :setting:`USE_TZ` is ``True``, datetime fields are converted to the
-current time zone before filtering. This requires :ref:`time zone definitions
-in the database <database-time-zone-definitions>`.
+:setting:`USE_TZ` 设置为 ``True`` 时, datetime字段会在过滤前转换到当前时区.
+这需要 :ref:`数据库时区设置 <database-time-zone-definitions>`.
 
 .. versionchanged:: 1.9
 
-    Allowed chaining additional field lookups.
+    允许跟上额外查询.
 
 .. fieldlookup:: day
 
 ``day``
 ~~~~~~~
 
-For date and datetime fields, an exact day match. Allows chaining additional
-field lookups. Takes an integer day.
+接收整型天数, 用于date和datetime字段精确匹配天数. 允许跟上额外查询.
 
-Example::
+例如::
 
     Entry.objects.filter(pub_date__day=3)
     Entry.objects.filter(pub_date__day__gte=3)
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE EXTRACT('day' FROM pub_date) = '3';
     SELECT ... WHERE EXTRACT('day' FROM pub_date) >= '3';
 
-(The exact SQL syntax varies for each database engine.)
+(确切的SQL语句因数据库而异.)
 
-Note this will match any record with a pub_date on the third day of the month,
-such as January 3, July 3, etc.
+注意这会匹配出所有月份3号的记录, 比如1月3号,7月3号等.
 
-When :setting:`USE_TZ` is ``True``, datetime fields are converted to the
-current time zone before filtering. This requires :ref:`time zone definitions
-in the database <database-time-zone-definitions>`.
+:setting:`USE_TZ` 设置为 ``True`` 时, datetime字段会在过滤前转换到当前时区.
+这需要 :ref:`数据库时区设置 <database-time-zone-definitions>`.
 
 .. versionchanged:: 1.9
 
-    Allowed chaining additional field lookups.
+    允许跟上额外查询.
 
 .. fieldlookup:: week_day
 
 ``week_day``
 ~~~~~~~~~~~~
 
-For date and datetime fields, a 'day of the week' match. Allows chaining
-additional field lookups.
+接收一周的天数1(星期一)到7(星期天),整型, 用于date和datetime字段匹配'一周中的第几天'. 允许跟上额外查询.
 
-Takes an integer value representing the day of week from 1 (Sunday) to 7
-(Saturday).
-
-Example::
+例如::
 
     Entry.objects.filter(pub_date__week_day=2)
     Entry.objects.filter(pub_date__week_day__gte=2)
 
-(No equivalent SQL code fragment is included for this lookup because
-implementation of the relevant query varies among different database engines.)
+(本次查询没有给出等价的SQL片段, 因为不同的数据库引擎对此的实现不尽相同.)
 
-Note this will match any record with a ``pub_date`` that falls on a Monday (day
-2 of the week), regardless of the month or year in which it occurs. Week days
-are indexed with day 1 being Sunday and day 7 being Saturday.
+注意这会匹配出 ``pub_date`` 为星期一(一周的第二天), 不管是哪一月或是哪一年. 星期天的数值为1,星期六为7.
 
-When :setting:`USE_TZ` is ``True``, datetime fields are converted to the
-current time zone before filtering. This requires :ref:`time zone definitions
-in the database <database-time-zone-definitions>`.
+:setting:`USE_TZ` 设置为 ``True`` 时, datetime字段会在过滤前转换到当前时区.
+这需要 :ref:`数据库时区设置 <database-time-zone-definitions>`.
 
 .. versionchanged:: 1.9
 
-    Allowed chaining additional field lookups.
+    允许跟上额外查询.
 
 .. fieldlookup:: hour
 
 ``hour``
 ~~~~~~~~
 
-For datetime and time fields, an exact hour match. Allows chaining additional
-field lookups. Takes an integer between 0 and 23.
+接收0到23的整数, 用于datetime和time字段精确匹配小时数. 允许跟上额外查询.
 
-Example::
+例如::
 
     Event.objects.filter(timestamp__hour=23)
     Event.objects.filter(time__hour=5)
     Event.objects.filter(timestamp__hour__gte=12)
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE EXTRACT('hour' FROM timestamp) = '23';
     SELECT ... WHERE EXTRACT('hour' FROM time) = '5';
     SELECT ... WHERE EXTRACT('hour' FROM timestamp) >= '12';
 
-(The exact SQL syntax varies for each database engine.)
+(确切的SQL语句因数据库而异.)
 
-For datetime fields, when :setting:`USE_TZ` is ``True``, values are converted
-to the current time zone before filtering.
-
-.. versionchanged:: 1.9
-
-    Added support for :class:`~django.db.models.TimeField` on SQLite (other
-    databases supported it as of 1.7).
+对于datetime字段, :setting:`USE_TZ` 设置为 ``True`` 时, 字段值在过滤前将会被转换到当前时区.
 
 .. versionchanged:: 1.9
 
-    Allowed chaining additional field lookups.
+    新增对SQLite :class:`~django.db.models.TimeField` 支持(其他数据库从1.7开始支持).
+
+.. versionchanged:: 1.9
+
+    允许跟上额外查询.
 
 .. fieldlookup:: minute
 
 ``minute``
 ~~~~~~~~~~
 
-For datetime and time fields, an exact minute match. Allows chaining additional
-field lookups. Takes an integer between 0 and 59.
+接收0到59的整数, 用于datetime和time字段精确匹配分钟数. 允许跟上额外查询.
 
-Example::
+例如::
 
     Event.objects.filter(timestamp__minute=29)
     Event.objects.filter(time__minute=46)
     Event.objects.filter(timestamp__minute__gte=29)
 
-SQL equivalent::
+等于SQL::
 
     SELECT ... WHERE EXTRACT('minute' FROM timestamp) = '29';
     SELECT ... WHERE EXTRACT('minute' FROM time) = '46';
     SELECT ... WHERE EXTRACT('minute' FROM timestamp) >= '29';
 
-(The exact SQL syntax varies for each database engine.)
+(确切的SQL语句因数据库而异.)
 
-For datetime fields, When :setting:`USE_TZ` is ``True``, values are converted
-to the current time zone before filtering.
-
-.. versionchanged:: 1.9
-
-    Added support for :class:`~django.db.models.TimeField` on SQLite (other
-    databases supported it as of 1.7).
+对于datetime字段, :setting:`USE_TZ` 设置为 ``True`` 时, 字段值在过滤前将会被转换到当前时区.
 
 .. versionchanged:: 1.9
 
-    Allowed chaining additional field lookups.
+    新增对SQLite :class:`~django.db.models.TimeField` 支持(其他数据库从1.7开始支持).
+
+.. versionchanged:: 1.9
+
+    允许跟上额外查询.
 
 .. fieldlookup:: second
 
 ``second``
 ~~~~~~~~~~
 
-For datetime and time fields, an exact second match. Allows chaining additional
-field lookups. Takes an integer between 0 and 59.
+接收0到59的整数, 用于datetime和time字段精确匹配秒数. 允许跟上额外查询.
 
-Example::
+例如::
 
     Event.objects.filter(timestamp__second=31)
     Event.objects.filter(time__second=2)
     Event.objects.filter(timestamp__second__gte=31)
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE EXTRACT('second' FROM timestamp) = '31';
     SELECT ... WHERE EXTRACT('second' FROM time) = '2';
     SELECT ... WHERE EXTRACT('second' FROM timestamp) >= '31';
 
-(The exact SQL syntax varies for each database engine.)
+(确切的SQL语句因数据库而异.)
 
-For datetime fields, when :setting:`USE_TZ` is ``True``, values are converted
-to the current time zone before filtering.
-
-.. versionchanged:: 1.9
-
-    Added support for :class:`~django.db.models.TimeField` on SQLite (other
-    databases supported it as of 1.7).
+对于datetime字段, :setting:`USE_TZ` 设置为 ``True`` 时, 字段值在过滤前将会被转换到当前时区.
 
 .. versionchanged:: 1.9
 
-    Allowed chaining additional field lookups.
+    新增对SQLite :class:`~django.db.models.TimeField` 支持(其他数据库从1.7开始支持).
+
+.. versionchanged:: 1.9
+
+    允许跟上额外查询.
 
 .. fieldlookup:: isnull
 
 ``isnull``
 ~~~~~~~~~~
 
-Takes either ``True`` or ``False``, which correspond to SQL queries of
-``IS NULL`` and ``IS NOT NULL``, respectively.
+接收 ``True`` 或者 ``False``, 它们分别对应了SQL查询的
+``IS NULL`` 和 ``IS NOT NULL``.
 
-Example::
+例如::
 
     Entry.objects.filter(pub_date__isnull=True)
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE pub_date IS NULL;
 
@@ -2425,43 +2358,38 @@ SQL equivalent::
 
 .. deprecated:: 1.10
 
-    See :ref:`the 1.10 release notes <search-lookup-replacement>` for how to
-    replace it.
+    查看 :ref:`the 1.10 release notes <search-lookup-replacement>` 如何代替它.
 
-A boolean full-text search, taking advantage of full-text indexing. This is
-like :lookup:`contains` but is significantly faster due to full-text indexing.
+利用全文索引的布尔型的全文搜索, 它有一点像 :lookup:`contains` , 但得益于全文索引它更快.
 
-Example::
+例如::
 
     Entry.objects.filter(headline__search="+Django -jazz Python")
 
-SQL equivalent::
+等价于SQL::
 
     SELECT ... WHERE MATCH(tablename, headline) AGAINST (+Django -jazz Python IN BOOLEAN MODE);
 
-Note this is only available in MySQL and requires direct manipulation of the
-database to add the full-text index. By default Django uses BOOLEAN MODE for
-full text searches. See the `MySQL documentation`_ for additional details.
+注意这仅在Mysql中生效, 而且还要求在数据库中添加有全文索引.
+默认情况下, Django使用BOOLEAN MODE进行全文搜索. 详见 `MySQL 文档`_ .
 
-.. _MySQL documentation: https://dev.mysql.com/doc/refman/en/fulltext-boolean.html
+.. _MySQL 文档: https://dev.mysql.com/doc/refman/en/fulltext-boolean.html
 
 .. fieldlookup:: regex
 
 ``regex``
 ~~~~~~~~~
 
-Case-sensitive regular expression match.
+大小写敏感的正则匹配.
 
-The regular expression syntax is that of the database backend in use.
-In the case of SQLite, which has no built in regular expression support,
-this feature is provided by a (Python) user-defined REGEXP function, and
-the regular expression syntax is therefore that of Python's ``re`` module.
+正则表达式必须是数据库使用的语法. SQLite没有内置正则表达式支持, 这一功能是有Python的UDF(user-defined function)的REGEXP提供,
+因此正则表达式语法应参照Python的 ``re`` 模块的语法.
 
-Example::
+例如::
 
     Entry.objects.get(title__regex=r'^(An?|The) +')
 
-SQL equivalents::
+等价于SQL::
 
     SELECT ... WHERE title REGEXP BINARY '^(An?|The) +'; -- MySQL
 
@@ -2471,21 +2399,20 @@ SQL equivalents::
 
     SELECT ... WHERE title REGEXP '^(An?|The) +'; -- SQLite
 
-Using raw strings (e.g., ``r'foo'`` instead of ``'foo'``) for passing in the
-regular expression syntax is recommended.
+建议使用原始字符串 (例如. 使用 ``r'foo'`` 代替 ``'foo'``) 传入正则表达式.
 
 .. fieldlookup:: iregex
 
 ``iregex``
 ~~~~~~~~~~
 
-Case-insensitive regular expression match.
+大小写不敏感的正则匹配.
 
-Example::
+例如::
 
     Entry.objects.get(title__iregex=r'^(an?|the) +')
 
-SQL equivalents::
+等价于SQL::
 
     SELECT ... WHERE title REGEXP '^(an?|the) +'; -- MySQL
 
@@ -2497,205 +2424,180 @@ SQL equivalents::
 
 .. _聚合函数:
 
-Aggregation functions
----------------------
+聚合函数
+----------
 
 .. currentmodule:: django.db.models
 
-Django provides the following aggregation functions in the
-``django.db.models`` module. For details on how to use these
-aggregate functions, see :doc:`the topic guide on aggregation
-</topics/db/aggregation>`. See the :class:`~django.db.models.Aggregate`
-documentation to learn how to create your aggregates.
+Django的 ``django.db.models`` 提供了一下聚合函数. 如何使用聚合函数请参考: :doc:`专题指南-聚合
+</topics/db/aggregation>`. 如何创建聚合函数请参考: :class:`~django.db.models.Aggregate` .
 
 .. warning::
 
-    SQLite can't handle aggregation on date/time fields out of the box.
-    This is because there are no native date/time fields in SQLite and Django
-    currently emulates these features using a text field. Attempts to use
-    aggregation on date/time fields in SQLite will raise
-    ``NotImplementedError``.
+    SQLite无法在date/time类型字段使用聚合函数.
+    这是因为SQLite没有原生的date/time类型, Django是使用text类型还模拟这一功能.
+    如果在SQLite上对date/time类型字段使用聚合查询将会抛出 ``NotImplementedError`` 异常.
 
 .. admonition:: Note
 
-    Aggregation functions return ``None`` when used with an empty
-    ``QuerySet``. For example, the ``Sum`` aggregation function returns ``None``
-    instead of ``0`` if the ``QuerySet`` contains no entries. An exception is
-    ``Count``, which does return ``0`` if the ``QuerySet`` is empty.
+    对空的 ``QuerySet`` 使用聚合函数将会返回 ``None``.
+    例如, 当 ``QuerySet`` 为空时, 聚合函数 ``Sum`` 将会返回 ``None`` 而不是 ``0``.
+    但 ``Count`` 函数例外, ``QuerySet`` 为空时会返回  ``0`` .
 
-All aggregates have the following parameters in common:
+所有聚合函数都有以下共同参数:
 
 ``expression``
 ~~~~~~~~~~~~~~
 
-A string that references a field on the model, or a :doc:`query expression
+模型字段的字符串表示, 或者是 :doc:`查询表达式
 </ref/models/expressions>`.
 
 ``output_field``
 ~~~~~~~~~~~~~~~~
 
-An optional argument that represents the :doc:`model field </ref/models/fields>`
-of the return value
+可选参数, 表示返回的 :doc:`模型字段 </ref/models/fields>` 类型.
+
 
 .. note::
 
-    When combining multiple field types, Django can only determine the
-    ``output_field`` if all fields are of the same type. Otherwise, you
-    must provide the ``output_field`` yourself.
+    聚合多个字段时, Django只能在所有字段类型相同的情况下确定
+    ``output_field``, 否则必须传入 ``output_field`` .
 
 ``**extra``
 ~~~~~~~~~~~
 
-Keyword arguments that can provide extra context for the SQL generated
-by the aggregate.
+关键字参数, 可以为聚合生成的SQL提供额外的上下文.
 
 ``Avg``
 ~~~~~~~
 
 .. class:: Avg(expression, output_field=FloatField(), **extra)
 
-    Returns the mean value of the given expression, which must be numeric
-    unless you specify a different ``output_field``.
+    返回指定表达式的均值, 如果没有指定其他类型的 ``output_field`` 其必须为数值.
 
-    * Default alias: ``<field>__avg``
-    * Return type: ``float`` (or the type of whatever ``output_field`` is
-      specified)
+    * 默认别名: ``<field>__avg``
+    * 返回类型: ``float`` (或者是指定的 ``output_field``)
 
     .. versionchanged:: 1.9
 
-        The ``output_field`` parameter was added to allow aggregating over
-        non-numeric columns, such as ``DurationField``.
+        ``output_field`` 参数支持非数值字段, 例如 ``DurationField``.
 
 ``Count``
 ~~~~~~~~~
 
 .. class:: Count(expression, distinct=False, **extra)
 
-    Returns the number of objects that are related through the provided
-    expression.
+    返回表达式关联对象的数量.
 
-    * Default alias: ``<field>__count``
-    * Return type: ``int``
+    * 默认别名: ``<field>__count``
+    * 返回类型: ``int``
 
-    Has one optional argument:
+    包含一个可选参数:
 
     .. attribute:: distinct
 
-        If ``distinct=True``, the count will only include unique instances.
-        This is the SQL equivalent of ``COUNT(DISTINCT <field>)``. The default
-        value is ``False``.
+        如果 ``distinct=True``, 返回数量仅包含非重复的实例.
+        这等价于SQL中的 ``COUNT(DISTINCT <field>)``. 该参数默认值为 ``False``.
 
 ``Max``
 ~~~~~~~
 
 .. class:: Max(expression, output_field=None, **extra)
 
-    Returns the maximum value of the given expression.
+    返回给定表达式的最大值.
 
-    * Default alias: ``<field>__max``
-    * Return type: same as input field, or ``output_field`` if supplied
+    * 默认别名: ``<field>__max``
+    * 返回类型: 和输入字段一致, 或者是传入的 ``output_field`` .
 
 ``Min``
 ~~~~~~~
 
 .. class:: Min(expression, output_field=None, **extra)
 
-    Returns the minimum value of the given expression.
+    返回给定表达式的最小值.
 
-    * Default alias: ``<field>__min``
-    * Return type: same as input field, or ``output_field`` if supplied
+    * 默认别名: ``<field>__min``
+    * 返回类型: 和输入字段一致, 或者是传入的 ``output_field`` .
 
 ``StdDev``
 ~~~~~~~~~~
 
 .. class:: StdDev(expression, sample=False, **extra)
 
-    Returns the standard deviation of the data in the provided expression.
+    返回给定表达式中数据的标准差.
 
-    * Default alias: ``<field>__stddev``
-    * Return type: ``float``
+    * 默认别名: ``<field>__stddev``
+    * 返回类型: ``float``
 
-    Has one optional argument:
+    包含一个可选参数:
 
     .. attribute:: sample
 
-        By default, ``StdDev`` returns the population standard deviation. However,
-        if ``sample=True``, the return value will be the sample standard deviation.
+        默认情况下, ``StdDev`` 返回的是总体标准差. 如果设置``sample=True``, 则返回样本标准差.
 
     .. admonition:: SQLite
 
-        SQLite doesn't provide ``StdDev`` out of the box. An implementation
-        is available as an extension module for SQLite. Consult the `SQlite
-        documentation`_ for instructions on obtaining and installing this
-        extension.
+        SQLite没有直接提供 ``Variance``. 有一个SQLite扩展模块实现了该功能. 详见 `SQLite 文档`_ .
 
 ``Sum``
 ~~~~~~~
 
 .. class:: Sum(expression, output_field=None, **extra)
 
-    Computes the sum of all values of the given expression.
+    计算给定表达式的和.
 
-    * Default alias: ``<field>__sum``
-    * Return type: same as input field, or ``output_field`` if supplied
+    * 默认别名: ``<field>__sum``
+    * 返回类型: 和输入字段一致, 或者是传入的 ``output_field`` .
 
 ``Variance``
 ~~~~~~~~~~~~
 
 .. class:: Variance(expression, sample=False, **extra)
 
-    Returns the variance of the data in the provided expression.
+    返回给定表达式中数据的方差.
 
-    * Default alias: ``<field>__variance``
-    * Return type: ``float``
+    * 默认别名: ``<field>__variance``
+    * 返回类型: ``float``
 
-    Has one optional argument:
+    包含一个可选参数:
 
     .. attribute:: sample
 
-        By default, ``Variance`` returns the population variance. However,
-        if ``sample=True``, the return value will be the sample variance.
+        默认情况下, ``Variance`` 返回总体方差, 如果设置 ``sample=True``, 则返回样本方差.
 
     .. admonition:: SQLite
 
-        SQLite doesn't provide ``Variance`` out of the box. An implementation
-        is available as an extension module for SQLite. Consult the `SQlite
-        documentation`_ for instructions on obtaining and installing this
-        extension.
+        SQLite没有直接提供 ``Variance``. 有一个SQLite扩展模块实现了该功能. 详见 `SQLite 文档`_ .
 
-.. _SQLite documentation: https://www.sqlite.org/contrib
+.. _SQLite 文档: https://www.sqlite.org/contrib
 
-Query-related tools
+相关查询工具
 ===================
 
-This section provides reference material for query-related tools not documented
-elsewhere.
+本节提供了一些其他地方没有记载的相关查询的工具和参考.
 
-``Q()`` objects
+``Q()`` 对象
 ---------------
 
 .. class:: Q
 
-A ``Q()`` object, like an :class:`~django.db.models.F` object, encapsulates a
-SQL expression in a Python object that can be used in database-related
-operations.
+``Q()`` 和 :class:`~django.db.models.F` 类似,
+将SQL表达式封装在表示数据库操作的Python对象中.
 
-In general, ``Q() objects`` make it possible to define and reuse conditions.
-This permits the :ref:`construction of complex database queries
-<complex-lookups-with-q>` using ``|`` (``OR``) and ``&`` (``AND``) operators;
-in particular, it is not otherwise possible to use ``OR`` in ``QuerySets``.
+通常, ``Q() objects`` 常用于查询条件复用的情况.
+然后使用 ``|`` (``OR``) 和 ``&`` (``AND``)运算符来构建复杂的查询.
+详见 :ref:`构建复杂查询 <complex-lookups-with-q>` .
 
 ``Prefetch()`` objects
 ----------------------
 
 .. class:: Prefetch(lookup, queryset=None, to_attr=None)
 
-The ``Prefetch()`` object can be used to control the operation of
-:meth:`~django.db.models.query.QuerySet.prefetch_related()`.
+``Prefetch()`` 对象可以用来控制
+:meth:`~django.db.models.query.QuerySet.prefetch_related()` 行为.
 
-The ``lookup`` argument describes the relations to follow and works the same
-as the string based lookups passed to
-:meth:`~django.db.models.query.QuerySet.prefetch_related()`. For example:
+``lookup`` 参数描述了要遵循的关系, 其工作原理与传递给 :meth:`~django.db.models.query.QuerySet.prefetch_related()` 的基于字符串的查找相同.
+例如:
 
     >>> from django.db.models import Prefetch
     >>> Question.objects.prefetch_related(Prefetch('choice_set')).get().choice_set.all()
@@ -2705,10 +2607,9 @@ as the string based lookups passed to
     >>> Question.objects.prefetch_related(Prefetch('choice_set')).all()
     <QuerySet [<Question: Question object>]>
 
-The ``queryset`` argument supplies a base ``QuerySet`` for the given lookup.
-This is useful to further filter down the prefetch operation, or to call
-:meth:`~django.db.models.query.QuerySet.select_related()` from the prefetched
-relation, hence reducing the number of queries even further:
+``queryset`` 参数为给定的查询提供基本的 ``QuerySet`` .
+对于进一步过滤预取操作或从预取关系中调用
+:meth:`~django.db.models.query.QuerySet.select_related()` 很有用, 从而进一步减少了查询数量:
 
     >>> voted_choices = Choice.objects.filter(votes__gt=0)
     >>> voted_choices
@@ -2717,8 +2618,7 @@ relation, hence reducing the number of queries even further:
     >>> Question.objects.prefetch_related(prefetch).get().choice_set.all()
     <QuerySet [<Choice: The sky>]>
 
-The ``to_attr`` argument sets the result of the prefetch operation to a custom
-attribute:
+``to_attr`` 参数将预取操作的结果设置为自定义属性:
 
     >>> prefetch = Prefetch('choice_set', queryset=voted_choices, to_attr='voted_choices')
     >>> Question.objects.prefetch_related(prefetch).get().voted_choices
@@ -2728,10 +2628,8 @@ attribute:
 
 .. note::
 
-    When using ``to_attr`` the prefetched result is stored in a list. This can
-    provide a significant speed improvement over traditional
-    ``prefetch_related`` calls which store the cached result within a
-    ``QuerySet`` instance.
+    当使用 ``to_attr`` 时, 预取结果存储在列表中.  与传统的 ``prefetch_related`` 调用相比，这可以显着提高速度,
+    传统的 ``prefetch_related`` 调用将缓存的结果存储在 ``QuerySet`` 实例中.
 
 ``prefetch_related_objects()``
 ------------------------------
@@ -2740,12 +2638,12 @@ attribute:
 
 .. versionadded:: 1.10
 
-Prefetches the given lookups on an iterable of model instances. This is useful
-in code that receives a list of model instances as opposed to a ``QuerySet``;
-for example, when fetching models from a cache or instantiating them manually.
+在作为模型实例的可迭代对象上预取给定的查找.
+这在接收模型实例列表而不是 ``QuerySet`` 的代码中很有用;
+例如,从缓存中获取模型或手动实例化它们.
 
-Pass an iterable of model instances (must all be of the same class) and the
-lookups or :class:`Prefetch` objects you want to prefetch for. For example::
+传递一个作为模型实例的可迭代对象(必须是同一个类)和你想预取的查找或 :class:`Prefetch` 对象.
+例如::
 
     >>> from django.db.models import prefetch_related_objects
     >>> restaurants = fetch_top_restaurants_from_cache()  # A list of Restaurants
