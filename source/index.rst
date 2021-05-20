@@ -48,7 +48,7 @@ Django 中文文档
 入门
 ===========
 
-Are you new to Django or to programming? This is the place to start!
+你是刚学 Django 或是初学编程? 这就是你开始学习的地方!
 
 * **从零开始:**
   :doc:`概览 <intro/overview>` |
