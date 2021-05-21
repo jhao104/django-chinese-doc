@@ -35,7 +35,7 @@
 
 * **模型**：[模型简介](http://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/db/models.html)|[字段类型](http://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/models/fields.html)|[元选项](http://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/models/options.html)|[模型类](http://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/models/class.html)
 
-* **查询集**: [执行查询](http://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/db/queries.html)|[QuerySet方法](http://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/models/querysets.html)|[查询表达式(0%)](https://docs.djangoproject.com/en/1.11/ref/models/lookups/)
+* **查询集**: [执行查询](http://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/db/queries.html)|[QuerySet方法](http://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/models/querysets.html)|[查询表达式](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/models/lookups.html)
 
 * **模型实例**: [实例方法(0%)](https://docs.djangoproject.com/en/1.11/ref/models/instances/)|[访问关联对象(0%)](http://python.usyiyi.cn/documents/django_182/ref/models/relations.html)
  

@@ -1,5 +1,5 @@
 ====================
-Lookup API reference
+Lookup API
 ====================
 
 .. module:: django.db.models.lookups
@@ -7,211 +7,171 @@ Lookup API reference
 
 .. currentmodule:: django.db.models
 
-This document has the API references of lookups, the Django API for building
-the ``WHERE`` clause of a database query. To learn how to *use* lookups, see
-:doc:`/topics/db/queries`; to learn how to *create* new lookups, see
-:doc:`/howto/custom-lookups`.
+Django的Lookup API用于构建数据库查询的 ``WHERE`` 子句. 如何 *使用* Lookup请参见 :doc:`/topics/db/queries`;
+自定义Lookup请参见 :doc:`/howto/custom-lookups`.
 
-The lookup API has two components: a :class:`~lookups.RegisterLookupMixin` class
-that registers lookups, and the :ref:`Query Expression API <query-expression>`, a
-set of methods that a class has to implement to be registrable as a lookup.
+Lookup API 由两部分组成: 一是 :class:`~lookups.RegisterLookupMixin` 类用于注册lookup,
+二是 :ref:`查找表达式接口 <查询表达式接口>`, 是普通类要注册为lookup必须要要实现的一组方法.
 
-Django has two base classes that follow the query expression API and from where
-all Django builtin lookups are derived:
+Django有两个查找表达式的基类, Django所有的内置查找都继承自它们:
 
-* :class:`Lookup`: to lookup a field (e.g. the ``exact`` of ``field_name__exact``)
-* :class:`Transform`: to transform a field
+* :class:`Lookup`: 查找字段 (例如. ``field_name__exact`` 中的 ``exact``)
+* :class:`Transform`: 转换字段
 
-A lookup expression consists of three parts:
+一个查找表达式由三部分组成:
 
-* Fields part (e.g. ``Book.objects.filter(author__best_friends__first_name...``);
-* Transforms part (may be omitted) (e.g. ``__lower__first3chars__reversed``);
-* A lookup (e.g. ``__icontains``) that, if omitted, defaults to ``__exact``.
+* 查找的字段名 (例如. ``Book.objects.filter(author__best_friends__first_name...``);
+* 字段转换 (可以没有) (例如. ``__lower__first3chars__reversed``);
+* 查找 (例如. ``__icontains``) 如果没有则默认为 ``__exact``.
 
 .. _lookup-registration-api:
 
-Registration API
+注册API
 ================
 
-Django uses :class:`~lookups.RegisterLookupMixin` to give a class the interface to
-register lookups on itself. The two prominent examples are
-:class:`~django.db.models.Field`, the base class of all model fields, and
-``Aggregate``, the base class of all Django aggregates.
+Django通过 :class:`~lookups.RegisterLookupMixin` 来给类提供注册查找的接口. 两个明显的例子:
+:class:`~django.db.models.Field` 所有模型字段的基类 和
+``Aggregate`` 所有聚合函数的基类.
 
 .. class:: lookups.RegisterLookupMixin
 
-    A mixin that implements the lookup API on a class.
+    用于给类"混入"查找API.
 
     .. classmethod:: register_lookup(lookup, lookup_name=None)
 
-        Registers a new lookup in the class. For example
-        ``DateField.register_lookup(YearExact)`` will register ``YearExact``
-        lookup on ``DateField``. It overrides a lookup that already exists with
-        the same name. ``lookup_name`` will be used for this lookup if
-        provided, otherwise ``lookup.lookup_name`` will be used.
+        给类注册一个查找. 例如
+        ``DateField.register_lookup(YearExact)`` 会将 ``YearExact`` 查找注册到 ``DateField``.
+        如果已存在相同名字查找则会覆盖原查找. 如果传入了 ``lookup_name`` 将会使用其作为查找名,
+        否则使用 ``lookup.lookup_name``.
 
         .. versionchanged:: 1.9
 
-            The ``lookup_name`` parameter was added.
+            新增 ``lookup_name`` 参数.
 
     .. method:: get_lookup(lookup_name)
 
-        Returns the :class:`Lookup` named ``lookup_name`` registered in the class.
-        The default implementation looks recursively on all parent classes
-        and checks if any has a registered lookup named ``lookup_name``, returning
-        the first match.
+        返回被注册名 ``lookup_name`` 的 :class:`Lookup`.
+        默认会递归查找所有父类中名为 ``lookup_name`` 的查找, 然后返回第一个.
 
     .. method:: get_transform(transform_name)
 
-        Returns a :class:`Transform` named ``transform_name``. The default
-        implementation looks recursively on all parent classes to check if any
-        has the registered transform named ``transform_name``, returning the first
-        match.
+        返回被注册名 ``transform_name`` 的 :class:`Transform`.
+        默认会递归查找所有父类中名为 ``transform_name`` 的查找, 然后返回第一个.
 
-For a class to be a lookup, it must follow the :ref:`Query Expression API
-<query-expression>`. :class:`~Lookup` and :class:`~Transform` naturally
-follow this API.
 
-.. _query-expression:
+要注册为查找的类必须遵循 :ref:`查询表达式接口
+<查询表达式接口>`. :class:`~Lookup` 和 :class:`~Transform` 已遵循这个接口.
 
-The Query Expression API
+.. _查询表达式接口:
+
+查询表达式接口
 ========================
 
-The query expression API is a common set of methods that classes define to be
-usable in query expressions to translate themselves into SQL expressions. Direct
-field references, aggregates, and ``Transform`` are examples that follow this
-API. A class is said to follow the query expression API when it implements the
-following methods:
+查询表达式接口是用于将查找转换成SQL查询的一组公共方法.
+直接的字段引用, 聚合, 以及 ``Transform`` 类都遵循了这个接口, 遵循查询表达式接口需要实现以下接口:
 
 .. method:: as_sql(self, compiler, connection)
 
-    Responsible for producing the query string and parameters for the expression.
-    The ``compiler`` is an ``SQLCompiler`` object, which has a ``compile()``
-    method that can be used to compile other expressions. The ``connection`` is
-    the connection used to execute the query.
+    负责生成查询字符串和参数.
+    ``compiler`` 是 ``SQLCompiler`` 对象, 它具有一个 ``compile()`` 方法可以编译其他的表达式.
+    ``connection`` 是用于执行查询的连接.
 
-    Calling ``expression.as_sql()`` is usually incorrect - instead
-    ``compiler.compile(expression)`` should be used. The ``compiler.compile()``
-    method will take care of calling vendor-specific methods of the expression.
+    直接调用 ``expression.as_sql()`` 是错误的, 应该使用 ``compiler.compile(expression)``,
+    ``compiler.compile()`` 才会去调用对应的数据库方法.
 
-    Custom keyword arguments may be defined on this method if it's likely that
-    ``as_vendorname()`` methods or subclasses will need to supply data to
-    override the generation of the SQL string. See :meth:`Func.as_sql` for
-    example usage.
+    如果 ``as_vendorname()`` 方法或子类传入数据来覆盖SQL字符串的生成,
+    可以在这个方法上传入自定义关键字参数. 详见 :meth:`Func.as_sql`.
 
 .. method:: as_vendorname(self, compiler, connection)
 
-    Works like ``as_sql()`` method. When an expression is compiled by
-    ``compiler.compile()``, Django will first try to call ``as_vendorname()``,
-    where ``vendorname`` is the vendor name of the backend used for executing
-    the query. The ``vendorname`` is one of ``postgresql``, ``oracle``,
-    ``sqlite``, or ``mysql`` for Django's built-in backends.
+    作用类似 ``as_sql()``. 当表达式被
+    ``compiler.compile()`` 编译后, Django会首先调用 ``as_vendorname()``,
+    ``vendorname`` 是执行查询的后台数据库名称. Django内置的后台数据库有 ``postgresql``, ``oracle``,
+    ``sqlite``, 和 ``mysql``.
 
 .. method:: get_lookup(lookup_name)
 
-    Must return the lookup named ``lookup_name``. For instance, by returning
-    ``self.output_field.get_lookup(lookup_name)``.
+    必须返回名为 ``lookup_name`` 的查找. 例如, ``self.output_field.get_lookup(lookup_name)``.
 
 .. method:: get_transform(transform_name)
 
-    Must return the lookup named ``transform_name``. For instance, by returning
-    ``self.output_field.get_transform(transform_name)``.
+    必须返回名为 ``transform_name`` 的查找. 例如, ``self.output_field.get_transform(transform_name)``.
 
 .. attribute:: output_field
 
-    Defines the type of class returned by the ``get_lookup()`` method. It must
-    be a :class:`~django.db.models.Field` instance.
+    定义 ``get_lookup()`` 方法返回类的类型. 必须是 :class:`~django.db.models.Field` 实例.
 
-``Transform`` reference
+``Transform`` 参考
 =======================
 
 .. class:: Transform
 
-    A ``Transform`` is a generic class to implement field transformations. A
-    prominent example is ``__year`` that transforms a ``DateField`` into a
-    ``IntegerField``.
+    ``Transform`` 是实现字段转换的通用类. 一个常用的例子 ``__year`` 将 ``DateField`` 转换成 ``IntegerField``.
 
-    The notation to use a ``Transform`` in an lookup expression is
-    ``<expression>__<transformation>`` (e.g. ``date__year``).
+    在查找表达式中 ``Transform`` 的用法是
+    ``<expression>__<transformation>`` (例如. ``date__year``).
 
-    This class follows the :ref:`Query Expression API <query-expression>`, which
-    implies that you can use ``<expression>__<transform1>__<transform2>``. It's
-    a specialized :ref:`Func() expression <func-expressions>` that only accepts
-    one argument.  It can also be used on the right hand side of a filter or
-    directly as an annotation.
+    该类遵循 :ref:`查询表达式接口 <查询表达式接口>`, 因此可以使用 ``<expression>__<transform1>__<transform2>``.
+    它是一个特殊的 :ref:`Func()表达式 <func-expressions>` , 只接收一个参数.
+    它可以用于右侧过滤或者直接作为注解使用.
 
     .. versionchanged:: 1.9
 
-        ``Transform`` is now a subclass of ``Func``.
+        ``Transform`` 作为 ``Func`` 子类.
 
     .. attribute:: bilateral
 
-        A boolean indicating whether this transformation should apply to both
-        ``lhs`` and ``rhs``. Bilateral transformations will be applied to ``rhs`` in
-        the same order as they appear in the lookup expression. By default it is set
-        to ``False``. For example usage, see :doc:`/howto/custom-lookups`.
+        布尔值, 表示该转换是否适用于 ``lhs`` 和 ``rhs``. 双边转换将按照查找表达式中出现的顺序应用于 ``rhs`` .
+        默认值为 ``False``. 使用方法见: :doc:`/howto/custom-lookups`.
 
     .. attribute:: lhs
 
-        The left-hand side - what is being transformed. It must follow the
-        :ref:`Query Expression API <query-expression>`.
+        左侧转换内容. 必须遵循
+        :ref:`查询表达式接口 <查询表达式接口>`.
 
     .. attribute:: lookup_name
 
-        The name of the lookup, used for identifying it on parsing query
-        expressions. It cannot contain the string ``"__"``.
+        查找的名字, 用于在解析查询表达式时识别. 不包含 ``"__"``.
 
     .. attribute:: output_field
 
-        Defines the class this transformation outputs. It must be a
-        :class:`~django.db.models.Field` instance. By default is the same as
-        its ``lhs.output_field``.
+        定义转换输出的类. 必须是 :class:`~django.db.models.Field` 实例. 默认与 ``lhs.output_field`` 相同.
 
-``Lookup`` reference
+``Lookup`` 参考
 ====================
 
 .. class:: Lookup
 
-    A ``Lookup`` is a generic class to implement lookups. A lookup is a query
-    expression with a left-hand side, :attr:`lhs`; a right-hand side,
-    :attr:`rhs`; and a ``lookup_name`` that is used to produce a boolean
-    comparison between ``lhs`` and ``rhs`` such as ``lhs in rhs`` or
+    ``Lookup`` 是实现查找的通用类. 一个查询表达式是由左侧 :attr:`lhs`, 右侧,
+    :attr:`rhs` 和 ``lookup_name`` 组成, 用于在 ``lhs`` 和 ``rhs`` 之间比较返回布尔值, 例如 ``lhs in rhs`` 和
     ``lhs > rhs``.
 
-    The notation to use a lookup in an expression is
-    ``<lhs>__<lookup_name>=<rhs>``.
+    在表达式中的使用方式是: ``<lhs>__<lookup_name>=<rhs>``.
 
-    This class doesn't follow the :ref:`Query Expression API <query-expression>`
-    since it has ``=<rhs>`` on its construction: lookups are always the end of
-    a lookup expression.
+    该类并不遵循 :ref:`查询表达式接口 <查询表达式接口>`,
+    因此像上面的 ``=<rhs>`` 必须在查询表达式最后.
 
     .. attribute:: lhs
 
-        The left-hand side - what is being looked up. The object must follow
-        the :ref:`Query Expression API <query-expression>`.
+        查找的左侧. 它必须遵循 :ref:`查询表达式接口 <查询表达式接口>`.
 
     .. attribute:: rhs
 
-        The right-hand side - what ``lhs`` is being compared against. It can be
-        a plain value, or something that compiles into SQL, typically an
-        ``F()`` object or a ``QuerySet``.
+        查找的右侧 - ``lhs`` 的比较对象. 它可以是一个普通值或者是可以被编译成SQL的东西, 通常是一个
+        ``F()`` 对象或者 ``QuerySet``.
 
     .. attribute:: lookup_name
 
-        The name of this lookup, used to identify it on parsing query
-        expressions. It cannot contain the string ``"__"``.
+        查找的名称, 用于在解析查询表达式时识别. 不包含 ``"__"``.
 
     .. method:: process_lhs(compiler, connection, lhs=None)
 
-        Returns a tuple ``(lhs_string, lhs_params)``, as returned by
-        ``compiler.compile(lhs)``. This method can be overridden to tune how
-        the ``lhs`` is processed.
+        返回由 ``compiler.compile(lhs)`` 返回的数组 ``(lhs_string, lhs_params)``, 这个方法用来被重写以修改 ``lhs`` 的处理.
 
-        ``compiler`` is an ``SQLCompiler`` object, to be used like
-        ``compiler.compile(lhs)`` for compiling ``lhs``. The ``connection``
-        can be used for compiling vendor specific SQL. If ``lhs`` is not
-        ``None``, use it as the processed ``lhs`` instead of ``self.lhs``.
+        ``compiler`` 是一个 ``SQLCompiler`` 对象, 用来 ``compiler.compile(lhs)`` 编译 ``lhs``.
+        ``connection`` 用来编译特定后台数据库的SQL. 如果 ``lhs`` 不为
+        ``None`` 则使用其处理后 ``lhs`` 替代 ``self.lhs``.
 
     .. method:: process_rhs(compiler, connection)
 
-        Behaves the same way as :meth:`process_lhs`, for the right-hand side.
+        以和 :meth:`process_lhs` 同样的方式处理右侧.
