@@ -1,38 +1,28 @@
-========================
-Model instance reference
-========================
+=============
+模型实例
+=============
 
 .. currentmodule:: django.db.models
 
-This document describes the details of the ``Model`` API. It builds on the
-material presented in the :doc:`model </topics/db/models>` and :doc:`database
-query </topics/db/queries>` guides, so you'll probably want to read and
-understand those documents before reading this one.
+本文档将详细描述 ``Model`` . 在阅读本文档之前你需要先阅读和了解 :doc:`模型 </topics/db/models>` 和 :doc:`查询数据 </topics/db/queries>` .
 
-Throughout this reference we'll use the :ref:`example Weblog models
-<queryset-model-example>` presented in the :doc:`database query guide
-</topics/db/queries>`.
+本文档中将全部使用 :doc:`数据查询指南</topics/db/queries>` 中的 :ref:`Weblog Model  <queryset-model-example>` 作为演示模型.
 
-Creating objects
+创建对象
 ================
 
-To create a new instance of a model, just instantiate it like any other Python
-class:
+创建模型对象和实例化Python类一样:
 
 .. class:: Model(**kwargs)
 
-The keyword arguments are simply the names of the fields you've defined on your
-model. Note that instantiating a model in no way touches your database; for
-that, you need to :meth:`~Model.save()`.
+传入的关键字参数就是模型的字段名, 只有调用了 :meth:`~Model.save()` 才会执行数据库写入.
 
 .. note::
 
-    You may be tempted to customize the model by overriding the ``__init__``
-    method. If you do so, however, take care not to change the calling
-    signature as any change may prevent the model instance from being saved.
-    Rather than overriding ``__init__``, try using one of these approaches:
+    请不要通过重写 ``__init__`` 方法的方式来自定义创建模型. 因为这一行为可能会改变默认的调用路径.
+    你可以通过下面两种方式来自定义创建模型:
 
-    1. Add a classmethod on the model class::
+    1. 使用类方法::
 
         from django.db import models
 
@@ -47,7 +37,7 @@ that, you need to :meth:`~Model.save()`.
 
         book = Book.create("Pride and Prejudice")
 
-    2. Add a method on a custom manager (usually preferred)::
+    2. 使用管理类(推荐)::
 
         class BookManager(models.Manager):
             def create_book(self, title):
