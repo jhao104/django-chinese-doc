@@ -52,29 +52,21 @@
 
         book = Book.objects.create_book("Pride and Prejudice")
 
-Customizing model loading
+自定义模型加载
 -------------------------
 
 .. classmethod:: Model.from_db(db, field_names, values)
 
-The ``from_db()`` method can be used to customize model instance creation
-when loading from the database.
+``from_db()`` 方法用于在数据库加载时自定义模型的创建.
 
-The ``db`` argument contains the database alias for the database the model
-is loaded from, ``field_names`` contains the names of all loaded fields, and
-``values`` contains the loaded values for each field in ``field_names``. The
-``field_names`` are in the same order as the ``values``. If all of the model's
-fields are present, then ``values`` are guaranteed to be in the order
-``__init__()`` expects them. That is, the instance can be created by
-``cls(*values)``. If any fields are deferred, they won't appear in
-``field_names``. In that case, assign a value of ``django.db.models.DEFERRED``
-to each of the missing fields.
+``db`` 包含数据加载来源库的别名, ``field_names`` 包含所有已加载的字段名称,
+``values`` 包含每个 ``field_names`` 字段的加载值. ``field_names`` 和 ``values`` 中顺序相同.
+如果模型中所有字段都存在, 那么 ``values`` 中的顺序就必须要和 ``__init__()`` 所定义的顺序一致, 这时就可以通过 ``cls(*values)`` 创建实例.
+如果有未加载字段则不会存在于 ``field_names`` 中, 这时需要给每个缺失字段分配一个 ``django.db.models.DEFERRED`` 值.
 
-In addition to creating the new model, the ``from_db()`` method must set the
-``adding`` and ``db`` flags in the new instance's ``_state`` attribute.
+``from_db()`` 除了需要创建模型外, 还需要为新的模型实例的 `_state`` 属性设置 ``adding`` 和 ``db`` 标识.
 
-Below is an example showing how to record the initial values of fields that
-are loaded from the database::
+下面例子演示了如何将数据库中加载数据转换成模型实例::
 
     from django.db.models import DEFERRED
 
@@ -105,67 +97,50 @@ are loaded from the database::
             raise ValueError("Updating the value of creator isn't allowed")
         super(...).save(*args, **kwargs)
 
-The example above shows a full ``from_db()`` implementation to clarify how that
-is done. In this case it would of course be possible to just use ``super()`` call
-in the ``from_db()`` method.
+上面例子演示了 ``from_db()`` 的一个完整实现. 当然这里的 ``from_db()`` 中完全可以通过调用 ``super()`` 代替.
 
 .. versionchanged:: 1.10
 
-    In older versions, you could check if all fields were loaded by consulting
-    ``cls._deferred``. This attribute is removed and
-    ``django.db.models.DEFERRED`` is new.
+    在旧版本中, 可以通过调用
+    ``cls._deferred`` 来检查是否所有字段都加载完. 该属性被移除, 新增
+    ``django.db.models.DEFERRED``.
 
-Refreshing objects from database
+从数据库刷新对象
 ================================
 
-If you delete a field from a model instance, accessing it again reloads the
-value from the database::
+如果删除了一个模型实例的字段, 再次访问时会从数据库重新加载该值::
 
     >>> obj = MyModel.objects.first()
     >>> del obj.field
-    >>> obj.field  # Loads the field from the database
+    >>> obj.field  # 从数据库加载字段
 
 .. versionchanged:: 1.10
 
-    In older versions, accessing a deleted field raised ``AttributeError``
-    instead of reloading it.
+    在旧版本中, 访问删除的字段不会重新加载而是引发 ``AttributeError``.
 
 .. method:: Model.refresh_from_db(using=None, fields=None)
 
-If you need to reload a model's values from the database, you can use the
-``refresh_from_db()`` method. When this method is called without arguments the
-following is done:
+``refresh_from_db()`` 方法用于从数据库中重新加载模型值. 当无参数调用时将做以下动作:
 
-1. All non-deferred fields of the model are updated to the values currently
-   present in the database.
-2. The previously loaded related instances for which the relation's value is no
-   longer valid are removed from the reloaded instance. For example, if you have
-   a foreign key from the reloaded instance to another model with name
-   ``Author``, then if ``obj.author_id != obj.author.id``, ``obj.author`` will
-   be thrown away, and when next accessed it will be reloaded with the value of
-   ``obj.author_id``.
+1. 所有非延迟加载字段都会被更新成数据库中的当前值.
+2. 如果之前加载的关联实例不再合法将会从新实例中移除. 例如, 如果重新加载的模型有个关联的外键 ``Author``,
+   如果此时 ``obj.author_id != obj.author.id``,  那么 ``obj.author`` 将会被遗弃, 在下次访问它时根据
+   ``obj.author_id`` 重新加载.
 
-Only fields of the model are reloaded from the database. Other
-database-dependent values such as annotations aren't reloaded. Any
-:func:`@cached_property <django.utils.functional.cached_property>` attributes
-aren't cleared either.
+只有模型字段才会被重新加载. 其他数据库值比如注解不会被重载. 所有
+:func:`@cached_property <django.utils.functional.cached_property>` 也不会被清除.
 
-The reloading happens from the database the instance was loaded from, or from
-the default database if the instance wasn't loaded from the database. The
-``using`` argument can be used to force the database used for reloading.
+重载是从原加载的库中加载, 如果模型实例不是从数据库中加载的则从默认数据库加载,
+可以使用 ``using`` 参数来强制指定重载的数据库.
 
-It is possible to force the set of fields to be loaded by using the ``fields``
-argument.
+可以使用 ``fields`` 参数强制指定重新加载的字段.
 
-For example, to test that an ``update()`` call resulted in the expected
-update, you could write a test similar to this::
+例如, 下面代码用来测试 ``update()`` 是否按预期更新::
 
     def test_update_result(self):
         obj = MyModel.objects.create(val=1)
         MyModel.objects.filter(pk=obj.pk).update(val=F('val') + 1)
-        # At this point obj.val is still 1, but the value in the database
-        # was updated to 2. The object's updated value needs to be reloaded
-        # from the database.
+        # 这时obj.val仍然是1, 但是数据库中的值已经被更新成2, 最新值需要从数据库中重新加载
         obj.refresh_from_db()
         self.assertEqual(obj.val, 2)
 
