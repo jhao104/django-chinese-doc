@@ -105,7 +105,7 @@
     ``cls._deferred`` 来检查是否所有字段都加载完. 该属性被移除, 新增
     ``django.db.models.DEFERRED``.
 
-从数据库刷新对象
+从数据库更新对象
 ================================
 
 如果删除了一个模型实例的字段, 再次访问时会从数据库重新加载该值::
@@ -144,10 +144,8 @@
         obj.refresh_from_db()
         self.assertEqual(obj.val, 2)
 
-Note that when deferred fields are accessed, the loading of the deferred
-field's value happens through this method. Thus it is possible to customize
-the way deferred loading happens. The example below shows how one can reload
-all of the instance's fields when a deferred field is reloaded::
+注意延迟字段也是通过这个方法加载的, 所以也可以通过该方法自定义验证加载字段行为.
+下面的例子展示了当一个延迟字段被重载时,如何重载实例的所有字段::
 
     class ExampleModel(models.Model):
         def refresh_from_db(self, using=None, fields=None, **kwargs):
@@ -164,48 +162,38 @@ all of the instance's fields when a deferred field is reloaded::
 
 .. method:: Model.get_deferred_fields()
 
-A helper method that returns a set containing the attribute names of all those
-fields that are currently deferred for this model.
+一个辅助方法,它返回包含模型当前所有延迟字段的属性名称.
 
 .. _validating-objects:
 
-Validating objects
+验证对象
 ==================
 
-There are three steps involved in validating a model:
+验证模型涉及三个步骤:
 
-1. Validate the model fields - :meth:`Model.clean_fields()`
-2. Validate the model as a whole - :meth:`Model.clean()`
-3. Validate the field uniqueness - :meth:`Model.validate_unique()`
+1. 验证模型的字段 - :meth:`Model.clean_fields()`
+2. 验证模型的完整性 - :meth:`Model.clean()`
+3. 验证模型字段的唯一性 - :meth:`Model.validate_unique()`
 
-All three steps are performed when you call a model's
-:meth:`~Model.full_clean()` method.
+当调用模型的 :meth:`~Model.full_clean()` 方法时,这三个方法都会被执行.
 
-When you use a :class:`~django.forms.ModelForm`, the call to
-:meth:`~django.forms.Form.is_valid()` will perform these validation steps for
-all the fields that are included on the form. See the :doc:`ModelForm
-documentation </topics/forms/modelforms>` for more information. You should only
-need to call a model's :meth:`~Model.full_clean()` method if you plan to handle
-validation errors yourself, or if you have excluded fields from the
-:class:`~django.forms.ModelForm` that require validation.
+如果使用 :class:`~django.forms.ModelForm`, 调用
+:meth:`~django.forms.Form.is_valid()` 方法将会对模型的所有方法执行这些验证. 详见 :doc:`ModelForm
+documentation </topics/forms/modelforms>` . 如果你验证的字段不在 :class:`~django.forms.ModelForm` 中或者想要
+自己验证错误, 可以调用模型的 :meth:`~Model.full_clean()` 方法.
 
 .. method:: Model.full_clean(exclude=None, validate_unique=True)
 
-This method calls :meth:`Model.clean_fields()`, :meth:`Model.clean()`, and
-:meth:`Model.validate_unique()` (if ``validate_unique`` is ``True``), in that
-order and raises a :exc:`~django.core.exceptions.ValidationError` that has a
-``message_dict`` attribute containing errors from all three stages.
+该方法会依次调用 :meth:`Model.clean_fields()` 、 :meth:`Model.clean()` 和
+:meth:`Model.validate_unique()` (如果 ``validate_unique`` 设置为 ``True``), 抛出
+:exc:`~django.core.exceptions.ValidationError` 异常的
+``message_dict`` 属性包含了这三个验证阶段错误信息.
 
-The optional ``exclude`` argument can be used to provide a list of field names
-that can be excluded from validation and cleaning.
-:class:`~django.forms.ModelForm` uses this argument to exclude fields that
-aren't present on your form from being validated since any errors raised could
-not be corrected by the user.
+可选参数 ``exclude`` 接收一组不参与验证和清除的字段列表.
+:class:`~django.forms.ModelForm` 的场景下, 如果包含了不存在于表单的字段也会被排除, 因为用户也无法修改这些字段的错误.
 
-Note that ``full_clean()`` will *not* be called automatically when you call
-your model's :meth:`~Model.save()` method. You'll need to call it manually
-when you want to run one-step model validation for your own manually created
-models. For example::
+注意 :meth:`~Model.save()` 方法 *不会* 自动调用 ``full_clean()`` .
+如果你想执行一次模型验证需要手动运行, 例如::
 
     from django.core.exceptions import ValidationError
     try:
@@ -215,24 +203,19 @@ models. For example::
         # Display them to a user, or handle them programmatically.
         pass
 
-The first step ``full_clean()`` performs is to clean each individual field.
+``full_clean()`` 第一步是执行模型字段验证.
 
 .. method:: Model.clean_fields(exclude=None)
 
-This method will validate all fields on your model. The optional ``exclude``
-argument lets you provide a list of field names to exclude from validation. It
-will raise a :exc:`~django.core.exceptions.ValidationError` if any fields fail
-validation.
+该方法会验证模型所有字段.可选参数 ``exclude`` 接收一个不参与验证字段组成的列表.
+如果有字段验证失败将引发 :exc:`~django.core.exceptions.ValidationError` 异常.
 
-The second step ``full_clean()`` performs is to call :meth:`Model.clean()`.
-This method should be overridden to perform custom validation on your model.
+``full_clean()`` 执行的第二步是 :meth:`Model.clean()`.
+该方式是用来被重写实现自定义模型验证.
 
 .. method:: Model.clean()
 
-This method should be used to provide custom model validation, and to modify
-attributes on your model if desired. For instance, you could use it to
-automatically provide a value for a field, or to do validation that requires
-access to more than a single field::
+这个方法应该用来自定义模型验证和修改模型属性. 例如, 可以给模型字段赋值和组合验证多个字段::
 
     import datetime
     from django.core.exceptions import ValidationError
@@ -249,14 +232,11 @@ access to more than a single field::
             if self.status == 'published' and self.pub_date is None:
                 self.pub_date = datetime.date.today()
 
-Note, however, that like :meth:`Model.full_clean()`, a model's ``clean()``
-method is not invoked when you call your model's :meth:`~Model.save()` method.
+注意, 和 :meth:`Model.full_clean()` 方法一样,  ``clean()`` 也不会在 :meth:`~Model.save()` 时调用.
 
-In the above example, the :exc:`~django.core.exceptions.ValidationError`
-exception raised by ``Model.clean()`` was instantiated with a string, so it
-will be stored in a special error dictionary key,
-:data:`~django.core.exceptions.NON_FIELD_ERRORS`. This key is used for errors
-that are tied to the entire model instead of to a specific field::
+在上面例子中, ``Model.clean()`` 抛出的 :exc:`~django.core.exceptions.ValidationError` 异常是由字符串实例化的,
+因此在错误字典中以一个特殊的键 :data:`~django.core.exceptions.NON_FIELD_ERRORS` 储存.
+这个键用于与整个模型相关的错误,而不是与某个特定字段相关的错误::
 
     from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
     try:
@@ -264,10 +244,9 @@ that are tied to the entire model instead of to a specific field::
     except ValidationError as e:
         non_field_errors = e.message_dict[NON_FIELD_ERRORS]
 
-To assign exceptions to a specific field, instantiate the
-:exc:`~django.core.exceptions.ValidationError` with a dictionary, where the
-keys are the field names. We could update the previous example to assign the
-error to the ``pub_date`` field::
+如果要抛出指定字段的异常, 可以使用字典实例化
+:exc:`~django.core.exceptions.ValidationError` , 其中字典的键为字段名.
+我们可以修改上面的例子, 抛出一个 ``pub_date`` 字段的异常::
 
     class Article(models.Model):
         ...
@@ -277,60 +256,51 @@ error to the ``pub_date`` field::
                 raise ValidationError({'pub_date': _('Draft entries may not have a publication date.')})
             ...
 
-If you detect errors in multiple fields during ``Model.clean()``, you can also
-pass a dictionary mapping field names to errors::
+如果 ``Model.clean()`` 检验出多个字段异常, 可以传入一个字段名和错误映射的字典::
 
     raise ValidationError({
         'title': ValidationError(_('Missing title.'), code='required'),
         'pub_date': ValidationError(_('Invalid date.'), code='invalid'),
     })
 
-Finally, ``full_clean()`` will check any unique constraints on your model.
+最后, ``full_clean()`` 将检验模型的唯一约束.
 
 .. method:: Model.validate_unique(exclude=None)
 
-This method is similar to :meth:`~Model.clean_fields`, but validates all
-uniqueness constraints on your model instead of individual field values. The
-optional ``exclude`` argument allows you to provide a list of field names to
-exclude from validation. It will raise a
-:exc:`~django.core.exceptions.ValidationError` if any fields fail validation.
+该方法类似于 :meth:`~Model.clean_fields`, 只是验证的是模型所有字段的唯一约束而不是单个字段值.
+``exclude`` 参数接收一个用于排除验证的字段名列表.
+如果有字段验证失败将抛出 :exc:`~django.core.exceptions.ValidationError` 异常.
 
-Note that if you provide an ``exclude`` argument to ``validate_unique()``, any
-:attr:`~django.db.models.Options.unique_together` constraint involving one of
-the fields you provided will not be checked.
+注意, 如果 ``validate_unique()`` 传入了 ``exclude`` , 任何涉及传入字段的
+:attr:`~django.db.models.Options.unique_together` 约束都不会被检验.
 
 
-Saving objects
+保存对象
 ==============
 
-To save an object back to the database, call ``save()``:
+调用 ``save()`` 方法将对象保存至数据库:
 
 .. method:: Model.save(force_insert=False, force_update=False, using=DEFAULT_DB_ALIAS, update_fields=None)
 
-If you want customized saving behavior, you can override this ``save()``
-method. See :ref:`overriding-model-methods` for more details.
+如果要自定义保存行为, 可以重写 ``save()`` 方法. 详见 :ref:`overriding-model-methods`.
 
-The model save process also has some subtleties; see the sections below.
+模型保存过程也有一些微妙的地方, 请看下面的章节.
 
-Auto-incrementing primary keys
+自增主键
 ------------------------------
 
-If a model has an :class:`~django.db.models.AutoField` — an auto-incrementing
-primary key — then that auto-incremented value will be calculated and saved as
-an attribute on your object the first time you call ``save()``::
+如果模型中有自增主键 :class:`~django.db.models.AutoField`,
+它们会在第一次调用 ``save()`` 时被计算然后保存到对象的属性上::
 
     >>> b2 = Blog(name='Cheddar Talk', tagline='Thoughts on cheese.')
     >>> b2.id     # Returns None, because b doesn't have an ID yet.
     >>> b2.save()
     >>> b2.id     # Returns the ID of your new object.
 
-There's no way to tell what the value of an ID will be before you call
-``save()``, because that value is calculated by your database, not by Django.
+没有办法在调用 ``save()`` 前知道ID的值, 因为这个值是由数据库计算的而不是Django.
 
-For convenience, each model has an :class:`~django.db.models.AutoField` named
-``id`` by default unless you explicitly specify ``primary_key=True`` on a field
-in your model. See the documentation for :class:`~django.db.models.AutoField`
-for more details.
+为了方便, 每个模型都有一个名为 ``id`` 的默认 :class:`~django.db.models.AutoField` 字段,
+除非为某个字段指定了 ``primary_key=True``, 详见: :class:`~django.db.models.AutoField`.
 
 The ``pk`` property
 ~~~~~~~~~~~~~~~~~~~
