@@ -302,257 +302,190 @@ documentation </topics/forms/modelforms>` . 如果你验证的字段不在 :clas
 为了方便, 每个模型都有一个名为 ``id`` 的默认 :class:`~django.db.models.AutoField` 字段,
 除非为某个字段指定了 ``primary_key=True``, 详见: :class:`~django.db.models.AutoField`.
 
-The ``pk`` property
+``pk`` 属性
 ~~~~~~~~~~~~~~~~~~~
 
 .. attribute:: Model.pk
 
-Regardless of whether you define a primary key field yourself, or let Django
-supply one for you, each model will have a property called ``pk``. It behaves
-like a normal attribute on the model, but is actually an alias for whichever
-attribute is the primary key field for the model. You can read and set this
-value, just as you would for any other attribute, and it will update the
-correct field in the model.
+无论是你自己定义的主键字段还是Django提供的默认主键, 每个模型都有一个名为 ``pk`` 的属性.
+它是模型主键字段的别名, 其行为和模型普通属性一样. 你可以读写它的值和普通属性没有区别, 它实际指向的是模型的主键字段.
 
-Explicitly specifying auto-primary-key values
+设置自增主键值
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If a model has an :class:`~django.db.models.AutoField` but you want to define a
-new object's ID explicitly when saving, just define it explicitly before
-saving, rather than relying on the auto-assignment of the ID::
+如果要指定模型中 :class:`~django.db.models.AutoField` 字段的ID值, 只需要在定义时传入ID值而不是依赖ID自动生成::
 
     >>> b3 = Blog(id=3, name='Cheddar Talk', tagline='Thoughts on cheese.')
     >>> b3.id     # Returns 3.
     >>> b3.save()
     >>> b3.id     # Returns 3.
 
-If you assign auto-primary-key values manually, make sure not to use an
-already-existing primary-key value! If you create a new object with an explicit
-primary-key value that already exists in the database, Django will assume you're
-changing the existing record rather than creating a new one.
+在手动设置自增主键值时请不要使用已经存在的值! 如果你创建新对象时使用了在数据库中已经存在的主键值,
+Django会认为你是在更新数据而不是插入数据.
 
-Given the above ``'Cheddar Talk'`` blog example, this example would override the
-previous record in the database::
+接着上面 ``'Cheddar Talk'`` 博客例子, 下面代码将会覆盖数据库中的记录::
 
     b4 = Blog(id=3, name='Not Cheddar', tagline='Anything but cheese.')
     b4.save()  # Overrides the previous blog with ID=3!
 
-See `How Django knows to UPDATE vs. INSERT`_, below, for the reason this
-happens.
+出现这种情况的原因请参见下面的: `Django如何知道该UPDATE还是INSERT`_.
 
-Explicitly specifying auto-primary-key values is mostly useful for bulk-saving
-objects, when you're confident you won't have primary-key collision.
+在知道不会有主键冲突的情况下,指定自增主键值在批量保存数据时非常有用.
 
-What happens when you save?
+保存时会发生什么?
 ---------------------------
 
-When you save an object, Django performs the following steps:
+保存对象时Django会执行以下步骤:
 
-#. **Emit a pre-save signal.** The :data:`~django.db.models.signals.pre_save`
-   signal is sent, allowing any functions listening for that signal to do
-   something.
+#. **发送 pre-save 信号.** 使监听 :data:`~django.db.models.signals.pre_save` 信号的函数, 做一些保存前的事.
 
-#. **Preprocess the data.** Each field's
-   :meth:`~django.db.models.Field.pre_save` method is called to perform any
-   automated data modification that's needed. For example, the date/time fields
-   override ``pre_save()`` to implement
-   :attr:`~django.db.models.DateField.auto_now_add` and
+#. **预处理数据.** 调用每个字段的
+   :meth:`~django.db.models.Field.pre_save` 方法来做一些数据自动处理.
+   比如日期和时间字段重写了 ``pre_save()`` 方法来实现
+   :attr:`~django.db.models.DateField.auto_now_add` 和
    :attr:`~django.db.models.DateField.auto_now`.
 
-#. **Prepare the data for the database.** Each field's
-   :meth:`~django.db.models.Field.get_db_prep_save` method is asked to provide
-   its current value in a data type that can be written to the database.
+#. **准备数据库数据.** 要求每个字段的
+   :meth:`~django.db.models.Field.get_db_prep_save` 方法返回可写入数据库类型的当前值.
+   大部分的字段不需要数据准备. 简单的数据类型比如整数和字符串是可以直接写入数据库的Python对象.
+   但是一些复杂的数据类型需要做一些转换.例如 :class:`~django.db.models.DateField` 字段使用的是
+   Python的 ``datetime`` 对象来储存数据. 数据库并不支持写入 ``datetime`` 对象.
+   所以需要将该字段的值转换成符合ISO标准的日期字符串才能写入数据库.
 
-   Most fields don't require data preparation. Simple data types, such as
-   integers and strings, are 'ready to write' as a Python object. However, more
-   complex data types often require some modification.
+#. **向数据库中插入数据.** 将预处理后准备好的数据组成SQL语句用于数据插入.
 
-   For example, :class:`~django.db.models.DateField` fields use a Python
-   ``datetime`` object to store data. Databases don't store ``datetime``
-   objects, so the field value must be converted into an ISO-compliant date
-   string for insertion into the database.
+#. **发送 post-save 信号.** 使监听 :data:`~django.db.models.signals.post_save`
+   信号的函数, 做一些保存后的事.
 
-#. **Insert the data into the database.** The preprocessed, prepared data is
-   composed into an SQL statement for insertion into the database.
-
-#. **Emit a post-save signal.** The :data:`~django.db.models.signals.post_save`
-   signal is sent, allowing any functions listening for that signal to do
-   something.
-
-How Django knows to UPDATE vs. INSERT
+Django如何知道该UPDATE还是INSERT
 -------------------------------------
 
-You may have noticed Django database objects use the same ``save()`` method
-for creating and changing objects. Django abstracts the need to use ``INSERT``
-or ``UPDATE`` SQL statements. Specifically, when you call ``save()``, Django
-follows this algorithm:
+你可能已经注意到了Django使用一个方法 ``save()`` 来创建和保存数据.
+Django对 ``INSERT`` 和 ``UPDATE`` SQL语句进行抽象. 当调用 ``save()`` 时, Django使用下面的算法进行判断:
 
-* If the object's primary key attribute is set to a value that evaluates to
-  ``True`` (i.e., a value other than ``None`` or the empty string), Django
-  executes an ``UPDATE``.
-* If the object's primary key attribute is *not* set or if the ``UPDATE``
-  didn't update anything, Django executes an ``INSERT``.
+* 如果对象的主键属性设置了值且是 ``真值`` (例如, 不是 ``None`` 也不是空串), Django将执行 ``UPDATE``.
+* 如果对象的主键属性 *没有* 设置值或者 ``UPDATE`` 没有更新任何字段, Django将执行 ``INSERT``.
 
-The one gotcha here is that you should be careful not to specify a primary-key
-value explicitly when saving new objects, if you cannot guarantee the
-primary-key value is unused. For more on this nuance, see `Explicitly specifying
-auto-primary-key values`_ above and `Forcing an INSERT or UPDATE`_ below.
+这里引出一点是, 创建新对象时如果不能确定主键值是否已存在的情况下,请不要手动设置主键.
+关于这两种更细微的差别请参见: `设置自增主键值`_ 和下方的: `强制INSERT或UPDATE`_.
 
-In Django 1.5 and earlier, Django did a ``SELECT`` when the primary key
-attribute was set. If the ``SELECT`` found a row, then Django did an ``UPDATE``,
-otherwise it did an ``INSERT``. The old algorithm results in one more query in
-the ``UPDATE`` case. There are some rare cases where the database doesn't
-report that a row was updated even if the database contains a row for the
-object's primary key value. An example is the PostgreSQL ``ON UPDATE`` trigger
-which returns ``NULL``. In such cases it is possible to revert to the old
-algorithm by setting the :attr:`~django.db.models.Options.select_on_save`
-option to ``True``.
+在Django1.5或更早版本, 如果设置了主键属性Django会做一个 ``SELECT`` 查询,
+如果 ``SELECT`` 查询到有数据, Django会执行  ``UPDATE`` 否则执行 ``INSERT``.
+这个旧算法会导致在 ``UPDATE`` 情况下多做一次查询. 在一些极少数的情况下,
+即使数据库中包含了一条对象主键值的记录,数据库也不会报告某行被更新.
+一个例子是PostgreSQL的 ``ON UPDATE`` 触发器, 它会返回 ``NULL`` .
+在这种情况下, 可以通过将 :attr:`~django.db.models.Options.select_on_save` 选项设置为 ``True`` 来启用旧算法.
 
 .. _ref-models-force-insert:
 
-Forcing an INSERT or UPDATE
+强制INSERT或UPDATE
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In some rare circumstances, it's necessary to be able to force the
-:meth:`~Model.save()` method to perform an SQL ``INSERT`` and not fall back to
-doing an ``UPDATE``. Or vice-versa: update, if possible, but not insert a new
-row. In these cases you can pass the ``force_insert=True`` or
-``force_update=True`` parameters to the :meth:`~Model.save()` method.
-Obviously, passing both parameters is an error: you cannot both insert *and*
-update at the same time!
+在一些少数场景中, 需要 :meth:`~Model.save()` 方法强制执行 ``INSERT`` 而不是 ``UPDATE``. 或者相反的情况,更新一行而不是插入一行.
+这些情况下可以传入 ``force_insert=True`` 或 ``force_update=True`` 参数给 :meth:`~Model.save()` 方法.
+显然同时传入这两个参数是错误的, 因为不可能即插入又更新!
 
-It should be very rare that you'll need to use these parameters. Django will
-almost always do the right thing and trying to override that will lead to
-errors that are difficult to track down. This feature is for advanced use
-only.
+非极端情况下不要使用这两个参数. Django大概率会做出正确的选择, 强制将其覆盖会导致难以追踪到的错误. 这个功能只适合高级用法.
 
-Using ``update_fields`` will force an update similarly to ``force_update``.
+使用 ``update_fields`` 也会强制更新类似 ``force_update``.
 
 .. _ref-models-field-updates-using-f-expressions:
 
-Updating attributes based on existing fields
+更新现有字段属性
 --------------------------------------------
 
-Sometimes you'll need to perform a simple arithmetic task on a field, such
-as incrementing or decrementing the current value. The obvious way to
-achieve this is to do something like::
+有时需要对一个字段执行简单的算术计算, 比如加减某个值. 实现这一目的最简单方法::
 
     >>> product = Product.objects.get(name='Venezuelan Beaver Cheese')
     >>> product.number_sold += 1
     >>> product.save()
 
-If the old ``number_sold`` value retrieved from the database was 10, then
-the value of 11 will be written back to the database.
+如果从数据库中读取的 ``number_sold`` 原始值为 10, 那么保存回数据库中的值为 11.
 
-The process can be made robust, :ref:`avoiding a race condition
-<avoiding-race-conditions-using-f>`, as well as slightly faster by expressing
-the update relative to the original field value, rather than as an explicit
-assignment of a new value. Django provides :class:`F expressions
-<django.db.models.F>` for performing this kind of relative update. Using
-:class:`F expressions <django.db.models.F>`, the previous example is expressed
-as::
+这个过程可以变得更健壮, 通过将更新基于原始字段的值而不是显式赋予一个新值, 这个过程可以 :ref:`避免竞争条件
+<avoiding-race-conditions-using-f>` 而且更快. Django提供了 :class:`F表达式
+<django.db.models.F>` 用于这种类型的相对更新. 使用
+:class:`F表达式 <django.db.models.F>` 可以将上面的例子改成::
 
     >>> from django.db.models import F
     >>> product = Product.objects.get(name='Venezuelan Beaver Cheese')
     >>> product.number_sold = F('number_sold') + 1
     >>> product.save()
 
-For more details, see the documentation on :class:`F expressions
-<django.db.models.F>` and their :ref:`use in update queries
+详见: :class:`F表达式 <django.db.models.F>` 和 :ref:`在更新查询中的使用
 <topics-db-queries-update>`.
 
-Specifying which fields to save
+指定保存字段
 -------------------------------
 
-If ``save()`` is passed a list of field names in keyword argument
-``update_fields``, only the fields named in that list will be updated.
-This may be desirable if you want to update just one or a few fields on
-an object. There will be a slight performance benefit from preventing
-all of the model fields from being updated in the database. For example::
+如果 ``save()`` 方法传入了一组字段名组成的列表的参数 ``update_fields``, 那么就只会有该列表中的字段会被更新.
+如果只需要更新单个或几个字段可以使用该方法, 这比更新所有字段会带来少许的性能提升. 例如::
 
     product.name = 'Name changed again'
     product.save(update_fields=['name'])
 
-The ``update_fields`` argument can be any iterable containing strings. An
-empty ``update_fields`` iterable will skip the save. A value of None will
-perform an update on all fields.
+``update_fields`` 参数可以是任何包含字符串的可迭代对象. 空的
+``update_fields`` 可迭代对象将会跳过保存. 如果传入None会更新所有字段.
 
-Specifying ``update_fields`` will force an update.
+指定 ``update_fields`` 将强制执行更新.
 
-When saving a model fetched through deferred model loading
-(:meth:`~django.db.models.query.QuerySet.only()` or
-:meth:`~django.db.models.query.QuerySet.defer()`) only the fields loaded
-from the DB will get updated. In effect there is an automatic
-``update_fields`` in this case. If you assign or change any deferred field
-value, the field will be added to the updated fields.
+当访问通过延迟加载模型加载
+(:meth:`~django.db.models.query.QuerySet.only()` 和
+:meth:`~django.db.models.query.QuerySet.defer()`) 的模型时, 只有通过数据库中加载的字段才会被更新.
+实际上, 在这种情况下有一个自动的 ``update_fields``. 如果你赋值或修改延迟字段, 该字段将被添加到更新的字段中.
 
-Deleting objects
+删除对象
 ================
 
 .. method:: Model.delete(using=DEFAULT_DB_ALIAS, keep_parents=False)
 
-Issues an SQL ``DELETE`` for the object. This only deletes the object in the
-database; the Python instance will still exist and will still have data in
-its fields. This method returns the number of objects deleted and a dictionary
-with the number of deletions per object type.
+执行SQL ``DELETE`` 操作. 它只会删除数据库中的数据, Python实例仍然存在并且有字段数据.
+该方法返回被删除对象的数量和一个每个删除对象类型的数量的字典.
 
-For more details, including how to delete objects in bulk, see
-:ref:`topics-db-queries-delete`.
+更多细节以及批量删除, 请参见: :ref:`topics-db-queries-delete`.
 
-If you want customized deletion behavior, you can override the ``delete()``
-method. See :ref:`overriding-model-methods` for more details.
+可以通过重写 ``delete()`` 来自定义删除行为. 详见: :ref:`overriding-model-methods`.
 
-Sometimes with :ref:`multi-table inheritance <multi-table-inheritance>` you may
-want to delete only a child model's data. Specifying ``keep_parents=True`` will
-keep the parent model's data.
+在 :ref:`多表继承 <multi-table-inheritance>` 的情况下, 可以通过设置 ``keep_parents=True`` 来只删除子模型保留父模型.
 
 .. versionchanged:: 1.9
 
-    The ``keep_parents`` parameter was added.
+    新增 ``keep_parents`` 参数.
 
 .. versionchanged:: 1.9
 
-    The return value describing the number of objects deleted was added.
+    新增返回值: 已删除对象数量.
 
-Pickling objects
+Pickling 对象
 ================
 
-When you :mod:`pickle` a model, its current state is pickled. When you unpickle
-it, it'll contain the model instance at the moment it was pickled, rather than
-the data that's currently in the database.
+当 :mod:`pickle` 模型时, 它会在当前状态被序列化. 在反序列化时会返回被序列化的模型实例而不是数据库中的数据.
 
-.. admonition:: You can't share pickles between versions
+.. admonition:: 不同版本的序列化结果不通用
 
-    Pickles of models are only valid for the version of Django that
-    was used to generate them. If you generate a pickle using Django
-    version N, there is no guarantee that pickle will be readable with
-    Django version N+1. Pickles should not be used as part of a long-term
-    archival strategy.
+    模型的pickle只对序列化它们的Django版本有效. 如果使用Django版本N序列化,
+    不能保证Django版本N+1可以反序列化这个pickle. 不要将Pickles作为长期归档的策略.
 
-    Since pickle compatibility errors can be difficult to diagnose, such as
-    silently corrupted objects, a ``RuntimeWarning`` is raised when you try to
-    unpickle a model in a Django version that is different than the one in
-    which it was pickled.
+    由于pickle导致的兼容性错误很难诊断,
+    所以当你unpickle模型使用的Django版本与pickle时的不同会引发一个 ``RuntimeWarning`` 异常.
 
 .. _model-instance-methods:
 
-Other model instance methods
+其他模型实例方法
 ============================
 
-A few object methods have special purposes.
+一些有特殊用图的对象方法.
 
 ``__str__()``
 -------------
 
 .. method:: Model.__str__()
 
-The ``__str__()`` method is called whenever you call ``str()`` on an object.
-Django uses ``str(obj)`` in a number of places. Most notably, to display an
-object in the Django admin site and as the value inserted into a template when
-it displays an object. Thus, you should always return a nice, human-readable
-representation of the model from the ``__str__()`` method.
+``__str__()`` 方法会在对对象调用 ``str()`` 时调用.
+Django会在许多地方使用到 ``str(obj)``. 最常用的是在Django Admin站点显示一个对象
+和在模板中插入对象值的场景. 所以最好让 ``__str__()`` 返回一个友好的、可读的结果.
 
-For example::
+例如::
 
     from django.db import models
     from django.utils.encoding import python_2_unicode_compatible
@@ -565,21 +498,17 @@ For example::
         def __str__(self):
             return '%s %s' % (self.first_name, self.last_name)
 
-If you'd like compatibility with Python 2, you can decorate your model class
-with :func:`~django.utils.encoding.python_2_unicode_compatible` as shown above.
+如果要兼容Python 2, 可以给模型加上 :func:`~django.utils.encoding.python_2_unicode_compatible` 装饰器.
 
 ``__eq__()``
 ------------
 
 .. method:: Model.__eq__()
 
-The equality method is defined such that instances with the same primary
-key value and the same concrete class are considered equal, except that
-instances with a primary key value of ``None`` aren't equal to anything except
-themselves. For proxy models, concrete class is defined as the model's first
-non-proxy parent; for all other models it's simply the model's class.
+定义等值判断方法, 具有相同主键值和相同具体类的实例被认为是相等的. 主键值为None的实例除自身外对任何事物都不相等.
+具体类被定义为模型的第一个非代理父类, 对于所有其他模型, 它就是模型的类.
 
-For example::
+例如::
 
     from django.db import models
 
@@ -611,103 +540,80 @@ For example::
 
 .. method:: Model.__hash__()
 
-The ``__hash__()`` method is based on the instance's primary key value. It
-is effectively ``hash(obj.pk)``. If the instance doesn't have a primary key
-value then a ``TypeError`` will be raised (otherwise the ``__hash__()``
-method would return different values before and after the instance is
-saved, but changing the :meth:`~object.__hash__` value of an instance is
-forbidden in Python.
+``__hash__()`` 方法基于实例的主键值. 它实际上是 ``hash(obj.pk)``.
+如果实例没有设置主键时将会引发 ``TypeError`` 异常(不然的话 ``__hash__()`` 方法会在实例保存前和保存后返回不同的值,
+然而Python禁止改变实例的 :meth:`~object.__hash__` 值).
 
 ``get_absolute_url()``
 ----------------------
 
 .. method:: Model.get_absolute_url()
 
-Define a ``get_absolute_url()`` method to tell Django how to calculate the
-canonical URL for an object. To callers, this method should appear to return a
-string that can be used to refer to the object over HTTP.
+定义一个 ``get_absolute_url()`` 方法告诉Django如何返回对象的URL. 调用方可以通过该方法返回的URL字符串访问到该对象.
 
-For example::
+例如::
 
     def get_absolute_url(self):
         return "/people/%i/" % self.id
 
-While this code is correct and simple, it may not be the most portable way to
-to write this kind of method. The :func:`~django.urls.reverse` function is
-usually the best approach.
+虽然上面的代码是正确的且很简单, 但是使用 :func:`~django.urls.reverse` 函数才是最优的方法.
 
-For example::
+例如::
 
     def get_absolute_url(self):
         from django.urls import reverse
         return reverse('people.views.details', args=[str(self.id)])
 
-One place Django uses ``get_absolute_url()`` is in the admin app. If an object
-defines this method, the object-editing page will have a "View on site" link
-that will jump you directly to the object's public view, as given by
-``get_absolute_url()``.
+在管理站点的对象编辑页面中, 如果定义了 ``get_absolute_url()`` 方法, 编辑页面会多出一个 "View on site" 链接, 点击该链接会进入 ``get_absolute_url()`` 返回的地址.
 
-Similarly, a couple of other bits of Django, such as the :doc:`syndication feed
-framework </ref/contrib/syndication>`, use ``get_absolute_url()`` when it is
-defined. If it makes sense for your model's instances to each have a unique
-URL, you should define ``get_absolute_url()``.
+类似的, Django还有其他地方例如 :doc:`syndication feed
+framework </ref/contrib/syndication>` 也使用了 ``get_absolute_url()`` . 如果模型的每个实例都有唯一的URL就可以定义 ``get_absolute_url()``.
 
 .. warning::
 
-    You should avoid building the URL from unvalidated user input, in order to
-    reduce possibilities of link or redirect poisoning::
+    千万不要用没有验证的用户输入构建URL, 避免有害的链接和重定向::
 
         def get_absolute_url(self):
             return '/%s/' % self.name
 
-    If ``self.name`` is ``'/example.com'`` this returns ``'//example.com/'``
-    which, in turn, is a valid schema relative URL but not the expected
-    ``'/%2Fexample.com/'``.
+    如果 ``self.name`` 为 ``'/example.com'`` 将返回 ``'//example.com/'``
+    而这是另一个域下的URL, 而不是实际需要的 ``'/%2Fexample.com/'``.
 
 
-It's good practice to use ``get_absolute_url()`` in templates, instead of
-hard-coding your objects' URLs. For example, this template code is bad:
+最佳实践是在模板中使用 ``get_absolute_url()`` 而不是硬编码URL.
+比如下面代码是个错误的示范:
 
 .. code-block:: html+django
 
     <!-- BAD template code. Avoid! -->
     <a href="/people/{{ object.id }}/">{{ object.name }}</a>
 
-This template code is much better:
+下面是正确示范:
 
 .. code-block:: html+django
 
     <a href="{{ object.get_absolute_url }}">{{ object.name }}</a>
 
-The logic here is that if you change the URL structure of your objects, even
-for something simple such as correcting a spelling error, you don't want to
-have to track down every place that the URL might be created. Specify it once,
-in ``get_absolute_url()`` and have all your other code call that one place.
+这样做的好处是, 如果修改了对象的URL路径, 即便是一些简单的拼写错误,
+这样不用修改每一个使用到该URL的地方. 只需要修改 ``get_absolute_url()`` 中的定义然后在其它代码中调用它.
 
 .. note::
-    The string you return from ``get_absolute_url()`` **must** contain only
-    ASCII characters (required by the URI specification, :rfc:`2396`) and be
-    URL-encoded, if necessary.
+    ``get_absolute_url()`` 返回的字符 **必须** 只包含ASCII字符(URL规范 :rfc:`2396`) 而且在需要情况下必须要URL编码.
 
-    Code and templates calling ``get_absolute_url()`` should be able to use the
-    result directly without any further processing. You may wish to use the
-    ``django.utils.encoding.iri_to_uri()`` function to help with this if you
-    are using unicode strings containing characters outside the ASCII range at
-    all.
+    在代码和模板中调用 ``get_absolute_url()`` 可以直接使用而不需要做额外处理.
+    如果使用了ASCII范围之外的unicode字符串, 可以使用 ``django.utils.encoding.iri_to_uri()`` 函数来解决这个问题.
 
-Extra instance methods
+额外实例方法
 ======================
 
-In addition to :meth:`~Model.save()`, :meth:`~Model.delete()`, a model object
-might have some of the following methods:
+除了 :meth:`~Model.save()` 和 :meth:`~Model.delete()` 模型还可能具有如下方法:
 
 .. method:: Model.get_FOO_display()
 
-For every field that has :attr:`~django.db.models.Field.choices` set, the
-object will have a ``get_FOO_display()`` method, where ``FOO`` is the name of
-the field. This method returns the "human-readable" value of the field.
+对于设置了 :attr:`~django.db.models.Field.choices` 的字段, 该对象将具有一个形似 ``get_FOO_display()`` 方法,
+其中 ``FOO`` 是字段名, 该方法返回字段的"可读值".
 
-For example::
+例如::
 
     from django.db import models
 
@@ -732,24 +638,16 @@ For example::
 .. method:: Model.get_next_by_FOO(\**kwargs)
 .. method:: Model.get_previous_by_FOO(\**kwargs)
 
-For every :class:`~django.db.models.DateField` and
-:class:`~django.db.models.DateTimeField` that does not have :attr:`null=True
-<django.db.models.Field.null>`, the object will have ``get_next_by_FOO()`` and
-``get_previous_by_FOO()`` methods, where ``FOO`` is the name of the field. This
-returns the next and previous object with respect to the date field, raising
-a :exc:`~django.db.models.Model.DoesNotExist` exception when appropriate.
+对于没有设置 :attr:`null=True<django.db.models.Field.null>` 的 :class:`~django.db.models.DateField` 字段和
+:class:`~django.db.models.DateTimeField` 字段, 该对象将具有一个形似 ``get_next_by_FOO()`` 和
+``get_previous_by_FOO()`` 的方法, 其中 ``FOO`` 为字段名称. 它将根据日期字段返回下一个或下一个对象,
+并适时抛出 :exc:`~django.db.models.Model.DoesNotExist` 异常.
 
-Both of these methods will perform their queries using the default
-manager for the model. If you need to emulate filtering used by a
-custom manager, or want to perform one-off custom filtering, both
-methods also accept optional keyword arguments, which should be in the
-format described in :ref:`Field lookups <field-lookups>`.
+这两个方法都将使用模型的默认管理器执行查询. 如果需要使用自定义管理器筛选或者执行单次自定义筛选, 这个两个方法还接受可选参数, 其格式如 :ref:`字段查找 <field-lookups>` 中提到的格式.
 
-Note that in the case of identical date values, these methods will use the
-primary key as a tie-breaker. This guarantees that no records are skipped or
-duplicated. That also means you cannot use those methods on unsaved objects.
+注意在日期值相同的情况下这些方法将使用主键作为比较, 以保证了没有记录被跳过或重复. 因此不能对未保存的对象使用这些方法.
 
-Other attributes
+其他属性
 ================
 
 ``DoesNotExist``
@@ -757,11 +655,9 @@ Other attributes
 
 .. exception:: Model.DoesNotExist
 
-    This exception is raised by the ORM in a couple places, for example by
-    :meth:`QuerySet.get() <django.db.models.query.QuerySet.get>` when an object
-    is not found for the given query parameters.
+    该异常会在ORM的许多地方使用到, 比如
+    :meth:`QuerySet.get() <django.db.models.query.QuerySet.get>` 查询时给定的参数查询不到值.
 
-    Django provides a ``DoesNotExist`` exception as an attribute of each model
-    class to identify the class of object that could not be found and to allow
-    you to catch a particular model class with ``try/except``. The exception is
-    a subclass of :exc:`django.core.exceptions.ObjectDoesNotExist`.
+    Django为每个类都提供 ``DoesNotExist`` 异常是为了区别找不到的对象的所属类.
+    并且可以在代码中使用 ``try/except`` 捕获某个特定的模型类. 这个异常类是
+    :exc:`django.core.exceptions.ObjectDoesNotExist` 的子类.
