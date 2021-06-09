@@ -37,7 +37,7 @@
 
 * **查询集**: [执行查询](http://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/db/queries.html)  [QuerySet方法](http://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/models/querysets.html)  [查询表达式](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/models/lookups.html)
 
-* **模型实例**: [实例方法](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/models/instances.html)  [访问关联对象(0%)](http://python.usyiyi.cn/documents/django_182/ref/models/relations.html)
+* **模型实例**: [实例方法](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/models/instances.html)  [访问关联对象](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/models/relations.html)
  
 * **迁移**: [迁移简介 (0%)](https://docs.djangoproject.com/en/1.10/topics/migrations/)|[操作参考 (0%)](https://docs.djangoproject.com/en/1.10/ref/migration-operations/)|[模式编辑器 (0%)](https://docs.djangoproject.com/en/1.10/ref/schema-editor/)|[编写迁移 (0%)](https://docs.djangoproject.com/en/1.10/howto/writing-migrations/)
 
