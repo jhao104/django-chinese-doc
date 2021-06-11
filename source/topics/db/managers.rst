@@ -1,29 +1,23 @@
 ========
-Managers
+管理器
 ========
 
 .. currentmodule:: django.db.models
 
 .. class:: Manager()
 
-A ``Manager`` is the interface through which database query operations are
-provided to Django models. At least one ``Manager`` exists for every model in
-a Django application.
+``Manager`` 是Django进行数据库操作的接口, Django应用的模型至少有一个 ``Manager``.
 
-The way ``Manager`` classes work is documented in :doc:`/topics/db/queries`;
-this document specifically touches on model options that customize ``Manager``
-behavior.
+如何使用 ``Manager`` 请参考 :doc:`/topics/db/queries`, 本文着重介绍管理器属性以及自定义 ``Manager``.
 
 .. _manager-names:
 
-Manager names
+管理器名称
 =============
 
-By default, Django adds a ``Manager`` with the name ``objects`` to every Django
-model class. However, if you want to use ``objects`` as a field name, or if you
-want to use a name other than ``objects`` for the ``Manager``, you can rename
-it on a per-model basis. To rename the ``Manager`` for a given class, define a
-class attribute of type ``models.Manager()`` on that model. For example::
+Django会默认为每个模型赋予一个名为 ``objects`` 的 ``Manager``.
+如果你想将 ``objects`` 用于字段名称, 或者单纯是换个名字不想用 ``objects`` 作为 ``Manager`` 名字,
+可以在定义模型的基础类上, 定义一个类型为 ``models.Manager()`` 的属性. 例如::
 
     from django.db import models
 
@@ -31,36 +25,25 @@ class attribute of type ``models.Manager()`` on that model. For example::
         #...
         people = models.Manager()
 
-Using this example model, ``Person.objects`` will generate an
-``AttributeError`` exception, but ``Person.people.all()`` will provide a list
-of all ``Person`` objects.
+使用上面的模型时, 使用 ``Person.objects`` 会抛出 ``AttributeError`` 异常, 而应该使用 ``Person.people.all()`` 来查询所有 ``Person``.
 
 .. _custom-managers:
 
-Custom managers
+自定义管理器
 ===============
 
-You can use a custom ``Manager`` in a particular model by extending the base
-``Manager`` class and instantiating your custom ``Manager`` in your model.
+可以通过继承基础类 ``Manager`` 定义自己 ``Manager`` 类来实现自定义模型 ``Manager``.
 
-There are two reasons you might want to customize a ``Manager``: to add extra
-``Manager`` methods, and/or to modify the initial ``QuerySet`` the ``Manager``
-returns.
+通常自定义 ``Manager`` 用于两个场景: 添加额外 ``Manager`` 方法, 或者是修改 ``Manager`` 返回的 ``QuerySet``.
 
-Adding extra manager methods
+添加额外管理器方法
 ----------------------------
 
-Adding extra ``Manager`` methods is the preferred way to add "table-level"
-functionality to your models. (For "row-level" functionality -- i.e., functions
-that act on a single instance of a model object -- use :ref:`Model methods
-<model-methods>`, not custom ``Manager`` methods.)
+添加额外 ``Manager`` 方法通常是用来添加 "表级别" 的功能. ("行级别"功能可以使用模型实例的 :ref:`模型方法 <model-methods>` 实现.)
 
-A custom ``Manager`` method can return anything you want. It doesn't have to
-return a ``QuerySet``.
+自定义的 ``Manager`` 方法无需一定要返回 ``QuerySet``, 可以返回任何类型.
 
-For example, this custom ``Manager`` offers a method ``with_counts()``, which
-returns a list of all ``OpinionPoll`` objects, each with an extra
-``num_responses`` attribute that is the result of an aggregate query::
+例如下面代码, 自定义 ``Manager`` 提供一个 ``with_counts()`` 方法, 用来实现一个聚合查询, 返回所有 ``OpinionPoll`` 对象, 每个对象带有 ``num_responses`` 属性::
 
     from django.db import models
 
@@ -91,17 +74,14 @@ returns a list of all ``OpinionPoll`` objects, each with an extra
         person_name = models.CharField(max_length=50)
         response = models.TextField()
 
-With this example, you'd use ``OpinionPoll.objects.with_counts()`` to return
-that list of ``OpinionPoll`` objects with ``num_responses`` attributes.
+在上面例子中, 调用 ``OpinionPoll.objects.with_counts()`` 返回带有 ``num_responses`` 属性的 ``OpinionPoll`` 列表.
 
-Another thing to note about this example is that ``Manager`` methods can
-access ``self.model`` to get the model class to which they're attached.
+``Manager`` 方法中可以通过 ``self.model`` 来获取当前模型类.
 
-Modifying a manager's initial ``QuerySet``
+修改管理器的初始化 ``QuerySet``
 ------------------------------------------
 
-A ``Manager``’s base ``QuerySet`` returns all objects in the system. For
-example, using this model::
+``Manager`` 的默认 ``QuerySet`` 会返回系统中所有的对象. 以下面模型为例::
 
     from django.db import models
 
@@ -109,14 +89,12 @@ example, using this model::
         title = models.CharField(max_length=100)
         author = models.CharField(max_length=50)
 
-...the statement ``Book.objects.all()`` will return all books in the database.
+...``Book.objects.all()`` 语句将返回数据库中所有书的记录.
 
-You can override a ``Manager``’s base ``QuerySet`` by overriding the
-``Manager.get_queryset()`` method. ``get_queryset()`` should return a
-``QuerySet`` with the properties you require.
+可以通过重写 ``Manager.get_queryset()`` 方法来修改 ``Manager`` 的默认 ``QuerySet``.
+``get_queryset()`` 必须返回 ``QuerySet``.
 
-For example, the following model has *two* ``Manager``\s -- one that returns
-all objects, and one that returns only the books by Roald Dahl::
+例如, 下面模型定义了 *两个* ``Manager`` -- 一个返回所有对象, 另一个只返回作者是Roald Dahl的书::
 
     # First, define the Manager subclass.
     class DahlBookManager(models.Manager):
@@ -131,24 +109,19 @@ all objects, and one that returns only the books by Roald Dahl::
         objects = models.Manager() # The default manager.
         dahl_objects = DahlBookManager() # The Dahl-specific manager.
 
-With this sample model, ``Book.objects.all()`` will return all books in the
-database, but ``Book.dahl_objects.all()`` will only return the ones written by
-Roald Dahl.
+在上面例子中, ``Book.objects.all()`` 会返回数据库中所有的书, ``Book.dahl_objects.all()`` 只返回作者为Roald Dahl的书.
 
-Of course, because ``get_queryset()`` returns a ``QuerySet`` object, you can
-use ``filter()``, ``exclude()`` and all the other ``QuerySet`` methods on it.
-So these statements are all legal::
+当然, 因为 ``get_queryset()`` 返回的是 ``QuerySet`` 对象, 所以可以对它使用
+``filter()``, ``exclude()`` 和其他 ``QuerySet`` 方法.
+下面例子的语句都是可用的::
 
     Book.dahl_objects.all()
     Book.dahl_objects.filter(title='Matilda')
     Book.dahl_objects.count()
 
-This example also pointed out another interesting technique: using multiple
-managers on the same model. You can attach as many ``Manager()`` instances to
-a model as you'd like. This is an easy way to define common "filters" for your
-models.
-
-For example::
+该例还展示了另外一个很有意思的技巧: 同一模型使用多个管理器.
+你可以依据自己偏好在模型里面添加多个 ``Manager()`` 实例.
+下例是给模型添加通用过滤器的一个简单方::
 
     class AuthorManager(models.Manager):
         def get_queryset(self):
@@ -166,8 +139,8 @@ For example::
         authors = AuthorManager()
         editors = EditorManager()
 
-This example allows you to request ``Person.authors.all()``, ``Person.editors.all()``,
-and ``Person.people.all()``, yielding predictable results.
+在上面例子中可以使用 ``Person.authors.all()``, ``Person.editors.all()``,
+和 ``Person.people.all()`` 来过滤.
 
 .. _default-managers:
 
