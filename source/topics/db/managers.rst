@@ -1,29 +1,23 @@
 ========
-Managers
+管理器
 ========
 
 .. currentmodule:: django.db.models
 
 .. class:: Manager()
 
-A ``Manager`` is the interface through which database query operations are
-provided to Django models. At least one ``Manager`` exists for every model in
-a Django application.
+``Manager`` 是Django进行数据库操作的接口, Django应用的模型至少有一个 ``Manager``.
 
-The way ``Manager`` classes work is documented in :doc:`/topics/db/queries`;
-this document specifically touches on model options that customize ``Manager``
-behavior.
+如何使用 ``Manager`` 请参考 :doc:`/topics/db/queries`, 本文着重介绍管理器属性以及自定义 ``Manager``.
 
 .. _manager-names:
 
-Manager names
+管理器名称
 =============
 
-By default, Django adds a ``Manager`` with the name ``objects`` to every Django
-model class. However, if you want to use ``objects`` as a field name, or if you
-want to use a name other than ``objects`` for the ``Manager``, you can rename
-it on a per-model basis. To rename the ``Manager`` for a given class, define a
-class attribute of type ``models.Manager()`` on that model. For example::
+Django会默认为每个模型赋予一个名为 ``objects`` 的 ``Manager``.
+如果你想将 ``objects`` 用于字段名称, 或者单纯是换个名字不想用 ``objects`` 作为 ``Manager`` 名字,
+可以在定义模型的基础类上, 定义一个类型为 ``models.Manager()`` 的属性. 例如::
 
     from django.db import models
 
@@ -31,36 +25,25 @@ class attribute of type ``models.Manager()`` on that model. For example::
         #...
         people = models.Manager()
 
-Using this example model, ``Person.objects`` will generate an
-``AttributeError`` exception, but ``Person.people.all()`` will provide a list
-of all ``Person`` objects.
+使用上面的模型时, 使用 ``Person.objects`` 会抛出 ``AttributeError`` 异常, 而应该使用 ``Person.people.all()`` 来查询所有 ``Person``.
 
 .. _custom-managers:
 
-Custom managers
+自定义管理器
 ===============
 
-You can use a custom ``Manager`` in a particular model by extending the base
-``Manager`` class and instantiating your custom ``Manager`` in your model.
+可以通过继承基础类 ``Manager`` 定义自己 ``Manager`` 类来实现自定义模型 ``Manager``.
 
-There are two reasons you might want to customize a ``Manager``: to add extra
-``Manager`` methods, and/or to modify the initial ``QuerySet`` the ``Manager``
-returns.
+通常自定义 ``Manager`` 用于两个场景: 添加额外 ``Manager`` 方法, 或者是修改 ``Manager`` 返回的 ``QuerySet``.
 
-Adding extra manager methods
+添加额外管理器方法
 ----------------------------
 
-Adding extra ``Manager`` methods is the preferred way to add "table-level"
-functionality to your models. (For "row-level" functionality -- i.e., functions
-that act on a single instance of a model object -- use :ref:`Model methods
-<model-methods>`, not custom ``Manager`` methods.)
+添加额外 ``Manager`` 方法通常是用来添加 "表级别" 的功能. ("行级别"功能可以使用模型实例的 :ref:`模型方法 <model-methods>` 实现.)
 
-A custom ``Manager`` method can return anything you want. It doesn't have to
-return a ``QuerySet``.
+自定义的 ``Manager`` 方法无需一定要返回 ``QuerySet``, 可以返回任何类型.
 
-For example, this custom ``Manager`` offers a method ``with_counts()``, which
-returns a list of all ``OpinionPoll`` objects, each with an extra
-``num_responses`` attribute that is the result of an aggregate query::
+例如下面代码, 自定义 ``Manager`` 提供一个 ``with_counts()`` 方法, 用来实现一个聚合查询, 返回所有 ``OpinionPoll`` 对象, 每个对象带有 ``num_responses`` 属性::
 
     from django.db import models
 
@@ -91,17 +74,14 @@ returns a list of all ``OpinionPoll`` objects, each with an extra
         person_name = models.CharField(max_length=50)
         response = models.TextField()
 
-With this example, you'd use ``OpinionPoll.objects.with_counts()`` to return
-that list of ``OpinionPoll`` objects with ``num_responses`` attributes.
+在上面例子中, 调用 ``OpinionPoll.objects.with_counts()`` 返回带有 ``num_responses`` 属性的 ``OpinionPoll`` 列表.
 
-Another thing to note about this example is that ``Manager`` methods can
-access ``self.model`` to get the model class to which they're attached.
+``Manager`` 方法中可以通过 ``self.model`` 来获取当前模型类.
 
-Modifying a manager's initial ``QuerySet``
+修改管理器的初始化 ``QuerySet``
 ------------------------------------------
 
-A ``Manager``’s base ``QuerySet`` returns all objects in the system. For
-example, using this model::
+``Manager`` 的默认 ``QuerySet`` 会返回系统中所有的对象. 以下面模型为例::
 
     from django.db import models
 
@@ -109,14 +89,12 @@ example, using this model::
         title = models.CharField(max_length=100)
         author = models.CharField(max_length=50)
 
-...the statement ``Book.objects.all()`` will return all books in the database.
+... ``Book.objects.all()`` 语句将返回数据库中所有书的记录.
 
-You can override a ``Manager``’s base ``QuerySet`` by overriding the
-``Manager.get_queryset()`` method. ``get_queryset()`` should return a
-``QuerySet`` with the properties you require.
+可以通过重写 ``Manager.get_queryset()`` 方法来修改 ``Manager`` 的默认 ``QuerySet``.
+``get_queryset()`` 必须返回 ``QuerySet``.
 
-For example, the following model has *two* ``Manager``\s -- one that returns
-all objects, and one that returns only the books by Roald Dahl::
+例如, 下面模型定义了 *两个* ``Manager`` -- 一个返回所有对象, 另一个只返回作者是Roald Dahl的书::
 
     # First, define the Manager subclass.
     class DahlBookManager(models.Manager):
@@ -131,24 +109,19 @@ all objects, and one that returns only the books by Roald Dahl::
         objects = models.Manager() # The default manager.
         dahl_objects = DahlBookManager() # The Dahl-specific manager.
 
-With this sample model, ``Book.objects.all()`` will return all books in the
-database, but ``Book.dahl_objects.all()`` will only return the ones written by
-Roald Dahl.
+在上面例子中, ``Book.objects.all()`` 会返回数据库中所有的书, ``Book.dahl_objects.all()`` 只返回作者为Roald Dahl的书.
 
-Of course, because ``get_queryset()`` returns a ``QuerySet`` object, you can
-use ``filter()``, ``exclude()`` and all the other ``QuerySet`` methods on it.
-So these statements are all legal::
+当然, 因为 ``get_queryset()`` 返回的是 ``QuerySet`` 对象, 所以可以对它使用
+``filter()``, ``exclude()`` 和其他 ``QuerySet`` 方法.
+下面例子的语句都是可用的::
 
     Book.dahl_objects.all()
     Book.dahl_objects.filter(title='Matilda')
     Book.dahl_objects.count()
 
-This example also pointed out another interesting technique: using multiple
-managers on the same model. You can attach as many ``Manager()`` instances to
-a model as you'd like. This is an easy way to define common "filters" for your
-models.
-
-For example::
+该例还展示了另外一个很有意思的技巧: 同一模型使用多个管理器.
+你可以依据自己偏好在模型里面添加多个 ``Manager()`` 实例.
+下例是给模型添加通用过滤器的一个简单方::
 
     class AuthorManager(models.Manager):
         def get_queryset(self):
@@ -166,80 +139,61 @@ For example::
         authors = AuthorManager()
         editors = EditorManager()
 
-This example allows you to request ``Person.authors.all()``, ``Person.editors.all()``,
-and ``Person.people.all()``, yielding predictable results.
+在上面例子中可以使用 ``Person.authors.all()``, ``Person.editors.all()``,
+和 ``Person.people.all()`` 来过滤.
 
 .. _default-managers:
 
-Default managers
+默认管理器
 ----------------
 
 .. attribute:: Model._default_manager
 
-If you use custom ``Manager`` objects, take note that the first ``Manager``
-Django encounters (in the order in which they're defined in the model) has a
-special status. Django interprets the first ``Manager`` defined in a class as
-the "default" ``Manager``, and several parts of Django (including
-:djadmin:`dumpdata`) will use that ``Manager`` exclusively for that model. As a
-result, it's a good idea to be careful in your choice of default manager in
-order to avoid a situation where overriding ``get_queryset()`` results in an
-inability to retrieve objects you'd like to work with.
+在自定义 ``Manager`` 对象时需要注意在Django中的第一个 ``Manager``
+(按照定义的顺序)具有特殊地位. Django将第一个 ``Manager`` 视为"默认" ``Manager``, 在Django的好几处(包括
+:djadmin:`dumpdata`)将会只使用该 ``Manager`` . 因此在自定义管理器时一定要注意默认管理器, 这样才能避免
+因为重写 ``get_queryset()`` 而导致无法获取到预期数据的问题.
 
-You can specify a custom default manager using :attr:`Meta.default_manager_name
-<django.db.models.Options.default_manager_name>`.
+使用 :attr:`Meta.default_manager_name
+<django.db.models.Options.default_manager_name>` 来指定默认管理器.
 
-If you're writing some code that must handle an unknown model, for example, in
-a third-party app that implements a generic view, use this manager (or
-:attr:`~Model._base_manager`) rather than assuming the model has an ``objects``
-manager.
+如果你代码中必须要处理未知的模型, 例如实现通用视图的第三方应用, 请使用该管理器(或者 :attr:`~Model._base_manager`)
+而不是假定模型具有 ``objects`` 管理器.
 
-Base managers
+基础管理器
 -------------
 
 .. attribute:: Model._base_manager
 
 .. _managers-for-related-objects:
 
-Using managers for related object access
+使用管理器访问关联对象
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By default, Django uses an instance of the ``Model._base_manager`` manager
-class when accessing related objects (i.e. ``choice.question``), not the
-``_default_manager`` on the related object. This is because Django needs to be
-able to retrieve the related object, even if it would otherwise be filtered out
-(and hence be inaccessible) by the default manager.
+默认情况下, Django访问关联对象(i.e. ``choice.question``)使用 ``Model._base_manager`` 管理器类的实例,
+而不是关联对象的 ``_default_manager``. 因为Django要检索可能被默认管理器过滤掉的关联对象.
 
-If the normal base manager class (:class:`django.db.models.Manager`) isn't
-appropriate for your circumstances, you can tell Django which class to use by
-setting :attr:`Meta.base_manager_name
-<django.db.models.Options.base_manager_name>`.
+如果默认的基础管理器类 (:class:`django.db.models.Manager`) 无法满足需求, 可以设置 :attr:`Meta.base_manager_name
+<django.db.models.Options.base_manager_name>` 告诉Django使用哪个类.
 
-Manager's aren't used when querying on related models. For example, if the
-``Question`` model :ref:`from the tutorial <creating-models>` had a ``deleted``
-field and a base manager that filters out instances with ``deleted=True``, a
-queryset like ``Choice.objects.filter(question__name__startswith='What')``
-would include choices related to deleted questions.
+通过关联模型查询时不会使用基础管理器. 例如, 在 :ref:`教程 <creating-models>` 中 ``Question`` 模型有一个 ``deleted`` 字段,
+如果基础管理器过滤掉 ``deleted=True`` 的实例,  ``Choice.objects.filter(question__name__startswith='What')`` 查询还是会返回
+和已删除questions关联的choices.
 
-Don't filter away any results in this type of manager subclass
+不要在这类管理器子类中过滤结果
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This manager is used to access objects that are related to from some other
-model. In those situations, Django has to be able to see all the objects for
-the model it is fetching, so that *anything* which is referred to can be
-retrieved.
+该管理器会用于访问关联模型的关联对象. 因此在这种情况下Django需要能获取相关模型的所有对象, 这样才能根据关联关系得到所有的数据.
 
-If you override the ``get_queryset()`` method and filter out any rows, Django
-will return incorrect results. Don't do that. A manager that filters results
-in ``get_queryset()`` is not appropriate for use as a base manager.
+如果重写了 ``get_queryset()`` 方法并且过滤了某些行, 这会导致Django返回不正确的结果.
+请不要在基础管理器的 ``get_queryset()`` 中过滤数据.
 
 .. _calling-custom-queryset-methods-from-manager:
 
-Calling custom ``QuerySet`` methods from the manager
+管理器调用自定义 ``QuerySet`` 方法
 ----------------------------------------------------
 
-While most methods from the standard ``QuerySet`` are accessible directly from
-the ``Manager``, this is only the case for the extra methods defined on a
-custom ``QuerySet`` if you also implement them on the ``Manager``::
+大部分的 ``QuerySet`` 标准方法都可以在 ``Manager`` 中直接访问, 下面是在 ``Manager`` 中调用自定义 ``QuerySet`` 方法的唯一途径::
 
     class PersonQuerySet(models.QuerySet):
         def authors(self):
@@ -264,56 +218,51 @@ custom ``QuerySet`` if you also implement them on the ``Manager``::
         role = models.CharField(max_length=1, choices=(('A', _('Author')), ('E', _('Editor'))))
         people = PersonManager()
 
-This example allows you to call both ``authors()`` and ``editors()`` directly from
-the manager ``Person.people``.
+使用上面代码就可以通过管理器 ``Person.people`` 直接调用 ``authors()`` 和 ``editors()``.
 
 .. _create-manager-with-queryset-methods:
 
-Creating a manager with ``QuerySet`` methods
+通过 ``QuerySet`` 方法创建管理器
 --------------------------------------------
 
-In lieu of the above approach which requires duplicating methods on both the
-``QuerySet`` and the ``Manager``, :meth:`QuerySet.as_manager()
-<django.db.models.query.QuerySet.as_manager>` can be used to create an instance
-of ``Manager`` with a copy of a custom ``QuerySet``’s methods::
+上例中的方案需要 ``QuerySet`` 和 ``Manager`` 都要创建同样的方法, 使用 :meth:`QuerySet.as_manager()
+<django.db.models.query.QuerySet.as_manager>` 可以创建一个 ``Manager`` 实例和自定义 ``QuerySet`` 方法的副本::
 
     class Person(models.Model):
         ...
         people = PersonQuerySet.as_manager()
 
-The ``Manager`` instance created by :meth:`QuerySet.as_manager()
-<django.db.models.query.QuerySet.as_manager>` will be virtually
-identical to the ``PersonManager`` from the previous example.
+通过 :meth:`QuerySet.as_manager()
+<django.db.models.query.QuerySet.as_manager>` 创建的 ``Manager`` 实例实际上等价于上例中的 ``PersonManager``.
 
-Not every ``QuerySet`` method makes sense at the ``Manager`` level; for
-instance we intentionally prevent the :meth:`QuerySet.delete()
-<django.db.models.query.QuerySet.delete>` method from being copied onto
-the ``Manager`` class.
+实际使用时不是所有 ``QuerySet`` 方法都需要放到 ``Manager`` 中;
+例如, 我们想阻止 :meth:`QuerySet.delete()
+<django.db.models.query.QuerySet.delete>` 方法拷贝到 ``Manager`` 中.
 
-Methods are copied according to the following rules:
+方法拷贝遵循以下规则:
 
-- Public methods are copied by default.
-- Private methods (starting with an underscore) are not copied by default.
-- Methods with a ``queryset_only`` attribute set to ``False`` are always copied.
-- Methods with a ``queryset_only`` attribute set to ``True`` are never copied.
+- Public方法默认会被拷贝.
+- Private方法(以下划线开头)默认不会被拷贝.
+- ``queryset_only`` 属性为 ``False`` 的方法总是会被拷贝.
+- ``queryset_only`` 属性为 ``True`` 的方法不会被拷贝.
 
-For example::
+举个例子::
 
     class CustomQuerySet(models.QuerySet):
-        # Available on both Manager and QuerySet.
+        # Manager and QuerySet都可以访问.
         def public_method(self):
             return
 
-        # Available only on QuerySet.
+        # 仅QuerySet可以访问.
         def _private_method(self):
             return
 
-        # Available only on QuerySet.
+        # 仅QuerySet可以访问.
         def opted_out_public_method(self):
             return
         opted_out_public_method.queryset_only = True
 
-        # Available on both Manager and QuerySet.
+        # Manager and QuerySet都可以访问.
         def _opted_in_private_method(self):
             return
         _opted_in_private_method.queryset_only = False
@@ -323,10 +272,9 @@ For example::
 
 .. classmethod:: from_queryset(queryset_class)
 
-For advanced usage you might want both a custom ``Manager`` and a custom
-``QuerySet``. You can do that by calling ``Manager.from_queryset()`` which
-returns a *subclass* of your base ``Manager`` with a copy of the custom
-``QuerySet`` methods::
+在更高阶的使用中, 你可能想要创建一个自定义的 ``Manager`` 和一个自定义的
+``QuerySet``. 可以通过调用 ``Manager.from_queryset()`` 实现, 它返回一个 ``Manager`` *子类*
+带有所有自定义 ``QuerySet`` 方法的副本::
 
     class BaseManager(models.Manager):
         def manager_only_method(self):
@@ -339,7 +287,7 @@ returns a *subclass* of your base ``Manager`` with a copy of the custom
     class MyModel(models.Model):
         objects = BaseManager.from_queryset(CustomQuerySet)()
 
-You may also store the generated class into a variable::
+还可以将生成的类存储到变量中::
 
     CustomManager = BaseManager.from_queryset(CustomQuerySet)
 
@@ -348,38 +296,29 @@ You may also store the generated class into a variable::
 
 .. _custom-managers-and-inheritance:
 
-Custom managers and model inheritance
+自定义管理器和模型继承
 -------------------------------------
 
-Here's how Django handles custom managers and :ref:`model inheritance
-<model-inheritance>`:
+下面是Django处理自定义管理器和 :ref:`模型继承
+<model-inheritance>` 原则:
 
-#. Managers from base classes are always inherited by the child class,
-   using Python's normal name resolution order (names on the child
-   class override all others; then come names on the first parent class,
-   and so on).
+#. 基类的管理器总是被子类以Python的正常名称解析顺序继承(子类的属性会覆盖父类上相同名称属性, 父类会覆盖更上一级的类, 依次类推).
 
-#. If no managers are declared on a model and/or its parents, Django
-   automatically creates the ``objects`` manager.
+#. 如果该模型或其父类都没有定义管理器, Django会自动创建名为 ``objects`` 的管理器.
 
-#. The default manager on a class is either the one chosen with
+#. 类的模型管理器来自于
    :attr:`Meta.default_manager_name
-   <django.db.models.Options.default_manager_name>`, or the first manager
-   declared on the model, or the default manager of the first parent model.
+   <django.db.models.Options.default_manager_name>` 指定, 或者模型声明的第一个管理器或者其父类的默认管理器.
 
 .. versionchanged:: 1.10
 
-    Some inheritance behaviors described above don't apply unless you set
-    ``manager_inheritance_from_future = True`` on the model's ``Meta`` class.
-    In older versions and if you don't set that attribute, manager inheritance
-    varies depending on the type of model inheritance (:ref:`abstract-base-classes`,
-    :ref:`multi-table-inheritance`, or :ref:`proxy-models`), especially
-    with regards to electing the default manager.
+    上面的一些继承行为只有在模型的 ``Meta`` 类中设置了
+    ``manager_inheritance_from_future = True`` 才会生效.
+    在之前版本中, 如果没有设置该属性, 则管理器的继承行为根据模型继承的类型而异(:ref:`abstract-base-classes`,
+    :ref:`multi-table-inheritance`, 或者 :ref:`proxy-models`), 特别是选择默认管理器部分.
 
-These rules provide the necessary flexibility if you want to install a
-collection of custom managers on a group of models, via an abstract base
-class, but still customize the default manager. For example, suppose you have
-this base class::
+如果你想在一组模型中实现一系列自定义管理器, 上面的规则就为你实现这一目的提供了必要的灵活性. 你可以继承一个抽象继承定义自定义的默认管理器,
+假设你的基类是这样的::
 
     class AbstractBase(models.Model):
         # ...
@@ -388,31 +327,25 @@ this base class::
         class Meta:
             abstract = True
 
-If you use this directly in a subclass, ``objects`` will be the default
-manager if you declare no managers in the base class::
+如果你在子类中没有定义管理器, 直接使用上面的代码, 默认管理器就是从基类中继承的  ``objects`` ::
 
     class ChildA(AbstractBase):
         # ...
-        # This class has CustomManager as the default manager.
+        # 该类将 CustomManager 作为默认管理器.
         pass
 
-If you want to inherit from ``AbstractBase``, but provide a different default
-manager, you can provide the default manager on the child class::
+如果你希望继承 ``AbstractBase``, 使用另一个默认管理器, 那么可以在子类中定义默认管理器::
 
     class ChildB(AbstractBase):
         # ...
-        # An explicit default manager.
+        # 显式定义默认管理器.
         default_manager = OtherManager()
 
-Here, ``default_manager`` is the default. The ``objects`` manager is
-still available, since it's inherited. It just isn't used as the default.
+在这个例子中, ``default_manager`` 作为默认管理器. 从基类中继承的 ``objects`` 管理器也是可用的. 只不过它不再是默认管理器.
 
-Finally for this example, suppose you want to add extra managers to the child
-class, but still use the default from ``AbstractBase``. You can't add the new
-manager directly in the child class, as that would override the default and you would
-have to also explicitly include all the managers from the abstract base class.
-The solution is to put the extra managers in another base class and introduce
-it into the inheritance hierarchy *after* the defaults::
+最后再举个例子, 假设你想在子类中添加额外的管理器, 但是仍想从 ``AbstractBase`` 继承的管理器作为默认管理器.
+这个情况下, 不能在子类中添加新的管理器, 这样会覆盖掉继承的默认管理器, 并且还必须显式地指定来自抽象基类的所有管理器.
+解决办法是定义另一个基类添加额外管理器, 然后继承时将其放在默认管理器所在基类 **之后** ::
 
     class ExtraManager(models.Model):
         extra_manager = OtherManager()
@@ -422,43 +355,32 @@ it into the inheritance hierarchy *after* the defaults::
 
     class ChildC(AbstractBase, ExtraManager):
         # ...
-        # Default manager is CustomManager, but OtherManager is
-        # also available via the "extra_manager" attribute.
+        # 默认管理器为 CustomManager,
+        # 额外管理器也可以通过 "extra_manager" 属性使用.
         pass
 
-Note that while you can *define* a custom manager on the abstract model, you
-can't *invoke* any methods using the abstract model. That is::
+请注意, 虽然可以在抽象模型上 *定义* 自定义管理器, 但不是不能够
+*调用* 抽象模型的方法::
 
     ClassA.objects.do_something()
 
-is legal, but::
+是合法的, 但是::
 
     AbstractBase.objects.do_something()
 
-will raise an exception. This is because managers are intended to encapsulate
-logic for managing collections of objects. Since you can't have a collection of
-abstract objects, it doesn't make sense to be managing them. If you have
-functionality that applies to the abstract model, you should put that functionality
-in a ``staticmethod`` or ``classmethod`` on the abstract model.
+会引发异常. 这是因为管理器意在封装管理映射对象集合的逻辑. 由于抽象的对象中并没有一个集合, 管理它们是毫无意义的.
+如果你写了应用在抽象模型上的功能, 你应该把功能放到抽象模型 ``staticmethod`` 或者 ``classmethod`` 中.
 
-Implementation concerns
+实现时注意事项
 -----------------------
 
-Whatever features you add to your custom ``Manager``, it must be
-possible to make a shallow copy of a ``Manager`` instance; i.e., the
-following code must work::
+无论在自定义的 ``Manager`` 中添加了什么特性, 都必须能够对 ``Manager`` 实例进行浅拷贝; 即以下代码必须有效::
 
     >>> import copy
     >>> manager = MyManager()
     >>> my_copy = copy.copy(manager)
 
-Django makes shallow copies of manager objects during certain queries;
-if your Manager cannot be copied, those queries will fail.
+Django在某些查询期间会生成管理器对象的浅拷贝; 如果管理器无法复制那么这些查询将失败.
 
-This won't be an issue for most custom managers. If you are just
-adding simple methods to your ``Manager``, it is unlikely that you
-will inadvertently make instances of your ``Manager`` uncopyable.
-However, if you're overriding ``__getattr__`` or some other private
-method of your ``Manager`` object that controls object state, you
-should ensure that you don't affect the ability of your ``Manager`` to
-be copied.
+这对于大多数自定义管理器不是什么问题. 如果仅仅是在 ``Manager`` 中添加一些简单的方法, 这不大可能会导致 ``Manager`` 实例变得不可复制,
+但是, 如果重写了 ``Manager`` 对象用于控制对象状态的 ``__getattr__`` 或其它私有方法, 你需要确认你的修改不会影响 ``Manager`` 被复制.
