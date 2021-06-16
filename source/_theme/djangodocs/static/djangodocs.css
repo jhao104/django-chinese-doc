@@ -114,7 +114,7 @@ table.docutils { border-collapse:collapse; }
 .note, .admonition { padding-left:65px; background:url(docicons-note.png) .8em .8em no-repeat;}
 div.admonition-philosophy { padding-left:65px; background:url(docicons-philosophy.png) .8em .8em no-repeat;}
 div.admonition-behind-the-scenes { padding-left:65px; background:url(docicons-behindscenes.png) .8em .8em no-repeat;}
-.admonition.warning { background:url(docicons-warning.png) .8em .8em no-repeat; border:1px solid #ffc83c;}
+/*.admonition.warning { background:url(docicons-warning.png) .8em .8em no-repeat; border:1px solid #ffc83c;}*/
 
 /*** versionadded/changes ***/
 div.versionadded, div.versionchanged {  }
