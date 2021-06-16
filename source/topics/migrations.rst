@@ -1,5 +1,5 @@
 ==========
-Migrations
+迁移
 ==========
 
 .. module:: django.db.migrations
