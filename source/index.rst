@@ -95,8 +95,8 @@ Django提供一个抽象层（Models）以构建和操作你的web应用中的�
 
 * **高级:**
   :doc:`管理器 <topics/db/managers>` |
-  :doc:`原始SQL <topics/db/sql>` |
-  :doc:`事物 <topics/db/transactions>` |
+  :doc:`原生SQL <topics/db/sql>` |
+  :doc:`事务 <topics/db/transactions>` |
   :doc:`聚合 <topics/db/aggregation>` |
   :doc:`搜索 <topics/db/search>` |
   :doc:`自定义字段 <howto/custom-model-fields>` |
