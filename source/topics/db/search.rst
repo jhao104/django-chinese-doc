@@ -1,121 +1,96 @@
 ======
-Search
+搜索
 ======
 
-A common task for web applications is to search some data in the database with
-user input. In a simple case, this could be filtering a list of objects by a
-category. A more complex use case might require searching with weighting,
-categorization, highlighting, multiple languages, and so on. This document
-explains some of the possible use cases and the tools you can use.
+根据用户输入检索数据库中数据是Web应用的常见任务.
+简单的情况下是按类别过滤对象列表,
+复杂的情况有加权, 分类, 高亮显示, 多语言搜索等.
+本文档介绍了一些可能的用例和可以使用的工具.
 
-We'll refer to the same models used in :doc:`/topics/db/queries`.
+本文将引用 :doc:`/topics/db/queries` 的模型用例.
 
-Use Cases
+用例
 =========
 
-Standard textual queries
+标准文本查询
 ------------------------
 
-Text-based fields have a selection of simple matching operations. For example,
-you may wish to allow lookup up an author like so::
+文本字段可以通过匹配计算进行筛选. 例如, 像这样查找author::
 
     >>> Author.objects.filter(name__contains='Terry')
     [<Author: Terry Gilliam>, <Author: Terry Jones>]
 
-This is a very fragile solution as it requires the user to know an exact
-substring of the author's name. A better approach could be a case-insensitive
-match (:lookup:`icontains`), but this is only marginally better.
+这个一个非常脆弱的解决方案, 因为它要求用户必须知道author name字段的子串.
+有一个稍微好一点的方法是不区分大小写的匹配(:lookup:`icontains`).
 
-A database's more advanced comparison functions
+更高级的数据库比较函数
 -----------------------------------------------
 
-If you're using PostgreSQL, Django provides :doc:`a selection of database
-specific tools </ref/contrib/postgres/search>` to allow you to leverage more
-complex querying options. Other databases have different selections of tools,
-possibly via plugins or user-defined functions. Django doesn't include any
-support for them at this time. We'll use some examples from PostgreSQL to
-demonstrate the kind of functionality databases may have.
+如果你使用的是 PostgreSQL, Django内置了 :doc:`数据库特殊筛选工具 </ref/contrib/postgres/search>` 帮助你使用更复杂的查询条件.
+其他数据库可以通过插件或者用户自定义函数来实现, Django此时还没有内置对它们的支持.
+下面将使用PostgreSQL中的一些示例来演示其具有的高阶功能.
 
-.. admonition:: Searching in other databases
+.. admonition:: 其他数据库
 
-    All of the searching tools provided by :mod:`django.contrib.postgres` are
-    constructed entirely on public APIs such as :doc:`custom lookups
-    </ref/models/lookups>` and :doc:`database functions
-    </ref/models/database-functions>`. Depending on your database, you should
-    be able to construct queries to allow similar APIs. If there are specific
-    things which cannot be achieved this way, please open a ticket.
+    所有由 :mod:`django.contrib.postgres` 提供的筛选工具都是基于
+    :doc:`定义查询
+    </ref/models/lookups>` 和 :doc:`数据库函数
+    </ref/models/database-functions>` 实现.
+    你应该根据你的数据库构建类似的API. 若有某个东西不能以这种方式实现, 请提交工单.
 
-In the above example, we determined that a case insensitive lookup would be
-more useful. When dealing with non-English names, a further improvement is to
-use :lookup:`unaccented comparison <unaccent>`::
+在上面例子中, 使用大小写不敏感的查询更实用. 在处理非英文name时, 可以使用 :lookup:`无重音比较 <unaccent>` 来优化::
 
     >>> Author.objects.filter(name__unaccent__icontains='Helen')
     [<Author: Helen Mirren>, <Author: Helena Bonham Carter>, <Actor: Hélène Joy>]
 
-This shows another issue, where we are matching against a different spelling of
-the name. In this case we have an asymmetry though - a search for ``Helen``
-will pick up ``Helena`` or ``Hélène``, but not the reverse. Another option
-would be to use a :lookup:`trigram_similar` comparison, which compares
-sequences of letters.
+这又引出了另一个问题, 通过名字的不同拼写进行比较.
+但是这种比较是不对称的, 比如搜索 ``Helen`` 可以得到 ``Helena`` 和 ``Hélène``, 但是反过来却不行.
+另一个选择是使用 :lookup:`trigram_similar` 进行比较.
 
-For example::
+例如::
 
     >>> Author.objects.filter(name__unaccent__lower__trigram_similar='Hélène')
     [<Author: Helen Mirren>, <Actor: Hélène Joy>]
 
-Now we have a different problem - the longer name of "Helena Bonham Carter"
-doesn't show up as it is much longer. Trigram searches consider all
-combinations of three letters, and compares how many appear in both search and
-source strings. For the longer name, there are more combinations which appear
-in the source string so it is no longer considered a close match.
+现在又出现了另一个问题 - “Helena Bonham Carter”太长了所以没有搜索出来.
+Trigram搜索考虑三种字母的所有组合, 并比较搜索和源字符串中出现的数量.
+对于较长的name, 就有更多的组合出现在源字符串中, 所以其不再被认为是一种近似匹配.
 
-The correct choice of comparison functions here depends on your particular data
-set, for example the language(s) used and the type of text being searched. All
-of the examples we've seen are on short strings where the user is likely to
-enter something close (by varying definitions) to the source data.
+比较函数需要根据你的数据集来选择, 例如根据使用的语言和搜索文本的类型.
+上面所有例子都是关于短字符串的, 这使用户输入的内容与源数据可以有较大的关联.
 
-Document-based search
+文档搜索
 ---------------------
 
-Simple database operations are too simple an approach when you start
-considering large blocks of text. Whereas the examples above can be thought of
-as operations on a string of characters, full text search looks at the actual
-words. Depending on the system used, it's likely to use some of the following
-ideas:
+对于大文本检索来说普通的数据库操作已经捉襟见肘.
+虽然上面的方法也可以对字符串使用, 但是全文检索作用对象是单个词, 根据所使用的系统还可以采用下面的方法:
 
-- Ignoring "stop words" such as "a", "the", "and".
-- Stemming words, so that "pony" and "ponies" are considered similar.
-- Weighting words based on different criteria such as how frequently they
-  appear in the text, or the importance of the fields, such as the title or
-  keywords, that they appear in.
+- 忽略"停用词" 比如 "a", "the", "and".
+- 词干化, 这样 "pony" 和 "ponies" 会被认为是一样的.
+- 设置单词权重, 例如根据在文本中出现的频率, 或者其所属字段(比如标题或关键字)的重要性.
 
-There are many alternatives for using searching software, some of the most
-prominent are Elastic_ and Solr_. These are full document-based search
-solutions. To use them with data from Django models, you'll need a layer which
-translates your data into a textual document, including back-references to the
-database ids. When a search using the engine returns a certain document, you
-can then look it up in the database. There are a variety of third-party
-libraries which are designed to help with this process.
+可以使用的搜索工具有很多, 常见的有 Elastic_ 和 Solr_.
+它们都是基于全文搜索的解决方案.
+如果要将它们与Django模型的数据一起使用, 需要在抽象层将数据转换为文本文档, 包括对数据库id的反向引用,
+当使用该引擎搜索返回某个文档时, 可以在数据库中查找到它.
+已经有很多第三方库实现了这一功能.
 
 .. _Elastic: https://www.elastic.co/
 .. _Solr: http://lucene.apache.org/solr/
 
-PostgreSQL support
+PostgreSQL支持
 ~~~~~~~~~~~~~~~~~~
 
-PostgreSQL has its own full text search implementation built-in. While not as
-powerful as some other search engines, it has the advantage of being inside
-your database and so can easily be combined with other relational queries such
-as categorization.
+PostgreSQL内置了其自己的全文搜索实现.
+虽然不如其他专业的搜索引擎强大, 但它的优点是内置在数据库中, 可以很方便的与其它关联查询条件进行联合查询, 如按分类查询.
 
-The :mod:`django.contrib.postgres` module provides some helpers to make these
-queries. For example, a simple query might be to select all the blog entries
-which mention "cheese"::
+The :mod:`django.contrib.postgres` 模块提供了一些辅助函数来执行这些查询.
+例如, 查询包含了 "cheese" 的entry::
 
     >>> Entry.objects.filter(body_text__search='cheese')
     [<Entry: Cheese on Toast recipes>, <Entry: Pizza recipes>]
 
-You can also filter on a combination of fields and on related models::
+还可以对字段和关联模型组合筛选::
 
     >>> Entry.objects.annotate(
     ...     search=SearchVector('blog__tagline', 'body_text'),
@@ -126,5 +101,4 @@ You can also filter on a combination of fields and on related models::
         <Entry: Dairy farming in Argentina>,
     ]
 
-See the ``contrib.postgres`` :doc:`/ref/contrib/postgres/search` document for
-complete details.
+完整描述请参见 ``contrib.postgres`` :doc:`/ref/contrib/postgres/search`.

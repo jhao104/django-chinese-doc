@@ -1,5 +1,5 @@
 ================
-Full text search
+全文搜索
 ================
 
 .. versionadded:: 1.10
