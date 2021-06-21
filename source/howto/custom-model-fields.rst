@@ -1,40 +1,33 @@
 ===========================
-Writing custom model fields
+自定义模型字段
 ===========================
 
 .. currentmodule:: django.db.models
 
-Introduction
+介绍
 ============
 
-The :doc:`model reference </topics/db/models>` documentation explains how to use
-Django's standard field classes -- :class:`~django.db.models.CharField`,
-:class:`~django.db.models.DateField`, etc. For many purposes, those classes are
-all you'll need. Sometimes, though, the Django version won't meet your precise
-requirements, or you'll want to use a field that is entirely different from
-those shipped with Django.
+在 :doc:`模型参考 </topics/db/models>` 中已经介绍了如何使用Django的标准字段类,比如
+:class:`~django.db.models.CharField` 和 :class:`~django.db.models.DateField` 等等.
+这些类可以满足你绝大部分的需求. 在某些情况可能Django的版本不能精准匹配到你的需求,
+又或者你想使用的字段和Django内置的完全不同.
 
-Django's built-in field types don't cover every possible database column type --
-only the common types, such as ``VARCHAR`` and ``INTEGER``. For more obscure
-column types, such as geographic polygons or even user-created types such as
-`PostgreSQL custom types`_, you can define your own Django ``Field`` subclasses.
+Django内置的字段类型并没有覆盖所有的数据库列类型 -- 它只有一些常见的字段,
+比如 ``VARCHAR`` 和 ``INTEGER``. 对于其他的不常用类型, 比如地理数据(geographic polygons) 或者用户创建的类型比如
+`PostgreSQL自定义类型`_, 这时可以自定义Django ``Field`` 子类.
 
-.. _PostgreSQL custom types: https://www.postgresql.org/docs/current/static/sql-createtype.html
+.. _PostgreSQL自定义类型: https://www.postgresql.org/docs/current/static/sql-createtype.html
 
-Alternatively, you may have a complex Python object that can somehow be
-serialized to fit into a standard database column type. This is another case
-where a ``Field`` subclass will help you use your object with your models.
+你可以编写一个复杂的Python对象, 使它以某种方式将数据序列化, 以适应数据库的列类型.
+或是创建一个 ``Field`` 的子类, 从而让你可以使用model中的对象.
 
-Our example object
+示例对象
 ------------------
 
-Creating custom fields requires a bit of attention to detail. To make things
-easier to follow, we'll use a consistent example throughout this document:
-wrapping a Python object representing the deal of cards in a hand of Bridge_.
-Don't worry, you don't have to know how to play Bridge to follow this example.
-You only need to know that 52 cards are dealt out equally to four players, who
-are traditionally called *north*, *east*, *south* and *west*.  Our class looks
-something like this::
+创建自定义字段都很多需要注意的细节. 为了方便理解, 本文档中将全程使用一个案例:
+封装一个代表 `桥牌`_ 的Python对象, 不用担心, 这并不要求你会玩桥牌.
+你只需要知道52张牌被均分给4个玩家, 称他们为 *north*, *east*, *south* 和 *west*.
+示例类::
 
     class Hand(object):
         """A hand of cards (bridge style)"""
@@ -48,11 +41,10 @@ something like this::
 
         # ... (other possibly useful methods omitted) ...
 
-.. _Bridge: https://en.wikipedia.org/wiki/Contract_bridge
+.. _桥牌: https://en.wikipedia.org/wiki/Contract_bridge
 
-This is just an ordinary Python class, with nothing Django-specific about it.
-We'd like to be able to do things like this in our models (we assume the
-``hand`` attribute on the model is an instance of ``Hand``)::
+这是一个普通的Python类, 没有在Django中做特殊设定.
+我们期望在模型中做如下操作(假设模型中的 ``hand`` 属性是 ``Hand`` 的一个实例)::
 
     example = MyModel.objects.get(pk=1)
     print(example.hand.north)
@@ -61,67 +53,47 @@ We'd like to be able to do things like this in our models (we assume the
     example.hand = new_hand
     example.save()
 
-We assign to and retrieve from the ``hand`` attribute in our model just like
-any other Python class. The trick is to tell Django how to handle saving and
-loading such an object.
+对模型中 ``hand`` 属性的取值和赋值与其他Python类一样. 关键是告诉Django如何保存和加载对象.
 
-In order to use the ``Hand`` class in our models, we **do not** have to change
-this class at all. This is ideal, because it means you can easily write
-model support for existing classes where you cannot change the source code.
+要在模型中使用 ``Hand`` 类, 我们 **不需要** 修改这个类.
+这非常有用, 因为这可以让我们为已存在的类编写模型支持, 而不需要修改代码.
 
 .. note::
-    You might only be wanting to take advantage of custom database column
-    types and deal with the data as standard Python types in your models;
-    strings, or floats, for example. This case is similar to our ``Hand``
-    example and we'll note any differences as we go along.
+    你可能只想利用自定义数据库列类型在模型中作为标准Python类型(字符串或浮点数)处理数据.
+    这种情况与我们的 ``Hand`` 例子非常相似, 我们会随着文档的展开对两者的差异进行比较.
 
-Background theory
+背景理论
 =================
 
-Database storage
+数据库存储
 ----------------
 
-The simplest way to think of a model field is that it provides a way to take a
-normal Python object -- string, boolean, ``datetime``, or something more
-complex like ``Hand`` -- and convert it to and from a format that is useful
-when dealing with the database (and serialization, but, as we'll see later,
-that falls out fairly naturally once you have the database side under control).
+可以简单的认为模型字段提供了一种方法, 它接收普通的Python对象, 比如字符串, 布尔值, ``datetime`` 或者像是 ``Hand`` 这样的复杂对象.
+然后在进行数据库操作时, 对对象进行格式转换来适应数据库格式.(序列化也和这个一样, 但是等掌握了数据库的转换, 序列化会更简单).
 
-Fields in a model must somehow be converted to fit into an existing database
-column type. Different databases provide different sets of valid column types,
-but the rule is still the same: those are the only types you have to work
-with. Anything you want to store in the database must fit into one of
-those types.
+模型中的字段必须要以某种方式转换成数据库的现有列类型.
+不同的数据库提供了各自的有效列类型集合, 任何想存储在数据库中的字段都必须转换成这些类型.
 
-Normally, you're either writing a Django field to match a particular database
-column type, or there's a fairly straightforward way to convert your data to,
-say, a string.
+通常, 要么编写一个Django字段去匹配特定的数据库列类型, 要么需要一个方法将数据转换成字符串.
 
-For our ``Hand`` example, we could convert the card data to a string of 104
-characters by concatenating all the cards together in a pre-determined order --
-say, all the *north* cards first, then the *east*, *south* and *west* cards. So
-``Hand`` objects can be saved to text or character columns in the database.
+以 ``Hand`` 为例, 我们将卡牌以预定义好的顺序拼接成一个104个字符的字符串 --
+第一个为 *north* 然后依次是 *east*, *south* 和 *west*.
+这样 ``Hand`` 对象可以在数据库中储存在 text 或 character 类型列中.
 
-What does a field class do?
+field类做了什么?
 ---------------------------
 
-All of Django's fields (and when we say *fields* in this document, we always
-mean model fields and not :doc:`form fields </ref/forms/fields>`) are subclasses
-of :class:`django.db.models.Field`. Most of the information that Django records
-about a field is common to all fields -- name, help text, uniqueness and so
-forth. Storing all that information is handled by ``Field``. We'll get into the
-precise details of what ``Field`` can do later on; for now, suffice it to say
-that everything descends from ``Field`` and then customizes key pieces of the
-class behavior.
+所有Django的fields (本文提到的 *字段* 都是指模型字段, 不是 :doc:`表单字段 </ref/forms/fields>`)
+都是 :class:`django.db.models.Field` 的子类.
+Django记录字段的大多数信息对于所有字段都是通用的 -- 名称, 帮助文本, 唯一性等等.
+由 `Field`` 处理所有存储的信息. 稍后将深入介绍 ``Field`` 可以做的什么.
+可以说万物源于 ``Field``, 并在其基础上自定义了类的关键行为.
 
-It's important to realize that a Django field class is not what is stored in
-your model attributes. The model attributes contain normal Python objects. The
-field classes you define in a model are actually stored in the ``Meta`` class
-when the model class is created (the precise details of how this is done are
-unimportant here). This is because the field classes aren't necessary when
-you're just creating and modifying attributes. Instead, they provide the
-machinery for converting between the attribute value and what is stored in the
-database or sent to the :doc:`serializer </topics/serialization>`.
+要知道Django字段类并不以模型的属性存在这一点非常重要.
+模型属性仅仅是普通的Python对象. 在模型中定义的字段类实际上存储在 ``Meta`` 类中(如何实现在这里不重要).
+因为只是创建和修改属性时,字段类不是必需的.
+它们只是提供了在属性值和存储在数据库的值之间进行转换的机制, 并决定了什么被存入数据库或发送给
+:doc:`序列化器 </topics/serialization>`.
 
 Keep this in mind when creating your own custom fields. The Django ``Field``
 subclass you write provides the machinery for converting between your Python
