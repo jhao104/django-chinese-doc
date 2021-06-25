@@ -95,42 +95,26 @@ Django记录字段的大多数信息对于所有字段都是通用的 -- 名称,
 它们只是提供了在属性值和存储在数据库的值之间进行转换的机制, 并决定了什么被存入数据库或发送给
 :doc:`序列化器 </topics/serialization>`.
 
-Keep this in mind when creating your own custom fields. The Django ``Field``
-subclass you write provides the machinery for converting between your Python
-instances and the database/serializer values in various ways (there are
-differences between storing a value and using a value for lookups, for
-example). If this sounds a bit tricky, don't worry -- it will become clearer in
-the examples below. Just remember that you will often end up creating two
-classes when you want a custom field:
+在创建自定义字段时请牢记. 你编写的Django ``Field`` 子类提供了以各种方式在Python实例和数据库/序列化值之间进行转换的机制
+(比如,保存值和用来查询的值之间是不同的). 如果这有点难以理解, 不用担心, 通过下面的例子会让你有清晰的了解.
+这里只需要记住, 当你要自定义一个字段时, 需要创建两个类:
 
-* The first class is the Python object that your users will manipulate.
-  They will assign it to the model attribute, they will read from it for
-  displaying purposes, things like that. This is the ``Hand`` class in our
-  example.
+* 第一个类是用于用户操作的Python对象. 它会被赋予模型属性, 用于读取和显示. 例如本例中的 ``Hand`` 类.
 
-* The second class is the ``Field`` subclass. This is the class that knows
-  how to convert your first class back and forth between its permanent
-  storage form and the Python form.
+* 第二类是 ``Field`` 的子类. 这个类用于描述第一个类如何在存储格式和Python格式之间转换.
 
-Writing a field subclass
+编写Field子类
 ========================
 
-When planning your :class:`~django.db.models.Field` subclass, first give some
-thought to which existing :class:`~django.db.models.Field` class your new field
-is most similar to. Can you subclass an existing Django field and save yourself
-some work? If not, you should subclass the :class:`~django.db.models.Field`
-class, from which everything is descended.
+在计划创建 :class:`~django.db.models.Field` 子类前,
+首先要考虑新字段是否与哪个现有字段类相似, 因为继承一个现有的Django字段再编写一些自己的内容可以节省大量工作.
+如果没有则直接继承 :class:`~django.db.models.Field` 类, 所有字段类都是继承自该类.
 
-Initializing your new field is a matter of separating out any arguments that are
-specific to your case from the common arguments and passing the latter to the
-``__init__()`` method of :class:`~django.db.models.Field` (or your parent
-class).
+初始化新字段比较麻烦的是从公共参数中分离你需要的参数, 然后传递给 :class:`~django.db.models.Field` 的 ``__init__()`` 方法(或其父类).
 
-In our example, we'll call our field ``HandField``. (It's a good idea to call
-your :class:`~django.db.models.Field` subclass ``<Something>Field``, so it's
-easily identifiable as a :class:`~django.db.models.Field` subclass.) It doesn't
-behave like any existing field, so we'll subclass directly from
-:class:`~django.db.models.Field`::
+在示例中, 我们将新字段命名为 ``HandField``. (建议将创建的 :class:`~django.db.models.Field` 子类命名为 ``<Something>Field``,
+这样可以很容易辨认出它是 :class:`~django.db.models.Field` 的子类.)
+我们示例的类并不和任何已存在的类相同, 因此我们直接继承 :class:`~django.db.models.Field`::
 
     from django.db import models
 
@@ -142,28 +126,23 @@ behave like any existing field, so we'll subclass directly from
             kwargs['max_length'] = 104
             super(HandField, self).__init__(*args, **kwargs)
 
-Our ``HandField`` accepts most of the standard field options (see the list
-below), but we ensure it has a fixed length, since it only needs to hold 52
-card values plus their suits; 104 characters in total.
+``HandField`` 接收大多数标准字段选项(参考下面列表), 但是我们要确保参数是定长的, 因为它只保存52个卡片的值, 总计104个字符.
 
 .. note::
 
-    Many of Django's model fields accept options that they don't do anything
-    with. For example, you can pass both
-    :attr:`~django.db.models.Field.editable` and
-    :attr:`~django.db.models.DateField.auto_now` to a
-    :class:`django.db.models.DateField` and it will simply ignore the
-    :attr:`~django.db.models.Field.editable` parameter
-    (:attr:`~django.db.models.DateField.auto_now` being set implies
-    ``editable=False``). No error is raised in this case.
+    许多Django模型字段可以接受并没有什么用的可选参数, 比如同时传入
+    :attr:`~django.db.models.Field.editable` 和
+    :attr:`~django.db.models.DateField.auto_now` 给
+    :class:`django.db.models.DateField` 字段, 它会无视
+    :attr:`~django.db.models.Field.editable` 参数
+    (设置了 :attr:`~django.db.models.DateField.auto_now` 就意味着
+    ``editable=False``). 这种情况并不会引发异常.
 
-    This behavior simplifies the field classes, because they don't need to
-    check for options that aren't necessary. They just pass all the options to
-    the parent class and then don't use them later on. It's up to you whether
-    you want your fields to be more strict about the options they select, or to
-    use the simpler, more permissive behavior of the current fields.
+    这种行为简化了字段类, 因为它不用检查那些不必要的可选参数.
+    它将所有参数传递给父类, 然后就不再使用它们.
+    你也可以更严格地设置字段可选参数, 或者对当前字段设置更放任的行为.
 
-The ``Field.__init__()`` method takes the following parameters:
+``Field.__init__()`` 接受如下参数:
 
 * :attr:`~django.db.models.Field.verbose_name`
 * ``name``
@@ -173,29 +152,20 @@ The ``Field.__init__()`` method takes the following parameters:
 * :attr:`~django.db.models.Field.blank`
 * :attr:`~django.db.models.Field.null`
 * :attr:`~django.db.models.Field.db_index`
-* ``rel``: Used for related fields (like :class:`ForeignKey`). For advanced
-  use only.
+* ``rel``: 用于关联字段 (比如 :class:`ForeignKey`). 仅用于高阶用途.
 * :attr:`~django.db.models.Field.default`
 * :attr:`~django.db.models.Field.editable`
-* ``serialize``: If ``False``, the field will not be serialized when the model
-  is passed to Django's :doc:`serializers </topics/serialization>`. Defaults to
-  ``True``.
+* ``serialize``: 若设置为 ``False``, 则字段被传递给Django的 :doc:`serializers </topics/serialization>` 时不会被序列化. 默认为 ``True``.
 * :attr:`~django.db.models.Field.unique_for_date`
 * :attr:`~django.db.models.Field.unique_for_month`
 * :attr:`~django.db.models.Field.unique_for_year`
 * :attr:`~django.db.models.Field.choices`
 * :attr:`~django.db.models.Field.help_text`
 * :attr:`~django.db.models.Field.db_column`
-* :attr:`~django.db.models.Field.db_tablespace`: Only for index creation, if the
-  backend supports :doc:`tablespaces </topics/db/tablespaces>`. You can usually
-  ignore this option.
-* :attr:`~django.db.models.Field.auto_created`: ``True`` if the field was
-  automatically created, as for the :class:`~django.db.models.OneToOneField`
-  used by model inheritance. For advanced use only.
+* :attr:`~django.db.models.Field.db_tablespace`: 仅用于创建索引, 这需要后端支持 :doc:`tablespaces </topics/db/tablespaces>`. 通常情况下可以忽略此选项.
+* :attr:`~django.db.models.Field.auto_created`: 若 ``True`` 则自动创建字段, 用于 :class:`~django.db.models.OneToOneField` 的模型继承. 仅用于高阶用途.
 
-All of the options without an explanation in the above list have the same
-meaning they do for normal Django fields. See the :doc:`field documentation
-</ref/models/fields>` for examples and details.
+上述列表中所有没有解释的参数与普通Django字段中的作用一样. 详见 :doc:`模型字段 </ref/models/fields>`.
 
 .. _custom-field-deconstruct-method:
 
