@@ -169,34 +169,24 @@ Django记录字段的大多数信息对于所有字段都是通用的 -- 名称,
 
 .. _custom-field-deconstruct-method:
 
-Field deconstruction
+Field deconstruct
 --------------------
 
-The counterpoint to writing your ``__init__()`` method is writing the
-``deconstruct()`` method. This method tells Django how to take an instance
-of your new field and reduce it to a serialized form - in particular, what
-arguments to pass to ``__init__()`` to re-create it.
+和 ``__init__()`` 方法相对应的是 ``deconstruct()`` 方法.
+此方法用来告诉Django如何获取新字段的实例, 并将其转化为序列化形式 - 特别是传递什么参数给 ``__init__()`` 以重新创建它.
 
-If you haven't added any extra options on top of the field you inherited from,
-then there's no need to write a new ``deconstruct()`` method. If, however,
-you're changing the arguments passed in ``__init__()`` (like we are in
-``HandField``), you'll need to supplement the values being passed.
+如果你没有在继承的Field类上添加额外参数, 那就不需要重写 ``deconstruct()`` 方法.
+但是, 如果你要修改在 ``__init__()`` 中传递的参数(例如我们在 ``HandField`` 中一样), 则需要在这里实现.
 
-The contract of ``deconstruct()`` is simple; it returns a tuple of four items:
-the field's attribute name, the full import path of the field class, the
-positional arguments (as a list), and the keyword arguments (as a dict). Note
-this is different from the ``deconstruct()`` method :ref:`for custom classes
-<custom-deconstruct-method>` which returns a tuple of three things.
+``deconstruct()`` 方法很简单; 它返回一个由四个元素组成的元组: 字段的属性名, 字段类的完整导入路径, 位置参数(列表形式)和关键字参数(字典形式).
+注意这与 :ref:`自定义类<custom-deconstruct-method>` 中的 ``deconstruct()`` 方法不同, 后者返回一个包含三个元素的元组.
 
-As a custom field author, you don't need to care about the first two values;
-the base ``Field`` class has all the code to work out the field's attribute
-name and import path. You do, however, have to care about the positional
-and keyword arguments, as these are likely the things you are changing.
+在编写自定义字段时, 你可以不用关心它返回的前两个元素. 因为 ``Field`` 类已经包含了处理字段属性名和导入路径的代码.
+你需要处理的是位置参数和关键字参数, 因为你想修改的内容就在其中.
 
-For example, in our ``HandField`` class we're always forcibly setting
-max_length in ``__init__()``. The ``deconstruct()`` method on the base ``Field``
-class will see this and try to return it in the keyword arguments; thus,
-we can drop it from the keyword arguments for readability::
+例如, 在 ``HandField`` 例子中, 我们在 ``__init__()`` 方法中显示设置了max_length.
+基类 ``Field`` 的 ``deconstruct()`` 方法也会收到这个值并会将其返回到关键字参数中.
+因此,为了可读性我们可以从关键字参数中删除它::
 
     from django.db import models
 
@@ -211,8 +201,7 @@ we can drop it from the keyword arguments for readability::
             del kwargs["max_length"]
             return name, path, args, kwargs
 
-If you add a new keyword argument, you need to write code to put its value
-into ``kwargs`` yourself::
+如果有新增关键字参数, 则需要手动将其添加到 ``kwargs`` 中::
 
     from django.db import models
 
@@ -230,13 +219,10 @@ into ``kwargs`` yourself::
                 kwargs['separator'] = self.separator
             return name, path, args, kwargs
 
-More complex examples are beyond the scope of this document, but remember -
-for any configuration of your Field instance, ``deconstruct()`` must return
-arguments that you can pass to ``__init__`` to reconstruct that state.
+更复杂的例子超出了本文档的范围, 你只需要记住 - 对于字段实例的任何修改, ``deconstruct()``
+必须返回能够传递给 ``__init__`` 的参数.
 
-Pay extra attention if you set new default values for arguments in the
-``Field`` superclass; you want to make sure they're always included, rather
-than disappearing if they take on the old default value.
+如果你在父类 ``Field`` 中设置参数的默认值, 请特别注意l; 说明你希望总是包含它们, 而不是在它们采用默认值时消失.
 
 In addition, try to avoid returning values as positional arguments; where
 possible, return values as keyword arguments for maximum future compatibility.
