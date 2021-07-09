@@ -222,40 +222,32 @@ Field deconstruct
 更复杂的例子超出了本文档的范围, 你只需要记住 - 对于字段实例的任何修改, ``deconstruct()``
 必须返回能够传递给 ``__init__`` 的参数.
 
-如果你在父类 ``Field`` 中设置参数的默认值, 请特别注意l; 说明你希望总是包含它们, 而不是在它们采用默认值时消失.
+如果你在父类 ``Field`` 中设置参数的默认值, 请特别注意; 说明你希望总是包含它们, 而不是在它们采用默认值时消失.
 
-In addition, try to avoid returning values as positional arguments; where
-possible, return values as keyword arguments for maximum future compatibility.
-Of course, if you change the names of things more often than their position
-in the constructor's argument list, you might prefer positional, but bear in
-mind that people will be reconstructing your field from the serialized version
-for quite a while (possibly years), depending how long your migrations live for.
+另外, 应该尽量避免使用位置参数来返回值. 为了保证良好的兼容性最好使用关键字参数. 除非你在构造方法中修改参数的名称比修改参数的名称更加频繁.
 
-You can see the results of deconstruction by looking in migrations that include
-the field, and you can test deconstruction in unit tests by just deconstructing
-and reconstructing the field::
+你可以在含有字段的迁移文件中查看deconstruct结果,
+除此之外也可以在单元测试中通过deconstruct和重构字段来测试::
 
     name, path, args, kwargs = my_field_instance.deconstruct()
     new_instance = MyField(*args, **kwargs)
     self.assertEqual(my_field_instance.some_attribute, new_instance.some_attribute)
 
-Changing a custom field's base class
+修改自定义字段基类
 ------------------------------------
 
-You can't change the base class of a custom field because Django won't detect
-the change and make a migration for it. For example, if you start with::
+Django中无法在中途修改自定义字段的基类, 因为Django无法检测到修改并实施迁移.
+例如, 你开始的代码是这样::
 
     class CustomCharField(models.CharField):
         ...
 
-and then decide that you want to use ``TextField`` instead, you can't change
-the subclass like this::
+后面你决定继承另一个基类 ``TextField`` , 不能像这样直接修改代码::
 
     class CustomCharField(models.TextField):
         ...
 
-Instead, you must create a new custom field class and update your models to
-reference it::
+正确方法是, 重新创建一个新的自定义类然后更新模型引用新类::
 
     class CustomCharField(models.CharField):
         ...
@@ -263,44 +255,35 @@ reference it::
     class CustomTextField(models.TextField):
         ...
 
-As discussed in :ref:`removing fields <migrations-removing-model-fields>`, you
-must retain the original ``CustomCharField`` class as long as you have
-migrations that reference it.
+正如 :ref:`删除字段 <migrations-removing-model-fields>` 描述的那样, 只要有迁移指向原来的 ``CustomCharField`` 就必须保留它.
 
-Documenting your custom field
+添加自定义类文档
 -----------------------------
 
-As always, you should document your field type, so users will know what it is.
-In addition to providing a docstring for it, which is useful for developers,
-you can also allow users of the admin app to see a short description of the
-field type via the :doc:`django.contrib.admindocs
-</ref/contrib/admin/admindocs>` application. To do this simply provide
-descriptive text in a :attr:`~Field.description` class attribute of your custom
-field. In the above example, the description displayed by the ``admindocs``
-application for a ``HandField`` will be 'A hand of cards (bridge style)'.
+和往常一样, 你应该为自定义字段添加描述文档, 让使用者能够了解这一自定义字段.
+除了为开发者提供文档字符串外, 还需要让后台管理员通过 :doc:`django.contrib.admindocs
+</ref/contrib/admin/admindocs>` 在应用后台看到自定义字段的介绍.
+这只需要在自定义类的 :attr:`~Field.description` 属性设置描述文本即可,
+在上述例子中, 由 ``admindocs`` 应用为 ``HandField`` 字段提供的描述是 'A hand of cards (bridge style)'.
 
-In the :mod:`django.contrib.admindocs` display, the field description is
-interpolated with ``field.__dict__`` which allows the description to
-incorporate arguments of the field. For example, the description for
-:class:`~django.db.models.CharField` is::
+在 :mod:`django.contrib.admindocs` 展示的内容中, 允许在字段描述中使用 ``field.__dict__`` 插值.
+例如, :class:`~django.db.models.CharField` 的描述::
 
     description = _("String (up to %(max_length)s)")
 
-Useful methods
+使用方法
 --------------
 
-Once you've created your :class:`~django.db.models.Field` subclass, you might
-consider overriding a few standard methods, depending on your field's behavior.
-The list of methods below is in approximately decreasing order of importance,
-so start from the top.
+一旦你创建了 :class:`~django.db.models.Field` 子类, 根据新字段的行为可能会重写一些标准方法.
+下面按照其重要程度列出了一些方法.
 
 .. _custom-database-types:
 
-Custom database types
+自定义数据库列类型
 ~~~~~~~~~~~~~~~~~~~~~
 
-Say you've created a PostgreSQL custom type called ``mytype``. You can
-subclass ``Field`` and implement the :meth:`~Field.db_type` method, like so::
+假如你创建了一个 PostgreSQL 的自定义字段 ``mytype``.
+继承 ``Field`` 类并实现 :meth:`~Field.db_type` 方法, 例如::
 
     from django.db import models
 
@@ -308,20 +291,18 @@ subclass ``Field`` and implement the :meth:`~Field.db_type` method, like so::
         def db_type(self, connection):
             return 'mytype'
 
-Once you have ``MytypeField``, you can use it in any model, just like any other
-``Field`` type::
+只要创建了 ``MytypeField``, 你就可以像其他
+``Field`` 类型一样在模型中使用::
 
     class Person(models.Model):
         name = models.CharField(max_length=80)
         something_else = MytypeField()
 
-If you aim to build a database-agnostic application, you should account for
-differences in database column types. For example, the date/time column type
-in PostgreSQL is called ``timestamp``, while the same column in MySQL is called
-``datetime``. The simplest way to handle this in a :meth:`~Field.db_type`
-method is to check the ``connection.settings_dict['ENGINE']`` attribute.
+如果你的应用需要兼容多种数据库, 这需要考虑各个数据库列类型的差异.
+比如, date/time 列类型在 PostgreSQL 叫做 ``timestamp``, 而在 MySQL 中叫做 ``datetime``.
+解决这一问题的最简单的办法是使用 :meth:`~Field.db_type` 方法检查 ``connection.settings_dict['ENGINE']`` 属性.
 
-For example::
+例如::
 
     class MyDateField(models.Field):
         def db_type(self, connection):
@@ -330,22 +311,16 @@ For example::
             else:
                 return 'timestamp'
 
-The :meth:`~Field.db_type` and :meth:`~Field.rel_db_type` methods are called by
-Django when the framework constructs the ``CREATE TABLE`` statements for your
-application -- that is, when you first create your tables. The methods are also
-called when constructing a ``WHERE`` clause that includes the model field --
-that is, when you retrieve data using QuerySet methods like ``get()``,
-``filter()``, and ``exclude()`` and have the model field as an argument. They
-are not called at any other time, so it can afford to execute slightly complex
-code, such as the ``connection.settings_dict`` check in the above example.
+:meth:`~Field.db_type` 和 :meth:`~Field.rel_db_type` 方法会在Django框架构建 ``CREATE TABLE`` 语句时调用 -- 即首次创建数据表时.
+这些方法还会在构建包含此字段的 ``WHERE`` 子句时调用 -- 即使用 ``get()``,
+``filter()`` 和 ``exclude()`` 方法并且使用了该字段作为参数检索数据的时候.
+除此之外它们不会被调用, 所以它可以执行一些复杂的代码, 例如上面例子中的 ``connection.settings_dict``.
 
-Some database column types accept parameters, such as ``CHAR(25)``, where the
-parameter ``25`` represents the maximum column length. In cases like these,
-it's more flexible if the parameter is specified in the model rather than being
-hard-coded in the ``db_type()`` method. For example, it wouldn't make much
-sense to have a ``CharMaxlength25Field``, shown here::
+有些数据库列类型可以接收参数, 例如 ``CHAR(25)``, 参数 ``25`` 表示数据列支持的最大长度.
+这种情况下通过参数传入而不是硬编码在 ``db_type()`` 方法中会更加灵活.
+例如,下面的 ``CharMaxlength25Field`` 其实没有多大意义, 如下所示::
 
-    # This is a silly example of hard-coded parameters.
+    # 这是硬编码的错误例子.
     class CharMaxlength25Field(models.Field):
         def db_type(self, connection):
             return 'char(25)'
@@ -355,11 +330,10 @@ sense to have a ``CharMaxlength25Field``, shown here::
         # ...
         my_field = CharMaxlength25Field()
 
-The better way of doing this would be to make the parameter specifiable at run
-time -- i.e., when the class is instantiated. To do that, just implement
-``Field.__init__()``, like so::
+更好的方法是指定运行时参数 -- 即实例化的时候. 重写
+``Field.__init__()`` 方法就可以实现, 例如::
 
-    # This is a much more flexible example.
+    # 更加灵活的例子
     class BetterCharField(models.Field):
         def __init__(self, max_length, *args, **kwargs):
             self.max_length = max_length
@@ -373,16 +347,11 @@ time -- i.e., when the class is instantiated. To do that, just implement
         # ...
         my_field = BetterCharField(25)
 
-Finally, if your column requires truly complex SQL setup, return ``None`` from
-:meth:`.db_type`. This will cause Django's SQL creation code to skip
-over this field. You are then responsible for creating the column in the right
-table in some other way, of course, but this gives you a way to tell Django to
-get out of the way.
+最后, 如果你的列确实需要配置非常复杂的SQL, 可以让 :meth:`.db_type` 返回 ``None``.
+这样Django在创建SQL代码的时候将会跳过该字段. 随后你需要在其他地方以某种方式创建该列.
 
-The :meth:`~Field.rel_db_type` method is called by fields such as ``ForeignKey``
-and ``OneToOneField`` that point to another field to determine their database
-column data types. For example, if you have an ``UnsignedAutoField``, you also
-need the foreign keys that point to that field to use the same data type::
+:meth:`~Field.rel_db_type` 方法由指向另一字段的 ``ForeignKey`` 或 ``OneToOneField`` 等调用.
+例如, 如果你有个 ``UnsignedAutoField``, 那么指向该字段的外键也需要使用相同的数据类型::
 
     # MySQL unsigned integer (range 0 to 4294967295).
     class UnsignedAutoField(models.AutoField):
@@ -394,37 +363,29 @@ need the foreign keys that point to that field to use the same data type::
 
 .. versionadded:: 1.10
 
-    The :meth:`~Field.rel_db_type` method was added.
+    新增 :meth:`~Field.rel_db_type` 方法.
 
 .. _converting-values-to-python-objects:
 
-Converting values to Python objects
+将值转换成Python对象
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If your custom :class:`~Field` class deals with data structures that are more
-complex than strings, dates, integers, or floats, then you may need to override
-:meth:`~Field.from_db_value` and :meth:`~Field.to_python`.
+如果你自定义的 :class:`~Field` 类需要处理比字符串, 日期, 整数, 浮点数更复杂的数据, 那么你可能需要重写 :meth:`~Field.from_db_value` 和 :meth:`~Field.to_python` 方法.
 
-If present for the field subclass, ``from_db_value()`` will be called in all
-circumstances when the data is loaded from the database, including in
-aggregates and :meth:`~django.db.models.query.QuerySet.values` calls.
+如果字段子类存在, ``from_db_value()`` 将会在从数据库中载入值时调用, 包含聚合和 :meth:`~django.db.models.query.QuerySet.values` 调用.
 
-``to_python()`` is called by deserialization and during the
-:meth:`~django.db.models.Model.clean` method used from forms.
+``to_python()`` 会在反序列化和在表单中使用 :meth:`~django.db.models.Model.clean` 方法时调用.
 
-As a general rule, ``to_python()`` should deal gracefully with any of the
-following arguments:
+作为一个通用规则, ``to_python()`` 需要一下参数情况:
 
-* An instance of the correct type (e.g., ``Hand`` in our ongoing example).
+* 正确的类型实例 (e.g., 本例中的 ``Hand``).
 
-* A string
+* 字符串
 
-* ``None`` (if the field allows ``null=True``)
+* ``None`` (如果字段设置了 ``null=True``)
 
-In our ``HandField`` class, we're storing the data as a VARCHAR field in the
-database, so we need to be able to process strings and ``None`` in the
-``from_db_value()``. In ``to_python()``, we need to also handle ``Hand``
-instances::
+在 ``HandField`` 列子中, 数据库中以 VARCHAR 类型字段储存数据, 因此我们需要在 ``from_db_value()`` 处理字符串和 ``None`` 的情况.
+在 ``to_python()`` 中我们需要处理 ``Hand`` 实例::
 
     import re
 
@@ -458,22 +419,18 @@ instances::
 
             return parse_hand(value)
 
-Notice that we always return a ``Hand`` instance from these methods. That's the
-Python object type we want to store in the model's attribute.
+注意, 这两个方法总会返回一个 ``Hand`` 实例. 这就是我们要保存在模型属性中的Python对象.
 
-For ``to_python()``, if anything goes wrong during value conversion, you should
-raise a :exc:`~django.core.exceptions.ValidationError` exception.
+在 ``to_python()`` 中, 如果在转换过程中出现任何错误都应该抛出 :exc:`~django.core.exceptions.ValidationError` 异常.
 
 .. _converting-python-objects-to-query-values:
 
-Converting Python objects to query values
+转换Python对象至查询值
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Since using a database requires conversion in both ways, if you override
-:meth:`~Field.to_python` you also have to override :meth:`~Field.get_prep_value`
-to convert Python objects back to query values.
+数据库值转换是双向的, 如果你重写了 :meth:`~Field.to_python` 方法, 对应的你也必须要重写 :meth:`~Field.get_prep_value` 方法来将Python对象转换成查询值.
 
-For example::
+例如::
 
     class HandField(models.Field):
         # ...
@@ -484,28 +441,21 @@ For example::
 
 .. warning::
 
-    If your custom field uses the ``CHAR``, ``VARCHAR`` or ``TEXT``
-    types for MySQL, you must make sure that :meth:`.get_prep_value`
-    always returns a string type. MySQL performs flexible and unexpected
-    matching when a query is performed on these types and the provided
-    value is an integer, which can cause queries to include unexpected
-    objects in their results. This problem cannot occur if you always
-    return a string type from :meth:`.get_prep_value`.
+    如果你的自定义字段使用了MySQL的 ``CHAR``, ``VARCHAR`` 或 ``TEXT`` 类型,
+    你需要确保 :meth:`.get_prep_value` 返回的是字符串类型.
+    在MySQL中对这些类型操作非常灵活, 甚至有时超出预期, 在传入值为整数时,
+    查询结果可能包含非期望的结果. 这个问题不会在 :meth:`.get_prep_value` 返回字符串类型的情况出现.
 
 .. _converting-query-values-to-database-values:
 
-Converting query values to database values
+转换查询值至数据库值
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some data types (for example, dates) need to be in a specific format
-before they can be used by a database backend.
-:meth:`~Field.get_db_prep_value` is the method where those conversions should
-be made. The specific connection that will be used for the query is
-passed as the ``connection`` parameter. This allows you to use
-backend-specific conversion logic if it is required.
+某些数据类型(比如日期)在数据库后端处理前需要转为某种特定格式.
+:meth:`~Field.get_db_prep_value` 用于实现这种转换.
+将用于查询的特定连接作为 `connection`` 参数传入. 这允许你使用后端特定的转换逻辑.
 
-For example, Django uses the following method for its
-:class:`BinaryField`::
+例如, Django对 :class:`BinaryField` 使用以下方法::
 
     def get_db_prep_value(self, value, connection, prepared=False):
         value = super(BinaryField, self).get_db_prep_value(value, connection, prepared)
@@ -513,49 +463,35 @@ For example, Django uses the following method for its
             return connection.Database.Binary(value)
         return value
 
-In case your custom field needs a special conversion when being saved that is
-not the same as the conversion used for normal query parameters, you can
-override :meth:`~Field.get_db_prep_save`.
+如果你的自定义字段在保存时需要进行特殊转换, 且与常规参数查询的转换不同,
+则可以重写 :meth:`~Field.get_db_prep_save`.
 
 .. _preprocessing-values-before-saving:
 
-Preprocessing values before saving
+保存前预处理数据
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you want to preprocess the value just before saving, you can use
-:meth:`~Field.pre_save`. For example, Django's
-:class:`~django.db.models.DateTimeField` uses this method to set the attribute
-correctly in the case of :attr:`~django.db.models.DateField.auto_now` or
-:attr:`~django.db.models.DateField.auto_now_add`.
+可以使用 :meth:`~Field.pre_save` 在保存前预处理数据. 例如, Django的
+:class:`~django.db.models.DateTimeField` 在 :attr:`~django.db.models.DateField.auto_now` 和
+:attr:`~django.db.models.DateField.auto_now_add` 中使用此方法正确设置属性.
 
-If you do override this method, you must return the value of the attribute at
-the end. You should also update the model's attribute if you make any changes
-to the value so that code holding references to the model will always see the
-correct value.
+如果你重写了此方法, 则必须在结尾返回属性的值. 如果修改了值, 那么也需要更新模型属性, 这样持有该引用的模型总会看到正确的值.
 
 .. _specifying-form-field-for-model-field:
 
-Specifying the form field for a model field
+为模型字段指定表单字段
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To customize the form field used by :class:`~django.forms.ModelForm`, you can
-override :meth:`~Field.formfield`.
+可以通过重写 :meth:`~Field.formfield` 方法来自定义 :class:`~django.forms.ModelForm` 使用的表单属性.
 
-The form field class can be specified via the ``form_class`` and
-``choices_form_class`` arguments; the latter is used if the field has choices
-specified, the former otherwise. If these arguments are not provided,
-:class:`~django.forms.CharField` or :class:`~django.forms.TypedChoiceField`
-will be used.
+表单字段类通过 ``form_class`` 或 ``choices_form_class`` 参数指定; 如果字段设置了选项(choices)则使用后者, 否则使用前者.
+如果没有设置这些参数将会使用 :class:`~django.forms.CharField` 或 :class:`~django.forms.TypedChoiceField`.
 
-All of the ``kwargs`` dictionary is passed directly to the form field's
-``__init__()`` method. Normally, all you need to do is set up a good default
-for the ``form_class`` (and maybe ``choices_form_class``) argument and then
-delegate further handling to the parent class. This might require you to write
-a custom form field (and even a form widget). See the :doc:`forms documentation
-</topics/forms/index>` for information about this.
+所有 ``kwargs`` 字典都直接传递到表单的 ``__init__()`` 方法. 通常你需要做的是为 ``form_class`` (或者 ``choices_form_class``) 参数设置好默认值,
+然后委托父类进一步处理. 这可能需要你编写自定义表单字段(甚至表单视图). 详情请查看 :doc:`表单文档
+</topics/forms/index>`.
 
-Continuing our ongoing example, we can write the :meth:`~Field.formfield` method
-as::
+回到我们的例子, 编写 :meth:`~Field.formfield` 方法::
 
     class HandField(models.Field):
         # ...
@@ -567,24 +503,20 @@ as::
             defaults.update(kwargs)
             return super(HandField, self).formfield(**defaults)
 
-This assumes we've imported a ``MyFormField`` field class (which has its own
-default widget). This document doesn't cover the details of writing custom form
-fields.
+这假设我们已经导入了一个 ``MyFormField`` 字段类(它有默认视图). 本文档不包括编写自定义表单字段的所有详细信息.
 
 .. _helper functions: ../forms/#generating-forms-for-models
 .. _forms documentation: ../forms/
 
 .. _emulating-built-in-field-types:
 
-Emulating built-in field types
+仿造内置字段类型
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you have created a :meth:`.db_type` method, you don't need to worry about
-:meth:`.get_internal_type` -- it won't be used much. Sometimes, though, your
-database storage is similar in type to some other field, so you can use that
-other field's logic to create the right column.
+如果已经创建了 :meth:`.db_type` 方法, 则不需要担心 :meth:`.get_internal_type` 方法 -- 它并不常用.
+虽然很多时候, 数据库存储行为和其他字段类似，所以你能直接用其它字段的逻辑创建正确的列.
 
-For example::
+例如::
 
     class HandField(models.Field):
         # ...
@@ -592,9 +524,7 @@ For example::
         def get_internal_type(self):
             return 'CharField'
 
-No matter which database backend we are using, this will mean that
-:djadmin:`migrate` and other SQL commands create the right column type for
-storing a string.
+无论使用了哪个数据库后端, :djadmin:`migrate` 或其它 SQL 命令总会在保存字符串时为其创建正确的列类型.
 
 If :meth:`.get_internal_type` returns a string that is not known to Django for
 the database backend you are using -- that is, it doesn't appear in
