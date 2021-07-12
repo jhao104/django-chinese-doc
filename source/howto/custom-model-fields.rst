@@ -95,42 +95,26 @@ Django记录字段的大多数信息对于所有字段都是通用的 -- 名称,
 它们只是提供了在属性值和存储在数据库的值之间进行转换的机制, 并决定了什么被存入数据库或发送给
 :doc:`序列化器 </topics/serialization>`.
 
-Keep this in mind when creating your own custom fields. The Django ``Field``
-subclass you write provides the machinery for converting between your Python
-instances and the database/serializer values in various ways (there are
-differences between storing a value and using a value for lookups, for
-example). If this sounds a bit tricky, don't worry -- it will become clearer in
-the examples below. Just remember that you will often end up creating two
-classes when you want a custom field:
+在创建自定义字段时请牢记. 你编写的Django ``Field`` 子类提供了以各种方式在Python实例和数据库/序列化值之间进行转换的机制
+(比如,保存值和用来查询的值之间是不同的). 如果这有点难以理解, 不用担心, 通过下面的例子会让你有清晰的了解.
+这里只需要记住, 当你要自定义一个字段时, 需要创建两个类:
 
-* The first class is the Python object that your users will manipulate.
-  They will assign it to the model attribute, they will read from it for
-  displaying purposes, things like that. This is the ``Hand`` class in our
-  example.
+* 第一个类是用于用户操作的Python对象. 它会被赋予模型属性, 用于读取和显示. 例如本例中的 ``Hand`` 类.
 
-* The second class is the ``Field`` subclass. This is the class that knows
-  how to convert your first class back and forth between its permanent
-  storage form and the Python form.
+* 第二类是 ``Field`` 的子类. 这个类用于描述第一个类如何在存储格式和Python格式之间转换.
 
-Writing a field subclass
+编写Field子类
 ========================
 
-When planning your :class:`~django.db.models.Field` subclass, first give some
-thought to which existing :class:`~django.db.models.Field` class your new field
-is most similar to. Can you subclass an existing Django field and save yourself
-some work? If not, you should subclass the :class:`~django.db.models.Field`
-class, from which everything is descended.
+在计划创建 :class:`~django.db.models.Field` 子类前,
+首先要考虑新字段是否与哪个现有字段类相似, 因为继承一个现有的Django字段再编写一些自己的内容可以节省大量工作.
+如果没有则直接继承 :class:`~django.db.models.Field` 类, 所有字段类都是继承自该类.
 
-Initializing your new field is a matter of separating out any arguments that are
-specific to your case from the common arguments and passing the latter to the
-``__init__()`` method of :class:`~django.db.models.Field` (or your parent
-class).
+初始化新字段比较麻烦的是从公共参数中分离你需要的参数, 然后传递给 :class:`~django.db.models.Field` 的 ``__init__()`` 方法(或其父类).
 
-In our example, we'll call our field ``HandField``. (It's a good idea to call
-your :class:`~django.db.models.Field` subclass ``<Something>Field``, so it's
-easily identifiable as a :class:`~django.db.models.Field` subclass.) It doesn't
-behave like any existing field, so we'll subclass directly from
-:class:`~django.db.models.Field`::
+在示例中, 我们将新字段命名为 ``HandField``. (建议将创建的 :class:`~django.db.models.Field` 子类命名为 ``<Something>Field``,
+这样可以很容易辨认出它是 :class:`~django.db.models.Field` 的子类.)
+我们示例的类并不和任何已存在的类相同, 因此我们直接继承 :class:`~django.db.models.Field`::
 
     from django.db import models
 
@@ -142,28 +126,23 @@ behave like any existing field, so we'll subclass directly from
             kwargs['max_length'] = 104
             super(HandField, self).__init__(*args, **kwargs)
 
-Our ``HandField`` accepts most of the standard field options (see the list
-below), but we ensure it has a fixed length, since it only needs to hold 52
-card values plus their suits; 104 characters in total.
+``HandField`` 接收大多数标准字段选项(参考下面列表), 但是我们要确保参数是定长的, 因为它只保存52个卡片的值, 总计104个字符.
 
 .. note::
 
-    Many of Django's model fields accept options that they don't do anything
-    with. For example, you can pass both
-    :attr:`~django.db.models.Field.editable` and
-    :attr:`~django.db.models.DateField.auto_now` to a
-    :class:`django.db.models.DateField` and it will simply ignore the
-    :attr:`~django.db.models.Field.editable` parameter
-    (:attr:`~django.db.models.DateField.auto_now` being set implies
-    ``editable=False``). No error is raised in this case.
+    许多Django模型字段可以接受并没有什么用的可选参数, 比如同时传入
+    :attr:`~django.db.models.Field.editable` 和
+    :attr:`~django.db.models.DateField.auto_now` 给
+    :class:`django.db.models.DateField` 字段, 它会无视
+    :attr:`~django.db.models.Field.editable` 参数
+    (设置了 :attr:`~django.db.models.DateField.auto_now` 就意味着
+    ``editable=False``). 这种情况并不会引发异常.
 
-    This behavior simplifies the field classes, because they don't need to
-    check for options that aren't necessary. They just pass all the options to
-    the parent class and then don't use them later on. It's up to you whether
-    you want your fields to be more strict about the options they select, or to
-    use the simpler, more permissive behavior of the current fields.
+    这种行为简化了字段类, 因为它不用检查那些不必要的可选参数.
+    它将所有参数传递给父类, 然后就不再使用它们.
+    你也可以更严格地设置字段可选参数, 或者对当前字段设置更放任的行为.
 
-The ``Field.__init__()`` method takes the following parameters:
+``Field.__init__()`` 接受如下参数:
 
 * :attr:`~django.db.models.Field.verbose_name`
 * ``name``
@@ -173,60 +152,41 @@ The ``Field.__init__()`` method takes the following parameters:
 * :attr:`~django.db.models.Field.blank`
 * :attr:`~django.db.models.Field.null`
 * :attr:`~django.db.models.Field.db_index`
-* ``rel``: Used for related fields (like :class:`ForeignKey`). For advanced
-  use only.
+* ``rel``: 用于关联字段 (比如 :class:`ForeignKey`). 仅用于高阶用途.
 * :attr:`~django.db.models.Field.default`
 * :attr:`~django.db.models.Field.editable`
-* ``serialize``: If ``False``, the field will not be serialized when the model
-  is passed to Django's :doc:`serializers </topics/serialization>`. Defaults to
-  ``True``.
+* ``serialize``: 若设置为 ``False``, 则字段被传递给Django的 :doc:`serializers </topics/serialization>` 时不会被序列化. 默认为 ``True``.
 * :attr:`~django.db.models.Field.unique_for_date`
 * :attr:`~django.db.models.Field.unique_for_month`
 * :attr:`~django.db.models.Field.unique_for_year`
 * :attr:`~django.db.models.Field.choices`
 * :attr:`~django.db.models.Field.help_text`
 * :attr:`~django.db.models.Field.db_column`
-* :attr:`~django.db.models.Field.db_tablespace`: Only for index creation, if the
-  backend supports :doc:`tablespaces </topics/db/tablespaces>`. You can usually
-  ignore this option.
-* :attr:`~django.db.models.Field.auto_created`: ``True`` if the field was
-  automatically created, as for the :class:`~django.db.models.OneToOneField`
-  used by model inheritance. For advanced use only.
+* :attr:`~django.db.models.Field.db_tablespace`: 仅用于创建索引, 这需要后端支持 :doc:`tablespaces </topics/db/tablespaces>`. 通常情况下可以忽略此选项.
+* :attr:`~django.db.models.Field.auto_created`: 若 ``True`` 则自动创建字段, 用于 :class:`~django.db.models.OneToOneField` 的模型继承. 仅用于高阶用途.
 
-All of the options without an explanation in the above list have the same
-meaning they do for normal Django fields. See the :doc:`field documentation
-</ref/models/fields>` for examples and details.
+上述列表中所有没有解释的参数与普通Django字段中的作用一样. 详见 :doc:`模型字段 </ref/models/fields>`.
 
 .. _custom-field-deconstruct-method:
 
-Field deconstruction
+Field deconstruct
 --------------------
 
-The counterpoint to writing your ``__init__()`` method is writing the
-``deconstruct()`` method. This method tells Django how to take an instance
-of your new field and reduce it to a serialized form - in particular, what
-arguments to pass to ``__init__()`` to re-create it.
+和 ``__init__()`` 方法相对应的是 ``deconstruct()`` 方法.
+此方法用来告诉Django如何获取新字段的实例, 并将其转化为序列化形式 - 特别是传递什么参数给 ``__init__()`` 以重新创建它.
 
-If you haven't added any extra options on top of the field you inherited from,
-then there's no need to write a new ``deconstruct()`` method. If, however,
-you're changing the arguments passed in ``__init__()`` (like we are in
-``HandField``), you'll need to supplement the values being passed.
+如果你没有在继承的Field类上添加额外参数, 那就不需要重写 ``deconstruct()`` 方法.
+但是, 如果你要修改在 ``__init__()`` 中传递的参数(例如我们在 ``HandField`` 中一样), 则需要在这里实现.
 
-The contract of ``deconstruct()`` is simple; it returns a tuple of four items:
-the field's attribute name, the full import path of the field class, the
-positional arguments (as a list), and the keyword arguments (as a dict). Note
-this is different from the ``deconstruct()`` method :ref:`for custom classes
-<custom-deconstruct-method>` which returns a tuple of three things.
+``deconstruct()`` 方法很简单; 它返回一个由四个元素组成的元组: 字段的属性名, 字段类的完整导入路径, 位置参数(列表形式)和关键字参数(字典形式).
+注意这与 :ref:`自定义类<custom-deconstruct-method>` 中的 ``deconstruct()`` 方法不同, 后者返回一个包含三个元素的元组.
 
-As a custom field author, you don't need to care about the first two values;
-the base ``Field`` class has all the code to work out the field's attribute
-name and import path. You do, however, have to care about the positional
-and keyword arguments, as these are likely the things you are changing.
+在编写自定义字段时, 你可以不用关心它返回的前两个元素. 因为 ``Field`` 类已经包含了处理字段属性名和导入路径的代码.
+你需要处理的是位置参数和关键字参数, 因为你想修改的内容就在其中.
 
-For example, in our ``HandField`` class we're always forcibly setting
-max_length in ``__init__()``. The ``deconstruct()`` method on the base ``Field``
-class will see this and try to return it in the keyword arguments; thus,
-we can drop it from the keyword arguments for readability::
+例如, 在 ``HandField`` 例子中, 我们在 ``__init__()`` 方法中显示设置了max_length.
+基类 ``Field`` 的 ``deconstruct()`` 方法也会收到这个值并会将其返回到关键字参数中.
+因此,为了可读性我们可以从关键字参数中删除它::
 
     from django.db import models
 
@@ -241,8 +201,7 @@ we can drop it from the keyword arguments for readability::
             del kwargs["max_length"]
             return name, path, args, kwargs
 
-If you add a new keyword argument, you need to write code to put its value
-into ``kwargs`` yourself::
+如果有新增关键字参数, 则需要手动将其添加到 ``kwargs`` 中::
 
     from django.db import models
 
@@ -260,46 +219,35 @@ into ``kwargs`` yourself::
                 kwargs['separator'] = self.separator
             return name, path, args, kwargs
 
-More complex examples are beyond the scope of this document, but remember -
-for any configuration of your Field instance, ``deconstruct()`` must return
-arguments that you can pass to ``__init__`` to reconstruct that state.
+更复杂的例子超出了本文档的范围, 你只需要记住 - 对于字段实例的任何修改, ``deconstruct()``
+必须返回能够传递给 ``__init__`` 的参数.
 
-Pay extra attention if you set new default values for arguments in the
-``Field`` superclass; you want to make sure they're always included, rather
-than disappearing if they take on the old default value.
+如果你在父类 ``Field`` 中设置参数的默认值, 请特别注意; 说明你希望总是包含它们, 而不是在它们采用默认值时消失.
 
-In addition, try to avoid returning values as positional arguments; where
-possible, return values as keyword arguments for maximum future compatibility.
-Of course, if you change the names of things more often than their position
-in the constructor's argument list, you might prefer positional, but bear in
-mind that people will be reconstructing your field from the serialized version
-for quite a while (possibly years), depending how long your migrations live for.
+另外, 应该尽量避免使用位置参数来返回值. 为了保证良好的兼容性最好使用关键字参数. 除非你在构造方法中修改参数的名称比修改参数的名称更加频繁.
 
-You can see the results of deconstruction by looking in migrations that include
-the field, and you can test deconstruction in unit tests by just deconstructing
-and reconstructing the field::
+你可以在含有字段的迁移文件中查看deconstruct结果,
+除此之外也可以在单元测试中通过deconstruct和重构字段来测试::
 
     name, path, args, kwargs = my_field_instance.deconstruct()
     new_instance = MyField(*args, **kwargs)
     self.assertEqual(my_field_instance.some_attribute, new_instance.some_attribute)
 
-Changing a custom field's base class
+修改自定义字段基类
 ------------------------------------
 
-You can't change the base class of a custom field because Django won't detect
-the change and make a migration for it. For example, if you start with::
+Django中无法在中途修改自定义字段的基类, 因为Django无法检测到修改并实施迁移.
+例如, 你开始的代码是这样::
 
     class CustomCharField(models.CharField):
         ...
 
-and then decide that you want to use ``TextField`` instead, you can't change
-the subclass like this::
+后面你决定继承另一个基类 ``TextField`` , 不能像这样直接修改代码::
 
     class CustomCharField(models.TextField):
         ...
 
-Instead, you must create a new custom field class and update your models to
-reference it::
+正确方法是, 重新创建一个新的自定义类然后更新模型引用新类::
 
     class CustomCharField(models.CharField):
         ...
@@ -307,44 +255,35 @@ reference it::
     class CustomTextField(models.TextField):
         ...
 
-As discussed in :ref:`removing fields <migrations-removing-model-fields>`, you
-must retain the original ``CustomCharField`` class as long as you have
-migrations that reference it.
+正如 :ref:`删除字段 <migrations-removing-model-fields>` 描述的那样, 只要有迁移指向原来的 ``CustomCharField`` 就必须保留它.
 
-Documenting your custom field
+添加自定义类文档
 -----------------------------
 
-As always, you should document your field type, so users will know what it is.
-In addition to providing a docstring for it, which is useful for developers,
-you can also allow users of the admin app to see a short description of the
-field type via the :doc:`django.contrib.admindocs
-</ref/contrib/admin/admindocs>` application. To do this simply provide
-descriptive text in a :attr:`~Field.description` class attribute of your custom
-field. In the above example, the description displayed by the ``admindocs``
-application for a ``HandField`` will be 'A hand of cards (bridge style)'.
+和往常一样, 你应该为自定义字段添加描述文档, 让使用者能够了解这一自定义字段.
+除了为开发者提供文档字符串外, 还需要让后台管理员通过 :doc:`django.contrib.admindocs
+</ref/contrib/admin/admindocs>` 在应用后台看到自定义字段的介绍.
+这只需要在自定义类的 :attr:`~Field.description` 属性设置描述文本即可,
+在上述例子中, 由 ``admindocs`` 应用为 ``HandField`` 字段提供的描述是 'A hand of cards (bridge style)'.
 
-In the :mod:`django.contrib.admindocs` display, the field description is
-interpolated with ``field.__dict__`` which allows the description to
-incorporate arguments of the field. For example, the description for
-:class:`~django.db.models.CharField` is::
+在 :mod:`django.contrib.admindocs` 展示的内容中, 允许在字段描述中使用 ``field.__dict__`` 插值.
+例如, :class:`~django.db.models.CharField` 的描述::
 
     description = _("String (up to %(max_length)s)")
 
-Useful methods
+使用方法
 --------------
 
-Once you've created your :class:`~django.db.models.Field` subclass, you might
-consider overriding a few standard methods, depending on your field's behavior.
-The list of methods below is in approximately decreasing order of importance,
-so start from the top.
+一旦你创建了 :class:`~django.db.models.Field` 子类, 根据新字段的行为可能会重写一些标准方法.
+下面按照其重要程度列出了一些方法.
 
 .. _custom-database-types:
 
-Custom database types
+自定义数据库列类型
 ~~~~~~~~~~~~~~~~~~~~~
 
-Say you've created a PostgreSQL custom type called ``mytype``. You can
-subclass ``Field`` and implement the :meth:`~Field.db_type` method, like so::
+假如你创建了一个 PostgreSQL 的自定义字段 ``mytype``.
+继承 ``Field`` 类并实现 :meth:`~Field.db_type` 方法, 例如::
 
     from django.db import models
 
@@ -352,20 +291,18 @@ subclass ``Field`` and implement the :meth:`~Field.db_type` method, like so::
         def db_type(self, connection):
             return 'mytype'
 
-Once you have ``MytypeField``, you can use it in any model, just like any other
-``Field`` type::
+只要创建了 ``MytypeField``, 你就可以像其他
+``Field`` 类型一样在模型中使用::
 
     class Person(models.Model):
         name = models.CharField(max_length=80)
         something_else = MytypeField()
 
-If you aim to build a database-agnostic application, you should account for
-differences in database column types. For example, the date/time column type
-in PostgreSQL is called ``timestamp``, while the same column in MySQL is called
-``datetime``. The simplest way to handle this in a :meth:`~Field.db_type`
-method is to check the ``connection.settings_dict['ENGINE']`` attribute.
+如果你的应用需要兼容多种数据库, 这需要考虑各个数据库列类型的差异.
+比如, date/time 列类型在 PostgreSQL 叫做 ``timestamp``, 而在 MySQL 中叫做 ``datetime``.
+解决这一问题的最简单的办法是使用 :meth:`~Field.db_type` 方法检查 ``connection.settings_dict['ENGINE']`` 属性.
 
-For example::
+例如::
 
     class MyDateField(models.Field):
         def db_type(self, connection):
@@ -374,22 +311,16 @@ For example::
             else:
                 return 'timestamp'
 
-The :meth:`~Field.db_type` and :meth:`~Field.rel_db_type` methods are called by
-Django when the framework constructs the ``CREATE TABLE`` statements for your
-application -- that is, when you first create your tables. The methods are also
-called when constructing a ``WHERE`` clause that includes the model field --
-that is, when you retrieve data using QuerySet methods like ``get()``,
-``filter()``, and ``exclude()`` and have the model field as an argument. They
-are not called at any other time, so it can afford to execute slightly complex
-code, such as the ``connection.settings_dict`` check in the above example.
+:meth:`~Field.db_type` 和 :meth:`~Field.rel_db_type` 方法会在Django框架构建 ``CREATE TABLE`` 语句时调用 -- 即首次创建数据表时.
+这些方法还会在构建包含此字段的 ``WHERE`` 子句时调用 -- 即使用 ``get()``,
+``filter()`` 和 ``exclude()`` 方法并且使用了该字段作为参数检索数据的时候.
+除此之外它们不会被调用, 所以它可以执行一些复杂的代码, 例如上面例子中的 ``connection.settings_dict``.
 
-Some database column types accept parameters, such as ``CHAR(25)``, where the
-parameter ``25`` represents the maximum column length. In cases like these,
-it's more flexible if the parameter is specified in the model rather than being
-hard-coded in the ``db_type()`` method. For example, it wouldn't make much
-sense to have a ``CharMaxlength25Field``, shown here::
+有些数据库列类型可以接收参数, 例如 ``CHAR(25)``, 参数 ``25`` 表示数据列支持的最大长度.
+这种情况下通过参数传入而不是硬编码在 ``db_type()`` 方法中会更加灵活.
+例如,下面的 ``CharMaxlength25Field`` 其实没有多大意义, 如下所示::
 
-    # This is a silly example of hard-coded parameters.
+    # 这是硬编码的错误例子.
     class CharMaxlength25Field(models.Field):
         def db_type(self, connection):
             return 'char(25)'
@@ -399,11 +330,10 @@ sense to have a ``CharMaxlength25Field``, shown here::
         # ...
         my_field = CharMaxlength25Field()
 
-The better way of doing this would be to make the parameter specifiable at run
-time -- i.e., when the class is instantiated. To do that, just implement
-``Field.__init__()``, like so::
+更好的方法是指定运行时参数 -- 即实例化的时候. 重写
+``Field.__init__()`` 方法就可以实现, 例如::
 
-    # This is a much more flexible example.
+    # 更加灵活的例子
     class BetterCharField(models.Field):
         def __init__(self, max_length, *args, **kwargs):
             self.max_length = max_length
@@ -417,16 +347,11 @@ time -- i.e., when the class is instantiated. To do that, just implement
         # ...
         my_field = BetterCharField(25)
 
-Finally, if your column requires truly complex SQL setup, return ``None`` from
-:meth:`.db_type`. This will cause Django's SQL creation code to skip
-over this field. You are then responsible for creating the column in the right
-table in some other way, of course, but this gives you a way to tell Django to
-get out of the way.
+最后, 如果你的列确实需要配置非常复杂的SQL, 可以让 :meth:`.db_type` 返回 ``None``.
+这样Django在创建SQL代码的时候将会跳过该字段. 随后你需要在其他地方以某种方式创建该列.
 
-The :meth:`~Field.rel_db_type` method is called by fields such as ``ForeignKey``
-and ``OneToOneField`` that point to another field to determine their database
-column data types. For example, if you have an ``UnsignedAutoField``, you also
-need the foreign keys that point to that field to use the same data type::
+:meth:`~Field.rel_db_type` 方法由指向另一字段的 ``ForeignKey`` 或 ``OneToOneField`` 等调用.
+例如, 如果你有个 ``UnsignedAutoField``, 那么指向该字段的外键也需要使用相同的数据类型::
 
     # MySQL unsigned integer (range 0 to 4294967295).
     class UnsignedAutoField(models.AutoField):
@@ -438,37 +363,29 @@ need the foreign keys that point to that field to use the same data type::
 
 .. versionadded:: 1.10
 
-    The :meth:`~Field.rel_db_type` method was added.
+    新增 :meth:`~Field.rel_db_type` 方法.
 
 .. _converting-values-to-python-objects:
 
-Converting values to Python objects
+将值转换成Python对象
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If your custom :class:`~Field` class deals with data structures that are more
-complex than strings, dates, integers, or floats, then you may need to override
-:meth:`~Field.from_db_value` and :meth:`~Field.to_python`.
+如果你自定义的 :class:`~Field` 类需要处理比字符串, 日期, 整数, 浮点数更复杂的数据, 那么你可能需要重写 :meth:`~Field.from_db_value` 和 :meth:`~Field.to_python` 方法.
 
-If present for the field subclass, ``from_db_value()`` will be called in all
-circumstances when the data is loaded from the database, including in
-aggregates and :meth:`~django.db.models.query.QuerySet.values` calls.
+如果字段子类存在, ``from_db_value()`` 将会在从数据库中载入值时调用, 包含聚合和 :meth:`~django.db.models.query.QuerySet.values` 调用.
 
-``to_python()`` is called by deserialization and during the
-:meth:`~django.db.models.Model.clean` method used from forms.
+``to_python()`` 会在反序列化和在表单中使用 :meth:`~django.db.models.Model.clean` 方法时调用.
 
-As a general rule, ``to_python()`` should deal gracefully with any of the
-following arguments:
+作为一个通用规则, ``to_python()`` 需要一下参数情况:
 
-* An instance of the correct type (e.g., ``Hand`` in our ongoing example).
+* 正确的类型实例 (e.g., 本例中的 ``Hand``).
 
-* A string
+* 字符串
 
-* ``None`` (if the field allows ``null=True``)
+* ``None`` (如果字段设置了 ``null=True``)
 
-In our ``HandField`` class, we're storing the data as a VARCHAR field in the
-database, so we need to be able to process strings and ``None`` in the
-``from_db_value()``. In ``to_python()``, we need to also handle ``Hand``
-instances::
+在 ``HandField`` 列子中, 数据库中以 VARCHAR 类型字段储存数据, 因此我们需要在 ``from_db_value()`` 处理字符串和 ``None`` 的情况.
+在 ``to_python()`` 中我们需要处理 ``Hand`` 实例::
 
     import re
 
@@ -502,22 +419,18 @@ instances::
 
             return parse_hand(value)
 
-Notice that we always return a ``Hand`` instance from these methods. That's the
-Python object type we want to store in the model's attribute.
+注意, 这两个方法总会返回一个 ``Hand`` 实例. 这就是我们要保存在模型属性中的Python对象.
 
-For ``to_python()``, if anything goes wrong during value conversion, you should
-raise a :exc:`~django.core.exceptions.ValidationError` exception.
+在 ``to_python()`` 中, 如果在转换过程中出现任何错误都应该抛出 :exc:`~django.core.exceptions.ValidationError` 异常.
 
 .. _converting-python-objects-to-query-values:
 
-Converting Python objects to query values
+转换Python对象至查询值
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Since using a database requires conversion in both ways, if you override
-:meth:`~Field.to_python` you also have to override :meth:`~Field.get_prep_value`
-to convert Python objects back to query values.
+数据库值转换是双向的, 如果你重写了 :meth:`~Field.to_python` 方法, 对应的你也必须要重写 :meth:`~Field.get_prep_value` 方法来将Python对象转换成查询值.
 
-For example::
+例如::
 
     class HandField(models.Field):
         # ...
@@ -528,28 +441,21 @@ For example::
 
 .. warning::
 
-    If your custom field uses the ``CHAR``, ``VARCHAR`` or ``TEXT``
-    types for MySQL, you must make sure that :meth:`.get_prep_value`
-    always returns a string type. MySQL performs flexible and unexpected
-    matching when a query is performed on these types and the provided
-    value is an integer, which can cause queries to include unexpected
-    objects in their results. This problem cannot occur if you always
-    return a string type from :meth:`.get_prep_value`.
+    如果你的自定义字段使用了MySQL的 ``CHAR``, ``VARCHAR`` 或 ``TEXT`` 类型,
+    你需要确保 :meth:`.get_prep_value` 返回的是字符串类型.
+    在MySQL中对这些类型操作非常灵活, 甚至有时超出预期, 在传入值为整数时,
+    查询结果可能包含非期望的结果. 这个问题不会在 :meth:`.get_prep_value` 返回字符串类型的情况出现.
 
 .. _converting-query-values-to-database-values:
 
-Converting query values to database values
+转换查询值至数据库值
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some data types (for example, dates) need to be in a specific format
-before they can be used by a database backend.
-:meth:`~Field.get_db_prep_value` is the method where those conversions should
-be made. The specific connection that will be used for the query is
-passed as the ``connection`` parameter. This allows you to use
-backend-specific conversion logic if it is required.
+某些数据类型(比如日期)在数据库后端处理前需要转为某种特定格式.
+:meth:`~Field.get_db_prep_value` 用于实现这种转换.
+将用于查询的特定连接作为 `connection`` 参数传入. 这允许你使用后端特定的转换逻辑.
 
-For example, Django uses the following method for its
-:class:`BinaryField`::
+例如, Django对 :class:`BinaryField` 使用以下方法::
 
     def get_db_prep_value(self, value, connection, prepared=False):
         value = super(BinaryField, self).get_db_prep_value(value, connection, prepared)
@@ -557,49 +463,35 @@ For example, Django uses the following method for its
             return connection.Database.Binary(value)
         return value
 
-In case your custom field needs a special conversion when being saved that is
-not the same as the conversion used for normal query parameters, you can
-override :meth:`~Field.get_db_prep_save`.
+如果你的自定义字段在保存时需要进行特殊转换, 且与常规参数查询的转换不同,
+则可以重写 :meth:`~Field.get_db_prep_save`.
 
 .. _preprocessing-values-before-saving:
 
-Preprocessing values before saving
+保存前预处理数据
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you want to preprocess the value just before saving, you can use
-:meth:`~Field.pre_save`. For example, Django's
-:class:`~django.db.models.DateTimeField` uses this method to set the attribute
-correctly in the case of :attr:`~django.db.models.DateField.auto_now` or
-:attr:`~django.db.models.DateField.auto_now_add`.
+可以使用 :meth:`~Field.pre_save` 在保存前预处理数据. 例如, Django的
+:class:`~django.db.models.DateTimeField` 在 :attr:`~django.db.models.DateField.auto_now` 和
+:attr:`~django.db.models.DateField.auto_now_add` 中使用此方法正确设置属性.
 
-If you do override this method, you must return the value of the attribute at
-the end. You should also update the model's attribute if you make any changes
-to the value so that code holding references to the model will always see the
-correct value.
+如果你重写了此方法, 则必须在结尾返回属性的值. 如果修改了值, 那么也需要更新模型属性, 这样持有该引用的模型总会看到正确的值.
 
 .. _specifying-form-field-for-model-field:
 
-Specifying the form field for a model field
+为模型字段指定表单字段
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To customize the form field used by :class:`~django.forms.ModelForm`, you can
-override :meth:`~Field.formfield`.
+可以通过重写 :meth:`~Field.formfield` 方法来自定义 :class:`~django.forms.ModelForm` 使用的表单属性.
 
-The form field class can be specified via the ``form_class`` and
-``choices_form_class`` arguments; the latter is used if the field has choices
-specified, the former otherwise. If these arguments are not provided,
-:class:`~django.forms.CharField` or :class:`~django.forms.TypedChoiceField`
-will be used.
+表单字段类通过 ``form_class`` 或 ``choices_form_class`` 参数指定; 如果字段设置了选项(choices)则使用后者, 否则使用前者.
+如果没有设置这些参数将会使用 :class:`~django.forms.CharField` 或 :class:`~django.forms.TypedChoiceField`.
 
-All of the ``kwargs`` dictionary is passed directly to the form field's
-``__init__()`` method. Normally, all you need to do is set up a good default
-for the ``form_class`` (and maybe ``choices_form_class``) argument and then
-delegate further handling to the parent class. This might require you to write
-a custom form field (and even a form widget). See the :doc:`forms documentation
-</topics/forms/index>` for information about this.
+所有 ``kwargs`` 字典都直接传递到表单的 ``__init__()`` 方法. 通常你需要做的是为 ``form_class`` (或者 ``choices_form_class``) 参数设置好默认值,
+然后委托父类进一步处理. 这可能需要你编写自定义表单字段(甚至表单视图). 详情请查看 :doc:`表单文档
+</topics/forms/index>`.
 
-Continuing our ongoing example, we can write the :meth:`~Field.formfield` method
-as::
+回到我们的例子, 编写 :meth:`~Field.formfield` 方法::
 
     class HandField(models.Field):
         # ...
@@ -611,24 +503,20 @@ as::
             defaults.update(kwargs)
             return super(HandField, self).formfield(**defaults)
 
-This assumes we've imported a ``MyFormField`` field class (which has its own
-default widget). This document doesn't cover the details of writing custom form
-fields.
+这假设我们已经导入了一个 ``MyFormField`` 字段类(它有默认视图). 本文档不包括编写自定义表单字段的所有详细信息.
 
 .. _helper functions: ../forms/#generating-forms-for-models
 .. _forms documentation: ../forms/
 
 .. _emulating-built-in-field-types:
 
-Emulating built-in field types
+仿造内置字段类型
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you have created a :meth:`.db_type` method, you don't need to worry about
-:meth:`.get_internal_type` -- it won't be used much. Sometimes, though, your
-database storage is similar in type to some other field, so you can use that
-other field's logic to create the right column.
+如果已经创建了 :meth:`.db_type` 方法, 则不需要担心 :meth:`.get_internal_type` 方法 -- 它并不常用.
+虽然很多时候, 数据库存储行为和其他字段类似，所以你能直接用其它字段的逻辑创建正确的列.
 
-For example::
+例如::
 
     class HandField(models.Field):
         # ...
@@ -636,29 +524,20 @@ For example::
         def get_internal_type(self):
             return 'CharField'
 
-No matter which database backend we are using, this will mean that
-:djadmin:`migrate` and other SQL commands create the right column type for
-storing a string.
+无论使用了哪个数据库后端, :djadmin:`migrate` 或其它 SQL 命令总会在保存字符串时为其创建正确的列类型.
 
-If :meth:`.get_internal_type` returns a string that is not known to Django for
-the database backend you are using -- that is, it doesn't appear in
-``django.db.backends.<db_name>.base.DatabaseWrapper.data_types`` -- the string
-will still be used by the serializer, but the default :meth:`~Field.db_type`
-method will return ``None``. See the documentation of :meth:`~Field.db_type`
-for reasons why this might be useful. Putting a descriptive string in as the
-type of the field for the serializer is a useful idea if you're ever going to
-be using the serializer output in some other place, outside of Django.
+如果 :meth:`.get_internal_type` 返回了当前数据库后端(即 ``django.db.backends.<db_name>.base.DatabaseWrapper.data_types`` 中未出现的)
+无法理解的字符串——该字符串仍会被序列化器使用的, 但是默认的 :meth:`~Field.db_type` 方法会返回 ``None``.
+查看 :meth:`~Field.db_type` 文档了解其应用的场景. 如果你打算在Django之外的其他地方使用序列化器输出,那么将描述性字符串作为序列化器的字段类型是一个有用的想法.
 
 .. _converting-model-field-to-serialization:
 
-Converting field data for serialization
+字段序列化转换
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To customize how the values are serialized by a serializer, you can override
-:meth:`~Field.value_to_string`. Using ``value_from_object()`` is the best way
-to get the field's value prior to serialization. For example, since our
-``HandField`` uses strings for its data storage anyway, we can reuse some
-existing conversion code::
+可以通过重新 :meth:`~Field.value_to_string` 方法来自定义字段值序列化的过程.
+使用 ``value_from_object()`` 是在序列化之前获取字段值的最佳方法.
+举个例子, 由于 ``HandField`` 使用字符串存储数据, 我们能复用一些已有代码::
 
     class HandField(models.Field):
         # ...
@@ -667,61 +546,39 @@ existing conversion code::
             value = self.value_from_object(obj)
             return self.get_prep_value(value)
 
-Some general advice
+一些常用建议
 --------------------
 
-Writing a custom field can be a tricky process, particularly if you're doing
-complex conversions between your Python types and your database and
-serialization formats. Here are a couple of tips to make things go more
-smoothly:
+自定义字段是个比较麻烦的过程, 尤其是在处理Python类型与数据库和序列化格式之间进行复杂转换的时候.
+下面的几个建议可以使事情变得更顺利:
 
-1. Look at the existing Django fields (in
-   :file:`django/db/models/fields/__init__.py`) for inspiration. Try to find
-   a field that's similar to what you want and extend it a little bit,
-   instead of creating an entirely new field from scratch.
+1. 借鉴Django内置的字段 (在
+   :file:`django/db/models/fields/__init__.py`). 先尝试寻找一个与你目标相似的字段继承并扩展它.
+   而不是直接从头开始创建一个新字段.
 
-2. Put a ``__str__()`` (``__unicode__()`` on Python 2) method on the class you're
-   wrapping up as a field. There are a lot of places where the default
-   behavior of the field code is to call
-   :func:`~django.utils.encoding.force_text` on the value. (In our
-   examples in this document, ``value`` would be a ``Hand`` instance, not a
-   ``HandField``). So if your ``__str__()`` method (``__unicode__()`` on
-   Python 2) automatically converts to the string form of your Python object,
-   you can save yourself a lot of work.
+2. 为字段类添加 ``__str__()`` 方法(Python 2中为 ``__unicode__()``).
+   有很多地方的字段代码的默认行为是调用 :func:`~django.utils.encoding.force_text` 上的值.
+   (本文档中, ``value`` 会是 ``Hand`` 实例而不是 ``HandField``).
+   所以 ``__str__()`` (Python 2中为 ``__unicode__()``)方法会自动将Python对象转为字符串格式, 帮你剩下不少时间.
 
-Writing a ``FileField`` subclass
+创建 ``FileField`` 子类
 ================================
 
-In addition to the above methods, fields that deal with files have a few other
-special requirements which must be taken into account. The majority of the
-mechanics provided by ``FileField``, such as controlling database storage and
-retrieval, can remain unchanged, leaving subclasses to deal with the challenge
-of supporting a particular type of file.
+除了上述方法外, 处理文件字段类型还有一些必须考虑到的特殊要求. ``FileField`` 提供的大部分机制(像是操作数据库存储和检索)可以保持不变, 使子类支持特定类型的文件是个挑战.
 
-Django provides a ``File`` class, which is used as a proxy to the file's
-contents and operations. This can be subclassed to customize how the file is
-accessed, and what methods are available. It lives at
-``django.db.models.fields.files``, and its default behavior is explained in the
-:doc:`file documentation </ref/files/file>`.
+Django提供一个 ``File`` 类作为文件内容和文件操作的代理.
+可以继承该类自定义访问文件的方式以及一些可以方法.
+它位于 ``django.db.models.fields.files``, 它的默认行为在 :doc:`file文档 </ref/files/file>` 中有介绍.
 
-Once a subclass of ``File`` is created, the new ``FileField`` subclass must be
-told to use it. To do so, simply assign the new ``File`` subclass to the special
-``attr_class`` attribute of the ``FileField`` subclass.
+一旦创建了 ``File`` 子类, 就必须告诉新的 ``FileField`` 子类使用它.
+为此需要将新的 ``File`` 子类分配给 ``FileField`` 子类的特殊属性 ``attr_class`` .
 
-A few suggestions
+一些建议
 ------------------
 
-In addition to the above details, there are a few guidelines which can greatly
-improve the efficiency and readability of the field's code.
+除了上面的细节, 还有一些指南可以大大提高字段代码的效率和可读性.
 
-1. The source for Django's own ``ImageField`` (in
-   ``django/db/models/fields/files.py``) is a great example of how to
-   subclass ``FileField`` to support a particular type of file, as it
-   incorporates all of the techniques described above.
+1. Django内置的 ``ImageField`` (在 ``django/db/models/fields/files.py``)的源代码是一个很好的例子来说明如何子类化 ``FileField`` 以支持特定类型的文件, 因为其包含上述所有技术.
 
-2. Cache file attributes wherever possible. Since files may be stored in
-   remote storage systems, retrieving them may cost extra time, or even
-   money, that isn't always necessary. Once a file is retrieved to obtain
-   some data about its content, cache as much of that data as possible to
-   reduce the number of times the file must be retrieved on subsequent
-   calls for that information.
+2. 尽可能地缓存文件属性. 由于文件可以存储在远程存储系统中, 因此检索它们可能花费额外的时间或是其他成本,
+   这并不总是必需的. 一旦检索到文件以获得关于其内容的一些数据, 就尽可能地缓存那些数据, 以减少在该信息的后续调用中必须检索文件的次数.
