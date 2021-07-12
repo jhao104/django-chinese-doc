@@ -526,25 +526,18 @@ Django中无法在中途修改自定义字段的基类, 因为Django无法检测
 
 无论使用了哪个数据库后端, :djadmin:`migrate` 或其它 SQL 命令总会在保存字符串时为其创建正确的列类型.
 
-If :meth:`.get_internal_type` returns a string that is not known to Django for
-the database backend you are using -- that is, it doesn't appear in
-``django.db.backends.<db_name>.base.DatabaseWrapper.data_types`` -- the string
-will still be used by the serializer, but the default :meth:`~Field.db_type`
-method will return ``None``. See the documentation of :meth:`~Field.db_type`
-for reasons why this might be useful. Putting a descriptive string in as the
-type of the field for the serializer is a useful idea if you're ever going to
-be using the serializer output in some other place, outside of Django.
+如果 :meth:`.get_internal_type` 返回了当前数据库后端(即 ``django.db.backends.<db_name>.base.DatabaseWrapper.data_types`` 中未出现的)
+无法理解的字符串——该字符串仍会被序列化器使用的, 但是默认的 :meth:`~Field.db_type` 方法会返回 ``None``.
+查看 :meth:`~Field.db_type` 文档了解其应用的场景. 如果你打算在Django之外的其他地方使用序列化器输出,那么将描述性字符串作为序列化器的字段类型是一个有用的想法.
 
 .. _converting-model-field-to-serialization:
 
-Converting field data for serialization
+字段序列化转换
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To customize how the values are serialized by a serializer, you can override
-:meth:`~Field.value_to_string`. Using ``value_from_object()`` is the best way
-to get the field's value prior to serialization. For example, since our
-``HandField`` uses strings for its data storage anyway, we can reuse some
-existing conversion code::
+可以通过重新 :meth:`~Field.value_to_string` 方法来自定义字段值序列化的过程.
+使用 ``value_from_object()`` 是在序列化之前获取字段值的最佳方法.
+举个例子, 由于 ``HandField`` 使用字符串存储数据, 我们能复用一些已有代码::
 
     class HandField(models.Field):
         # ...
@@ -553,61 +546,39 @@ existing conversion code::
             value = self.value_from_object(obj)
             return self.get_prep_value(value)
 
-Some general advice
+一些常用建议
 --------------------
 
-Writing a custom field can be a tricky process, particularly if you're doing
-complex conversions between your Python types and your database and
-serialization formats. Here are a couple of tips to make things go more
-smoothly:
+自定义字段是个比较麻烦的过程, 尤其是在处理Python类型与数据库和序列化格式之间进行复杂转换的时候.
+下面的几个建议可以使事情变得更顺利:
 
-1. Look at the existing Django fields (in
-   :file:`django/db/models/fields/__init__.py`) for inspiration. Try to find
-   a field that's similar to what you want and extend it a little bit,
-   instead of creating an entirely new field from scratch.
+1. 借鉴Django内置的字段 (在
+   :file:`django/db/models/fields/__init__.py`). 先尝试寻找一个与你目标相似的字段继承并扩展它.
+   而不是直接从头开始创建一个新字段.
 
-2. Put a ``__str__()`` (``__unicode__()`` on Python 2) method on the class you're
-   wrapping up as a field. There are a lot of places where the default
-   behavior of the field code is to call
-   :func:`~django.utils.encoding.force_text` on the value. (In our
-   examples in this document, ``value`` would be a ``Hand`` instance, not a
-   ``HandField``). So if your ``__str__()`` method (``__unicode__()`` on
-   Python 2) automatically converts to the string form of your Python object,
-   you can save yourself a lot of work.
+2. 为字段类添加 ``__str__()`` 方法(Python 2中为 ``__unicode__()``).
+   有很多地方的字段代码的默认行为是调用 :func:`~django.utils.encoding.force_text` 上的值.
+   (本文档中, ``value`` 会是 ``Hand`` 实例而不是 ``HandField``).
+   所以 ``__str__()`` (Python 2中为 ``__unicode__()``)方法会自动将Python对象转为字符串格式, 帮你剩下不少时间.
 
-Writing a ``FileField`` subclass
+创建 ``FileField`` 子类
 ================================
 
-In addition to the above methods, fields that deal with files have a few other
-special requirements which must be taken into account. The majority of the
-mechanics provided by ``FileField``, such as controlling database storage and
-retrieval, can remain unchanged, leaving subclasses to deal with the challenge
-of supporting a particular type of file.
+除了上述方法外, 处理文件字段类型还有一些必须考虑到的特殊要求. ``FileField`` 提供的大部分机制(像是操作数据库存储和检索)可以保持不变, 使子类支持特定类型的文件是个挑战.
 
-Django provides a ``File`` class, which is used as a proxy to the file's
-contents and operations. This can be subclassed to customize how the file is
-accessed, and what methods are available. It lives at
-``django.db.models.fields.files``, and its default behavior is explained in the
-:doc:`file documentation </ref/files/file>`.
+Django提供一个 ``File`` 类作为文件内容和文件操作的代理.
+可以继承该类自定义访问文件的方式以及一些可以方法.
+它位于 ``django.db.models.fields.files``, 它的默认行为在 :doc:`file文档 </ref/files/file>` 中有介绍.
 
-Once a subclass of ``File`` is created, the new ``FileField`` subclass must be
-told to use it. To do so, simply assign the new ``File`` subclass to the special
-``attr_class`` attribute of the ``FileField`` subclass.
+一旦创建了 ``File`` 子类, 就必须告诉新的 ``FileField`` 子类使用它.
+为此需要将新的 ``File`` 子类分配给 ``FileField`` 子类的特殊属性 ``attr_class`` .
 
-A few suggestions
+一些建议
 ------------------
 
-In addition to the above details, there are a few guidelines which can greatly
-improve the efficiency and readability of the field's code.
+除了上面的细节, 还有一些指南可以大大提高字段代码的效率和可读性.
 
-1. The source for Django's own ``ImageField`` (in
-   ``django/db/models/fields/files.py``) is a great example of how to
-   subclass ``FileField`` to support a particular type of file, as it
-   incorporates all of the techniques described above.
+1. Django内置的 ``ImageField`` (在 ``django/db/models/fields/files.py``)的源代码是一个很好的例子来说明如何子类化 ``FileField`` 以支持特定类型的文件, 因为其包含上述所有技术.
 
-2. Cache file attributes wherever possible. Since files may be stored in
-   remote storage systems, retrieving them may cost extra time, or even
-   money, that isn't always necessary. Once a file is retrieved to obtain
-   some data about its content, cache as much of that data as possible to
-   reduce the number of times the file must be retrieved on subsequent
-   calls for that information.
+2. 尽可能地缓存文件属性. 由于文件可以存储在远程存储系统中, 因此检索它们可能花费额外的时间或是其他成本,
+   这并不总是必需的. 一旦检索到文件以获得关于其内容的一些数据, 就尽可能地缓存那些数据, 以减少在该信息的后续调用中必须检索文件的次数.
