@@ -1,30 +1,19 @@
 ==================
-Multiple databases
+多数据库
 ==================
 
-This topic guide describes Django's support for interacting with
-multiple databases. Most of the rest of Django's documentation assumes
-you are interacting with a single database. If you want to interact
-with multiple databases, you'll need to take some additional steps.
+本文档主旨是描述Django对多数据库的支持. 大部分Django文档假设你只和一个数据库交互. 如果你想与多个数据库交互则需要执行一些额外的步骤.
 
-Defining your databases
+定义数据库
 =======================
 
-The first step to using more than one database with Django is to tell
-Django about the database servers you'll be using. This is done using
-the :setting:`DATABASES` setting. This setting maps database aliases,
-which are a way to refer to a specific database throughout Django, to
-a dictionary of settings for that specific connection. The settings in
-the inner dictionaries are described fully in the :setting:`DATABASES`
-documentation.
+要在Django使用多个数据库, 首先要在 :setting:`DATABASES` 设置中配置数据库连接信息.
+此设置将数据库别名(在Django中引用指定数据库的一种方式)映射到该连接信息的字典.
+字典内容中的设置项在 :setting:`DATABASES` 中有详细的描述.
 
-Databases can have any alias you choose. However, the alias
-``default`` has special significance. Django uses the database with
-the alias of ``default`` when no other database has been selected.
+可以为Databases设置除了 ``default`` 外的任何别名. ``default`` 具有特殊含义, 在没有选择指定数据库时Django会使用其作为默认数据库.
 
-The following is an example ``settings.py`` snippet defining two
-databases -- a default PostgreSQL database and a MySQL database called
-``users``::
+下面展示了一段 ``settings.py`` 代码片段, 它定义了两个数据库 -- 一个PostgreSQL的默认数据库和一个名为 ``users`` 的MySQL数据库::
 
     DATABASES = {
         'default': {
@@ -41,15 +30,10 @@ databases -- a default PostgreSQL database and a MySQL database called
         }
     }
 
-If the concept of a ``default`` database doesn't make sense in the context
-of your project, you need to be careful to always specify the database
-that you want to use. Django requires that a ``default`` database entry
-be defined, but the parameters dictionary can be left blank if it will not be
-used. To do this, you must set up :setting:`DATABASE_ROUTERS` for all of your
-apps' models, including those in any contrib and third-party apps you're using,
-so that no queries are routed to the default database. The following is an
-example ``settings.py`` snippet defining two non-default databases, with the
-``default`` entry intentionally left empty::
+如果在你项目中不会使用到 ``default`` 数据库, 特别注意一定要指定想要使用的数据库.
+Django要求必须设置 ``default`` 数据库, 就算不使用 ``default`` 数据库也必须将其设置为空字典.
+这样做的情况下就必须为所有应用的模型(包括contrib和第三方应用)设置 :setting:`DATABASE_ROUTERS`,
+以保证不再引用到默认数据库. 下面是 ``settings.py`` 的一段示例代码, 它定义了一个空的 ``default`` 和另外两个数据库::
 
     DATABASES = {
         'default': {},
@@ -67,145 +51,102 @@ example ``settings.py`` snippet defining two non-default databases, with the
         }
     }
 
-If you attempt to access a database that you haven't defined in your
-:setting:`DATABASES` setting, Django will raise a
-``django.db.utils.ConnectionDoesNotExist`` exception.
+在访问 :setting:`DATABASES` 中不存在的数据库时, Django会引发一个 ``django.db.utils.ConnectionDoesNotExist`` 异常.
 
-Synchronizing your databases
+同步数据库
 ============================
 
-The :djadmin:`migrate` management command operates on one database at a
-time. By default, it operates on the ``default`` database, but by
-providing the :option:`--database <migrate --database>` option, you can tell it
-to synchronize a different database. So, to synchronize all models onto
-all databases in the first example above, you would need to call::
+管理命令 :djadmin:`migrate` 一次只能操作一个数据库.
+默认情况下它在 ``default`` 数据库上操作, 可以使用 :option:`--database <migrate --database>` 选项来同步其他指定的数据库,
+因此如果在上面例子中要在所有数据库上同步模型, 需要执行两次::
 
     $ ./manage.py migrate
     $ ./manage.py migrate --database=users
 
-If you don't want every application to be synchronized onto a
-particular database, you can define a :ref:`database
-router<topics-db-multi-db-routing>` that implements a policy
-constraining the availability of particular models.
+如果你不希望每个应用程序都同步到特定的数据库上, 那么可以定义一个 :ref:`数据库路由<topics-db-multi-db-routing>`, 该路由实现一个约束特定模型可用性的策略.
 
-If, as in the second example above, you've left the ``default`` database empty,
-you must provide a database name each time you run :djadmin:`migrate`. Omitting
-the database name would raise an error. For the second example::
+如果在上面的第二个例子中, ``default`` 数据库被设置为空, 这时就必须在执行 :djadmin:`migrate` 命令时指定数据库别名.
+否则会报错, 所以对于第二个例子::
 
     $ ./manage.py migrate --database=users
     $ ./manage.py migrate --database=customers
 
-Using other management commands
+使用其他管理命令
 -------------------------------
 
-Most other ``django-admin`` commands that interact with the database operate in
-the same way as :djadmin:`migrate` -- they only ever operate on one database at
-a time, using ``--database`` to control the database used.
+大部分的 ``django-admin`` 命令都和 :djadmin:`migrate` 一样 -- 一次只能操作一个数据库, 使用 ``--database`` 选项来指定要控制的数据库.
 
-An exception to this rule is the :djadmin:`makemigrations` command. It
-validates the migration history in the databases to catch problems with the
-existing migration files (which could be caused by editing them) before
-creating new migrations. By default, it checks only the ``default`` database,
-but it consults the :meth:`allow_migrate` method of :ref:`routers
-<topics-db-multi-db-routing>` if any are installed.
+:djadmin:`makemigrations` 命令是个例外. 它会在创建新迁移之前验证数据库中的历史迁移记录,以便发现当前迁移文件之中的问题(可能是由于修改所产生的).
+默认情况下它只会检查 ``default`` 数据库, 但是如果有的话它也会参考 :ref:`routers
+<topics-db-multi-db-routing>` 中的 :meth:`allow_migrate` 方法.
 
 .. versionchanged:: 1.10
 
-    Migration consistency checks were added. Checks based on database routers
-    were added in 1.10.1.
+    添加了迁移一致性检查. 1.10.1中添加了基于数据库routers的检查.
 
 .. _topics-db-multi-db-routing:
 
-Automatic database routing
+自动数据库路由
 ==========================
 
-The easiest way to use multiple databases is to set up a database
-routing scheme. The default routing scheme ensures that objects remain
-'sticky' to their original database (i.e., an object retrieved from
-the ``foo`` database will be saved on the same database). The default
-routing scheme ensures that if a database isn't specified, all queries
-fall back to the ``default`` database.
+使用多数据库最简单的方式就是设置数据库路由.
+默认的路由设置会确保对象对原数据库保持粘性(比如, 从 ``foo`` 数据库检索到的对象将被保存到同一个数据库).
+在默认路由模式下, 如果没有指定数据库所有查询都以 ``default`` 数据库为对象.
 
-You don't have to do anything to activate the default routing scheme
--- it is provided 'out of the box' on every Django project. However,
-if you want to implement more interesting database allocation
-behaviors, you can define and install your own database routers.
+默认数据库路由是自动启用的, 如果想实现更多高级的数据库分配行为, 可以定义和应用自己的数据库路由.
 
-Database routers
+数据库路由
 ----------------
 
-A database Router is a class that provides up to four methods:
+数据库路由是一个类, 它提供了四个方法:
 
 .. method:: db_for_read(model, **hints)
 
-    Suggest the database that should be used for read operations for
-    objects of type ``model``.
+    指定 ``model`` 对象的读操作应该使用的数据库.
 
-    If a database operation is able to provide any additional
-    information that might assist in selecting a database, it will be
-    provided in the ``hints`` dictionary. Details on valid hints are
-    provided :ref:`below <topics-db-multi-db-hints>`.
+    如果数据库操作能够提供其它额外的信息可以帮助选择数据库, 它将在 ``hints`` 字典中列出.
+    详细信息在 :ref:`下文 <topics-db-multi-db-hints>` 给出.
 
-    Returns ``None`` if there is no suggestion.
+    如果不指定则返回 ``None``.
 
 .. method:: db_for_write(model, **hints)
 
-    Suggest the database that should be used for writes of objects of
-    type Model.
+    指定 ``model`` 对象的写操作应该使用的数据库.
 
-    If a database operation is able to provide any additional
-    information that might assist in selecting a database, it will be
-    provided in the ``hints`` dictionary. Details on valid hints are
-    provided :ref:`below <topics-db-multi-db-hints>`.
+    如果数据库操作能够提供其它额外的信息可以帮助选择数据库, 它将在 ``hints`` 字典中列出.
+    详细信息在 :ref:`下文 <topics-db-multi-db-hints>` 给出.
 
-    Returns ``None`` if there is no suggestion.
+    如果不指定则返回 ``None``.
 
 .. method:: allow_relation(obj1, obj2, **hints)
 
-    Return ``True`` if a relation between ``obj1`` and ``obj2`` should be
-    allowed, ``False`` if the relation should be prevented, or ``None`` if
-    the router has no opinion. This is purely a validation operation,
-    used by foreign key and many to many operations to determine if a
-    relation should be allowed between two objects.
+    如果允许 ``obj1`` 和 ``obj2`` 关联, 返回 ``True``. 如果要阻止关联则返回 ``False``.
+    如果路由没法判断, 则返回 ``None``. 这是一个纯验证操作, 由外键和多对多操作使用它决定是否应该允许关联.
 
 .. method:: allow_migrate(db, app_label, model_name=None, **hints)
 
-    Determine if the migration operation is allowed to run on the database with
-    alias ``db``. Return ``True`` if the operation should run, ``False`` if it
-    shouldn't run, or ``None`` if the router has no opinion.
+    决定是否允许迁移操作在别名为 ``db`` 的数据库上运行. 如果允许运行则返回 ``True``,
+    如果不应该运行则返回 ``False``, 如果路由无法判断则返回 ``None``.
 
-    The ``app_label`` positional argument is the label of the application
-    being migrated.
+    位置参数 ``app_label`` 是要迁移的应用的标签.
 
-    ``model_name`` is set by most migration operations to the value of
-    ``model._meta.model_name`` (the lowercased version of the model
-    ``__name__``) of the model being migrated. Its value is ``None`` for the
-    :class:`~django.db.migrations.operations.RunPython` and
-    :class:`~django.db.migrations.operations.RunSQL` operations unless they
-    provide it using hints.
+    大部分迁移操作的 ``model_name`` 为迁移模型的 ``model._meta.model_name`` 值(模型 ``__name__`` 的小写形式).
+    :class:`~django.db.migrations.operations.RunPython` 和
+    :class:`~django.db.migrations.operations.RunSQL` 操作的值为 ``None``, 除非使用了hints来提供.
 
-    ``hints`` are used by certain operations to communicate additional
-    information to the router.
+    ``hints`` 用于某些操作来传递额外的信息给路由.
 
-    When ``model_name`` is set, ``hints`` normally contains the model class
-    under the key ``'model'``. Note that it may be a :ref:`historical model
-    <historical-models>`, and thus not have any custom attributes, methods, or
-    managers. You should only rely on ``_meta``.
+    当 ``model_name`` 有值时, ``hints`` 通常包含该模型 ``'model'`` 下的值.
+    注意它可能是 :ref:`历史模型 <historical-models>`, 因此不会有自定的属性,方法和管理器.你应该只依赖 ``_meta``.
 
-    This method can also be used to determine the availability of a model on a
-    given database.
+    这个方法还可以用来决定一个指定数据库上某个模型的可用性.
 
-    :djadmin:`makemigrations` always creates migrations for model changes, but
-    if ``allow_migrate()`` returns ``False``, any migration operations for the
-    ``model_name`` will be silently skipped when running :djadmin:`migrate` on
-    the ``db``. Changing the behavior of ``allow_migrate()`` for models that
-    already have migrations may result in broken foreign keys, extra tables,
-    or missing tables. When :djadmin:`makemigrations` verifies the migration
-    history, it skips databases where no app is allowed to migrate.
+    :djadmin:`makemigrations` 会给修改的模型创建迁移, 但是如果 ``allow_migrate()`` 返回 ``False``, 那么
+    ``model_name`` 在 ``db`` 上执行 :djadmin:`migrate` 时会被忽略.
+    对于已经有迁移的模型, 修改 ``allow_migrate()`` 的行为可能为导致外键损坏, 表或者额外表,
+    当 :djadmin:`makemigrations` 验证历史迁移记录时, 它会跳过不允许迁移的应用的数据库.
 
-A router doesn't have to provide *all* these methods -- it may omit one
-or more of them. If one of the methods is omitted, Django will skip
-that router when performing the relevant check.
+路由不用提供所有这些方法 —— 它可以省略一个或多个. 如果某个方法被省略, Django会在执行相关检查时候跳过这个路由.
 
 .. _topics-db-multi-db-hints:
 
