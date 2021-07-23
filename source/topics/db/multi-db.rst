@@ -153,62 +153,33 @@ Django要求必须设置 ``default`` 数据库, 就算不使用 ``default`` 数�
 Hints
 ~~~~~
 
-The hints received by the database router can be used to decide which
-database should receive a given request.
+数据库路由器接收到的hints用来决定哪个数据库接收给的的请求.
 
-At present, the only hint that will be provided is ``instance``, an
-object instance that is related to the read or write operation that is
-underway. This might be the instance that is being saved, or it might
-be an instance that is being added in a many-to-many relation. In some
-cases, no instance hint will be provided at all. The router checks for
-the existence of an instance hint, and determine if that hint should be
-used to alter routing behavior.
+目前, 唯一提供hint的是 ``instance``, 它是一个关联的正在进行读或写操作的对象实例.
+它可以是是正在保存的实例, 或是正在添加多对多关系的实例.
+在某些情况下不会提供实例hint. 路由其检查是否存在实例hint并确定其是否应该用来改变路由行为.
 
-Using routers
+使用路由
 -------------
 
-Database routers are installed using the :setting:`DATABASE_ROUTERS`
-setting. This setting defines a list of class names, each specifying a
-router that should be used by the master router
-(``django.db.router``).
+使用 :setting:`DATABASE_ROUTERS` 配置启用数据库路由. 该配置定义了一组类名组成的列表,
+其中每个类表示一个路由, 它们将被主路由(``django.db.router``)使用.
 
-The master router is used by Django's database operations to allocate
-database usage. Whenever a query needs to know which database to use,
-it calls the master router, providing a model and a hint (if
-available). Django then tries each router in turn until a database
-suggestion can be found. If no suggestion can be found, it tries the
-current ``_state.db`` of the hint instance. If a hint instance wasn't
-provided, or the instance doesn't currently have database state, the
-master router will allocate the ``default`` database.
+Django使用主路由来分配数据库操作使用的数据库. 当一个查询需要知道使用哪一个数据库时, 它将调用主路由并提供一个模型和一个Hint(可选).
+随后Django依次尝试每个路由直至找到数据库. 如果没有找到, 它将尝试访问当前Hint实例的 ``_state.db``. 如果没有提供Hint实例, 或者该实例当前没有数据库state, 主路由将分配 ``default`` 数据库.
 
-An example
+示例
 ----------
 
-.. admonition:: Example purposes only!
+.. admonition:: 仅供参考!
 
-    This example is intended as a demonstration of how the router
-    infrastructure can be used to alter database usage. It
-    intentionally ignores some complex issues in order to
-    demonstrate how routers are used.
+    这个例子的目的是演示如何使用路由这个基本结构来决定使用的数据库. 它有意忽略一些复杂的问题, 目的是为了演示如何使用路由.
 
-    This example won't work if any of the models in ``myapp`` contain
-    relationships to models outside of the ``other`` database.
-    :ref:`Cross-database relationships <no_cross_database_relations>`
-    introduce referential integrity problems that Django can't
-    currently handle.
+    如果 ``myapp`` 中的有任何模型包含与 ``其他`` 数据库之外的模型的关联关系, 这个例子将无法正常工作. :ref:`跨数据库关联关系 <no_cross_database_relations>` 介绍了Django目前无法解决的引用完整性问题.
 
-    The primary/replica (referred to as master/slave by some databases)
-    configuration described is also flawed -- it
-    doesn't provide any solution for handling replication lag (i.e.,
-    query inconsistencies introduced because of the time taken for a
-    write to propagate to the replicas). It also doesn't consider the
-    interaction of transactions with the database utilization strategy.
+    主/副(在某些数据库中叫做master/slave)配置也是有问题的 —— 它没有提供任何处理Replication滞后的解决办法(例如, 因为写入再同步到replica需要一定的时间, 这会导致查询的不一致). 它也没有考虑到事务与数据库利用率策略的交互.
 
-So - what does this mean in practice? Let's consider another sample
-configuration. This one will have several databases: one for the
-``auth`` application, and all other apps using a primary/replica setup
-with two read replicas. Here are the settings specifying these
-databases::
+所以 —— 在实际应用中这意味着什么? 我们考虑一个简单的配置例子. 该配置有几个数据库: 一个用于 ``auth`` 应用, 和其它应用使用一个带有两个只读副本的 主/副 配置. 以下是具体设置::
 
     DATABASES = {
         'default': {},
@@ -238,8 +209,7 @@ databases::
         },
     }
 
-Now we'll need to handle routing. First we want a router that knows to
-send queries for the ``auth`` app to ``auth_db``::
+现在我们需要处理路由. 首先, 我们创建一个路由, 使它将 ``auth`` 应用的查询发送到 ``auth_db``::
 
     class AuthRouter(object):
         """
@@ -280,9 +250,7 @@ send queries for the ``auth`` app to ``auth_db``::
                 return db == 'auth_db'
             return None
 
-And we also want a router that sends all other apps to the
-primary/replica configuration, and randomly chooses a replica to read
-from::
+然后再创建一个路由, 它将其他应用发送到 主/副 配置, 并且随机选择一个副本进行读操作::
 
     import random
 
@@ -315,24 +283,16 @@ from::
             """
             return True
 
-Finally, in the settings file, we add the following (substituting
-``path.to.`` with the actual Python path to the module(s) where the
-routers are defined)::
+最后, 在配置文件中添加下面的代码(用定义路由模块的实际Python路径替换 ``path.to.``)::
 
     DATABASE_ROUTERS = ['path.to.AuthRouter', 'path.to.PrimaryReplicaRouter']
 
-The order in which routers are processed is significant. Routers will
-be queried in the order they are listed in the
-:setting:`DATABASE_ROUTERS` setting. In this example, the
-``AuthRouter`` is processed before the ``PrimaryReplicaRouter``, and as a
-result, decisions concerning the models in ``auth`` are processed
-before any other decision is made. If the :setting:`DATABASE_ROUTERS`
-setting listed the two routers in the other order,
-``PrimaryReplicaRouter.allow_migrate()`` would be processed first. The
-catch-all nature of the PrimaryReplicaRouter implementation would mean
-that all models would be available on all databases.
+路由配置的顺序非常重要. 路由将按照 :setting:`DATABASE_ROUTERS` 中设置的顺序进行查询.
+在这个例子中, ``AuthRouter`` 将在 ``PrimaryReplicaRouter`` 之前处理, ``auth`` 处理在其它模型之前.
+如果 :setting:`DATABASE_ROUTERS` 设置中按其他顺序列出这两个路由, ``PrimaryReplicaRouter.allow_migrate()`` 将优先处理.
+PrimaryReplicaRouter中实现的捕获所有的查询, 这意味着所有的模型可以位于所有的数据库中.
 
-With this setup installed, lets run some Django code::
+设置好这个配置后, 让我们运行一些Django代码::
 
     >>> # This retrieval will be performed on the 'auth_db' database
     >>> fred = User.objects.get(username='fred')
@@ -357,30 +317,22 @@ With this setup installed, lets run some Django code::
     >>> # ... but if we re-retrieve the object, it will come back on a replica
     >>> mh = Book.objects.get(title='Mostly Harmless')
 
-This example defined a router to handle interaction with models from the
-``auth`` app, and other routers to handle interaction with all other apps. If
-you left your ``default`` database empty and don't want to define a catch-all
-database router to handle all apps not otherwise specified, your routers must
-handle the names of all apps in :setting:`INSTALLED_APPS` before you migrate.
-See :ref:`contrib_app_multiple_databases` for information about contrib apps
-that must be together in one database.
+此示例定义一个路由来处理与 ``auth`` 应用的模型交互, 以及其他路由与所有其他应用程序的交互.
+如果您将 ``default`` 数据库留空, 并且不想定义一个共用的数据库来处理所有未指定的应用, 那么则路由器必须在迁移之前处理 :setting:`INSTALLED_APPS` 的所有应用名.
+有关contrib应用程序的行为, 请参考 :ref:`contrib_app_multiple_databases`.
 
-Manually selecting a database
+手动指定数据库
 =============================
 
-Django also provides an API that allows you to maintain complete control
-over database usage in your code. A manually specified database allocation
-will take priority over a database allocated by a router.
+Django还提供了了一个API用来在代码中控制数据库的使用. 手动指定的数据库的优先级高于路由分配的数据库.
 
-Manually selecting a database for a ``QuerySet``
+指定 ``QuerySet`` 数据库
 ------------------------------------------------
 
-You can select the database for a ``QuerySet`` at any point in the
-``QuerySet`` "chain." Just call ``using()`` on the ``QuerySet`` to get
-another ``QuerySet`` that uses the specified database.
+可以在 ``QuerySet`` 查询链路上的任意点为 ``QuerySet`` 指定数据库.
+调用 ``QuerySet`` 的 ``using()`` 方法指定数据库.
 
-``using()`` takes a single argument: the alias of the database on
-which you want to run the query. For example::
+``using()`` 接受一个参数: 将要指定使用的数据库别名. 比如::
 
     >>> # This will run on the 'default' database.
     >>> Author.objects.all()
@@ -391,87 +343,61 @@ which you want to run the query. For example::
     >>> # This will run on the 'other' database.
     >>> Author.objects.using('other').all()
 
-Selecting a database for ``save()``
+指定 ``save()`` 数据库
 -----------------------------------
 
-Use the ``using`` keyword to ``Model.save()`` to specify to which
-database the data should be saved.
+``Model.save()`` 使用 ``using`` 参数指定将要保存的数据库.
 
-For example, to save an object to the ``legacy_users`` database, you'd
-use this::
+例如将数据保存至 ``legacy_users`` 数据库::
 
     >>> my_object.save(using='legacy_users')
 
-If you don't specify ``using``, the ``save()`` method will save into
-the default database allocated by the routers.
+如果没有指定 ``using`` 参数, ``save()`` 方法将保存到路由分配的默认数据库中.
 
-Moving an object from one database to another
+将对象从数据库移至另一个数据库
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you've saved an instance to one database, it might be tempting to
-use ``save(using=...)`` as a way to migrate the instance to a new
-database. However, if you don't take appropriate steps, this could
-have some unexpected consequences.
+如果你已经将实例保存到数据库中, 有可能想使用 ``save(using=...)`` 来将该实例迁移到一个新的数据库中.
+但是如果你没有使用正确的操作, 这可能会导致意想不到的结果.
 
-Consider the following example::
+考虑下面的例子::
 
     >>> p = Person(name='Fred')
     >>> p.save(using='first')  # (statement 1)
     >>> p.save(using='second') # (statement 2)
 
-In statement 1, a new ``Person`` object is saved to the ``first``
-database. At this time, ``p`` doesn't have a primary key, so Django
-issues an SQL ``INSERT`` statement. This creates a primary key, and
-Django assigns that primary key to ``p``.
+在statement 1中, 将一个新的 ``Person`` 对象保存到 ``first`` 数据库中. 此时 ``p`` 还没有主键, 所以Django发出一个SQL ``INSERT`` 语句. 这会创建一个主键且赋值给 ``p``.
 
-When the save occurs in statement 2, ``p`` already has a primary key
-value, and Django will attempt to use that primary key on the new
-database. If the primary key value isn't in use in the ``second``
-database, then you won't have any problems -- the object will be
-copied to the new database.
+当在statement 2中保存时, 此时 ``p`` 已经具有主键, Django将尝试在新的数据库上使用该主键. 如果该主键值在 ``second`` 数据库中不存在, 那么就不会有问题, 该对象将正常被复制到新的数据库中.
 
-However, if the primary key of ``p`` is already in use on the
-``second`` database, the existing object in the ``second`` database
-will be overridden when ``p`` is saved.
+但是, 如果 ``p`` 的主键值已经存在于 ``second`` 数据库中, 已经存在的对象将在 ``p`` 保存时被覆盖.
 
-You can avoid this in two ways. First, you can clear the primary key
-of the instance. If an object has no primary key, Django will treat it
-as a new object, avoiding any loss of data on the ``second``
-database::
+可以用两种方法避免这种情况. 首先, 你可以清除实例的主键. 如果保存的对象没有主键, Django将把它当做一个新的对象, 这样可以避免 ``second`` 数据库上数据丢失的问题::
 
     >>> p = Person(name='Fred')
     >>> p.save(using='first')
     >>> p.pk = None # Clear the primary key.
     >>> p.save(using='second') # Write a completely new object.
 
-The second option is to use the ``force_insert`` option to ``save()``
-to ensure that Django does an SQL ``INSERT``::
+第二个方式是调用 ``save()`` 方法时, 使用可选参数 ``force_insert`` 确保Django 执行 ``INSERT`` SQL::
 
     >>> p = Person(name='Fred')
     >>> p.save(using='first')
     >>> p.save(using='second', force_insert=True)
 
-This will ensure that the person named ``Fred`` will have the same
-primary key on both databases. If that primary key is already in use
-when you try to save onto the ``second`` database, an error will be
-raised.
+这可以确保 ``Fred`` 在两个数据库上拥有同样的主键. 当在 ``second`` 上保存时, 如果主键已经存在那将会引发一个异常.
 
-Selecting a database to delete from
+指定删除的数据库
 -----------------------------------
 
-By default, a call to delete an existing object will be executed on
-the same database that was used to retrieve the object in the first
-place::
+默认情况下, 删除一个已存在对象的调用将在获取对象时使用的数据库上执行::
 
     >>> u = User.objects.using('legacy_users').get(username='fred')
-    >>> u.delete() # will delete from the `legacy_users` database
+    >>> u.delete() # 将从 `legacy_users` 数据库删除
 
-To specify the database from which a model will be deleted, pass a
-``using`` keyword argument to the ``Model.delete()`` method. This
-argument works just like the ``using`` keyword argument to ``save()``.
+``Model.delete()`` 方法使用关键字参数 ``using`` 来指定从哪个数据库删除数据. 该参数的工作方式和 ``save()`` 方法的 ``using`` 参数一样.
 
-For example, if you're migrating a user from the ``legacy_users``
-database to the ``new_users`` database, you might use these commands::
+例如, 将用户数据从 ``legacy_users`` 数据库迁移至 ``new_users`` 数据库::
 
     >>> user_obj.save(using='new_users')
     >>> user_obj.delete(using='legacy_users')
