@@ -1,30 +1,19 @@
 ==================
-Multiple databases
+多数据库
 ==================
 
-This topic guide describes Django's support for interacting with
-multiple databases. Most of the rest of Django's documentation assumes
-you are interacting with a single database. If you want to interact
-with multiple databases, you'll need to take some additional steps.
+本文档主旨是描述Django对多数据库的支持. 大部分Django文档假设你只和一个数据库交互. 如果你想与多个数据库交互则需要执行一些额外的步骤.
 
-Defining your databases
+定义数据库
 =======================
 
-The first step to using more than one database with Django is to tell
-Django about the database servers you'll be using. This is done using
-the :setting:`DATABASES` setting. This setting maps database aliases,
-which are a way to refer to a specific database throughout Django, to
-a dictionary of settings for that specific connection. The settings in
-the inner dictionaries are described fully in the :setting:`DATABASES`
-documentation.
+要在Django使用多个数据库, 首先要在 :setting:`DATABASES` 设置中配置数据库连接信息.
+此设置将数据库别名(在Django中引用指定数据库的一种方式)映射到该连接信息的字典.
+字典内容中的设置项在 :setting:`DATABASES` 中有详细的描述.
 
-Databases can have any alias you choose. However, the alias
-``default`` has special significance. Django uses the database with
-the alias of ``default`` when no other database has been selected.
+可以为Databases设置除了 ``default`` 外的任何别名. ``default`` 具有特殊含义, 在没有选择指定数据库时Django会使用其作为默认数据库.
 
-The following is an example ``settings.py`` snippet defining two
-databases -- a default PostgreSQL database and a MySQL database called
-``users``::
+下面展示了一段 ``settings.py`` 代码片段, 它定义了两个数据库 -- 一个PostgreSQL的默认数据库和一个名为 ``users`` 的MySQL数据库::
 
     DATABASES = {
         'default': {
@@ -41,15 +30,10 @@ databases -- a default PostgreSQL database and a MySQL database called
         }
     }
 
-If the concept of a ``default`` database doesn't make sense in the context
-of your project, you need to be careful to always specify the database
-that you want to use. Django requires that a ``default`` database entry
-be defined, but the parameters dictionary can be left blank if it will not be
-used. To do this, you must set up :setting:`DATABASE_ROUTERS` for all of your
-apps' models, including those in any contrib and third-party apps you're using,
-so that no queries are routed to the default database. The following is an
-example ``settings.py`` snippet defining two non-default databases, with the
-``default`` entry intentionally left empty::
+如果在你项目中不会使用到 ``default`` 数据库, 特别注意一定要指定想要使用的数据库.
+Django要求必须设置 ``default`` 数据库, 就算不使用 ``default`` 数据库也必须将其设置为空字典.
+这样做的情况下就必须为所有应用的模型(包括contrib和第三方应用)设置 :setting:`DATABASE_ROUTERS`,
+以保证不再引用到默认数据库. 下面是 ``settings.py`` 的一段示例代码, 它定义了一个空的 ``default`` 和另外两个数据库::
 
     DATABASES = {
         'default': {},
@@ -67,207 +51,135 @@ example ``settings.py`` snippet defining two non-default databases, with the
         }
     }
 
-If you attempt to access a database that you haven't defined in your
-:setting:`DATABASES` setting, Django will raise a
-``django.db.utils.ConnectionDoesNotExist`` exception.
+在访问 :setting:`DATABASES` 中不存在的数据库时, Django会引发一个 ``django.db.utils.ConnectionDoesNotExist`` 异常.
 
-Synchronizing your databases
+同步数据库
 ============================
 
-The :djadmin:`migrate` management command operates on one database at a
-time. By default, it operates on the ``default`` database, but by
-providing the :option:`--database <migrate --database>` option, you can tell it
-to synchronize a different database. So, to synchronize all models onto
-all databases in the first example above, you would need to call::
+管理命令 :djadmin:`migrate` 一次只能操作一个数据库.
+默认情况下它在 ``default`` 数据库上操作, 可以使用 :option:`--database <migrate --database>` 选项来同步其他指定的数据库,
+因此如果在上面例子中要在所有数据库上同步模型, 需要执行两次::
 
     $ ./manage.py migrate
     $ ./manage.py migrate --database=users
 
-If you don't want every application to be synchronized onto a
-particular database, you can define a :ref:`database
-router<topics-db-multi-db-routing>` that implements a policy
-constraining the availability of particular models.
+如果你不希望每个应用程序都同步到特定的数据库上, 那么可以定义一个 :ref:`数据库路由<topics-db-multi-db-routing>`, 该路由实现一个约束特定模型可用性的策略.
 
-If, as in the second example above, you've left the ``default`` database empty,
-you must provide a database name each time you run :djadmin:`migrate`. Omitting
-the database name would raise an error. For the second example::
+如果在上面的第二个例子中, ``default`` 数据库被设置为空, 这时就必须在执行 :djadmin:`migrate` 命令时指定数据库别名.
+否则会报错, 所以对于第二个例子::
 
     $ ./manage.py migrate --database=users
     $ ./manage.py migrate --database=customers
 
-Using other management commands
+使用其他管理命令
 -------------------------------
 
-Most other ``django-admin`` commands that interact with the database operate in
-the same way as :djadmin:`migrate` -- they only ever operate on one database at
-a time, using ``--database`` to control the database used.
+大部分的 ``django-admin`` 命令都和 :djadmin:`migrate` 一样 -- 一次只能操作一个数据库, 使用 ``--database`` 选项来指定要控制的数据库.
 
-An exception to this rule is the :djadmin:`makemigrations` command. It
-validates the migration history in the databases to catch problems with the
-existing migration files (which could be caused by editing them) before
-creating new migrations. By default, it checks only the ``default`` database,
-but it consults the :meth:`allow_migrate` method of :ref:`routers
-<topics-db-multi-db-routing>` if any are installed.
+:djadmin:`makemigrations` 命令是个例外. 它会在创建新迁移之前验证数据库中的历史迁移记录,以便发现当前迁移文件之中的问题(可能是由于修改所产生的).
+默认情况下它只会检查 ``default`` 数据库, 但是如果有的话它也会参考 :ref:`routers
+<topics-db-multi-db-routing>` 中的 :meth:`allow_migrate` 方法.
 
 .. versionchanged:: 1.10
 
-    Migration consistency checks were added. Checks based on database routers
-    were added in 1.10.1.
+    添加了迁移一致性检查. 1.10.1中添加了基于数据库routers的检查.
 
 .. _topics-db-multi-db-routing:
 
-Automatic database routing
+自动数据库路由
 ==========================
 
-The easiest way to use multiple databases is to set up a database
-routing scheme. The default routing scheme ensures that objects remain
-'sticky' to their original database (i.e., an object retrieved from
-the ``foo`` database will be saved on the same database). The default
-routing scheme ensures that if a database isn't specified, all queries
-fall back to the ``default`` database.
+使用多数据库最简单的方式就是设置数据库路由.
+默认的路由设置会确保对象对原数据库保持粘性(比如, 从 ``foo`` 数据库检索到的对象将被保存到同一个数据库).
+在默认路由模式下, 如果没有指定数据库所有查询都以 ``default`` 数据库为对象.
 
-You don't have to do anything to activate the default routing scheme
--- it is provided 'out of the box' on every Django project. However,
-if you want to implement more interesting database allocation
-behaviors, you can define and install your own database routers.
+默认数据库路由是自动启用的, 如果想实现更多高级的数据库分配行为, 可以定义和应用自己的数据库路由.
 
-Database routers
+数据库路由
 ----------------
 
-A database Router is a class that provides up to four methods:
+数据库路由是一个类, 它提供了四个方法:
 
 .. method:: db_for_read(model, **hints)
 
-    Suggest the database that should be used for read operations for
-    objects of type ``model``.
+    指定 ``model`` 对象的读操作应该使用的数据库.
 
-    If a database operation is able to provide any additional
-    information that might assist in selecting a database, it will be
-    provided in the ``hints`` dictionary. Details on valid hints are
-    provided :ref:`below <topics-db-multi-db-hints>`.
+    如果数据库操作能够提供其它额外的信息可以帮助选择数据库, 它将在 ``hints`` 字典中列出.
+    详细信息在 :ref:`下文 <topics-db-multi-db-hints>` 给出.
 
-    Returns ``None`` if there is no suggestion.
+    如果不指定则返回 ``None``.
 
 .. method:: db_for_write(model, **hints)
 
-    Suggest the database that should be used for writes of objects of
-    type Model.
+    指定 ``model`` 对象的写操作应该使用的数据库.
 
-    If a database operation is able to provide any additional
-    information that might assist in selecting a database, it will be
-    provided in the ``hints`` dictionary. Details on valid hints are
-    provided :ref:`below <topics-db-multi-db-hints>`.
+    如果数据库操作能够提供其它额外的信息可以帮助选择数据库, 它将在 ``hints`` 字典中列出.
+    详细信息在 :ref:`下文 <topics-db-multi-db-hints>` 给出.
 
-    Returns ``None`` if there is no suggestion.
+    如果不指定则返回 ``None``.
 
 .. method:: allow_relation(obj1, obj2, **hints)
 
-    Return ``True`` if a relation between ``obj1`` and ``obj2`` should be
-    allowed, ``False`` if the relation should be prevented, or ``None`` if
-    the router has no opinion. This is purely a validation operation,
-    used by foreign key and many to many operations to determine if a
-    relation should be allowed between two objects.
+    如果允许 ``obj1`` 和 ``obj2`` 关联, 返回 ``True``. 如果要阻止关联则返回 ``False``.
+    如果路由没法判断, 则返回 ``None``. 这是一个纯验证操作, 由外键和多对多操作使用它决定是否应该允许关联.
 
 .. method:: allow_migrate(db, app_label, model_name=None, **hints)
 
-    Determine if the migration operation is allowed to run on the database with
-    alias ``db``. Return ``True`` if the operation should run, ``False`` if it
-    shouldn't run, or ``None`` if the router has no opinion.
+    决定是否允许迁移操作在别名为 ``db`` 的数据库上运行. 如果允许运行则返回 ``True``,
+    如果不应该运行则返回 ``False``, 如果路由无法判断则返回 ``None``.
 
-    The ``app_label`` positional argument is the label of the application
-    being migrated.
+    位置参数 ``app_label`` 是要迁移的应用的标签.
 
-    ``model_name`` is set by most migration operations to the value of
-    ``model._meta.model_name`` (the lowercased version of the model
-    ``__name__``) of the model being migrated. Its value is ``None`` for the
-    :class:`~django.db.migrations.operations.RunPython` and
-    :class:`~django.db.migrations.operations.RunSQL` operations unless they
-    provide it using hints.
+    大部分迁移操作的 ``model_name`` 为迁移模型的 ``model._meta.model_name`` 值(模型 ``__name__`` 的小写形式).
+    :class:`~django.db.migrations.operations.RunPython` 和
+    :class:`~django.db.migrations.operations.RunSQL` 操作的值为 ``None``, 除非使用了hints来提供.
 
-    ``hints`` are used by certain operations to communicate additional
-    information to the router.
+    ``hints`` 用于某些操作来传递额外的信息给路由.
 
-    When ``model_name`` is set, ``hints`` normally contains the model class
-    under the key ``'model'``. Note that it may be a :ref:`historical model
-    <historical-models>`, and thus not have any custom attributes, methods, or
-    managers. You should only rely on ``_meta``.
+    当 ``model_name`` 有值时, ``hints`` 通常包含该模型 ``'model'`` 下的值.
+    注意它可能是 :ref:`历史模型 <historical-models>`, 因此不会有自定的属性,方法和管理器.你应该只依赖 ``_meta``.
 
-    This method can also be used to determine the availability of a model on a
-    given database.
+    这个方法还可以用来决定一个指定数据库上某个模型的可用性.
 
-    :djadmin:`makemigrations` always creates migrations for model changes, but
-    if ``allow_migrate()`` returns ``False``, any migration operations for the
-    ``model_name`` will be silently skipped when running :djadmin:`migrate` on
-    the ``db``. Changing the behavior of ``allow_migrate()`` for models that
-    already have migrations may result in broken foreign keys, extra tables,
-    or missing tables. When :djadmin:`makemigrations` verifies the migration
-    history, it skips databases where no app is allowed to migrate.
+    :djadmin:`makemigrations` 会给修改的模型创建迁移, 但是如果 ``allow_migrate()`` 返回 ``False``, 那么
+    ``model_name`` 在 ``db`` 上执行 :djadmin:`migrate` 时会被忽略.
+    对于已经有迁移的模型, 修改 ``allow_migrate()`` 的行为可能为导致外键损坏, 表或者额外表,
+    当 :djadmin:`makemigrations` 验证历史迁移记录时, 它会跳过不允许迁移的应用的数据库.
 
-A router doesn't have to provide *all* these methods -- it may omit one
-or more of them. If one of the methods is omitted, Django will skip
-that router when performing the relevant check.
+路由不用提供所有这些方法 —— 它可以省略一个或多个. 如果某个方法被省略, Django会在执行相关检查时候跳过这个路由.
 
 .. _topics-db-multi-db-hints:
 
 Hints
 ~~~~~
 
-The hints received by the database router can be used to decide which
-database should receive a given request.
+数据库路由器接收到的hints用来决定哪个数据库接收给的的请求.
 
-At present, the only hint that will be provided is ``instance``, an
-object instance that is related to the read or write operation that is
-underway. This might be the instance that is being saved, or it might
-be an instance that is being added in a many-to-many relation. In some
-cases, no instance hint will be provided at all. The router checks for
-the existence of an instance hint, and determine if that hint should be
-used to alter routing behavior.
+目前, 唯一提供hint的是 ``instance``, 它是一个关联的正在进行读或写操作的对象实例.
+它可以是是正在保存的实例, 或是正在添加多对多关系的实例.
+在某些情况下不会提供实例hint. 路由其检查是否存在实例hint并确定其是否应该用来改变路由行为.
 
-Using routers
+使用路由
 -------------
 
-Database routers are installed using the :setting:`DATABASE_ROUTERS`
-setting. This setting defines a list of class names, each specifying a
-router that should be used by the master router
-(``django.db.router``).
+使用 :setting:`DATABASE_ROUTERS` 配置启用数据库路由. 该配置定义了一组类名组成的列表,
+其中每个类表示一个路由, 它们将被主路由(``django.db.router``)使用.
 
-The master router is used by Django's database operations to allocate
-database usage. Whenever a query needs to know which database to use,
-it calls the master router, providing a model and a hint (if
-available). Django then tries each router in turn until a database
-suggestion can be found. If no suggestion can be found, it tries the
-current ``_state.db`` of the hint instance. If a hint instance wasn't
-provided, or the instance doesn't currently have database state, the
-master router will allocate the ``default`` database.
+Django使用主路由来分配数据库操作使用的数据库. 当一个查询需要知道使用哪一个数据库时, 它将调用主路由并提供一个模型和一个Hint(可选).
+随后Django依次尝试每个路由直至找到数据库. 如果没有找到, 它将尝试访问当前Hint实例的 ``_state.db``. 如果没有提供Hint实例, 或者该实例当前没有数据库state, 主路由将分配 ``default`` 数据库.
 
-An example
+示例
 ----------
 
-.. admonition:: Example purposes only!
+.. admonition:: 仅供参考!
 
-    This example is intended as a demonstration of how the router
-    infrastructure can be used to alter database usage. It
-    intentionally ignores some complex issues in order to
-    demonstrate how routers are used.
+    这个例子的目的是演示如何使用路由这个基本结构来决定使用的数据库. 它有意忽略一些复杂的问题, 目的是为了演示如何使用路由.
 
-    This example won't work if any of the models in ``myapp`` contain
-    relationships to models outside of the ``other`` database.
-    :ref:`Cross-database relationships <no_cross_database_relations>`
-    introduce referential integrity problems that Django can't
-    currently handle.
+    如果 ``myapp`` 中的有任何模型包含与 ``其他`` 数据库之外的模型的关联关系, 这个例子将无法正常工作. :ref:`跨数据库关联关系 <no_cross_database_relations>` 介绍了Django目前无法解决的引用完整性问题.
 
-    The primary/replica (referred to as master/slave by some databases)
-    configuration described is also flawed -- it
-    doesn't provide any solution for handling replication lag (i.e.,
-    query inconsistencies introduced because of the time taken for a
-    write to propagate to the replicas). It also doesn't consider the
-    interaction of transactions with the database utilization strategy.
+    主/副(在某些数据库中叫做master/slave)配置也是有问题的 —— 它没有提供任何处理Replication滞后的解决办法(例如, 因为写入再同步到replica需要一定的时间, 这会导致查询的不一致). 它也没有考虑到事务与数据库利用率策略的交互.
 
-So - what does this mean in practice? Let's consider another sample
-configuration. This one will have several databases: one for the
-``auth`` application, and all other apps using a primary/replica setup
-with two read replicas. Here are the settings specifying these
-databases::
+所以 —— 在实际应用中这意味着什么? 我们考虑一个简单的配置例子. 该配置有几个数据库: 一个用于 ``auth`` 应用, 和其它应用使用一个带有两个只读副本的 主/副 配置. 以下是具体设置::
 
     DATABASES = {
         'default': {},
@@ -297,8 +209,7 @@ databases::
         },
     }
 
-Now we'll need to handle routing. First we want a router that knows to
-send queries for the ``auth`` app to ``auth_db``::
+现在我们需要处理路由. 首先, 我们创建一个路由, 使它将 ``auth`` 应用的查询发送到 ``auth_db``::
 
     class AuthRouter(object):
         """
@@ -339,9 +250,7 @@ send queries for the ``auth`` app to ``auth_db``::
                 return db == 'auth_db'
             return None
 
-And we also want a router that sends all other apps to the
-primary/replica configuration, and randomly chooses a replica to read
-from::
+然后再创建一个路由, 它将其他应用发送到 主/副 配置, 并且随机选择一个副本进行读操作::
 
     import random
 
@@ -374,24 +283,16 @@ from::
             """
             return True
 
-Finally, in the settings file, we add the following (substituting
-``path.to.`` with the actual Python path to the module(s) where the
-routers are defined)::
+最后, 在配置文件中添加下面的代码(用定义路由模块的实际Python路径替换 ``path.to.``)::
 
     DATABASE_ROUTERS = ['path.to.AuthRouter', 'path.to.PrimaryReplicaRouter']
 
-The order in which routers are processed is significant. Routers will
-be queried in the order they are listed in the
-:setting:`DATABASE_ROUTERS` setting. In this example, the
-``AuthRouter`` is processed before the ``PrimaryReplicaRouter``, and as a
-result, decisions concerning the models in ``auth`` are processed
-before any other decision is made. If the :setting:`DATABASE_ROUTERS`
-setting listed the two routers in the other order,
-``PrimaryReplicaRouter.allow_migrate()`` would be processed first. The
-catch-all nature of the PrimaryReplicaRouter implementation would mean
-that all models would be available on all databases.
+路由配置的顺序非常重要. 路由将按照 :setting:`DATABASE_ROUTERS` 中设置的顺序进行查询.
+在这个例子中, ``AuthRouter`` 将在 ``PrimaryReplicaRouter`` 之前处理, ``auth`` 处理在其它模型之前.
+如果 :setting:`DATABASE_ROUTERS` 设置中按其他顺序列出这两个路由, ``PrimaryReplicaRouter.allow_migrate()`` 将优先处理.
+PrimaryReplicaRouter中实现的捕获所有的查询, 这意味着所有的模型可以位于所有的数据库中.
 
-With this setup installed, lets run some Django code::
+设置好这个配置后, 让我们运行一些Django代码::
 
     >>> # This retrieval will be performed on the 'auth_db' database
     >>> fred = User.objects.get(username='fred')
@@ -416,30 +317,22 @@ With this setup installed, lets run some Django code::
     >>> # ... but if we re-retrieve the object, it will come back on a replica
     >>> mh = Book.objects.get(title='Mostly Harmless')
 
-This example defined a router to handle interaction with models from the
-``auth`` app, and other routers to handle interaction with all other apps. If
-you left your ``default`` database empty and don't want to define a catch-all
-database router to handle all apps not otherwise specified, your routers must
-handle the names of all apps in :setting:`INSTALLED_APPS` before you migrate.
-See :ref:`contrib_app_multiple_databases` for information about contrib apps
-that must be together in one database.
+此示例定义一个路由来处理与 ``auth`` 应用的模型交互, 以及其他路由与所有其他应用程序的交互.
+如果您将 ``default`` 数据库留空, 并且不想定义一个共用的数据库来处理所有未指定的应用, 那么则路由器必须在迁移之前处理 :setting:`INSTALLED_APPS` 的所有应用名.
+有关contrib应用程序的行为, 请参考 :ref:`contrib_app_multiple_databases`.
 
-Manually selecting a database
+手动指定数据库
 =============================
 
-Django also provides an API that allows you to maintain complete control
-over database usage in your code. A manually specified database allocation
-will take priority over a database allocated by a router.
+Django还提供了了一个API用来在代码中控制数据库的使用. 手动指定的数据库的优先级高于路由分配的数据库.
 
-Manually selecting a database for a ``QuerySet``
+指定 ``QuerySet`` 数据库
 ------------------------------------------------
 
-You can select the database for a ``QuerySet`` at any point in the
-``QuerySet`` "chain." Just call ``using()`` on the ``QuerySet`` to get
-another ``QuerySet`` that uses the specified database.
+可以在 ``QuerySet`` 查询链路上的任意点为 ``QuerySet`` 指定数据库.
+调用 ``QuerySet`` 的 ``using()`` 方法指定数据库.
 
-``using()`` takes a single argument: the alias of the database on
-which you want to run the query. For example::
+``using()`` 接受一个参数: 将要指定使用的数据库别名. 比如::
 
     >>> # This will run on the 'default' database.
     >>> Author.objects.all()
@@ -450,119 +343,84 @@ which you want to run the query. For example::
     >>> # This will run on the 'other' database.
     >>> Author.objects.using('other').all()
 
-Selecting a database for ``save()``
+指定 ``save()`` 数据库
 -----------------------------------
 
-Use the ``using`` keyword to ``Model.save()`` to specify to which
-database the data should be saved.
+``Model.save()`` 使用 ``using`` 参数指定将要保存的数据库.
 
-For example, to save an object to the ``legacy_users`` database, you'd
-use this::
+例如将数据保存至 ``legacy_users`` 数据库::
 
     >>> my_object.save(using='legacy_users')
 
-If you don't specify ``using``, the ``save()`` method will save into
-the default database allocated by the routers.
+如果没有指定 ``using`` 参数, ``save()`` 方法将保存到路由分配的默认数据库中.
 
-Moving an object from one database to another
+将对象从数据库移至另一个数据库
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you've saved an instance to one database, it might be tempting to
-use ``save(using=...)`` as a way to migrate the instance to a new
-database. However, if you don't take appropriate steps, this could
-have some unexpected consequences.
+如果你已经将实例保存到数据库中, 有可能想使用 ``save(using=...)`` 来将该实例迁移到一个新的数据库中.
+但是如果你没有使用正确的操作, 这可能会导致意想不到的结果.
 
-Consider the following example::
+考虑下面的例子::
 
     >>> p = Person(name='Fred')
     >>> p.save(using='first')  # (statement 1)
     >>> p.save(using='second') # (statement 2)
 
-In statement 1, a new ``Person`` object is saved to the ``first``
-database. At this time, ``p`` doesn't have a primary key, so Django
-issues an SQL ``INSERT`` statement. This creates a primary key, and
-Django assigns that primary key to ``p``.
+在statement 1中, 将一个新的 ``Person`` 对象保存到 ``first`` 数据库中. 此时 ``p`` 还没有主键, 所以Django发出一个SQL ``INSERT`` 语句. 这会创建一个主键且赋值给 ``p``.
 
-When the save occurs in statement 2, ``p`` already has a primary key
-value, and Django will attempt to use that primary key on the new
-database. If the primary key value isn't in use in the ``second``
-database, then you won't have any problems -- the object will be
-copied to the new database.
+当在statement 2中保存时, 此时 ``p`` 已经具有主键, Django将尝试在新的数据库上使用该主键. 如果该主键值在 ``second`` 数据库中不存在, 那么就不会有问题, 该对象将正常被复制到新的数据库中.
 
-However, if the primary key of ``p`` is already in use on the
-``second`` database, the existing object in the ``second`` database
-will be overridden when ``p`` is saved.
+但是, 如果 ``p`` 的主键值已经存在于 ``second`` 数据库中, 已经存在的对象将在 ``p`` 保存时被覆盖.
 
-You can avoid this in two ways. First, you can clear the primary key
-of the instance. If an object has no primary key, Django will treat it
-as a new object, avoiding any loss of data on the ``second``
-database::
+可以用两种方法避免这种情况. 首先, 你可以清除实例的主键. 如果保存的对象没有主键, Django将把它当做一个新的对象, 这样可以避免 ``second`` 数据库上数据丢失的问题::
 
     >>> p = Person(name='Fred')
     >>> p.save(using='first')
     >>> p.pk = None # Clear the primary key.
     >>> p.save(using='second') # Write a completely new object.
 
-The second option is to use the ``force_insert`` option to ``save()``
-to ensure that Django does an SQL ``INSERT``::
+第二个方式是调用 ``save()`` 方法时, 使用可选参数 ``force_insert`` 确保Django 执行 ``INSERT`` SQL::
 
     >>> p = Person(name='Fred')
     >>> p.save(using='first')
     >>> p.save(using='second', force_insert=True)
 
-This will ensure that the person named ``Fred`` will have the same
-primary key on both databases. If that primary key is already in use
-when you try to save onto the ``second`` database, an error will be
-raised.
+这可以确保 ``Fred`` 在两个数据库上拥有同样的主键. 当在 ``second`` 上保存时, 如果主键已经存在那将会引发一个异常.
 
-Selecting a database to delete from
+指定删除的数据库
 -----------------------------------
 
-By default, a call to delete an existing object will be executed on
-the same database that was used to retrieve the object in the first
-place::
+默认情况下, 删除一个已存在对象的调用将在获取对象时使用的数据库上执行::
 
     >>> u = User.objects.using('legacy_users').get(username='fred')
-    >>> u.delete() # will delete from the `legacy_users` database
+    >>> u.delete() # 将从 `legacy_users` 数据库删除
 
-To specify the database from which a model will be deleted, pass a
-``using`` keyword argument to the ``Model.delete()`` method. This
-argument works just like the ``using`` keyword argument to ``save()``.
+``Model.delete()`` 方法使用关键字参数 ``using`` 来指定从哪个数据库删除数据. 该参数的工作方式和 ``save()`` 方法的 ``using`` 参数一样.
 
-For example, if you're migrating a user from the ``legacy_users``
-database to the ``new_users`` database, you might use these commands::
+例如, 将用户数据从 ``legacy_users`` 数据库迁移至 ``new_users`` 数据库::
 
     >>> user_obj.save(using='new_users')
     >>> user_obj.delete(using='legacy_users')
 
-Using managers with multiple databases
+使用多个数据库的管理器
 --------------------------------------
 
-Use the ``db_manager()`` method on managers to give managers access to
-a non-default database.
+使用 ``db_manager()`` 方法来使管理器访问非默认数据库.
 
-For example, say you have a custom manager method that touches the
-database -- ``User.objects.create_user()``. Because ``create_user()``
-is a manager method, not a ``QuerySet`` method, you can't do
-``User.objects.using('new_users').create_user()``. (The
-``create_user()`` method is only available on ``User.objects``, the
-manager, not on ``QuerySet`` objects derived from the manager.) The
-solution is to use ``db_manager()``, like this::
+假如你有一个自定义的管理器方法访问数据库 —— ``User.objects.create_user()``.
+因为 ``create_user()`` 方法是管理器方法不是 ``QuerySet`` 方法, 所以不能通过 ``User.objects.using('new_users').create_user()`` 指定数据库
+( ``create_user()`` 方法仅适用于 ``User.objects`` 即管理器, 而不是来自于管理器的 ``QuerySet``.) 正确方法是使用 ``db_manager()``, 例如::
 
     User.objects.db_manager('new_users').create_user(...)
 
-``db_manager()`` returns a copy of the manager bound to the database you specify.
+``db_manager()`` 返回绑定到指定数据库的管理器副本.
 
-Using ``get_queryset()`` with multiple databases
+``get_queryset()`` 使用多个数据库
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you're overriding ``get_queryset()`` on your manager, be sure to
-either call the method on the parent (using ``super()``) or do the
-appropriate handling of the ``_db`` attribute on the manager (a string
-containing the name of the database to use).
+如果你重写了管理器的 ``get_queryset()``, 请确保在父类上调用这个方法(使用 ``super()`` )或者正确处理管理器上的 ``_db`` (一个包含将要使用的数据库名称的字符串)属性.
 
-For example, if you want to return a custom ``QuerySet`` class from
-the ``get_queryset`` method, you could do this::
+例如, 你想从 ``get_queryset`` 方法返回一个自定义的 ``QuerySet`` 类::
 
     class MyManager(models.Manager):
         def get_queryset(self):
@@ -571,17 +429,12 @@ the ``get_queryset`` method, you could do this::
                 qs = qs.using(self._db)
             return qs
 
-Exposing multiple databases in Django's admin interface
+Django管理界面中使用多个数据库
 =======================================================
 
-Django's admin doesn't have any explicit support for multiple
-databases. If you want to provide an admin interface for a model on a
-database other than that specified by your router chain, you'll
-need to write custom :class:`~django.contrib.admin.ModelAdmin` classes
-that will direct the admin to use a specific database for content.
+Django的管理站点没有对多数据库显式支持. 如果要为路由指定的数据库以外的数据库提供模型的管理界面, 你需要编写自定义的 :class:`~django.contrib.admin.ModelAdmin` 类, 用来将管理站点指向一个特殊的数据库.
 
-``ModelAdmin`` objects have five methods that require customization for
-multiple-database support::
+``ModelAdmin`` 对象有5个方法需要定制以支持多数据库::
 
     class MultiDBModelAdmin(admin.ModelAdmin):
         # A handy constant for the name of the alternate database.
@@ -609,14 +462,10 @@ multiple-database support::
             # on the 'other' database.
             return super(MultiDBModelAdmin, self).formfield_for_manytomany(db_field, request, using=self.using, **kwargs)
 
-The implementation provided here implements a multi-database strategy
-where all objects of a given type are stored on a specific database
-(e.g., all ``User`` objects are in the ``other`` database). If your
-usage of multiple databases is more complex, your ``ModelAdmin`` will
-need to reflect that strategy.
+上面实现的多数据库策略是将特定模型的所有对象都保存在一个指定的数据库上(例如所有的 ``User`` 对象都保存在 ``other`` 数据库中).
+如果你的多数据库的场景更加复杂, 那么你的 ``ModelAdmin`` 也需要做出相应的的策略.
 
-:class:`~django.contrib.admin.InlineModelAdmin` objects can be handled in a
-similar fashion. They require three customized methods::
+:class:`~django.contrib.admin.InlineModelAdmin` 对象也可以使用类似的方式处理. 它需要3个自定义方法::
 
     class MultiDBTabularInline(admin.TabularInline):
         using = 'other'
@@ -635,8 +484,7 @@ similar fashion. They require three customized methods::
             # on the 'other' database.
             return super(MultiDBTabularInline, self).formfield_for_manytomany(db_field, request, using=self.using, **kwargs)
 
-Once you've written your model admin definitions, they can be
-registered with any ``Admin`` instance::
+可以在任何 ``Admin`` 实例中注册自定义的管理类::
 
     from django.contrib import admin
 
@@ -653,90 +501,55 @@ registered with any ``Admin`` instance::
     othersite = admin.AdminSite('othersite')
     othersite.register(Publisher, MultiDBModelAdmin)
 
-This example sets up two admin sites. On the first site, the
-``Author`` and ``Publisher`` objects are exposed; ``Publisher``
-objects have an tabular inline showing books published by that
-publisher. The second site exposes just publishers, without the
-inlines.
+上面例子配置了两个管理站点. 在第一个站点上, ``Author`` 和 ``Publisher`` 对象会显示; ``Publisher`` 对象有一个表格内联来显示出版者的书籍. 第二个站点只显示出版者, 不显示内嵌.
 
-Using raw cursors with multiple databases
+多数据库使用原生游标
 =========================================
 
-If you are using more than one database you can use
-``django.db.connections`` to obtain the connection (and cursor) for a
-specific database. ``django.db.connections`` is a dictionary-like
-object that allows you to retrieve a specific connection using its
-alias::
+在使用多个数据库情况下, 可以使用 ``django.db.connections`` 来获指定定数据库链接(或游标): ``django.db.connections`` 是一个类字典对象, 它可以通过别名来获取一个指定的链接::
 
     from django.db import connections
     cursor = connections['my_db_alias'].cursor()
 
-Limitations of multiple databases
+多数据库的局限性
 =================================
 
 .. _no_cross_database_relations:
 
-Cross-database relations
+跨数据库关系
 ------------------------
 
-Django doesn't currently provide any support for foreign key or
-many-to-many relationships spanning multiple databases. If you
-have used a router to partition models to different databases,
-any foreign key and many-to-many relationships defined by those
-models must be internal to a single database.
+目前Django不提供跨数据库的外键和多对多关系的支持. 如果你使用路由来分隔模型到不同的数据库上, 那么必须保证这些模型上定义的外键和多对多关联必须在单个数据库内.
 
-This is because of referential integrity. In order to maintain a
-relationship between two objects, Django needs to know that the
-primary key of the related object is valid. If the primary key is
-stored on a separate database, it's not possible to easily evaluate
-the validity of a primary key.
+这是因为引用完整性的原因. 为了保证两个对象之间的关联, Django需要知道关联对象的主键是合法的. 如果主键被保存在另一个数据库上, 判断主键的合法性不是很容易.
 
-If you're using Postgres, Oracle, or MySQL with InnoDB, this is
-enforced at the database integrity level -- database level key
-constraints prevent the creation of relations that can't be validated.
+如果你使用Postgres, Oracle或者MySQL的InnoDB, 这是数据库级别完整性的强制要求 —— 数据库级别的主键约束防止创建不能验证合法性的关联.
 
-However, if you're using SQLite or MySQL with MyISAM tables, there is
-no enforced referential integrity; as a result, you may be able to
-'fake' cross database foreign keys. However, this configuration is not
-officially supported by Django.
+但是, 如果您使用SQLite或MySQL的MyISAM表, 则不会强制引用完整性; 因此你可以"伪造"跨数据库外键. 但是Django官方不支持这种配置.
 
 .. _contrib_app_multiple_databases:
 
-Behavior of contrib apps
+contrib apps行为
 ------------------------
 
-Several contrib apps include models, and some apps depend on others. Since
-cross-database relationships are impossible, this creates some restrictions on
-how you can split these models across databases:
+有几个Contrib应用包使用了模型, 其中一些应用相互依赖. 因为不能做到跨数据库关联, 因此这会对如何跨数据库拆分这些模型带来一些限制:
 
-- each one of ``contenttypes.ContentType``, ``sessions.Session`` and
-  ``sites.Site`` can be stored in any database, given a suitable router.
-- ``auth`` models — ``User``, ``Group`` and ``Permission`` — are linked
-  together and linked to ``ContentType``, so they must be stored in the same
-  database as ``ContentType``.
-- ``admin`` depends on ``auth``, so its models must be in the same database
-  as ``auth``.
-- ``flatpages`` and ``redirects`` depend on ``sites``, so their models must be
-  in the same database as ``sites``.
+- 在给出合适路由的情况下, ``contenttypes.ContentType``, ``sessions.Session`` 和
+  ``sites.Site`` 可以储存在任何数据库中.
+- ``auth`` 模型 — ``User``, ``Group`` 和 ``Permission`` — 它们相互关联并都关联到 ``ContentType``, 因此它们必须和 ``ContentType`` 储存在同一个数据库.
+- ``admin`` 依赖于 ``auth``, 因此它的模型必须和 ``auth`` 储存在同一个数据库.
+- ``flatpages`` 和 ``redirects`` 依赖于 ``sites``, 因此它们的模型必须和 ``sites`` 储存在同一个数据库.
 
-In addition, some objects are automatically created just after
-:djadmin:`migrate` creates a table to hold them in a database:
+另外, :djadmin:`migrate` 在数据库中创建表后, 一些对象在该表中自动创建:
 
-- a default ``Site``,
-- a ``ContentType`` for each model (including those not stored in that
-  database),
-- three ``Permission`` for each model (including those not stored in that
-  database).
+- 默认的 ``Site``,
+- 每个模型的 ``ContentType`` (包括没有存储在同一个数据库中的模型),
+- 每个模型的三个 ``Permission`` (包括没有存储在同一个数据库中的模型).
 
-For common setups with multiple databases, it isn't useful to have these
-objects in more than one database. Common setups include primary/replica and
-connecting to external databases. Therefore, it's recommended to write a
-:ref:`database router<topics-db-multi-db-routing>` that allows synchronizing
-these three models to only one database. Use the same approach for contrib
-and third-party apps that don't need their tables in multiple databases.
+对于常见的多数据库配置, 将这些对象放在多个数据库中没有什么用处. 常见的数据库配置包括主/副和连接到外部的数据库.
+因此, 建议写一个 :ref:`database router<topics-db-multi-db-routing>`, 它只同步这3个模型到一个数据中.
+对于不需要将表放在多个数据库中的Contrib应用和第三方应用, 可以使用同样的方法.
 
 .. warning::
 
-    If you're synchronizing content types to more than one database, be aware
-    that their primary keys may not match across databases. This may result in
-    data corruption or data loss.
+    如果你将Content Types同步到多个数据库中, 注意它们的主键在数据库之间可能不一致. 这可能导致数据损坏或数据丢失.
