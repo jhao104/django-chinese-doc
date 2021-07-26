@@ -402,34 +402,25 @@ Django还提供了了一个API用来在代码中控制数据库的使用. 手动
     >>> user_obj.save(using='new_users')
     >>> user_obj.delete(using='legacy_users')
 
-Using managers with multiple databases
+使用多个数据库的管理器
 --------------------------------------
 
-Use the ``db_manager()`` method on managers to give managers access to
-a non-default database.
+使用 ``db_manager()`` 方法来使管理器访问非默认数据库.
 
-For example, say you have a custom manager method that touches the
-database -- ``User.objects.create_user()``. Because ``create_user()``
-is a manager method, not a ``QuerySet`` method, you can't do
-``User.objects.using('new_users').create_user()``. (The
-``create_user()`` method is only available on ``User.objects``, the
-manager, not on ``QuerySet`` objects derived from the manager.) The
-solution is to use ``db_manager()``, like this::
+假如你有一个自定义的管理器方法访问数据库 —— ``User.objects.create_user()``.
+因为 ``create_user()`` 方法是管理器方法不是 ``QuerySet`` 方法, 所以不能通过 ``User.objects.using('new_users').create_user()`` 指定数据库
+( ``create_user()`` 方法仅适用于 ``User.objects`` 即管理器, 而不是来自于管理器的 ``QuerySet``.) 正确方法是使用 ``db_manager()``, 例如::
 
     User.objects.db_manager('new_users').create_user(...)
 
-``db_manager()`` returns a copy of the manager bound to the database you specify.
+``db_manager()`` 返回绑定到指定数据库的管理器副本.
 
-Using ``get_queryset()`` with multiple databases
+``get_queryset()`` 使用多个数据库
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you're overriding ``get_queryset()`` on your manager, be sure to
-either call the method on the parent (using ``super()``) or do the
-appropriate handling of the ``_db`` attribute on the manager (a string
-containing the name of the database to use).
+如果你重写了管理器的 ``get_queryset()``, 请确保在父类上调用这个方法(使用 ``super()`` )或者正确处理管理器上的 ``_db`` (一个包含将要使用的数据库名称的字符串)属性.
 
-For example, if you want to return a custom ``QuerySet`` class from
-the ``get_queryset`` method, you could do this::
+例如, 你想从 ``get_queryset`` 方法返回一个自定义的 ``QuerySet`` 类::
 
     class MyManager(models.Manager):
         def get_queryset(self):
@@ -438,17 +429,12 @@ the ``get_queryset`` method, you could do this::
                 qs = qs.using(self._db)
             return qs
 
-Exposing multiple databases in Django's admin interface
+Django管理界面中使用多个数据库
 =======================================================
 
-Django's admin doesn't have any explicit support for multiple
-databases. If you want to provide an admin interface for a model on a
-database other than that specified by your router chain, you'll
-need to write custom :class:`~django.contrib.admin.ModelAdmin` classes
-that will direct the admin to use a specific database for content.
+Django的管理站点没有对多数据库显式支持. 如果要为路由指定的数据库以外的数据库提供模型的管理界面, 你需要编写自定义的 :class:`~django.contrib.admin.ModelAdmin` 类, 用来将管理站点指向一个特殊的数据库.
 
-``ModelAdmin`` objects have five methods that require customization for
-multiple-database support::
+``ModelAdmin`` 对象有5个方法需要定制以支持多数据库::
 
     class MultiDBModelAdmin(admin.ModelAdmin):
         # A handy constant for the name of the alternate database.
@@ -476,14 +462,10 @@ multiple-database support::
             # on the 'other' database.
             return super(MultiDBModelAdmin, self).formfield_for_manytomany(db_field, request, using=self.using, **kwargs)
 
-The implementation provided here implements a multi-database strategy
-where all objects of a given type are stored on a specific database
-(e.g., all ``User`` objects are in the ``other`` database). If your
-usage of multiple databases is more complex, your ``ModelAdmin`` will
-need to reflect that strategy.
+上面实现的多数据库策略是将特定模型的所有对象都保存在一个指定的数据库上(例如所有的 ``User`` 对象都保存在 ``other`` 数据库中).
+如果你的多数据库的场景更加复杂, 那么你的 ``ModelAdmin`` 也需要做出相应的的策略.
 
-:class:`~django.contrib.admin.InlineModelAdmin` objects can be handled in a
-similar fashion. They require three customized methods::
+:class:`~django.contrib.admin.InlineModelAdmin` 对象也可以使用类似的方式处理. 它需要3个自定义方法::
 
     class MultiDBTabularInline(admin.TabularInline):
         using = 'other'
@@ -502,8 +484,7 @@ similar fashion. They require three customized methods::
             # on the 'other' database.
             return super(MultiDBTabularInline, self).formfield_for_manytomany(db_field, request, using=self.using, **kwargs)
 
-Once you've written your model admin definitions, they can be
-registered with any ``Admin`` instance::
+可以在任何 ``Admin`` 实例中注册自定义的管理类::
 
     from django.contrib import admin
 
@@ -520,90 +501,55 @@ registered with any ``Admin`` instance::
     othersite = admin.AdminSite('othersite')
     othersite.register(Publisher, MultiDBModelAdmin)
 
-This example sets up two admin sites. On the first site, the
-``Author`` and ``Publisher`` objects are exposed; ``Publisher``
-objects have an tabular inline showing books published by that
-publisher. The second site exposes just publishers, without the
-inlines.
+上面例子配置了两个管理站点. 在第一个站点上, ``Author`` 和 ``Publisher`` 对象会显示; ``Publisher`` 对象有一个表格内联来显示出版者的书籍. 第二个站点只显示出版者, 不显示内嵌.
 
-Using raw cursors with multiple databases
+多数据库使用原生游标
 =========================================
 
-If you are using more than one database you can use
-``django.db.connections`` to obtain the connection (and cursor) for a
-specific database. ``django.db.connections`` is a dictionary-like
-object that allows you to retrieve a specific connection using its
-alias::
+在使用多个数据库情况下, 可以使用 ``django.db.connections`` 来获指定定数据库链接(或游标): ``django.db.connections`` 是一个类字典对象, 它可以通过别名来获取一个指定的链接::
 
     from django.db import connections
     cursor = connections['my_db_alias'].cursor()
 
-Limitations of multiple databases
+多数据库的局限性
 =================================
 
 .. _no_cross_database_relations:
 
-Cross-database relations
+跨数据库关系
 ------------------------
 
-Django doesn't currently provide any support for foreign key or
-many-to-many relationships spanning multiple databases. If you
-have used a router to partition models to different databases,
-any foreign key and many-to-many relationships defined by those
-models must be internal to a single database.
+目前Django不提供跨数据库的外键和多对多关系的支持. 如果你使用路由来分隔模型到不同的数据库上, 那么必须保证这些模型上定义的外键和多对多关联必须在单个数据库内.
 
-This is because of referential integrity. In order to maintain a
-relationship between two objects, Django needs to know that the
-primary key of the related object is valid. If the primary key is
-stored on a separate database, it's not possible to easily evaluate
-the validity of a primary key.
+这是因为引用完整性的原因. 为了保证两个对象之间的关联, Django需要知道关联对象的主键是合法的. 如果主键被保存在另一个数据库上, 判断主键的合法性不是很容易.
 
-If you're using Postgres, Oracle, or MySQL with InnoDB, this is
-enforced at the database integrity level -- database level key
-constraints prevent the creation of relations that can't be validated.
+如果你使用Postgres, Oracle或者MySQL的InnoDB, 这是数据库级别完整性的强制要求 —— 数据库级别的主键约束防止创建不能验证合法性的关联.
 
-However, if you're using SQLite or MySQL with MyISAM tables, there is
-no enforced referential integrity; as a result, you may be able to
-'fake' cross database foreign keys. However, this configuration is not
-officially supported by Django.
+但是, 如果您使用SQLite或MySQL的MyISAM表, 则不会强制引用完整性; 因此你可以"伪造"跨数据库外键. 但是Django官方不支持这种配置.
 
 .. _contrib_app_multiple_databases:
 
-Behavior of contrib apps
+contrib apps行为
 ------------------------
 
-Several contrib apps include models, and some apps depend on others. Since
-cross-database relationships are impossible, this creates some restrictions on
-how you can split these models across databases:
+有几个Contrib应用包使用了模型, 其中一些应用相互依赖. 因为不能做到跨数据库关联, 因此这会对如何跨数据库拆分这些模型带来一些限制:
 
-- each one of ``contenttypes.ContentType``, ``sessions.Session`` and
-  ``sites.Site`` can be stored in any database, given a suitable router.
-- ``auth`` models — ``User``, ``Group`` and ``Permission`` — are linked
-  together and linked to ``ContentType``, so they must be stored in the same
-  database as ``ContentType``.
-- ``admin`` depends on ``auth``, so its models must be in the same database
-  as ``auth``.
-- ``flatpages`` and ``redirects`` depend on ``sites``, so their models must be
-  in the same database as ``sites``.
+- 在给出合适路由的情况下, ``contenttypes.ContentType``, ``sessions.Session`` 和
+  ``sites.Site`` 可以储存在任何数据库中.
+- ``auth`` 模型 — ``User``, ``Group`` 和 ``Permission`` — 它们相互关联并都关联到 ``ContentType``, 因此它们必须和 ``ContentType`` 储存在同一个数据库.
+- ``admin`` 依赖于 ``auth``, 因此它的模型必须和 ``auth`` 储存在同一个数据库.
+- ``flatpages`` 和 ``redirects`` 依赖于 ``sites``, 因此它们的模型必须和 ``sites`` 储存在同一个数据库.
 
-In addition, some objects are automatically created just after
-:djadmin:`migrate` creates a table to hold them in a database:
+另外, :djadmin:`migrate` 在数据库中创建表后, 一些对象在该表中自动创建:
 
-- a default ``Site``,
-- a ``ContentType`` for each model (including those not stored in that
-  database),
-- three ``Permission`` for each model (including those not stored in that
-  database).
+- 默认的 ``Site``,
+- 每个模型的 ``ContentType`` (包括没有存储在同一个数据库中的模型),
+- 每个模型的三个 ``Permission`` (包括没有存储在同一个数据库中的模型).
 
-For common setups with multiple databases, it isn't useful to have these
-objects in more than one database. Common setups include primary/replica and
-connecting to external databases. Therefore, it's recommended to write a
-:ref:`database router<topics-db-multi-db-routing>` that allows synchronizing
-these three models to only one database. Use the same approach for contrib
-and third-party apps that don't need their tables in multiple databases.
+对于常见的多数据库配置, 将这些对象放在多个数据库中没有什么用处. 常见的数据库配置包括主/副和连接到外部的数据库.
+因此, 建议写一个 :ref:`database router<topics-db-multi-db-routing>`, 它只同步这3个模型到一个数据中.
+对于不需要将表放在多个数据库中的Contrib应用和第三方应用, 可以使用同样的方法.
 
 .. warning::
 
-    If you're synchronizing content types to more than one database, be aware
-    that their primary keys may not match across databases. This may result in
-    data corruption or data loss.
+    如果你将Content Types同步到多个数据库中, 注意它们的主键在数据库之间可能不一致. 这可能导致数据损坏或数据丢失.
