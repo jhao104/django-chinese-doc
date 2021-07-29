@@ -1,5 +1,5 @@
 ==================
-Database Functions
+数据库函数
 ==================
 
 .. module:: django.db.models.functions

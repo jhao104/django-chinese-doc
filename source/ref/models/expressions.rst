@@ -185,65 +185,51 @@ Django支持在查询表达式中使用加, 减, 乘, 除, 求模, 幂运算, Py
 ``Func()`` 表达式
 ----------------------
 
-``Func()`` expressions are the base type of all expressions that involve
-database functions like ``COALESCE`` and ``LOWER``, or aggregates like ``SUM``.
-They can be used directly::
+``Func()`` 表达式是所有涉及数据库函数的表达式基类, 例如 ``COALESCE`` 和 ``LOWER``, 还包括聚合函数如 ``SUM``. 可以通过下面方式直接使用::
 
     from django.db.models import Func, F
 
     queryset.annotate(field_lower=Func(F('field'), function='LOWER'))
 
-or they can be used to build a library of database functions::
+也可以用来构建数据库函数库::
 
     class Lower(Func):
         function = 'LOWER'
 
     queryset.annotate(field_lower=Lower('field'))
 
-But both cases will result in a queryset where each model is annotated with an
-extra attribute ``field_lower`` produced, roughly, from the following SQL::
+这两种写法都会产生一个查询集, 其中的每个模型对象都会用大致类似下面的SQL生成一个额外属性 ``field_lower``::
 
     SELECT
         ...
         LOWER("db_table"."field") as "field_lower"
 
-See :doc:`database-functions` for a list of built-in database functions.
+参见 :doc:`database-functions` 查看内置的数据库函数列表.
 
-The ``Func`` API is as follows:
+``Func`` API如下:
 
 .. class:: Func(*expressions, **extra)
 
     .. attribute:: function
 
-        A class attribute describing the function that will be generated.
-        Specifically, the ``function`` will be interpolated as the ``function``
-        placeholder within :attr:`template`. Defaults to ``None``.
+        描述将要生成的函数的类属性. 具体来说, ``function`` 将被插入 :attr:`template` 中的 ``function`` 占位符. 默认为 ``None``.
 
     .. attribute:: template
 
-        A class attribute, as a format string, that describes the SQL that is
-        generated for this function. Defaults to
-        ``'%(function)s(%(expressions)s)'``.
+        类属性, 格式化字符串, 描述该函数要生成的SQL. 默认值为 ``'%(function)s(%(expressions)s)'``.
 
-        If you're constructing SQL like ``strftime('%W', 'date')`` and need a
-        literal ``%`` character in the query, quadruple it (``%%%%``) in the
-        ``template`` attribute because the string is interpolated twice: once
-        during the template interpolation in ``as_sql()`` and once in the SQL
-        interpolation with the query parameters in the database cursor.
+        如果你想构造类似 ``strftime('%W', 'date')`` 这样的SQL. 需要在查询中使用 ``%`` 字符, 则需要在 ``template`` 属性中使用四个(``%%%%``),
+        因为这个字符串会被插值两次, 一次是在模板 ``as_sql()`` 时插值, 另一次是在数据库查询SQL中参数的插值.
 
     .. attribute:: arg_joiner
 
-        A class attribute that denotes the character used to join the list of
-        ``expressions`` together. Defaults to ``', '``.
+        一个表示join ``expressions`` 列表的字符. 默认为 ``', '``.
 
     .. attribute:: arity
 
         .. versionadded:: 1.10
 
-        A class attribute that denotes the number of arguments the function
-        accepts. If this attribute is set and the function is called with a
-        different number of expressions, ``TypeError`` will be raised. Defaults
-        to ``None``.
+        类属性, 表示函数接受的参数数量. 如果设置了该属性, 并且调用时使用了不同数量的参数将引发 ``TypeError`` 异常. 默认值为 ``None``.
 
     .. method:: as_sql(compiler, connection, function=None, template=None, arg_joiner=None, **extra_context)
 

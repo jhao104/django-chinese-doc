@@ -102,7 +102,7 @@ Django提供一个抽象层（Models）以构建和操作你的web应用中的�
   :doc:`自定义字段 <howto/custom-model-fields>` |
   :doc:`多数据库 <topics/db/multi-db>` |
   :doc:`自定义查找 <howto/custom-lookups>` |
-  :doc:`查询语法 <ref/models/expressions>` |
+  :doc:`查询表达式 <ref/models/expressions>` |
   :doc:`条件表达式 <ref/models/conditional-expressions>` |
   :doc:`数据库函数 <ref/models/database-functions>`
 
