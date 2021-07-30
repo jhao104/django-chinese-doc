@@ -233,11 +233,9 @@ Django支持在查询表达式中使用加, 减, 乘, 除, 求模, 幂运算, Py
 
     .. method:: as_sql(compiler, connection, function=None, template=None, arg_joiner=None, **extra_context)
 
-        Generates the SQL for the database function.
+        生成数据库函数SQL.
 
-        The ``as_vendor()`` methods should use the ``function``, ``template``,
-        ``arg_joiner``, and any other ``**extra_context`` parameters to
-        customize the SQL as needed. For example:
+        ``as_vendor()`` 方法会使用 ``function``, ``template``, ``arg_joiner``, 和 ``**extra_context`` 参数根据需要定制SQL. 例如:
 
         .. snippet::
             :filename: django/db/models/functions.py
@@ -256,82 +254,53 @@ Django支持在查询表达式中使用加, 减, 乘, 除, 求模, 幂运算, Py
 
         .. versionchanged:: 1.10
 
-            Support for the ``arg_joiner`` and ``**extra_context`` parameters
-            was added.
+            新增参数 ``arg_joiner`` 和 ``**extra_context``.
 
-The ``*expressions`` argument is a list of positional expressions that the
-function will be applied to. The expressions will be converted to strings,
-joined together with ``arg_joiner``, and then interpolated into the ``template``
-as the ``expressions`` placeholder.
+``*expressions`` 参数是将要应用到函数的表达式列表的位置参数. 表达式将被 ``arg_joiner`` 连接成字符串, 然后插入 ``template`` 中的 ``expressions`` 占位符.
 
-Positional arguments can be expressions or Python values. Strings are
-assumed to be column references and will be wrapped in ``F()`` expressions
-while other values will be wrapped in ``Value()`` expressions.
+位置参数可以是表达式和Python值. 字符串会被认为是列引用, 并将其封装在 ``F()`` 表达式中. 其他值将被封装在 ``Value()`` 表达式中.
 
-The ``**extra`` kwargs are ``key=value`` pairs that can be interpolated
-into the ``template`` attribute. The ``function``, ``template``, and
-``arg_joiner`` keywords can be used to replace the attributes of the same name
-without having to define your own class. ``output_field`` can be used to define
-the expected return type.
+``**extra`` 是插入 ``template`` 的 ``key=value`` 对. ``function``, ``template`` 和 ``arg_joiner`` 用于替换相同名称的属性, 而无需定义自己的类. ``output_field`` 用于定义期望的返回类型.
 
-``Aggregate()`` expressions
+``Aggregate()`` 表达式
 ---------------------------
 
-An aggregate expression is a special case of a :ref:`Func() expression
-<func-expressions>` that informs the query that a ``GROUP BY`` clause
-is required. All of the :ref:`聚合函数 <aggregation-functions>`,
-like ``Sum()`` and ``Count()``, inherit from ``Aggregate()``.
+聚合表达式是一种特殊的 :ref:`Func() 表达式<func-expressions>`,  它告知查询需要一个 ``GROUP BY`` 子句.
+所有 :ref:`聚合函数 <aggregation-functions>` 例如 ``Sum()`` 和 ``Count()`` 都继承至 ``Aggregate()``.
 
-Since ``Aggregate``\s are expressions and wrap expressions, you can represent
-some complex computations::
+由于 ``Aggregate`` 是表达式或封装的表达式, 因此可以做一些复杂的计算::
 
     from django.db.models import Count
 
     Company.objects.annotate(
         managers_required=(Count('num_employees') / 4) + Count('num_managers'))
 
-The ``Aggregate`` API is as follows:
+``Aggregate`` API如下:
 
 .. class:: Aggregate(expression, output_field=None, **extra)
 
     .. attribute:: template
 
-        A class attribute, as a format string, that describes the SQL that is
-        generated for this aggregate. Defaults to
-        ``'%(function)s( %(expressions)s )'``.
+        类属性, 格式化字符串, 描述要生成的聚合SQL. 默认为 ``'%(function)s( %(expressions)s )'``.
 
     .. attribute:: function
 
-        A class attribute describing the aggregate function that will be
-        generated. Specifically, the ``function`` will be interpolated as the
-        ``function`` placeholder within :attr:`template`. Defaults to ``None``.
+        类属性, 描述要生成的聚合函数. 具体来说, ``function`` 将被插入到 :attr:`template` 中的 ``function`` 占位符. 默认为 ``None``.
 
-The ``expression`` argument can be the name of a field on the model, or another
-expression. It will be converted to a string and used as the ``expressions``
-placeholder within the ``template``.
+``expression`` 参数可以是模型上的字段名称或其他表达式. 它将会被转换成字符串插入到 ``template`` 中的 ``expressions`` 占位符.
 
-The ``output_field`` argument requires a model field instance, like
-``IntegerField()`` or ``BooleanField()``, into which Django will load the value
-after it's retrieved from the database. Usually no arguments are needed when
-instantiating the model field as any arguments relating to data validation
-(``max_length``, ``max_digits``, etc.) will not be enforced on the expression's
-output value.
+``output_field`` 参数接收一个模型字段实例, 如 ``output_field()`` 和 ``BooleanField()``.
+Django将从数据库中检索的值装载到其中. 通常在实例化模型字段时不需要任何参数. 因为所有数据验证有关的参数(``max_length``, ``max_digits``, etc.)都不会在表达式的输出值上执行.
 
-Note that ``output_field`` is only required when Django is unable to determine
-what field type the result should be. Complex expressions that mix field types
-should define the desired ``output_field``. For example, adding an
-``IntegerField()`` and a ``FloatField()`` together should probably have
-``output_field=FloatField()`` defined.
+注意, 只有当Django无法确定结果应该是什么字段类型时才需要 ``output_field``. 混合字段类型的复杂表达式应定义 ``output_field``.
+例如, 将一个 ``IntegerField()`` 和 ``FloatField()`` 相加, 就可以定义 ``output_field=FloatField()``.
 
-The ``**extra`` kwargs are ``key=value`` pairs that can be interpolated
-into the ``template`` attribute.
+``**extra`` 关键字是 ``key=value`` 对, 用来插入到 ``template`` 属性中.
 
-Creating your own Aggregate Functions
+自定义聚合函数
 -------------------------------------
 
-Creating your own aggregate is extremely easy. At a minimum, you need
-to define ``function``, but you can also completely customize the
-SQL that is generated. Here's a brief example::
+自定义聚合函数非常容易. 你可以定义 ``function`` 也可以完全自定义生成SQL. 下面是一个简单例子::
 
     from django.db.models import Aggregate
 
@@ -349,7 +318,7 @@ SQL that is generated. Here's a brief example::
             )
 
 
-``Value()`` expressions
+``Value()`` 表达式
 -----------------------
 
 .. class:: Value(value, output_field=None)
