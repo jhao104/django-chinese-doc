@@ -1,27 +1,21 @@
 =================
-Query Expressions
+查询表达式
 =================
 
 .. currentmodule:: django.db.models
 
-Query expressions describe a value or a computation that can be used as part of
-an update, create, filter, order by, annotation, or aggregate. There are a
-number of built-in expressions (documented below) that can be used to help you
-write queries. Expressions can be combined, or in some cases nested, to form
-more complex computations.
+查询表达式是用作更新, 创建, 过滤, 排序, 注解和聚合的一部分值或计算. 这里(下文)有很多内置表达式可以帮助你完成查询. 表达式可以通过组合和嵌套来完成复杂的计算.
 
 .. versionchanged:: 1.9
 
-    Support for using expressions when creating new model instances was added.
+    添加了对在创建新模型实例时使用表达式的支持.
 
-Supported arithmetic
+支持的算术运算
 ====================
 
-Django supports addition, subtraction, multiplication, division, modulo
-arithmetic, and the power operator on query expressions, using Python constants,
-variables, and even other expressions.
+Django支持在查询表达式中使用加, 减, 乘, 除, 求模, 幂运算, Python常量, 变量等.
 
-Some examples
+一些例子
 =============
 
 .. code-block:: python
@@ -69,39 +63,30 @@ Some examples
     Company.objects.order_by(Length('name').desc())
 
 
-Built-in Expressions
+内置表达式
 ====================
 
 .. note::
 
-    These expressions are defined in ``django.db.models.expressions`` and
-    ``django.db.models.aggregates``, but for convenience they're available and
-    usually imported from :mod:`django.db.models`.
+    这些表达式定义在 ``django.db.models.expressions`` 和 ``django.db.models.aggregates`` 中, 但是为了方便可以直接从 :mod:`django.db.models` 导入.
 
-``F()`` expressions
+``F()`` 表达式
 -------------------
 
 .. class:: F
 
-An ``F()`` object represents the value of a model field or annotated column. It
-makes it possible to refer to model field values and perform  database
-operations using them without actually having to pull them out of the  database
-into Python memory.
+``F()`` 对象代表模型的字段或注释列的值. 它使得引用模型字段值并使用它们执行数据库操作成为可能, 而不用再把它们查询出来放到python内存中.
 
-Instead, Django uses the ``F()`` object to generate an SQL expression that
-describes the required operation at the database level.
+取而代之的是, Django使用 ``F()`` 对象生成描述数据库级所需操作的SQL表达式.
 
-This is easiest to understand through an example. Normally, one might do
-something like this::
+这可以通过一个例子很容易理解. 往常我们会这样做::
 
     # Tintin filed a news story!
     reporter = Reporters.objects.get(name='Tintin')
     reporter.stories_filed += 1
     reporter.save()
 
-Here, we have pulled the value of ``reporter.stories_filed`` from the database
-into memory and manipulated it using familiar Python operators, and then saved
-the object back to the database. But instead we could also have done::
+这里, 我们把 ``reporter.stories_filed`` 的值从数据库查询出来放到内存中, 然后再用python运算符操作它, 最后再把它保存到数据库. 但是我们还可以这样做::
 
     from django.db.models import F
 
@@ -109,69 +94,49 @@ the object back to the database. But instead we could also have done::
     reporter.stories_filed = F('stories_filed') + 1
     reporter.save()
 
-Although ``reporter.stories_filed = F('stories_filed') + 1`` looks like a
-normal Python assignment of value to an instance attribute, in fact it's an SQL
-construct describing an operation on the database.
+看上去 ``reporter.stories_filed = F('stories_filed') + 1`` 是一个给实例属性赋值的普通Python操作, 事实上这是一个描述数据库操作的SQL结构.
 
-When Django encounters an instance of ``F()``, it overrides the standard Python
-operators to create an encapsulated SQL expression; in this case, one which
-instructs the database to increment the database field represented by
-``reporter.stories_filed``.
+当Django遇到一个 ``F()`` 的实例时, 它会重写标准的Python运算符来创建一个封装的SQL表达式; 在本例中, 它指示数据库增加 ``reporter.stories_filed`` 字段表示的数据库字段的值.
 
-Whatever value is or was on ``reporter.stories_filed``, Python never gets to
-know about it - it is dealt with entirely by the database. All Python does,
-through Django's ``F()`` class, is create the SQL syntax to refer to the field
-and describe the operation.
+无论 ``reporter.stories_filed`` 的值是或曾是什么, Python不需要知道--它完全由数据库处理. 通过Django的 ``F()`` 类, Python所做的只是去创建SQL语句引用字段和描述操作.
 
-To access the new value saved this way, the object must be reloaded::
+要访问以这种方式保存的新值, 必须重新加载该对象::
 
    reporter = Reporters.objects.get(pk=reporter.pk)
    # Or, more succinctly:
    reporter.refresh_from_db()
 
-As well as being used in operations on single instances as above, ``F()`` can
-be used on ``QuerySets`` of object instances, with ``update()``. This reduces
-the two queries we were using above - the ``get()`` and the
-:meth:`~Model.save()` - to just one::
+除了如上所述在单个实例的操作中使用外, ``F()`` 表达式还可以与 ``update()`` 一起用于对象实例的 ``QuerySets``.
+这将我们在上面使用的两个查询 ``get()`` 和 :meth:`~Model.save()` 减少到一个::
 
     reporter = Reporters.objects.filter(name='Tintin')
     reporter.update(stories_filed=F('stories_filed') + 1)
 
-We can also use :meth:`~django.db.models.query.QuerySet.update()` to increment
-the field value on multiple objects - which could be very much faster than
-pulling them all into Python from the database, looping over them, incrementing
-the field value of each one, and saving each one back to the database::
+我们还可以使用 :meth:`~django.db.models.query.QuerySet.update()` 来批量增加多个对象的字段值.
+这比将所有对象从数据库中存入Python, 然后循环增加每个对象的字段值并将每个对象保存回数据库要快得多::
 
     Reporter.objects.all().update(stories_filed=F('stories_filed') + 1)
 
-``F()`` therefore can offer performance advantages by:
+``F()`` 表达式的效率上的优点主要体现在:
 
-* getting the database, rather than Python, to do work
-* reducing the number of queries some operations require
+* 让数据库处理, 而不是Python来完成
+* 减少某些操作所需的查询次数
 
 .. _avoiding-race-conditions-using-f:
 
-Avoiding race conditions using ``F()``
+使用 ``F()`` 避免竞争条件
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Another useful benefit of ``F()`` is that having the database - rather than
-Python - update a field's value avoids a *race condition*.
+``F()`` 的另一个好处是让数据库去操作——而不是用Python更新字段的值, 这避免了 **竞争条件**.
 
-If two Python threads execute the code in the first example above, one thread
-could retrieve, increment, and save a field's value after the other has
-retrieved it from the database. The value that the second thread saves will be
-based on the original value; the work of the first thread will simply be lost.
+假设有两个Python线程同时执行上面第一个例子中的代码, 一个线程可能是在另一个线程刚从数据库中获取完字段值后检索, 增加, 保存该字段值. 第二个线程保存的值则是基于原始值的. 第一个线程的工作将会丢失.
 
-If the database is responsible for updating the field, the process is more
-robust: it will only ever update the field based on the value of the field in
-the database when the :meth:`~Model.save()` or ``update()`` is executed, rather
-than based on its value when the instance was retrieved.
+如果让数据库负责更新字段, 那么这个过程就更加健壮: 它会在执行 :meth:`~Model.save()` 或 ``update()`` 时根据数据库中字段的值更新字段, 而不是根据检索实例时的值更新字段.
 
-``F()`` assignments persist after ``Model.save()``
+``F()`` 赋值在 ``Model.save()`` 后持续存在
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``F()`` objects assigned to model fields persist after saving the model
-instance and will be applied on each :meth:`~Model.save()`. For example::
+模型实例被保存后, 分配给模型字段的 ``F()`` 对象仍然存在, 并将应用于每个 :meth:`~Model.save()`. 例如::
 
     reporter = Reporters.objects.get(name='Tintin')
     reporter.stories_filed = F('stories_filed') + 1
@@ -180,34 +145,26 @@ instance and will be applied on each :meth:`~Model.save()`. For example::
     reporter.name = 'Tintin Jr.'
     reporter.save()
 
-``stories_filed`` will be updated twice in this case. If it's initially ``1``,
-the final value will be ``3``.
+``stories_filed`` 将会被更新两次. 如果初始值是 ``1``, 那么最终值将是 ``3``.
 
-Using ``F()`` in filters
+在filters中使用 ``F()``
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-``F()`` is also very useful in ``QuerySet`` filters, where they make it
-possible to filter a set of objects against criteria based on their field
-values, rather than on Python values.
+``F()`` 在 ``QuerySet`` 过滤器中也非常有用, 它使得可以通过字段值而不是Python值来过滤一组对象变得可能.
 
-This is documented in :ref:`using F() expressions in queries
-<using-f-expressions-in-filters>`.
+详见 :ref:`在查询中使用 F() 表达式 <using-f-expressions-in-filters>`.
 
 .. _using-f-with-annotations:
 
-Using ``F()`` with annotations
+在注解中使用 ``F()``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``F()`` can be used to create dynamic fields on your models by combining
-different fields with arithmetic::
+``F()`` 可用于通过将不同字段与算术组合, 在模型上创建动态字段::
 
     company = Company.objects.annotate(
         chairs_needed=F('num_employees') - F('num_chairs'))
 
-If the fields that you're combining are of different types you'll need
-to tell Django what kind of field will be returned. Since ``F()`` does not
-directly support ``output_field`` you will need to wrap the expression with
-:class:`ExpressionWrapper`::
+如果组合的字段是不同类型的, 需要告诉Django返回的字段类型. 由于 ``F()`` 不支持 ``output_field`` 参数, 你需要用 :class:`ExpressionWrapper` 来封装表达式::
 
     from django.db.models import DateTimeField, ExpressionWrapper, F
 
@@ -215,8 +172,7 @@ directly support ``output_field`` you will need to wrap the expression with
         expires=ExpressionWrapper(
             F('active_at') + F('duration'), output_field=DateTimeField()))
 
-When referencing relational fields such as ``ForeignKey``, ``F()`` returns the
-primary key value rather than a model instance::
+当引用的是关联字段比如 ``ForeignKey`` 时, ``F()`` 返回的是主键值而不是关联模型实例::
 
     >> car = Company.objects.annotate(built_by=F('manufacturer'))[0]
     >> car.manufacturer
@@ -226,68 +182,54 @@ primary key value rather than a model instance::
 
 .. _func-expressions:
 
-``Func()`` expressions
+``Func()`` 表达式
 ----------------------
 
-``Func()`` expressions are the base type of all expressions that involve
-database functions like ``COALESCE`` and ``LOWER``, or aggregates like ``SUM``.
-They can be used directly::
+``Func()`` 表达式是所有涉及数据库函数的表达式基类, 例如 ``COALESCE`` 和 ``LOWER``, 还包括聚合函数如 ``SUM``. 可以通过下面方式直接使用::
 
     from django.db.models import Func, F
 
     queryset.annotate(field_lower=Func(F('field'), function='LOWER'))
 
-or they can be used to build a library of database functions::
+也可以用来构建数据库函数库::
 
     class Lower(Func):
         function = 'LOWER'
 
     queryset.annotate(field_lower=Lower('field'))
 
-But both cases will result in a queryset where each model is annotated with an
-extra attribute ``field_lower`` produced, roughly, from the following SQL::
+这两种写法都会产生一个查询集, 其中的每个模型对象都会用大致类似下面的SQL生成一个额外属性 ``field_lower``::
 
     SELECT
         ...
         LOWER("db_table"."field") as "field_lower"
 
-See :doc:`database-functions` for a list of built-in database functions.
+参见 :doc:`database-functions` 查看内置的数据库函数列表.
 
-The ``Func`` API is as follows:
+``Func`` API如下:
 
 .. class:: Func(*expressions, **extra)
 
     .. attribute:: function
 
-        A class attribute describing the function that will be generated.
-        Specifically, the ``function`` will be interpolated as the ``function``
-        placeholder within :attr:`template`. Defaults to ``None``.
+        描述将要生成的函数的类属性. 具体来说, ``function`` 将被插入 :attr:`template` 中的 ``function`` 占位符. 默认为 ``None``.
 
     .. attribute:: template
 
-        A class attribute, as a format string, that describes the SQL that is
-        generated for this function. Defaults to
-        ``'%(function)s(%(expressions)s)'``.
+        类属性, 格式化字符串, 描述该函数要生成的SQL. 默认值为 ``'%(function)s(%(expressions)s)'``.
 
-        If you're constructing SQL like ``strftime('%W', 'date')`` and need a
-        literal ``%`` character in the query, quadruple it (``%%%%``) in the
-        ``template`` attribute because the string is interpolated twice: once
-        during the template interpolation in ``as_sql()`` and once in the SQL
-        interpolation with the query parameters in the database cursor.
+        如果你想构造类似 ``strftime('%W', 'date')`` 这样的SQL. 需要在查询中使用 ``%`` 字符, 则需要在 ``template`` 属性中使用四个(``%%%%``),
+        因为这个字符串会被插值两次, 一次是在模板 ``as_sql()`` 时插值, 另一次是在数据库查询SQL中参数的插值.
 
     .. attribute:: arg_joiner
 
-        A class attribute that denotes the character used to join the list of
-        ``expressions`` together. Defaults to ``', '``.
+        一个表示join ``expressions`` 列表的字符. 默认为 ``', '``.
 
     .. attribute:: arity
 
         .. versionadded:: 1.10
 
-        A class attribute that denotes the number of arguments the function
-        accepts. If this attribute is set and the function is called with a
-        different number of expressions, ``TypeError`` will be raised. Defaults
-        to ``None``.
+        类属性, 表示函数接受的参数数量. 如果设置了该属性, 并且调用时使用了不同数量的参数将引发 ``TypeError`` 异常. 默认值为 ``None``.
 
     .. method:: as_sql(compiler, connection, function=None, template=None, arg_joiner=None, **extra_context)
 
@@ -337,7 +279,7 @@ the expected return type.
 
 An aggregate expression is a special case of a :ref:`Func() expression
 <func-expressions>` that informs the query that a ``GROUP BY`` clause
-is required. All of the :ref:`aggregate functions <aggregation-functions>`,
+is required. All of the :ref:`聚合函数 <aggregation-functions>`,
 like ``Sum()`` and ``Count()``, inherit from ``Aggregate()``.
 
 Since ``Aggregate``\s are expressions and wrap expressions, you can represent

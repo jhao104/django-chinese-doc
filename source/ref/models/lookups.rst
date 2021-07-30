@@ -63,6 +63,7 @@ Django通过 :class:`~lookups.RegisterLookupMixin` 来给类提供注册查找�
 <查询表达式接口>`. :class:`~Lookup` 和 :class:`~Transform` 已遵循这个接口.
 
 .. _查询表达式接口:
+.. _query-expression:
 
 查询表达式接口
 ========================

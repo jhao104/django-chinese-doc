@@ -2423,6 +2423,7 @@ SQL中支持 ``BETWEEN`` 的地方都支持 ``range``  — 比如日期,数字,�
     SELECT ... WHERE title REGEXP '(?i)^(an?|the) +'; -- SQLite
 
 .. _聚合函数:
+.. _aggregation-functions:
 
 聚合函数
 ----------
