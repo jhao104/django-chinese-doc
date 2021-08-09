@@ -323,76 +323,51 @@ Django将从数据库中检索的值装载到其中. 通常在实例化模型字
 
 .. class:: Value(value, output_field=None)
 
+``Value()`` 对象是表达式中最小的组件: 普通值. 当需要在表达式中表示整数, 布尔或字符串的值时, 可以使用 ``Value()`` 封装该值.
 
-A ``Value()`` object represents the smallest possible component of an
-expression: a simple value. When you need to represent the value of an integer,
-boolean, or string within an expression, you can wrap that value within a
-``Value()``.
+很少需要直接使用 ``Value()``. 在表达式 ``F('field') + 1`` 中, Django会隐式地将1用 ``Value()`` 封装起来, 这样可以将普通值使用在更复杂的表达式中.
+但是当你想要将字符串传递给表达式时需要使用 ``Value()``. 因为大多数表达式会将字符串参数解释为字段的名称, 如 ``Lower('name')``.
 
-You will rarely need to use ``Value()`` directly. When you write the expression
-``F('field') + 1``, Django implicitly wraps the ``1`` in a ``Value()``,
-allowing simple values to be used in more complex expressions. You will need to
-use ``Value()`` when you want to pass a string to an expression. Most
-expressions interpret a string argument as the name of a field, like
-``Lower('name')``.
+``value`` 参数表示包含在表达式中的值, 例如 ``1``, ``True`` 或 ``None``. Django会自动将Python值转换为对应的数据库类型.
 
-The ``value`` argument describes the value to be included in the expression,
-such as ``1``, ``True``, or ``None``. Django knows how to convert these Python
-values into their corresponding database type.
+``output_field`` 参数接收一个模型字段实例, 如 ``output_field()`` 和 ``BooleanField()``.
+Django将从数据库中检索的值装载到其中. 通常在实例化模型字段时不需要任何参数. 因为所有数据验证有关的参数(``max_length``, ``max_digits``, etc.)都不会在表达式的输出值上执行.
 
-The ``output_field`` argument should be a model field instance, like
-``IntegerField()`` or ``BooleanField()``, into which Django will load the value
-after it's retrieved from the database. Usually no arguments are needed when
-instantiating the model field as any arguments relating to data validation
-(``max_length``, ``max_digits``, etc.) will not be enforced on the expression's
-output value.
-
-``ExpressionWrapper()`` expressions
+``ExpressionWrapper()`` 表达式
 -----------------------------------
 
 .. class:: ExpressionWrapper(expression, output_field)
 
-``ExpressionWrapper`` simply surrounds another expression and provides access
-to properties, such as ``output_field``, that may not be available on other
-expressions. ``ExpressionWrapper`` is necessary when using arithmetic on
-``F()`` expressions with different types as described in
-:ref:`using-f-with-annotations`.
+``ExpressionWrapper`` 用来封装表达式并提供 ``output_field`` 等可访问属性, 这些属性可能在其他表达式上无法使用.
+当使用 ``F()`` 对不同类型表达式进行算术运算时 ``ExpressionWrapper`` 是必要的, 详见 :ref:`using-f-with-annotations`.
 
-Conditional expressions
+条件表达式
 -----------------------
 
-Conditional expressions allow you to use :keyword:`if` ... :keyword:`elif` ...
-:keyword:`else` logic in queries. Django natively supports SQL ``CASE``
-expressions. For more details see :doc:`conditional-expressions`.
+条件表达式使你可以在查询中可以使用 :keyword:`if` ... :keyword:`elif` ...
+:keyword:`else` 逻辑. Django原生支持SQL的 ``CASE`` 表达式. 详见 :doc:`conditional-expressions`.
 
-Raw SQL expressions
+原生SQL表达式
 -------------------
 
 .. currentmodule:: django.db.models.expressions
 
 .. class:: RawSQL(sql, params, output_field=None)
 
-Sometimes database expressions can't easily express a complex ``WHERE`` clause.
-In these edge cases, use the ``RawSQL`` expression. For example::
+有些时候数据库表达式不太容易表达式比较复杂的 ``WHERE`` 子句. 在这些边缘情况下, 可以使用 ``RawSQL`` 表达式. 例如::
 
     >>> from django.db.models.expressions import RawSQL
     >>> queryset.annotate(val=RawSQL("select col from sometable where othercol = %s", (someparam,)))
 
-These extra lookups may not be portable to different database engines (because
-you're explicitly writing SQL code) and violate the DRY principle, so you
-should avoid them if possible.
+这些额外的查询可能无法移植到不同的数据库引擎中(因为存在硬编码的SQL代码), 并且违反DRY原则, 因此应该尽可能避免使用它们.
 
 .. warning::
 
-    You should be very careful to escape any parameters that the user can
-    control by using ``params`` in order to protect against :ref:`SQL injection
-    attacks <sql-injection-protection>`. ``params`` is a required argument to
-    force you to acknowledge that you're not interpolating your SQL with user
-    provided data.
+    为了防止 :ref:`SQL注入攻击 <sql-injection-protection>`, 你应该小心地避免使用用户可以通过 ``params`` 控制的任何参数. ``params`` 是一个必传的参数, 用于强制确认没有使用用户提供的数据插入SQL.
 
 .. currentmodule:: django.db.models
 
-Technical Information
+技术信息
 =====================
 
 Below you'll find technical implementation details that may be useful to
