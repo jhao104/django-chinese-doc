@@ -233,11 +233,9 @@ Django支持在查询表达式中使用加, 减, 乘, 除, 求模, 幂运算, Py
 
     .. method:: as_sql(compiler, connection, function=None, template=None, arg_joiner=None, **extra_context)
 
-        Generates the SQL for the database function.
+        生成数据库函数SQL.
 
-        The ``as_vendor()`` methods should use the ``function``, ``template``,
-        ``arg_joiner``, and any other ``**extra_context`` parameters to
-        customize the SQL as needed. For example:
+        ``as_vendor()`` 方法会使用 ``function``, ``template``, ``arg_joiner``, 和 ``**extra_context`` 参数根据需要定制SQL. 例如:
 
         .. snippet::
             :filename: django/db/models/functions.py
@@ -256,82 +254,53 @@ Django支持在查询表达式中使用加, 减, 乘, 除, 求模, 幂运算, Py
 
         .. versionchanged:: 1.10
 
-            Support for the ``arg_joiner`` and ``**extra_context`` parameters
-            was added.
+            新增参数 ``arg_joiner`` 和 ``**extra_context``.
 
-The ``*expressions`` argument is a list of positional expressions that the
-function will be applied to. The expressions will be converted to strings,
-joined together with ``arg_joiner``, and then interpolated into the ``template``
-as the ``expressions`` placeholder.
+``*expressions`` 参数是将要应用到函数的表达式列表的位置参数. 表达式将被 ``arg_joiner`` 连接成字符串, 然后插入 ``template`` 中的 ``expressions`` 占位符.
 
-Positional arguments can be expressions or Python values. Strings are
-assumed to be column references and will be wrapped in ``F()`` expressions
-while other values will be wrapped in ``Value()`` expressions.
+位置参数可以是表达式和Python值. 字符串会被认为是列引用, 并将其封装在 ``F()`` 表达式中. 其他值将被封装在 ``Value()`` 表达式中.
 
-The ``**extra`` kwargs are ``key=value`` pairs that can be interpolated
-into the ``template`` attribute. The ``function``, ``template``, and
-``arg_joiner`` keywords can be used to replace the attributes of the same name
-without having to define your own class. ``output_field`` can be used to define
-the expected return type.
+``**extra`` 是插入 ``template`` 的 ``key=value`` 对. ``function``, ``template`` 和 ``arg_joiner`` 用于替换相同名称的属性, 而无需定义自己的类. ``output_field`` 用于定义期望的返回类型.
 
-``Aggregate()`` expressions
+``Aggregate()`` 表达式
 ---------------------------
 
-An aggregate expression is a special case of a :ref:`Func() expression
-<func-expressions>` that informs the query that a ``GROUP BY`` clause
-is required. All of the :ref:`聚合函数 <aggregation-functions>`,
-like ``Sum()`` and ``Count()``, inherit from ``Aggregate()``.
+聚合表达式是一种特殊的 :ref:`Func() 表达式<func-expressions>`,  它告知查询需要一个 ``GROUP BY`` 子句.
+所有 :ref:`聚合函数 <aggregation-functions>` 例如 ``Sum()`` 和 ``Count()`` 都继承至 ``Aggregate()``.
 
-Since ``Aggregate``\s are expressions and wrap expressions, you can represent
-some complex computations::
+由于 ``Aggregate`` 是表达式或封装的表达式, 因此可以做一些复杂的计算::
 
     from django.db.models import Count
 
     Company.objects.annotate(
         managers_required=(Count('num_employees') / 4) + Count('num_managers'))
 
-The ``Aggregate`` API is as follows:
+``Aggregate`` API如下:
 
 .. class:: Aggregate(expression, output_field=None, **extra)
 
     .. attribute:: template
 
-        A class attribute, as a format string, that describes the SQL that is
-        generated for this aggregate. Defaults to
-        ``'%(function)s( %(expressions)s )'``.
+        类属性, 格式化字符串, 描述要生成的聚合SQL. 默认为 ``'%(function)s( %(expressions)s )'``.
 
     .. attribute:: function
 
-        A class attribute describing the aggregate function that will be
-        generated. Specifically, the ``function`` will be interpolated as the
-        ``function`` placeholder within :attr:`template`. Defaults to ``None``.
+        类属性, 描述要生成的聚合函数. 具体来说, ``function`` 将被插入到 :attr:`template` 中的 ``function`` 占位符. 默认为 ``None``.
 
-The ``expression`` argument can be the name of a field on the model, or another
-expression. It will be converted to a string and used as the ``expressions``
-placeholder within the ``template``.
+``expression`` 参数可以是模型上的字段名称或其他表达式. 它将会被转换成字符串插入到 ``template`` 中的 ``expressions`` 占位符.
 
-The ``output_field`` argument requires a model field instance, like
-``IntegerField()`` or ``BooleanField()``, into which Django will load the value
-after it's retrieved from the database. Usually no arguments are needed when
-instantiating the model field as any arguments relating to data validation
-(``max_length``, ``max_digits``, etc.) will not be enforced on the expression's
-output value.
+``output_field`` 参数接收一个模型字段实例, 如 ``output_field()`` 和 ``BooleanField()``.
+Django将从数据库中检索的值装载到其中. 通常在实例化模型字段时不需要任何参数. 因为所有数据验证有关的参数(``max_length``, ``max_digits``, etc.)都不会在表达式的输出值上执行.
 
-Note that ``output_field`` is only required when Django is unable to determine
-what field type the result should be. Complex expressions that mix field types
-should define the desired ``output_field``. For example, adding an
-``IntegerField()`` and a ``FloatField()`` together should probably have
-``output_field=FloatField()`` defined.
+注意, 只有当Django无法确定结果应该是什么字段类型时才需要 ``output_field``. 混合字段类型的复杂表达式应定义 ``output_field``.
+例如, 将一个 ``IntegerField()`` 和 ``FloatField()`` 相加, 就可以定义 ``output_field=FloatField()``.
 
-The ``**extra`` kwargs are ``key=value`` pairs that can be interpolated
-into the ``template`` attribute.
+``**extra`` 关键字是 ``key=value`` 对, 用来插入到 ``template`` 属性中.
 
-Creating your own Aggregate Functions
+自定义聚合函数
 -------------------------------------
 
-Creating your own aggregate is extremely easy. At a minimum, you need
-to define ``function``, but you can also completely customize the
-SQL that is generated. Here's a brief example::
+自定义聚合函数非常容易. 你可以定义 ``function`` 也可以完全自定义生成SQL. 下面是一个简单例子::
 
     from django.db.models import Aggregate
 
@@ -349,145 +318,103 @@ SQL that is generated. Here's a brief example::
             )
 
 
-``Value()`` expressions
+``Value()`` 表达式
 -----------------------
 
 .. class:: Value(value, output_field=None)
 
+``Value()`` 对象是表达式中最小的组件: 普通值. 当需要在表达式中表示整数, 布尔或字符串的值时, 可以使用 ``Value()`` 封装该值.
 
-A ``Value()`` object represents the smallest possible component of an
-expression: a simple value. When you need to represent the value of an integer,
-boolean, or string within an expression, you can wrap that value within a
-``Value()``.
+很少需要直接使用 ``Value()``. 在表达式 ``F('field') + 1`` 中, Django会隐式地将1用 ``Value()`` 封装起来, 这样可以将普通值使用在更复杂的表达式中.
+但是当你想要将字符串传递给表达式时需要使用 ``Value()``. 因为大多数表达式会将字符串参数解释为字段的名称, 如 ``Lower('name')``.
 
-You will rarely need to use ``Value()`` directly. When you write the expression
-``F('field') + 1``, Django implicitly wraps the ``1`` in a ``Value()``,
-allowing simple values to be used in more complex expressions. You will need to
-use ``Value()`` when you want to pass a string to an expression. Most
-expressions interpret a string argument as the name of a field, like
-``Lower('name')``.
+``value`` 参数表示包含在表达式中的值, 例如 ``1``, ``True`` 或 ``None``. Django会自动将Python值转换为对应的数据库类型.
 
-The ``value`` argument describes the value to be included in the expression,
-such as ``1``, ``True``, or ``None``. Django knows how to convert these Python
-values into their corresponding database type.
+``output_field`` 参数接收一个模型字段实例, 如 ``output_field()`` 和 ``BooleanField()``.
+Django将从数据库中检索的值装载到其中. 通常在实例化模型字段时不需要任何参数. 因为所有数据验证有关的参数(``max_length``, ``max_digits``, etc.)都不会在表达式的输出值上执行.
 
-The ``output_field`` argument should be a model field instance, like
-``IntegerField()`` or ``BooleanField()``, into which Django will load the value
-after it's retrieved from the database. Usually no arguments are needed when
-instantiating the model field as any arguments relating to data validation
-(``max_length``, ``max_digits``, etc.) will not be enforced on the expression's
-output value.
-
-``ExpressionWrapper()`` expressions
+``ExpressionWrapper()`` 表达式
 -----------------------------------
 
 .. class:: ExpressionWrapper(expression, output_field)
 
-``ExpressionWrapper`` simply surrounds another expression and provides access
-to properties, such as ``output_field``, that may not be available on other
-expressions. ``ExpressionWrapper`` is necessary when using arithmetic on
-``F()`` expressions with different types as described in
-:ref:`using-f-with-annotations`.
+``ExpressionWrapper`` 用来封装表达式并提供 ``output_field`` 等可访问属性, 这些属性可能在其他表达式上无法使用.
+当使用 ``F()`` 对不同类型表达式进行算术运算时 ``ExpressionWrapper`` 是必要的, 详见 :ref:`using-f-with-annotations`.
 
-Conditional expressions
+条件表达式
 -----------------------
 
-Conditional expressions allow you to use :keyword:`if` ... :keyword:`elif` ...
-:keyword:`else` logic in queries. Django natively supports SQL ``CASE``
-expressions. For more details see :doc:`conditional-expressions`.
+条件表达式使你可以在查询中可以使用 :keyword:`if` ... :keyword:`elif` ...
+:keyword:`else` 逻辑. Django原生支持SQL的 ``CASE`` 表达式. 详见 :doc:`conditional-expressions`.
 
-Raw SQL expressions
+原生SQL表达式
 -------------------
 
 .. currentmodule:: django.db.models.expressions
 
 .. class:: RawSQL(sql, params, output_field=None)
 
-Sometimes database expressions can't easily express a complex ``WHERE`` clause.
-In these edge cases, use the ``RawSQL`` expression. For example::
+有些时候数据库表达式不太容易表达式比较复杂的 ``WHERE`` 子句. 在这些边缘情况下, 可以使用 ``RawSQL`` 表达式. 例如::
 
     >>> from django.db.models.expressions import RawSQL
     >>> queryset.annotate(val=RawSQL("select col from sometable where othercol = %s", (someparam,)))
 
-These extra lookups may not be portable to different database engines (because
-you're explicitly writing SQL code) and violate the DRY principle, so you
-should avoid them if possible.
+这些额外的查询可能无法移植到不同的数据库引擎中(因为存在硬编码的SQL代码), 并且违反DRY原则, 因此应该尽可能避免使用它们.
 
 .. warning::
 
-    You should be very careful to escape any parameters that the user can
-    control by using ``params`` in order to protect against :ref:`SQL injection
-    attacks <sql-injection-protection>`. ``params`` is a required argument to
-    force you to acknowledge that you're not interpolating your SQL with user
-    provided data.
+    为了防止 :ref:`SQL注入攻击 <sql-injection-protection>`, 你应该小心地避免使用用户可以通过 ``params`` 控制的任何参数. ``params`` 是一个必传的参数, 用于强制确认没有使用用户提供的数据插入SQL.
 
 .. currentmodule:: django.db.models
 
-Technical Information
+技术信息
 =====================
 
-Below you'll find technical implementation details that may be useful to
-library authors. The technical API and examples below will help with
-creating generic query expressions that can extend the built-in functionality
-that Django provides.
+在下面是可能对库作者有用的技术细节. 下面的技术API和示例将有助于创建可以扩展Django内置功能的通用查询表达式.
 
-Expression API
+表达式API
 --------------
 
-Query expressions implement the :ref:`query expression API <query-expression>`,
-but also expose a number of extra methods and attributes listed below. All
-query expressions must inherit from ``Expression()`` or a relevant
-subclass.
+查询表达式实现了 :ref:`查询表达式API <query-expression>`, 同时也提供了下面列出的一些额外方法和属性. 所有查询表达式都必须继承于 ``Expression()`` 或相关子类.
 
-When a query expression wraps another expression, it is responsible for
-calling the appropriate methods on the wrapped expression.
+如果查询表达式封装另一个表达式, 它负责在被封装的表达式上调用相应的方法.
 
 .. class:: Expression
 
     .. attribute:: contains_aggregate
 
-        Tells Django that this expression contains an aggregate and that a
-        ``GROUP BY`` clause needs to be added to the query.
+        告诉Django该表达式包含聚合, 需要将 ``GROUP BY`` 子句添加到查询中.
 
     .. method:: resolve_expression(query=None, allow_joins=True, reuse=None, summarize=False, for_save=False)
 
-        Provides the chance to do any pre-processing or validation of
-        the expression before it's added to the query. ``resolve_expression()``
-        must also be called on any nested expressions. A ``copy()`` of ``self``
-        should be returned with any necessary transformations.
+        提供在将表达式添加到查询之前对其进行预处理和验证的机会. 所有嵌套表达式都必须调用 ``resolve_expression()``. 返回一个 ``self`` 的 ``copy()``, 并进行必要的转换.
 
-        ``query`` is the backend query implementation.
+        ``query`` 是后端查询实现.
 
-        ``allow_joins`` is a boolean that allows or denies the use of
-        joins in the query.
+        ``allow_joins`` 是一个允许或拒绝在查询中使用join的布尔值.
 
-        ``reuse`` is a set of reusable joins for multi-join scenarios.
+        ``reuse`` 是用于多join场景的一组可重用join.
 
-        ``summarize`` is a boolean that, when ``True``, signals that the
-        query being computed is a terminal aggregate query.
+        ``summarize`` 是一个布尔值, 当 ``True`` 时表示正在计算的查询是终端聚合查询.
 
     .. method:: get_source_expressions()
 
-        Returns an ordered list of inner expressions. For example::
+        返回内部表达式的有序列表. 例如::
 
           >>> Sum(F('foo')).get_source_expressions()
           [F('foo')]
 
     .. method:: set_source_expressions(expressions)
 
-        Takes a list of expressions and stores them such that
-        ``get_source_expressions()`` can return them.
+        接收一个表达式列表将其存储, 以便 ``get_source_expressions()`` 能够返回他们.
 
     .. method:: relabeled_clone(change_map)
 
-        Returns a clone (copy) of ``self``, with any column aliases relabeled.
-        Column aliases are renamed when subqueries are created.
-        ``relabeled_clone()`` should also be called on any nested expressions
-        and assigned to the clone.
+        返回 ``self`` 的clone(副本), 并重新标记所有列别名. 创建子查询时, 列别名会被重新命名. ``relabeled_clone()`` 也应该对所有嵌套的表达式进行调用并分配给副本.
 
-        ``change_map`` is a dictionary mapping old aliases to new aliases.
+        ``change_map`` 是将旧别名映射到新别名的字典.
 
-        Example::
+        例如::
 
           def relabeled_clone(self, change_map):
               clone = copy.copy(self)
@@ -496,47 +423,34 @@ calling the appropriate methods on the wrapped expression.
 
     .. method:: convert_value(self, value, expression, connection, context)
 
-        A hook allowing the expression to coerce ``value`` into a more
-        appropriate type.
+        允许表达式将 ``value`` 强制转换为更适当类型的钩子.
 
     .. method:: get_group_by_cols()
 
-        Responsible for returning the list of columns references by
-        this expression. ``get_group_by_cols()`` should be called on any
-        nested expressions. ``F()`` objects, in particular, hold a reference
-        to a column.
+        负责返回该表达式的列引用列表. ``get_group_by_cols()`` 应在所有嵌套的表达式上调用. 尤其是持有列的引用的 ``F()`` 对象.
 
     .. method:: asc()
 
-        Returns the expression ready to be sorted in ascending order.
+        返回准备按升序排序的表达式.
 
     .. method:: desc()
 
-        Returns the expression ready to be sorted in descending order.
+        返回准备按降序排序的表达式.
 
     .. method:: reverse_ordering()
 
-        Returns ``self`` with any modifications required to reverse the sort
-        order within an ``order_by`` call. As an example, an expression
-        implementing ``NULLS LAST`` would change its value to be
-        ``NULLS FIRST``. Modifications are only required for expressions that
-        implement sort order like ``OrderBy``. This method is called when
-        :meth:`~django.db.models.query.QuerySet.reverse()` is called on a
-        queryset.
+        返回 ``self`` 并进行包括以 ``order_by`` 调用中相反顺序排序的所有修改. 例如, 实现 ``NULLS LAST`` 的表达式将其值更改为 ``NULLS FIRST``.
+        只有实现排序顺序如 ``OrderBy`` 的表达式才需要修改. 在queryset上调用 :meth:`~django.db.models.query.QuerySet.reverse()` 时调用此方法.
 
-Writing your own Query Expressions
+自定义查询表达式
 ----------------------------------
 
-You can write your own query expression classes that use, and can integrate
-with, other query expressions. Let's step through an example by writing an
-implementation of the ``COALESCE`` SQL function, without using the built-in
-:ref:`Func() expressions <func-expressions>`.
+可以编写自己的查询表达式类, 它们可以使用和集成其他查询表达式.
+下面例子演示不使用 :ref:`Func()表达式 <func-expressions>` 来实现SQL的 ``COALESCE``  函数.
 
-The ``COALESCE`` SQL function is defined as taking a list of columns or
-values. It will return the first column or value that isn't ``NULL``.
+SQL的 ``COALESCE`` 函数接收一组列或值. 它返回不为 ``NULL`` 的第一个列或值.
 
-We'll start by defining the template to be used for SQL generation and
-an ``__init__()`` method to set some attributes::
+首先定义用于生成SQL的模板和 ``__init__()`` 方法来设置一些属性::
 
   import copy
   from django.db.models import Expression
@@ -553,14 +467,10 @@ an ``__init__()`` method to set some attributes::
                 raise TypeError('%r is not an Expression' % expression)
         self.expressions = expressions
 
-We do some basic validation on the parameters, including requiring at least
-2 columns or values, and ensuring they are expressions. We are requiring
-``output_field`` here so that Django knows what kind of model field to assign
-the eventual result to.
+我们对参数进行一些基本验证, 包括至少需要两个列或值, 并确保它们是表达式.
+我们在这里要求 ``output_field``, 以便Django知道要将最终结果分配给什么样的模型字段.
 
-Now we implement the pre-processing and validation. Since we do not have
-any of our own validation at this point, we just delegate to the nested
-expressions::
+下面实现预处理和验证. 由于此时没有任何自己的验证, 所以这里委托给嵌套表达式::
 
     def resolve_expression(self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False):
         c = self.copy()
@@ -569,7 +479,7 @@ expressions::
             c.expressions[pos] = expression.resolve_expression(query, allow_joins, reuse, summarize, for_save)
         return c
 
-Next, we write the method responsible for generating the SQL::
+接下来, 编写负责生成SQL的方法::
 
     def as_sql(self, compiler, connection, template=None):
         sql_expressions, sql_params = [], []
@@ -588,25 +498,15 @@ Next, we write the method responsible for generating the SQL::
         """
         return self.as_sql(compiler, connection, template='coalesce( %(expressions)s )')
 
-``as_sql()`` methods can support custom keyword arguments, allowing
-``as_vendorname()`` methods to override data used to generate the SQL string.
-Using ``as_sql()`` keyword arguments for customization is preferable to
-mutating ``self`` within ``as_vendorname()`` methods as the latter can lead to
-errors when running on different database backends. If your class relies on
-class attributes to define data, consider allowing overrides in your
-``as_sql()`` method.
+``as_sql()`` 方法可以支持自定义关键字参数, 允许 ``as_vendorname()`` 方法覆盖用于生成SQL字符串的数据.
+使用 ``as_sql()`` 定制的关键字参数比在 ``as_vendorname()`` 方法中突变 ``self`` 更好,
+因为后者在不同的数据库后端发生错误. 如果您的类依赖于类属性来定义数据, 可以考虑在 ``as_sql()`` 方法中允许覆盖.
 
-We generate the SQL for each of the ``expressions`` by using the
-``compiler.compile()`` method, and join the result together with commas.
-Then the template is filled out with our data and the SQL and parameters
-are returned.
+我们使用 ``compiler.compile()`` 方法为每个 ``expressions`` 生成SQL, 并用逗号拼接. 然后在模板中填入数据, 并返回SQL和参数.
 
-We've also defined a custom implementation that is specific to the Oracle
-backend. The ``as_oracle()`` function will be called instead of ``as_sql()``
-if the Oracle backend is in use.
+我们还针对特定数据后端Oracle做了的自定义实现. 如果使用Oracle后端则将调用 ``as_oracle()`` 函数, 而不是 ``as_sql()``.
 
-Finally, we implement the rest of the methods that allow our query expression
-to play nice with other query expressions::
+最后, 我们实现允许使查询表达式能够与其他查询表达式很好地配合方法::
 
     def get_source_expressions(self):
         return self.expressions
@@ -614,7 +514,7 @@ to play nice with other query expressions::
     def set_source_expressions(self, expressions):
         self.expressions = expressions
 
-Let's see how it works::
+让我们看看它是如何工作的::
 
     >>> from django.db.models import F, Value, CharField
     >>> qs = Company.objects.annotate(
@@ -632,17 +532,13 @@ Let's see how it works::
     Yahoo: Internet Company
     Django Software Foundation: No Tagline
 
-Adding support in third-party database backends
+添加对三方数据库后端支持
 -----------------------------------------------
 
-If you're using a database backend that uses a different SQL syntax for a
-certain function, you can add support for it by monkey patching a new method
-onto the function's class.
+如果你使用的数据库后端对某个函数使用了不同的SQL语法, 你可以通过在函数的类上添加一个新的方法来增加对它的支持.
 
-Let's say we're writing a backend for Microsoft's SQL Server which uses the SQL
-``LEN`` instead of ``LENGTH`` for the :class:`~functions.Length` function.
-We'll monkey patch a new method called ``as_sqlserver()`` onto the ``Length``
-class::
+比如说, 我们为微软的SQLServer编写一个后端, 它使用SQL的 ``LEN`` 而不是 ``LENGTH`` 来实现 :class:`~functions.Length`  函数.
+我们将把一个名为 ``as_sqlserver()`` 的新方法添加到 ``Length`` 类上::
 
     from django.db.models.functions import Length
 
@@ -651,14 +547,10 @@ class::
 
     Length.as_sqlserver = sqlserver_length
 
-You can also customize the SQL using the ``template`` parameter of ``as_sql()``.
+也可以使用 ``as_sql()`` 的 ``template`` 参数自定义SQL.
 
-We use ``as_sqlserver()`` because ``django.db.connection.vendor`` returns
-``sqlserver`` for the backend.
+我们使用 ``as_sqlserver()`` 是因为 ``django.db.connection.vendor`` 返回 ``sqlserver`` 作为后端.
 
-Third-party backends can register their functions in the top level
-``__init__.py`` file of the backend package or in a top level ``expressions.py``
-file (or package) that is imported from the top level ``__init__.py``.
+第三方后端可以在后端程序包的顶级 ``__init__.py`` 文件或从顶级 ``__init__.py`` 导入的顶级 ``expressions.py`` 文件(或程序包)中注册其函数.
 
-For user projects wishing to patch the backend that they're using, this code
-should live in an :meth:`AppConfig.ready()<django.apps.AppConfig.ready>` method.
+对于希望给自己正在使用的后端打补丁的用户项目来说, 这段代码应该存在于 :meth:`AppConfig.ready()<django.apps.AppConfig.ready>` 方法中.

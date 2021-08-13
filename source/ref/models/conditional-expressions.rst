@@ -1,5 +1,5 @@
 =======================
-Conditional Expressions
+条件表达式
 =======================
 
 .. currentmodule:: django.db.models.expressions
