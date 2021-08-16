@@ -5,13 +5,10 @@
 .. module:: django.db.models.functions
     :synopsis: Database Functions
 
-The classes documented below provide a way for users to use functions provided
-by the underlying database as annotations, aggregations, or filters in Django.
-Functions are also :doc:`expressions <expressions>`, so they can be used and
-combined with other expressions like :ref:`aggregate functions
-<aggregation-functions>`.
+下面记录的类为用户提供了一种方法, 可以在Django中使用底层数据库提供的函数作为注解, 聚合和过滤等操作. 函数也是 :doc:`表达式 <expressions>`,
+所以它们可以和其他表达式一起组合使用, 比如 :ref:`聚合函数<aggregation-functions>`.
 
-We'll be using the following model in examples of each function::
+我们将在函数的例子中使用以下模型::
 
     class Author(models.Model):
         name = models.CharField(max_length=50)
@@ -19,9 +16,7 @@ We'll be using the following model in examples of each function::
         alias = models.CharField(max_length=50, null=True, blank=True)
         goes_by = models.CharField(max_length=50, null=True, blank=True)
 
-We don't usually recommend allowing ``null=True`` for ``CharField`` since this
-allows the field to have two "empty values", but it's important for the
-``Coalesce`` example below.
+不建议 ``CharField`` 设置 ``null=True``, 因为这导致该字段有两种"空值", 但下面的 ``Coalesce`` 示例需要这个设置.
 
 ``Cast``
 ========
@@ -30,9 +25,9 @@ allows the field to have two "empty values", but it's important for the
 
 .. versionadded:: 1.10
 
-Forces the result type of ``expression`` to be the one from ``output_field``.
+强制将 ``expression`` 返回类型转换为 ``output_field``.
 
-Usage example::
+用例::
 
     >>> from django.db.models import FloatField
     >>> from django.db.models.functions import Cast
@@ -46,12 +41,10 @@ Usage example::
 
 .. class:: Coalesce(*expressions, **extra)
 
-Accepts a list of at least two field names or expressions and returns the
-first non-null value (note that an empty string is not considered a null
-value). Each argument must be of a similar type, so mixing text and numbers
-will result in a database error.
+接收一个至少包含两个字段名或表达式的列表, 返回第一个非null值(注意空字符串不会被认为null值).
+所有参数必须是相似类型, 混合文本和数字类型会导致数据库错误.
 
-Usage examples::
+用例::
 
     >>> # Get a screen name from least to most public
     >>> from django.db.models import Sum, Value as V
@@ -73,8 +66,7 @@ Usage examples::
 
 .. warning::
 
-    A Python value passed to ``Coalesce`` on MySQL may be converted to an
-    incorrect type unless explicitly cast to the correct database type:
+    在MySQL中传递给 ``Coalesce`` 的Python值可能会被转换为错误的类型, 除非显示地转换为正确的数据库类型:
 
     >>> from django.db.models import DateTimeField
     >>> from django.db.models.functions import Cast, Coalesce
