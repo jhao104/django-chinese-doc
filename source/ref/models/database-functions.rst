@@ -79,17 +79,13 @@
 
 .. class:: Concat(*expressions, **extra)
 
-Accepts a list of at least two text fields or expressions and returns the
-concatenated text. Each argument must be of a text or char type. If you want
-to concatenate a ``TextField()`` with a ``CharField()``, then be sure to tell
-Django that the ``output_field`` should be a ``TextField()``. This is also
-required when concatenating a ``Value`` as in the example below.
+接收一个至少包含两个文本字段或者表达式的列表, 返回连接后的文本.
+每个参数必须是文本或字符类型. 如果要连接 ``TextField()`` 和 ``CharField()``, 那么必须将 ``output_field`` 设置为 ``TextField()``.
+连接 ``Value`` 时也需要做同样设置.
 
-This function will never have a null result. On backends where a null argument
-results in the entire expression being null, Django will ensure that each null
-part is converted to an empty string first.
+该函数绝不会返回null. 如果返回null会导致表达式变成null, Django会把参数中null的部分转换为空字符串.
 
-Usage example::
+用例::
 
     >>> # Get the display name as "name (goes_by)"
     >>> from django.db.models import CharField, Value as V
@@ -108,11 +104,9 @@ Usage example::
 
 .. versionadded:: 1.9
 
-Accepts a list of at least two field names or expressions and returns the
-greatest value. Each argument must be of a similar type, so mixing text and
-numbers will result in a database error.
+接收一个至少包含两个字段或表达式的列表, 返回最大值. 每个参数必须是相似类型, 例如混合文本和数字导致数据库错误.
 
-Usage example::
+用例::
 
     class Blog(models.Model):
         body = models.TextField()
@@ -129,21 +123,16 @@ Usage example::
     >>> comments = Comment.objects.annotate(last_updated=Greatest('modified', 'blog__modified'))
     >>> annotated_comment = comments.get()
 
-``annotated_comment.last_updated`` will be the most recent of ``blog.modified``
-and ``comment.modified``.
+``annotated_comment.last_updated`` 会返回最近的 ``blog.modified`` 或 ``comment.modified``.
 
 .. warning::
 
-    The behavior of ``Greatest`` when one or more expression may be ``null``
-    varies between databases:
+    当有一个或多个表达式为null时, ``Greatest`` 在不同数据库间行为有区别:
 
-    - PostgreSQL: ``Greatest`` will return the largest non-null expression,
-      or ``null`` if all expressions are ``null``.
-    - SQLite, Oracle, and MySQL: If any expression is ``null``, ``Greatest``
-      will return ``null``.
+    - PostgreSQL: ``Greatest`` 会返回最大的非null值, 如果所有表达式都为 ``null`` 则返回 ``null``.
+    - SQLite, Oracle, and MySQL: 如果存在为 ``null`` 的表达式, ``Greatest`` 则会返回 ``null``.
 
-    The PostgreSQL behavior can be emulated using ``Coalesce`` if you know
-    a sensible minimum value to provide as a default.
+    如果你想用一个合理的值作为返回值, 可以使用 ``Coalesce`` 来模仿PostgreSQL的行为.
 
 ``Least``
 =========
@@ -152,32 +141,25 @@ and ``comment.modified``.
 
 .. versionadded:: 1.9
 
-Accepts a list of at least two field names or expressions and returns the
-least value. Each argument must be of a similar type, so mixing text and numbers
-will result in a database error.
+接收一个至少包含两个字段或表达式的列表, 返回最小值. 每个参数必须是相似类型, 例如混合文本和数字导致数据库错误.
 
 .. warning::
 
-    The behavior of ``Least`` when one or more expression may be ``null``
-    varies between databases:
+    当有一个或多个表达式为null时, ``Least`` 在不同数据库间行为有区别:
 
-    - PostgreSQL: ``Least`` will return the smallest non-null expression,
-      or ``null`` if all expressions are ``null``.
-    - SQLite, Oracle, and MySQL: If any expression is ``null``, ``Least``
-      will return ``null``.
+    - PostgreSQL: ``Least`` 会返回最大的非null值, 如果所有表达式都为 ``null`` 则返回 ``null``.
+    - SQLite, Oracle, and MySQL: 如果存在为 ``null`` 的表达式, ``Greatest`` 则会返回 ``null``.
 
-    The PostgreSQL behavior can be emulated using ``Coalesce`` if you know
-    a sensible maximum value to provide as a default.
+    如果你想用一个合理的值作为返回值, 可以使用 ``Coalesce`` 来模仿PostgreSQL的行为.
 
 ``Length``
 ==========
 
 .. class:: Length(expression, **extra)
 
-Accepts a single text field or expression and returns the number of characters
-the value has. If the expression is null, then the length will also be null.
+接收一个文本字段或表达式, 返回其包含的字符数. 如果表达式为null则返回null.
 
-Usage example::
+用例::
 
     >>> # Get the length of the name and goes_by fields
     >>> from django.db.models.functions import Length
@@ -188,7 +170,7 @@ Usage example::
     >>> print(author.name_length, author.goes_by_length)
     (14, None)
 
-It can also be registered as a transform. For example::
+也可以将其注册为转换. 例如::
 
     >>> from django.db.models import CharField
     >>> from django.db.models.functions import Length
@@ -198,7 +180,7 @@ It can also be registered as a transform. For example::
 
 .. versionchanged:: 1.9
 
-    The ability to register the function as a transform was added.
+    新增将函数注册为转换的功能。.
 
 ``Lower``
 =========
