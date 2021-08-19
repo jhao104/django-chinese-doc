@@ -5,13 +5,10 @@
 .. module:: django.db.models.functions
     :synopsis: Database Functions
 
-The classes documented below provide a way for users to use functions provided
-by the underlying database as annotations, aggregations, or filters in Django.
-Functions are also :doc:`expressions <expressions>`, so they can be used and
-combined with other expressions like :ref:`aggregate functions
-<aggregation-functions>`.
+下面记录的类为用户提供了一种方法, 可以在Django中使用底层数据库提供的函数作为注解, 聚合和过滤等操作. 函数也是 :doc:`表达式 <expressions>`,
+所以它们可以和其他表达式一起组合使用, 比如 :ref:`聚合函数<aggregation-functions>`.
 
-We'll be using the following model in examples of each function::
+我们将在函数的例子中使用以下模型::
 
     class Author(models.Model):
         name = models.CharField(max_length=50)
@@ -19,9 +16,7 @@ We'll be using the following model in examples of each function::
         alias = models.CharField(max_length=50, null=True, blank=True)
         goes_by = models.CharField(max_length=50, null=True, blank=True)
 
-We don't usually recommend allowing ``null=True`` for ``CharField`` since this
-allows the field to have two "empty values", but it's important for the
-``Coalesce`` example below.
+不建议 ``CharField`` 设置 ``null=True``, 因为这导致该字段有两种"空值", 但下面的 ``Coalesce`` 示例需要这个设置.
 
 ``Cast``
 ========
@@ -30,9 +25,9 @@ allows the field to have two "empty values", but it's important for the
 
 .. versionadded:: 1.10
 
-Forces the result type of ``expression`` to be the one from ``output_field``.
+强制将 ``expression`` 返回类型转换为 ``output_field``.
 
-Usage example::
+用例::
 
     >>> from django.db.models import FloatField
     >>> from django.db.models.functions import Cast
@@ -46,12 +41,10 @@ Usage example::
 
 .. class:: Coalesce(*expressions, **extra)
 
-Accepts a list of at least two field names or expressions and returns the
-first non-null value (note that an empty string is not considered a null
-value). Each argument must be of a similar type, so mixing text and numbers
-will result in a database error.
+接收一个至少包含两个字段名或表达式的列表, 返回第一个非null值(注意空字符串不会被认为null值).
+所有参数必须是相似类型, 混合文本和数字类型会导致数据库错误.
 
-Usage examples::
+用例::
 
     >>> # Get a screen name from least to most public
     >>> from django.db.models import Sum, Value as V
@@ -73,8 +66,7 @@ Usage examples::
 
 .. warning::
 
-    A Python value passed to ``Coalesce`` on MySQL may be converted to an
-    incorrect type unless explicitly cast to the correct database type:
+    在MySQL中传递给 ``Coalesce`` 的Python值可能会被转换为错误的类型, 除非显示地转换为正确的数据库类型:
 
     >>> from django.db.models import DateTimeField
     >>> from django.db.models.functions import Cast, Coalesce
@@ -87,17 +79,13 @@ Usage examples::
 
 .. class:: Concat(*expressions, **extra)
 
-Accepts a list of at least two text fields or expressions and returns the
-concatenated text. Each argument must be of a text or char type. If you want
-to concatenate a ``TextField()`` with a ``CharField()``, then be sure to tell
-Django that the ``output_field`` should be a ``TextField()``. This is also
-required when concatenating a ``Value`` as in the example below.
+接收一个至少包含两个文本字段或者表达式的列表, 返回连接后的文本.
+每个参数必须是文本或字符类型. 如果要连接 ``TextField()`` 和 ``CharField()``, 那么必须将 ``output_field`` 设置为 ``TextField()``.
+连接 ``Value`` 时也需要做同样设置.
 
-This function will never have a null result. On backends where a null argument
-results in the entire expression being null, Django will ensure that each null
-part is converted to an empty string first.
+该函数绝不会返回null. 如果返回null会导致表达式变成null, Django会把参数中null的部分转换为空字符串.
 
-Usage example::
+用例::
 
     >>> # Get the display name as "name (goes_by)"
     >>> from django.db.models import CharField, Value as V
@@ -116,11 +104,9 @@ Usage example::
 
 .. versionadded:: 1.9
 
-Accepts a list of at least two field names or expressions and returns the
-greatest value. Each argument must be of a similar type, so mixing text and
-numbers will result in a database error.
+接收一个至少包含两个字段或表达式的列表, 返回最大值. 每个参数必须是相似类型, 例如混合文本和数字导致数据库错误.
 
-Usage example::
+用例::
 
     class Blog(models.Model):
         body = models.TextField()
@@ -137,21 +123,16 @@ Usage example::
     >>> comments = Comment.objects.annotate(last_updated=Greatest('modified', 'blog__modified'))
     >>> annotated_comment = comments.get()
 
-``annotated_comment.last_updated`` will be the most recent of ``blog.modified``
-and ``comment.modified``.
+``annotated_comment.last_updated`` 会返回最近的 ``blog.modified`` 或 ``comment.modified``.
 
 .. warning::
 
-    The behavior of ``Greatest`` when one or more expression may be ``null``
-    varies between databases:
+    当有一个或多个表达式为null时, ``Greatest`` 在不同数据库间行为有区别:
 
-    - PostgreSQL: ``Greatest`` will return the largest non-null expression,
-      or ``null`` if all expressions are ``null``.
-    - SQLite, Oracle, and MySQL: If any expression is ``null``, ``Greatest``
-      will return ``null``.
+    - PostgreSQL: ``Greatest`` 会返回最大的非null值, 如果所有表达式都为 ``null`` 则返回 ``null``.
+    - SQLite, Oracle, and MySQL: 如果存在为 ``null`` 的表达式, ``Greatest`` 则会返回 ``null``.
 
-    The PostgreSQL behavior can be emulated using ``Coalesce`` if you know
-    a sensible minimum value to provide as a default.
+    如果你想用一个合理的值作为返回值, 可以使用 ``Coalesce`` 来模仿PostgreSQL的行为.
 
 ``Least``
 =========
@@ -160,32 +141,25 @@ and ``comment.modified``.
 
 .. versionadded:: 1.9
 
-Accepts a list of at least two field names or expressions and returns the
-least value. Each argument must be of a similar type, so mixing text and numbers
-will result in a database error.
+接收一个至少包含两个字段或表达式的列表, 返回最小值. 每个参数必须是相似类型, 例如混合文本和数字导致数据库错误.
 
 .. warning::
 
-    The behavior of ``Least`` when one or more expression may be ``null``
-    varies between databases:
+    当有一个或多个表达式为null时, ``Least`` 在不同数据库间行为有区别:
 
-    - PostgreSQL: ``Least`` will return the smallest non-null expression,
-      or ``null`` if all expressions are ``null``.
-    - SQLite, Oracle, and MySQL: If any expression is ``null``, ``Least``
-      will return ``null``.
+    - PostgreSQL: ``Least`` 会返回最大的非null值, 如果所有表达式都为 ``null`` 则返回 ``null``.
+    - SQLite, Oracle, and MySQL: 如果存在为 ``null`` 的表达式, ``Greatest`` 则会返回 ``null``.
 
-    The PostgreSQL behavior can be emulated using ``Coalesce`` if you know
-    a sensible maximum value to provide as a default.
+    如果你想用一个合理的值作为返回值, 可以使用 ``Coalesce`` 来模仿PostgreSQL的行为.
 
 ``Length``
 ==========
 
 .. class:: Length(expression, **extra)
 
-Accepts a single text field or expression and returns the number of characters
-the value has. If the expression is null, then the length will also be null.
+接收一个文本字段或表达式, 返回其包含的字符数. 如果表达式为null则返回null.
 
-Usage example::
+用例::
 
     >>> # Get the length of the name and goes_by fields
     >>> from django.db.models.functions import Length
@@ -196,7 +170,7 @@ Usage example::
     >>> print(author.name_length, author.goes_by_length)
     (14, None)
 
-It can also be registered as a transform. For example::
+也可以将其注册为转换. 例如::
 
     >>> from django.db.models import CharField
     >>> from django.db.models.functions import Length
@@ -206,19 +180,18 @@ It can also be registered as a transform. For example::
 
 .. versionchanged:: 1.9
 
-    The ability to register the function as a transform was added.
+    新增将函数注册为转换的功能.
 
 ``Lower``
 =========
 
 .. class:: Lower(expression, **extra)
 
-Accepts a single text field or expression and returns the lowercase
-representation.
+接收一个文本字段或表达式, 返回其小写形式.
 
-It can also be registered as a transform as described in :class:`Length`.
+它也可以像 :class:`Length` 那样注册为转换.
 
-Usage example::
+用例::
 
     >>> from django.db.models.functions import Lower
     >>> Author.objects.create(name='Margaret Smith')
@@ -228,7 +201,7 @@ Usage example::
 
 .. versionchanged:: 1.9
 
-    The ability to register the function as a transform was added.
+    新增将函数注册为转换的功能.
 
 ``Now``
 =======
@@ -237,10 +210,9 @@ Usage example::
 
 .. versionadded:: 1.9
 
-Returns the database server's current date and time when the query is executed,
-typically using the SQL ``CURRENT_TIMESTAMP``.
+返回执行查询时数据库服务器的当前日期和时间, 通常使用SQL ``CURRENT_TIMESTAMP``.
 
-Usage example::
+用例::
 
     >>> from django.db.models.functions import Now
     >>> Article.objects.filter(published__lte=Now())
@@ -248,21 +220,19 @@ Usage example::
 
 .. admonition:: PostgreSQL considerations
 
-    On PostgreSQL, the SQL ``CURRENT_TIMESTAMP`` returns the time that the
-    current transaction started. Therefore for cross-database compatibility,
-    ``Now()`` uses ``STATEMENT_TIMESTAMP`` instead. If you need the transaction
-    timestamp, use :class:`django.contrib.postgres.functions.TransactionNow`.
+    在PostgreSQL中, SQL ``CURRENT_TIMESTAMP`` 返回的是当前事务的开始时间.
+    因此为了跨数据库的兼容性, ``Now()`` 使用 ``STATEMENT_TIMESTAMP`` 作为代替.
+    如果需要事务时间戳, 可以使用 :class:`django.contrib.postgres.functions.TransactionNow`.
 
 ``Substr``
 ==========
 
 .. class:: Substr(expression, pos, length=None, **extra)
 
-Returns a substring of length ``length`` from the field or expression starting
-at position ``pos``. The position is 1-indexed, so the position must be greater
-than 0. If ``length`` is ``None``, then the rest of the string will be returned.
+返回字段或表达式 ``pos`` 位置处开始长度为 ``length`` 的子串. 位置下标从1开始, 因此改参数必须大于0.
+如果 ``length`` 为 ``None``, 那么会返回剩余的所有字符串.
 
-Usage example::
+用例::
 
     >>> # Set the alias to the first 5 characters of the name as lowercase
     >>> from django.db.models.functions import Substr, Lower
@@ -277,12 +247,11 @@ Usage example::
 
 .. class:: Upper(expression, **extra)
 
-Accepts a single text field or expression and returns the uppercase
-representation.
+接收一个文本字段或表达式, 返回其大写形式.
 
-It can also be registered as a transform as described in :class:`Length`.
+它也可以像 :class:`Length` 那样注册为转换.
 
-Usage example::
+用例::
 
     >>> from django.db.models.functions import Upper
     >>> Author.objects.create(name='Margaret Smith')
@@ -292,16 +261,16 @@ Usage example::
 
 .. versionchanged:: 1.9
 
-    The ability to register the function as a transform was added.
+    新增将函数注册为转换的功能.
 
-Date Functions
+日期函数
 ==============
 
 .. module:: django.db.models.functions.datetime
 
 .. versionadded:: 1.10
 
-We'll be using the following model in examples of each function::
+我们会在下面函数的示例中使用下面的模型::
 
     class Experiment(models.Model):
         start_datetime = models.DateTimeField()
@@ -314,17 +283,14 @@ We'll be using the following model in examples of each function::
 
 .. class:: Extract(expression, lookup_name=None, tzinfo=None, **extra)
 
-Extracts a component of a date as a number.
+提取日期组成部分的数值.
 
-Takes an ``expression`` representing a ``DateField`` or ``DateTimeField`` and a
-``lookup_name``, and returns the part of the date referenced by ``lookup_name``
-as an ``IntegerField``. Django usually uses the databases' extract function, so
-you may use any ``lookup_name`` that your database supports. A ``tzinfo``
-subclass, usually provided by ``pytz``, can be passed to extract a value in a
-specific timezone.
+接收一个 ``DateField`` 或 ``DateTimeField`` 的 ``expression`` 和 ``lookup_name`` 参数,
+返回 ``IntegerField`` 类型的日期的 ``lookup_name`` 部分的值.
+Django使用数据库的extract函数, 所以可以使用所有数据库支持的 ``lookup_name``.
+可以传递 ``pytz`` 模块提供的 ``tzinfo`` 子类来指定时区.
 
-Given the datetime ``2015-06-15 23:30:01.000321+00:00``, the built-in
-``lookup_name``\s return:
+对于datetime ``2015-06-15 23:30:01.000321+00:00``, 内置的 ``lookup_name`` 会返回:
 
 * "year": 2015
 * "month": 6
@@ -334,33 +300,29 @@ Given the datetime ``2015-06-15 23:30:01.000321+00:00``, the built-in
 * "minute": 30
 * "second": 1
 
-If a different timezone like ``Australia/Melbourne`` is active in Django, then
-the datetime is converted to the timezone before the value is extracted. The
-timezone offset for Melbourne in the example date above is +10:00. The values
-returned when this timezone is active will be the same as above except for:
+如果在Django中使用了不同时区, 例如 ``Australia/Melbourne``, 那么会在提取前将datetime转换为当前时区.
+上述示例日期中墨尔本的时区偏移为+10:00. 使用此时区时, 返回的值将与上述相同除了:
 
 * "day": 16
 * "week_day": 3
 * "hour": 9
 
-.. admonition:: ``week_day`` values
+.. admonition:: ``week_day`` 值
 
-    The ``week_day`` ``lookup_type`` is calculated differently from most
-    databases and from Python's standard functions. This function will return
-    ``1`` for Sunday, ``2`` for Monday, through ``7`` for Saturday.
+    ``lookup_type`` ``week_day`` 的计算与大多数数据库和Python标准函数不一样.
+    该函数的返回中. 星期日为 ``1``, 星期一为 ``2``, 星期六为 ``7``.
 
-    The equivalent calculation in Python is::
+    等价于Python中的::
 
         >>> from datetime import datetime
         >>> dt = datetime(2015, 6, 15)
         >>> (dt.isoweekday() % 7) + 1
         2
 
-Each ``lookup_name`` above has a corresponding ``Extract`` subclass (listed
-below) that should typically be used instead of the more verbose equivalent,
-e.g. use ``ExtractYear(...)`` rather than ``Extract(..., lookup_name='year')``.
+上面每个 ``lookup_name`` 都具有相应的 ``Extract`` 子类, 通常可以使用这个子类来代替原本冗长的用法,
+例如. 使用 ``ExtractYear(...)`` 代替 ``Extract(..., lookup_name='year')``.
 
-Usage example::
+用例::
 
     >>> from datetime import datetime
     >>> from django.db.models.functions import Extract
@@ -379,7 +341,7 @@ Usage example::
     ...    start_datetime__year=Extract('end_datetime', 'year')).count()
     1
 
-``DateField`` extracts
+``DateField`` 提取
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. class:: ExtractYear(expression, tzinfo=None, **extra)
@@ -398,12 +360,9 @@ Usage example::
 
     .. attribute:: lookup_name = 'week_day'
 
-These are logically equivalent to ``Extract('date_field', lookup_name)``. Each
-class is also a ``Transform`` registered on ``DateField`` and ``DateTimeField``
-as ``__(lookup_name)``, e.g. ``__year``.
+这些逻辑等价于 ``Extract('date_field', lookup_name)``. 每个类也是在 ``DateField`` 和 ``DateTimeField`` 上注册为 ``__(lookup_name)`` 的 ``Transform``, 例如 ``__year``.
 
-Since ``DateField``\s don't have a time component, only ``Extract`` subclasses
-that deal with date-parts can be used with ``DateField``::
+由于 ``DateField`` 没有time部分, 因此只有处理date部分的 ``Extract`` 子类才能在 ``DateField`` 上使用::
 
     >>> from datetime import datetime
     >>> from django.utils import timezone
@@ -425,11 +384,10 @@ that deal with date-parts can be used with ``DateField``::
     ... )
     {'year': 2015, 'month': 6, 'day': 15, 'weekday': 2}
 
-``DateTimeField`` extracts
+``DateTimeField`` 提取
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the following, all extracts for ``DateField`` listed above may
-also be used on ``DateTimeField``\s .
+除了以下内容外, 上面所有的 ``DateField`` extracts也可以应用于 ``DateTimeField``.
 
 .. class:: ExtractHour(expression, tzinfo=None, **extra)
 
@@ -443,11 +401,9 @@ also be used on ``DateTimeField``\s .
 
     .. attribute:: lookup_name = 'second'
 
-These are logically equivalent to ``Extract('datetime_field', lookup_name)``.
-Each class is also a ``Transform`` registered on ``DateTimeField`` as
-``__(lookup_name)``, e.g. ``__minute``.
+这些逻辑等价于 ``Extract('datetime_field', lookup_name)``. 每个类也是在 ``DateTimeField`` 上注册为 ``__(lookup_name)`` 的 ``Transform``, 例如 ``__minute``.
 
-``DateTimeField`` examples::
+``DateTimeField`` 例子::
 
     >>> from datetime import datetime
     >>> from django.utils import timezone
@@ -473,11 +429,8 @@ Each class is also a ``Transform`` registered on ``DateTimeField`` as
     ... ).get(end_datetime__year=ExtractYear('start_datetime'))
     {'year': 2015, 'month': 6, 'day': 15, 'weekday': 2, 'hour': 23, 'minute': 30, 'second': 1}
 
-When :setting:`USE_TZ` is ``True`` then datetimes are stored in the database
-in UTC. If a different timezone is active in Django, the datetime is converted
-to that timezone before the value is extracted. The example below converts to
-the Melbourne timezone (UTC +10:00), which changes the day, weekday, and hour
-values that are returned::
+当 :setting:`USE_TZ` 设置为 ``True`` 时数据库中的日期时间是以UTC储存. 如果在 Django 中使用了不同的时区, 那么在提取前会先转换为当前时区.
+下面的例子将转换为墨尔本时区(UTC +10:00), 返回的日期、星期和小时值会有改变::
 
     >>> import pytz
     >>> tzinfo = pytz.timezone('Australia/Melbourne')  # UTC+10:00
@@ -491,8 +444,7 @@ values that are returned::
     ...    )
     {'day': 16, 'weekday': 3, 'hour': 9}
 
-Explicitly passing the timezone to the ``Extract`` function behaves in the same
-way, and takes priority over an active timezone::
+显式地传递时区给 ``Extract``, 将优先于当前时区::
 
     >>> import pytz
     >>> tzinfo = pytz.timezone('Australia/Melbourne')
@@ -511,23 +463,17 @@ way, and takes priority over an active timezone::
 
 .. class:: Trunc(expression, kind, output_field=None, tzinfo=None, **extra)
 
-Truncates a date up to a significant component.
+日期截取方法.
 
-When you only care if something happened in a particular year, hour, or day,
-but not the exact second, then ``Trunc`` (and its subclasses) can be useful to
-filter or aggregate your data. For example, you can use ``Trunc`` to calculate
-the number of sales per day.
+当你只关心年份, 小时或者天数, 不需要确切的秒数, 那么 ``Trunc`` (及其子类)可以用于过滤或聚合数据.
+例如, 可以使用 ``Trunc`` 计算每天的销售额.
 
-``Trunc`` takes a single ``expression``, representing a ``DateField`` or
-``DateTimeField``, a ``kind`` representing a date part, and an ``output_field``
-that's either ``DateTimeField()`` or ``DateField()``. It returns a datetime or
-date, depending on ``output_field``, with fields up to ``kind`` set to their
-minimum value. If ``output_field`` is omitted, it will default to the
-``output_field`` of ``expression``. A ``tzinfo`` subclass, usually provided by
-``pytz``, can be passed to truncate a value in a specific timezone.
+``Trunc`` 接收一个 ``DateField`` 或 ``DateTimeField`` 的 ``expression``, ``kind`` 表示日期部分,
+``output_field`` 可以是 ``DateTimeField()`` 或 ``DateField()``. 它根据 ``output_field`` 返回datetime或date, ``kind`` 以下的部分被设置为最小值.
+如果 ``output_field`` 缺省, 将默认为 ``expression`` 的 ``output_field``.
+可以传递 ``pytz`` 模块提供的 ``tzinfo`` 子类来指定时区.
 
-Given the datetime ``2015-06-15 14:30:50.000321+00:00``, the built-in ``kind``\s
-return:
+给定datetime ``2015-06-15 14:30:50.000321+00:00``, 内置的 ``kind`` 返回:
 
 * "year": 2015-01-01 00:00:00+00:00
 * "month": 2015-06-01 00:00:00+00:00
@@ -536,10 +482,8 @@ return:
 * "minute": 2015-06-15 14:30:00+00:00
 * "second": 2015-06-15 14:30:50+00:00
 
-If a different timezone like ``Australia/Melbourne`` is active in Django, then
-the datetime is converted to the new timezone before the value is truncated.
-The timezone offset for Melbourne in the example date above is +10:00. The
-values returned when this timezone is active will be:
+如果Django中使用了不同的时区如 ``Australia/Melbourne``, 那么会在截取前将datetime转换为当前时区.
+上述示例日期中墨尔本的时区偏移为+10:00. 使用此时区时, 返回的值变成:
 
 * "year": 2015-01-01 00:00:00+11:00
 * "month": 2015-06-01 00:00:00+10:00
@@ -548,18 +492,14 @@ values returned when this timezone is active will be:
 * "minute": 2015-06-16 00:30:00+10:00
 * "second": 2015-06-16 00:30:50+10:00
 
-The year has an offset of +11:00 because the result transitioned into daylight
-saving time.
+该年度的偏移量为+11：00, 因为结果已转换为夏令时.
 
-Each ``kind`` above has a corresponding ``Trunc`` subclass (listed below) that
-should typically be used instead of the more verbose equivalent,
-e.g. use ``TruncYear(...)`` rather than ``Trunc(..., kind='year')``.
+以上每个 ``kind`` 都有相应的 ``Trunc`` 子类, 通常应该使用这个子类来代替上面比较冗长的用法.
+例如. 使用 ``TruncYear(...)`` 代替 ``Trunc(..., kind='year')``.
 
-The subclasses are all defined as transforms, but they aren't registered with
-any fields, because the obvious lookup names are already reserved by the
-``Extract`` subclasses.
+子类都被定义为变换, 但它们没有注册任何字段, 因为 ``Extract`` 子类已经保留了显示的查找名称.
 
-Usage example::
+用例::
 
     >>> from datetime import datetime
     >>> from django.db.models import Count, DateTimeField
@@ -584,7 +524,7 @@ Usage example::
     2015-06-15 14:30:50.000321
     2015-06-15 14:40:02.000123
 
-``DateField`` truncation
+``DateField`` 截取
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. class:: TruncYear(expression, output_field=None, tzinfo=None, **extra)
@@ -595,13 +535,10 @@ Usage example::
 
     .. attribute:: kind = 'month'
 
-These are logically equivalent to ``Trunc('date_field', kind)``. They truncate
-all parts of the date up to ``kind`` which allows grouping or filtering dates
-with less precision. ``expression`` can have an ``output_field`` of either
-``DateField`` or ``DateTimeField``.
+它们逻辑上等价于 ``Trunc('date_field', kind)``. 它们截取日期的所有部分直至 ``kind``,
+允许以较低的精度对日期进行分组或过滤. ``expression`` 的 ``output_field`` 可以是 ``DateField`` 或 ``DateTimeField``.
 
-Since ``DateField``\s don't have a time component, only ``Trunc`` subclasses
-that deal with date-parts can be used with ``DateField``::
+由于 ``DateField`` 没有time部分, 只有处理date部分的 ``Trunc`` 子类才能与 ``DateField`` 使用::
 
     >>> from datetime import datetime
     >>> from django.db.models import Count
@@ -634,7 +571,7 @@ that deal with date-parts can be used with ``DateField``::
     2016-01-01 00:00:00+11:00 1
     2014-06-01 00:00:00+10:00 1
 
-``DateTimeField`` truncation
+``DateTimeField`` 截取
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. class:: TruncDate(expression, **extra)
@@ -642,9 +579,7 @@ that deal with date-parts can be used with ``DateField``::
     .. attribute:: lookup_name = 'date'
     .. attribute:: output_field = DateField()
 
-``TruncDate`` casts ``expression`` to a date rather than using the built-in SQL
-truncate function. It's also registered as a transform on  ``DateTimeField`` as
-``__date``.
+``TruncDate`` 将 ``expression`` 转换成date, 而不是使用内置的SQL truncate函数. 它也在  ``DateTimeField`` 上注册为 ``__date`` 的转换.
 
 .. class:: TruncDay(expression, output_field=None, tzinfo=None, **extra)
 
@@ -662,12 +597,10 @@ truncate function. It's also registered as a transform on  ``DateTimeField`` as
 
     .. attribute:: kind = 'second'
 
-These are logically equivalent to ``Trunc('datetime_field', kind)``. They
-truncate all parts of the date up to ``kind`` and allow grouping or filtering
-datetimes with less precision. ``expression`` must have an ``output_field`` of
-``DateTimeField``.
+它们在逻辑上等价于 ``Trunc('datetime_field', kind)``. 它们截取日期的所有部分直至 ``kind``,
+允许以较低的精度对日期进行分组或过滤. ``expression`` 的 ``output_field`` 必须是 ``DateTimeField``.
 
-Usage example::
+用例::
 
     >>> from datetime import date, datetime
     >>> from django.db.models import Count
