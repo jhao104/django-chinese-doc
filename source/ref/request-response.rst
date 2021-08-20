@@ -1,74 +1,62 @@
 ============================
-Request and response objects
+请求和响应对象
 ============================
 
 .. module:: django.http
    :synopsis: Classes dealing with HTTP requests and responses.
 
-Quick overview
+概述
 ==============
 
-Django uses request and response objects to pass state through the system.
+Django使用Request对象和Response对象在系统间传递状态.
 
-When a page is requested, Django creates an :class:`HttpRequest` object that
-contains metadata about the request. Then Django loads the appropriate view,
-passing the :class:`HttpRequest` as the first argument to the view function.
-Each view is responsible for returning an :class:`HttpResponse` object.
+当请求一个页面时, Django会创建一个包含请求元数据的 :class:`HttpRequest` 对象.
+然后加载相应的视图, 将 :class:`HttpRequest` 作为视图函数的第一个参数传入.
+视图函数负责返回一个 :class:`HttpResponse` 对象.
 
-This document explains the APIs for :class:`HttpRequest` and
-:class:`HttpResponse` objects, which are defined in the :mod:`django.http`
-module.
+本文档对 :class:`HttpRequest` 和 :class:`HttpResponse` 对象的API进行说明, 这些API定义在 :mod:`django.http` 模块中.
 
-``HttpRequest`` objects
+``HttpRequest`` 对象
 =======================
 
 .. class:: HttpRequest
 
 .. _httprequest-attributes:
 
-Attributes
+属性
 ----------
 
-All attributes should be considered read-only, unless stated otherwise.
+除非另有说明, 否则所有属性都应视为只读.
 
 .. attribute:: HttpRequest.scheme
 
-    A string representing the scheme of the request (``http`` or ``https``
-    usually).
+    代表请求协议的字符串 (通常是 ``http`` 或 ``https``).
 
 .. attribute:: HttpRequest.body
 
-    The raw HTTP request body as a byte string. This is useful for processing
-    data in different ways than conventional HTML forms: binary images,
-    XML payload etc. For processing conventional form data, use ``HttpRequest.POST``.
+    表示原始HTTP请求正文的字节字符串. 它对处理非HTML表单数据非常有用: 二进制图片, XML等.
+    如果要处理常规表单数据, 请使用 ``HttpRequest.POST``.
 
-    You can also read from an HttpRequest using a file-like interface. See
-    :meth:`HttpRequest.read()`.
+    还可以使用类似文件的接口从HttpRequest读取数据. 详见 :meth:`HttpRequest.read()`.
 
 .. attribute:: HttpRequest.path
 
-    A string representing the full path to the requested page, not including
-    the scheme or domain.
+    请求页面完整路径, 不包括scheme和domain.
 
-    Example: ``"/music/bands/the_beatles/"``
+    例如: ``"/music/bands/the_beatles/"``
 
 .. attribute:: HttpRequest.path_info
 
-    Under some Web server configurations, the portion of the URL after the
-    host name is split up into a script prefix portion and a path info
-    portion. The ``path_info`` attribute always contains the path info portion
-    of the path, no matter what Web server is being used. Using this instead
-    of :attr:`~HttpRequest.path` can make your code easier to move between
-    test and deployment servers.
+    在某些Web服务器配置下, 主机名后的URL被分成脚本前缀部分和路径信息部分.
+    ``path_info`` 属性始终会包含路径信息部分, 不论使用什么Web服务器,
+    使用它代替 :attr:`~HttpRequest.path` 可以使代码在测试和开发环境中更好地切换.
 
-    For example, if the ``WSGIScriptAlias`` for your application is set to
-    ``"/minfo"``, then ``path`` might be ``"/minfo/music/bands/the_beatles/"``
-    and ``path_info`` would be ``"/music/bands/the_beatles/"``.
+    例如, 如果应用的 ``WSGIScriptAlias`` 设置为 ``"/minfo"``, ``path`` 是 ``"/minfo/music/bands/the_beatles/"``
+    时 ``path_info`` 是 ``"/music/bands/the_beatles/"``.
 
 .. attribute:: HttpRequest.method
 
-    A string representing the HTTP method used in the request. This is
-    guaranteed to be uppercase. Example::
+    一个字符串, 表示请求使用的HTTP方法. 大些字母形式. 例如::
 
         if request.method == 'GET':
             do_something()
@@ -77,185 +65,143 @@ All attributes should be considered read-only, unless stated otherwise.
 
 .. attribute:: HttpRequest.encoding
 
-    A string representing the current encoding used to decode form submission
-    data (or ``None``, which means the :setting:`DEFAULT_CHARSET` setting is
-    used). You can write to this attribute to change the encoding used when
-    accessing the form data. Any subsequent attribute accesses (such as reading
-    from ``GET`` or ``POST``) will use the new ``encoding`` value.  Useful if
-    you know the form data is not in the :setting:`DEFAULT_CHARSET` encoding.
+    一个字符串, 表示提交的数据的编码(如果为 ``None``, 表示使用 :setting:`DEFAULT_CHARSET` 设置).
+    可以修改这个属性值来改变访问表单数据使用的编码. 修改后的属性访问(从 ``GET`` 或 ``POST`` 读取)都将使用新的 ``encoding`` 值.
+    这对于访问数据不是 :setting:`DEFAULT_CHARSET` 编码时非常有用.
 
 .. attribute:: HttpRequest.content_type
 
     .. versionadded:: 1.10
 
-    A string representing the MIME type of the request, parsed from the
-    ``CONTENT_TYPE`` header.
+    从 ``CONTENT_TYPE`` 请求头中解析到的MIME类型字符串.
 
 .. attribute:: HttpRequest.content_params
 
     .. versionadded:: 1.10
 
-    A dictionary of key/value parameters included in the ``CONTENT_TYPE``
-    header.
+    ``CONTENT_TYPE`` 请求头中的键值参数字典.
 
 .. attribute:: HttpRequest.GET
 
-    A dictionary-like object containing all given HTTP GET parameters. See the
-    :class:`QueryDict` documentation below.
+    包含所有HTTP GET请求参数的类字典对象. 详见 :class:`QueryDict`.
 
 .. attribute:: HttpRequest.POST
 
-    A dictionary-like object containing all given HTTP POST parameters,
-    providing that the request contains form data. See the
-    :class:`QueryDict` documentation below. If you need to access raw or
-    non-form data posted in the request, access this through the
-    :attr:`HttpRequest.body` attribute instead.
+    包含所有HTTP POST请求参数的类字典对象, 前提是请求包含了表单数据. 详见 :class:`QueryDict`.
+    如果需要访问post提交的原始或非表单数据, 可以使用 :attr:`HttpRequest.body` 属性.
 
-    It's possible that a request can come in via POST with an empty ``POST``
-    dictionary -- if, say, a form is requested via the POST HTTP method but
-    does not include form data. Therefore, you shouldn't use ``if request.POST``
-    to check for use of the POST method; instead, use ``if request.method ==
-    "POST"`` (see above).
+    有可能会有POST请求但是 ``POST`` 为空字典的情况 -- 比如, 不包含表单数据的POST请求.
+    因此, 不要使用 ``if request.POST`` 来判断是否为POST请求; 应该使用 ``if request.method ==
+    "POST"`` (见上文).
 
-    Note: ``POST`` does *not* include file-upload information. See ``FILES``.
+    注意: ``POST``  **不** 包含文件上传信息. 见 ``FILES``.
 
 .. attribute:: HttpRequest.COOKIES
 
-    A standard Python dictionary containing all cookies. Keys and values are
-    strings.
+    包含所有cookie的Python字典. 键和值都是字符串.
 
 .. attribute:: HttpRequest.FILES
 
-    A dictionary-like object containing all uploaded files. Each key in
-    ``FILES`` is the ``name`` from the ``<input type="file" name="" />``. Each
-    value in ``FILES`` is an :class:`~django.core.files.uploadedfile.UploadedFile`.
+    包含所有上传文件的类字典对象. ``FILES`` 中的键为 ``<input type="file" name="" />`` 中的 ``name``.
+    ``FILES`` 中的值是一个 :class:`~django.core.files.uploadedfile.UploadedFile` 对象.
 
-    See :doc:`/topics/files` for more information.
+    详见 :doc:`/topics/files`.
 
-    Note that ``FILES`` will only contain data if the request method was POST
-    and the ``<form>`` that posted to the request had
-    ``enctype="multipart/form-data"``. Otherwise, ``FILES`` will be a blank
-    dictionary-like object.
+    注意, 只有 ``<form>`` 中带有 ``enctype="multipart/form-data"`` 的POST请求, ``FILES`` 才会有数据, 否则将是一个空的类字典对象.
 
 .. attribute:: HttpRequest.META
 
-    A standard Python dictionary containing all available HTTP headers.
-    Available headers depend on the client and server, but here are some
-    examples:
+    包含所有可用HTTP部首的Python字典. 可用的部首取决了客户端和服务端, 下面是一些例子:
 
-    * ``CONTENT_LENGTH`` -- The length of the request body (as a string).
-    * ``CONTENT_TYPE`` -- The MIME type of the request body.
-    * ``HTTP_ACCEPT`` -- Acceptable content types for the response.
-    * ``HTTP_ACCEPT_ENCODING`` -- Acceptable encodings for the response.
-    * ``HTTP_ACCEPT_LANGUAGE`` -- Acceptable languages for the response.
-    * ``HTTP_HOST`` -- The HTTP Host header sent by the client.
-    * ``HTTP_REFERER`` -- The referring page, if any.
-    * ``HTTP_USER_AGENT`` -- The client's user-agent string.
-    * ``QUERY_STRING`` -- The query string, as a single (unparsed) string.
-    * ``REMOTE_ADDR`` -- The IP address of the client.
-    * ``REMOTE_HOST`` -- The hostname of the client.
-    * ``REMOTE_USER`` -- The user authenticated by the Web server, if any.
-    * ``REQUEST_METHOD`` -- A string such as ``"GET"`` or ``"POST"``.
-    * ``SERVER_NAME`` -- The hostname of the server.
-    * ``SERVER_PORT`` -- The port of the server (as a string).
+    * ``CONTENT_LENGTH`` -- 请求体的长度 (字符串).
+    * ``CONTENT_TYPE`` -- 请求体的 MIME 类型.
+    * ``HTTP_ACCEPT`` -- 可接受的响应类型.
+    * ``HTTP_ACCEPT_ENCODING`` -- 可接受的响应编码.
+    * ``HTTP_ACCEPT_LANGUAGE`` -- 可接受的响应语言.
+    * ``HTTP_HOST`` -- 客户端发送的HTTP HOST首部.
+    * ``HTTP_REFERER`` -- referrer页面, 如果有的话.
+    * ``HTTP_USER_AGENT`` -- 客户端的user-agent字符串.
+    * ``QUERY_STRING`` -- 查询字符串, 单独(未解析)的一个字符串.
+    * ``REMOTE_ADDR`` -- 客户端的IP地址.
+    * ``REMOTE_HOST`` -- 客户端的hostname.
+    * ``REMOTE_USER`` -- Web服务器认证的用户, 如果有的话.
+    * ``REQUEST_METHOD`` -- ``"GET"`` 或 ``"POST"`` 等字符串.
+    * ``SERVER_NAME`` -- 服务端的hostname.
+    * ``SERVER_PORT`` --服务端的端口(字符串).
 
-    With the exception of ``CONTENT_LENGTH`` and ``CONTENT_TYPE``, as given
-    above, any HTTP headers in the request are converted to ``META`` keys by
-    converting all characters to uppercase, replacing any hyphens with
-    underscores and adding an ``HTTP_`` prefix to the name. So, for example, a
-    header called ``X-Bender`` would be mapped to the ``META`` key
+    从上面可以看出, 除了 ``CONTENT_LENGTH`` 和 ``CONTENT_TYPE`` 之外, 请求中的HTTP首部都会被转换为 ``META`` 中的键,
+    它将所有字符转换为大写用下划线连接, 并加上 ``HTTP_`` 前缀, 例如名为 ``X-Bender`` 的首部将被映射到 ``META`` 键
     ``HTTP_X_BENDER``.
 
-    Note that :djadmin:`runserver` strips all headers with underscores in the
-    name, so you won't see them in ``META``. This prevents header-spoofing
-    based on ambiguity between underscores and dashes both being normalizing to
-    underscores in WSGI environment variables. It matches the behavior of
-    Web servers like Nginx and Apache 2.4+.
+    注意, :djadmin:`runserver` 会取消所有名称中带有下划线的请求头, 因此您不会在 ``META`` 中看到它们.
+    这可以防止基于下划线和破折号之间的歧义的报文欺骗, 这两种符号在WSGI环境变量中都被规范化为下划线.
+    它与Nginx和apache2.4+等Web服务器的行为相匹配.
 
 .. attribute:: HttpRequest.resolver_match
 
-    An instance of :class:`~django.urls.ResolverMatch` representing the
-    resolved URL. This attribute is only set after URL resolving took place,
-    which means it's available in all views but not in middleware which are
-    executed before URL resolving takes place (you can use it in
-    :meth:`process_view` though).
+    代表解析后URL的 :class:`~django.urls.ResolverMatch` 实例. 该属性只有在URL解析后才会被设置,
+    因此它在视图中是可用的, 但是在URL解析之前执行的中间件中不可用(不过可以在 :meth:`process_view` 中使用).
 
-Attributes set by application code
+应用程序代码设置的属性
 ----------------------------------
 
-Django doesn't set these attributes itself but makes use of them if set by your
-application.
+Django不会自己设置这些属性, 而是由应用程序设置使用它们.
 
 .. attribute:: HttpRequest.current_app
 
-    The :ttag:`url` template tag will use its value as the ``current_app``
-    argument to :func:`~django.urls.reverse()`.
+    :ttag:`url` 模板标签使用它的值作为 :func:`~django.urls.reverse()` 的 ``current_app`` 参数.
 
 .. attribute:: HttpRequest.urlconf
 
-    This will be used as the root URLconf for the current request, overriding
-    the :setting:`ROOT_URLCONF` setting. See
-    :ref:`how-django-processes-a-request` for details.
+    这将作为当前请求的根URLconf, 覆盖 :setting:`ROOT_URLCONF` 设置. 详见 :ref:`how-django-processes-a-request`.
 
-    ``urlconf`` can be set to ``None`` to revert any changes made by previous
-    middleware and return to using the :setting:`ROOT_URLCONF`.
+    ``urlconf`` 可以设置为 ``None`` 用来重置在之前中间件中所做的修改, 并返回使用 :setting:`ROOT_URLCONF`.
 
     .. versionchanged:: 1.9
 
-        Setting ``urlconf=None`` raised
-        :exc:`~django.core.exceptions.ImproperlyConfigured` in older versions.
+        在之前版本中, 设置 ``urlconf=None`` 会引发 :exc:`~django.core.exceptions.ImproperlyConfigured` 异常.
 
-Attributes set by middleware
+中间件设置的属性
 ----------------------------
 
-Some of the middleware included in Django's contrib apps set attributes on the
-request. If you don't see the attribute on a request, be sure the appropriate
-middleware class is listed in :setting:`MIDDLEWARE`.
+Django的contrib应用中的一些中间件会在请求上设置属性.
+如果在请求中没有见到这些属性, 请求确保 :setting:`MIDDLEWARE` 中使用了正确的中间件.
 
 .. attribute:: HttpRequest.session
 
-    From the :class:`~django.contrib.sessions.middleware.SessionMiddleware`: A
-    readable and writable, dictionary-like object that represents the current
-    session.
+    出自 :class:`~django.contrib.sessions.middleware.SessionMiddleware`: 一个可读写的代表当前session的类字典对象.
 
 .. attribute:: HttpRequest.site
 
-    From the :class:`~django.contrib.sites.middleware.CurrentSiteMiddleware`:
-    An instance of :class:`~django.contrib.sites.models.Site` or
-    :class:`~django.contrib.sites.requests.RequestSite` as returned by
-    :func:`~django.contrib.sites.shortcuts.get_current_site()`
-    representing the current site.
+    出自 :class:`~django.contrib.sites.middleware.CurrentSiteMiddleware`:
+    :func:`~django.contrib.sites.shortcuts.get_current_site()` 返回的
+    :class:`~django.contrib.sites.models.Site` 或者
+    :class:`~django.contrib.sites.requests.RequestSite` 实例, 代表当前站点.
 
 .. attribute:: HttpRequest.user
 
-    From the :class:`~django.contrib.auth.middleware.AuthenticationMiddleware`:
-    An instance of :setting:`AUTH_USER_MODEL` representing the currently
-    logged-in user. If the user isn't currently logged in, ``user`` will be set
-    to an instance of :class:`~django.contrib.auth.models.AnonymousUser`. You
-    can tell them apart with
-    :attr:`~django.contrib.auth.models.User.is_authenticated`, like so::
+    出自 :class:`~django.contrib.auth.middleware.AuthenticationMiddleware`:
+    代表当前登录用户的 :setting:`AUTH_USER_MODEL` 实例. 如果用户没有登录, ``user`` 会返回
+    一个 :class:`~django.contrib.auth.models.AnonymousUser` 实例. 可以使用
+    :attr:`~django.contrib.auth.models.User.is_authenticated` 来区分它们, 例如::
 
         if request.user.is_authenticated:
             ... # Do something for logged-in users.
         else:
             ... # Do something for anonymous users.
 
-Methods
+方法
 -------
 
 .. method:: HttpRequest.get_host()
 
-    Returns the originating host of the request using information from the
-    ``HTTP_X_FORWARDED_HOST`` (if :setting:`USE_X_FORWARDED_HOST` is enabled)
-    and ``HTTP_HOST`` headers, in that order. If they don't provide a value,
-    the method uses a combination of ``SERVER_NAME`` and ``SERVER_PORT`` as
-    detailed in :pep:`3333`.
+    根据 ``HTTP_X_FORWARDED_HOST`` (如果启用了 :setting:`USE_X_FORWARDED_HOST`)
+    和 ``HTTP_HOST`` 首部按顺序返回请求原始host. 如果没有提供响应的值,
+    则使用 ``SERVER_NAME`` 和 ``SERVER_PORT`` 组合, 详见 :pep:`3333`.
 
-    Example: ``"127.0.0.1:8000"``
+    例如: ``"127.0.0.1:8000"``
 
-    .. note:: The :meth:`~HttpRequest.get_host()` method fails when the host is
-        behind multiple proxies. One solution is to use middleware to rewrite
-        the proxy headers, as in the following example::
+    .. note:: 当使用了多重代理时 :meth:`~HttpRequest.get_host()` 方法会失败. 有个解决方法是使用中间件重新代理首部, 例如::
 
             from django.utils.deprecation import MiddlewareMixin
 
@@ -277,9 +223,8 @@ Methods
                                 parts = request.META[field].split(',')
                                 request.META[field] = parts[-1].strip()
 
-        This middleware should be positioned before any other middleware that
-        relies on the value of :meth:`~HttpRequest.get_host()` -- for instance,
-        :class:`~django.middleware.common.CommonMiddleware` or
+        该中间件应该放在所有依赖 :meth:`~HttpRequest.get_host()` 的中间件之前 -- 例如,
+        :class:`~django.middleware.common.CommonMiddleware` 或者
         :class:`~django.middleware.csrf.CsrfViewMiddleware`.
 
 .. method:: HttpRequest.get_port()
