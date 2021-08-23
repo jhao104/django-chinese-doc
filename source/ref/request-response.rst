@@ -111,7 +111,7 @@ Django使用Request对象和Response对象在系统间传递状态.
 
 .. attribute:: HttpRequest.META
 
-    包含所有可用HTTP部首的Python字典. 可用的部首取决了客户端和服务端, 下面是一些例子:
+    包含所有可用HTTP首部的Python字典. 可用的首部取决了客户端和服务端, 下面是一些例子:
 
     * ``CONTENT_LENGTH`` -- 请求体的长度 (字符串).
     * ``CONTENT_TYPE`` -- 请求体的 MIME 类型.
@@ -231,49 +231,37 @@ Django的contrib应用中的一些中间件会在请求上设置属性.
 
     .. versionadded:: 1.9
 
-    Returns the originating port of the request using information from the
-    ``HTTP_X_FORWARDED_PORT`` (if :setting:`USE_X_FORWARDED_PORT` is enabled)
-    and ``SERVER_PORT`` ``META`` variables, in that order.
+    根据 ``HTTP_X_FORWARDED_PORT`` (如果启用了 :setting:`USE_X_FORWARDED_PORT` 设置)
+    和 ``SERVER_PORT`` ``META`` 变量, 按顺序返回请求的原始端口.
 
 .. method:: HttpRequest.get_full_path()
 
-    Returns the ``path``, plus an appended query string, if applicable.
+    返回带有查询字符串的 ``path`` (如果有的话).
 
-    Example: ``"/music/bands/the_beatles/?print=true"``
+    例如: ``"/music/bands/the_beatles/?print=true"``
 
 .. method:: HttpRequest.build_absolute_uri(location)
 
-    Returns the absolute URI form of ``location``. If no location is provided,
-    the location will be set to ``request.get_full_path()``.
+    返回 ``location`` 的绝对URI. 如果没有则设置为 ``request.get_full_path()``.
 
-    If the location is already an absolute URI, it will not be altered.
-    Otherwise the absolute URI is built using the server variables available in
-    this request.
+    如果URI已经是一个绝对的URI则不会修改, 否则, 使用请求中的服务器相关的变量构建绝对URI.
 
-    Example: ``"https://example.com/music/bands/the_beatles/?print=true"``
+    例如: ``"https://example.com/music/bands/the_beatles/?print=true"``
 
     .. note::
 
-        Mixing HTTP and HTTPS on the same site is discouraged, therefore
-        :meth:`~HttpRequest.build_absolute_uri()` will always generate an
-        absolute URI with the same scheme the current request has. If you need
-        to redirect users to HTTPS, it's best to let your Web server redirect
-        all HTTP traffic to HTTPS.
+        不鼓励在同一站点中混用HTTP和HTTPS, 因此,
+        :meth:`~HttpRequest.build_absolute_uri()` 会始终返回与当前请求相同协议的绝对URI.
+        如果你想将用户重定向到HTTPS, 最好让Web服务器将所有HTTP请求重定向到HTTPS.
 
 .. method:: HttpRequest.get_signed_cookie(key, default=RAISE_ERROR, salt='', max_age=None)
 
-    Returns a cookie value for a signed cookie, or raises a
-    ``django.core.signing.BadSignature`` exception if the signature is
-    no longer valid. If you provide the ``default`` argument the exception
-    will be suppressed and that default value will be returned instead.
+    返回签名的cookie值, 如果签名不再有效则引发 ``django.core.signing.BadSignature`` 异常.
+    如果提供了 ``default`` 参数, 则不会引发异常而是返回default值.
 
-    The optional ``salt`` argument can be used to provide extra protection
-    against brute force attacks on your secret key. If supplied, the
-    ``max_age`` argument will be checked against the signed timestamp
-    attached to the cookie value to ensure the cookie is not older than
-    ``max_age`` seconds.
+    可选参数 ``salt`` 用来提供额外的保护以防止对秘钥的暴力攻击. ``max_age`` 参数用于检查cookie的签名时间戳, 确保不超过 ``max_age`` 秒.
 
-    For example::
+    例如::
 
         >>> request.get_signed_cookie('name')
         'Tony'
@@ -293,27 +281,20 @@ Django的contrib应用中的一些中间件会在请求上设置属性.
         >>> request.get_signed_cookie('name', False, max_age=60)
         False
 
-    See :doc:`cryptographic signing </topics/signing>` for more information.
+    详见 :doc:`加密签名 </topics/signing>` .
 
 .. method:: HttpRequest.is_secure()
 
-    Returns ``True`` if the request is secure; that is, if it was made with
-    HTTPS.
+    如果请求是安全的则返回 ``True`` , 即使用HTTPS.
 
 .. method:: HttpRequest.is_ajax()
 
-    Returns ``True`` if the request was made via an ``XMLHttpRequest``, by
-    checking the ``HTTP_X_REQUESTED_WITH`` header for the string
-    ``'XMLHttpRequest'``. Most modern JavaScript libraries send this header.
-    If you write your own XMLHttpRequest call (on the browser side), you'll
-    have to set this header manually if you want ``is_ajax()`` to work.
+    如果请求是通过 ``XMLHttpRequest`` 发起的则返回 ``True``, 方法是检查 ``HTTP_X_REQUESTED_WITH`` 首部中是否包含 ``'XMLHttpRequest'``.
+    大部分现在的JavaScript库都会发送这个首部. 如果你自定义了XMLHttpRequest调用(浏览器端), 想要 ``is_ajax()`` 正常工作的话需要手动设置这个首部.
 
-    If a response varies on whether or not it's requested via AJAX and you are
-    using some form of caching like Django's :mod:`cache middleware
-    <django.middleware.cache>`, you should decorate the view with
-    :func:`vary_on_headers('X-Requested-With')
-    <django.views.decorators.vary.vary_on_headers>` so that the responses are
-    properly cached.
+    如果响应根据是否通过AJAX请求而有所不同, 并且您正在使用某种形式的缓存, 如Django的
+    :mod:`缓存中间件<django.middleware.cache>`, 则应使用 :func:`vary_on_headers('X-Requested-With')
+    <django.views.decorators.vary.vary_on_headers>` 来装饰视图以便正确缓存响应.
 
 .. method:: HttpRequest.read(size=None)
 .. method:: HttpRequest.readline()
@@ -321,40 +302,30 @@ Django的contrib应用中的一些中间件会在请求上设置属性.
 .. method:: HttpRequest.xreadlines()
 .. method:: HttpRequest.__iter__()
 
-    Methods implementing a file-like interface for reading from an
-    HttpRequest instance. This makes it possible to consume an incoming
-    request in a streaming fashion. A common use-case would be to process a
-    big XML payload with an iterative parser without constructing a whole
-    XML tree in memory.
+    实现从HttpRequest实例类似文件读取的接口. 这使得可以以流的方式读取请求.
+    常见的用例是使用迭代解析器处理大型XML负载, 而无需在内存中构建整个XML树.
 
-    Given this standard interface, an HttpRequest instance can be
-    passed directly to an XML parser such as ElementTree::
+    给定此标准接口, HttpRequest实例可以直接传递给XML解析器, 如ElementTree::
 
         import xml.etree.ElementTree as ET
         for element in ET.iterparse(request):
             process(element)
 
 
-``QueryDict`` objects
+``QueryDict`` 对象
 =====================
 
 .. class:: QueryDict
 
-In an :class:`HttpRequest` object, the ``GET`` and ``POST`` attributes are
-instances of ``django.http.QueryDict``, a dictionary-like class customized to
-deal with multiple values for the same key. This is necessary because some HTML
-form elements, notably ``<select multiple>``, pass multiple values for the same
-key.
+在 :class:`HttpRequest` 对象中, ``GET`` 和 ``POST`` 属性都是 ``django.http.QueryDict`` 实例,
+这是一个类似字典的类, 用来处理一个键的多个值. 这很有用, 因为有些HTML表单, 尤其是 ``<select multiple>``, 会传递一个键的多个值.
 
-The ``QueryDict``\ s at ``request.POST`` and ``request.GET`` will be immutable
-when accessed in a normal request/response cycle. To get a mutable version you
-need to use ``.copy()``.
+``QueryDict`` 在 ``request.POST`` 和 ``request.GET`` 的一个正常请求/响应周期中是不可变的. 如果有修改需要请使用 ``.copy()``.
 
-Methods
+方法
 -------
 
-:class:`QueryDict` implements all the standard dictionary methods because it's
-a subclass of dictionary. Exceptions are outlined here:
+:class:`QueryDict` 实现了字典的所有标准方法, 因为它是字典的子类. 下面列出了例外情况:
 
 .. method:: QueryDict.__init__(query_string=None, mutable=False, encoding=None)
 
