@@ -329,57 +329,45 @@ Django的contrib应用中的一些中间件会在请求上设置属性.
 
 .. method:: QueryDict.__init__(query_string=None, mutable=False, encoding=None)
 
-    Instantiates a ``QueryDict`` object based on ``query_string``.
+    基于 ``query_string`` 实例化的 ``QueryDict`` 对象.
 
     >>> QueryDict('a=1&a=2&c=3')
     <QueryDict: {'a': ['1', '2'], 'c': ['3']}>
 
-    If ``query_string`` is not passed in, the resulting ``QueryDict`` will be
-    empty (it will have no keys or values).
+    如果没有传入 ``query_string``, 返回的 ``QueryDict`` 为空(没有键和值).
 
-    Most ``QueryDict``\ s you encounter, and in particular those at
-    ``request.POST`` and ``request.GET``, will be immutable. If you are
-    instantiating one yourself, you can make it mutable by passing
-    ``mutable=True`` to its ``__init__()``.
+    大多数的 ``QueryDict``, 特别是 ``request.POST`` 和 ``request.GET`` 中的都是不可变的. 如果你在自己实例化时, 可以在 ``__init__()``
+    中传入 ``mutable=True`` 来创建可变的实例.
 
-    Strings for setting both keys and values will be converted from ``encoding``
-    to unicode. If encoding is not set, it defaults to :setting:`DEFAULT_CHARSET`.
+    设置的键和值都会使用 ``encoding`` 编码方式编码. 如果没有设置编码方式, 则使用默认的 :setting:`DEFAULT_CHARSET`.
 
 .. method:: QueryDict.__getitem__(key)
 
-    Returns the value for the given key. If the key has more than one value,
-    ``__getitem__()`` returns the last value. Raises
-    ``django.utils.datastructures.MultiValueDictKeyError`` if the key does not
-    exist. (This is a subclass of Python's standard ``KeyError``, so you can
-    stick to catching ``KeyError``.)
+    返回给定键的值. 如果该键有多个值, ``__getitem__()`` 返回最后一个值.
+    如果键不存在则会引发 ``django.utils.datastructures.MultiValueDictKeyError``.
+    (它是Python ``KeyError`` 异常的一个子类, 所以可以使用 ``KeyError`` 捕获该异常.)
 
 .. method:: QueryDict.__setitem__(key, value)
 
-    Sets the given key to ``[value]`` (a Python list whose single element is
-    ``value``). Note that this, as other dictionary functions that have side
-    effects, can only be called on a mutable ``QueryDict`` (such as one that
-    was created via ``copy()``).
+    为指定键设置值 ``[value]`` (只有一个 ``value`` 元素的Python列表).
+    注意, 和其他带有限制的字典函数一样, 它仅可以在可变的 ``QueryDict`` 上调用(比如通过 ``copy()`` 创建的副本).
 
 .. method:: QueryDict.__contains__(key)
 
-    Returns ``True`` if the given key is set. This lets you do, e.g., ``if "foo"
-    in request.GET``.
+    如果设置了给定的键则返回 ``True`` . 这使你能够 ``if "foo"
+    in request.GET`` 这样.
 
 .. method:: QueryDict.get(key, default=None)
 
-    Uses the same logic as ``__getitem__()`` above, with a hook for returning a
-    default value if the key doesn't exist.
+    使用和上面 ``__getitem__()`` 一样逻辑, 如果键不存在则返回默认值.
 
 .. method:: QueryDict.setdefault(key, default=None)
 
-    Just like the standard dictionary ``setdefault()`` method, except it uses
-    ``__setitem__()`` internally.
+    和普通字典的 ``setdefault()`` 方法一样, 只是它内部使用的是 ``__setitem__()``.
 
 .. method:: QueryDict.update(other_dict)
 
-    Takes either a ``QueryDict`` or standard dictionary. Just like the standard
-    dictionary ``update()`` method, except it *appends* to the current
-    dictionary items rather than replacing them. For example::
+    接收一个 ``QueryDict`` 或普通字典. 和普通字典的 ``update()`` 方法类似, 除了当键存在时它是 **添加** 新值而不是替换. 例如::
 
         >>> q = QueryDict('a=1', mutable=True)
         >>> q.update({'a': '2'})
@@ -390,8 +378,7 @@ Django的contrib应用中的一些中间件会在请求上设置属性.
 
 .. method:: QueryDict.items()
 
-    Just like the standard dictionary ``items()`` method, except this uses the
-    same last-value logic as ``__getitem__()``. For example::
+    类似普通字典的 ``items()`` 方法, 除了它使用与 ``__getitem__()`` 相同逻辑取最后一个值. 例如::
 
         >>> q = QueryDict('a=1&a=2&a=3')
         >>> q.items()
@@ -399,23 +386,19 @@ Django的contrib应用中的一些中间件会在请求上设置属性.
 
 .. method:: QueryDict.iteritems()
 
-    Just like the standard dictionary ``iteritems()`` method. Like
-    :meth:`QueryDict.items()` this uses the same last-value logic as
-    :meth:`QueryDict.__getitem__()`.
+    类似普通字典的 ``iteritems()`` 方法. 和 :meth:`QueryDict.items()` 一样使用与 :meth:`QueryDict.__getitem__()` 相同的逻辑取最后一个值.
 
-    Available only on Python 2.
+    仅适用于Python2.
 
 .. method:: QueryDict.iterlists()
 
-    Like :meth:`QueryDict.iteritems()` except it includes all values, as a list,
-    for each member of the dictionary.
+    类似 :meth:`QueryDict.iteritems()`, 只是它以列表形式返回字典成员的所有值.
 
-    Available only on Python 2.
+    仅适用于Python2.
 
 .. method:: QueryDict.values()
 
-    Just like the standard dictionary ``values()`` method, except this uses the
-    same last-value logic as ``__getitem__()``. For example::
+    类似普通字典的 ``values()`` 方法, 除了它使用与 ``__getitem__()`` 相同的逻辑返回最后一个值. 例如::
 
         >>> q = QueryDict('a=1&a=2&a=3')
         >>> q.values()
@@ -423,41 +406,36 @@ Django的contrib应用中的一些中间件会在请求上设置属性.
 
 .. method:: QueryDict.itervalues()
 
-    Just like :meth:`QueryDict.values()`, except an iterator.
+    类似 :meth:`QueryDict.values()`, 只是它返回的是迭代器.
 
-    Available only on Python 2.
+    仅适用于Python2.
 
-In addition, ``QueryDict`` has the following methods:
+此外, ``QueryDict`` 还有如下方法:
 
 .. method:: QueryDict.copy()
 
-    Returns a copy of the object, using ``copy.deepcopy()`` from the Python
-    standard library. This copy will be mutable even if the original was not.
+    使用Python标准库 ``copy.deepcopy()`` 返回对象的副本. 返回的对象是可变的即使原始对象不可变.
 
 .. method:: QueryDict.getlist(key, default=None)
 
-    Returns the data with the requested key, as a Python list. Returns an
-    empty list if the key doesn't exist and no default value was provided.
-    It's guaranteed to return a list of some sort unless the default value
-    provided is not a list.
+    以列表形式返回给定键的数据, 如果键不存在且没有提供默认值则返回空列表.
+    除了默认值不是列表的情况, 它的返回值一定是列表.
 
 .. method:: QueryDict.setlist(key, list_)
 
-    Sets the given key to ``list_`` (unlike ``__setitem__()``).
+    为指定键设置值 ``list_`` (与 ``__setitem__()`` 不同).
 
 .. method:: QueryDict.appendlist(key, item)
 
-    Appends an item to the internal list associated with key.
+    将项追加到与键相关联的列表中.
 
 .. method:: QueryDict.setlistdefault(key, default_list=None)
 
-    Just like ``setdefault``, except it takes a list of values instead of a
-    single value.
+    类似 ``setdefault``, 只是它接收一个列表而不是单个值.
 
 .. method:: QueryDict.lists()
 
-    Like :meth:`items()`, except it includes all values, as a list, for each
-    member of the dictionary. For example::
+    类似 :meth:`items()`, 它以列表形式返回字典成员的所有值. 例如::
 
         >>> q = QueryDict('a=1&a=2&a=3')
         >>> q.lists()
@@ -465,8 +443,7 @@ In addition, ``QueryDict`` has the following methods:
 
 .. method:: QueryDict.pop(key)
 
-    Returns a list of values for the given key and removes them from the
-    dictionary. Raises ``KeyError`` if the key does not exist. For example::
+    移除并返回字典中给定键对应值的列表. 如果键不存在会引发 ``KeyError`` 异常. 例如::
 
         >>> q = QueryDict('a=1&a=2&a=3', mutable=True)
         >>> q.pop('a')
@@ -474,10 +451,7 @@ In addition, ``QueryDict`` has the following methods:
 
 .. method:: QueryDict.popitem()
 
-    Removes an arbitrary member of the dictionary (since there's no concept
-    of ordering), and returns a two value tuple containing the key and a list
-    of all values for the key. Raises ``KeyError`` when called on an empty
-    dictionary. For example::
+    删除并返回字典的任意成员(因为没有顺序的概念), 返回一个元组, 包含键和所有值的列表. 如果对空字典调用会引发 ``KeyError`` 异常. 例如::
 
         >>> q = QueryDict('a=1&a=2&a=3', mutable=True)
         >>> q.popitem()
@@ -485,9 +459,8 @@ In addition, ``QueryDict`` has the following methods:
 
 .. method:: QueryDict.dict()
 
-    Returns ``dict`` representation of ``QueryDict``. For every (key, list)
-    pair in ``QueryDict``, ``dict`` will have (key, item), where item is one
-    element of the list, using same logic as :meth:`QueryDict.__getitem__()`::
+    返回 ``QueryDict`` 的 ``dict`` 形式. 对于 ``QueryDict`` 中的每个(键, 列表), ``dict`` 是(键, item), item是列表中的一个元素,
+    使用与 :meth:`QueryDict.__getitem__()` 相同逻辑返回::
 
         >>> q = QueryDict('a=1&a=3&a=5')
         >>> q.dict()
@@ -495,211 +468,173 @@ In addition, ``QueryDict`` has the following methods:
 
 .. method:: QueryDict.urlencode(safe=None)
 
-    Returns a string of the data in query-string format. Example::
+    返回query-string格式字符串. 例如::
 
         >>> q = QueryDict('a=2&b=3&b=5')
         >>> q.urlencode()
         'a=2&b=3&b=5'
 
-    Optionally, urlencode can be passed characters which
-    do not require encoding. For example::
+    或者, 可以向urlencode传递不需要编码的字符. 例如::
 
         >>> q = QueryDict(mutable=True)
         >>> q['next'] = '/a&b/'
         >>> q.urlencode(safe='/')
         'next=/a%26b/'
 
-``HttpResponse`` objects
+``HttpResponse`` 对象
 ========================
 
 .. class:: HttpResponse
 
-In contrast to :class:`HttpRequest` objects, which are created automatically by
-Django, :class:`HttpResponse` objects are your responsibility. Each view you
-write is responsible for instantiating, populating and returning an
-:class:`HttpResponse`.
+与自动创建的 :class:`HttpRequest` 对象不同, :class:`HttpResponse` 是你需要在每个视图里实例化, 填充和返回的.
 
-The :class:`HttpResponse` class lives in the :mod:`django.http` module.
+:class:`HttpResponse` 类定义在 :mod:`django.http` 模块中.
 
-Usage
+用例
 -----
 
-Passing strings
+传递字符串
 ~~~~~~~~~~~~~~~
 
-Typical usage is to pass the contents of the page, as a string, to the
-:class:`HttpResponse` constructor::
+典型的用法是将页面内容以字符串的形式传递给 :class:`HttpResponse`::
 
     >>> from django.http import HttpResponse
     >>> response = HttpResponse("Here's the text of the Web page.")
     >>> response = HttpResponse("Text only, please.", content_type="text/plain")
 
-But if you want to add content incrementally, you can use ``response`` as a
-file-like object::
+如果想要添加内容, ``response`` 可以像文件对象那样::
 
     >>> response = HttpResponse()
     >>> response.write("<p>Here's the text of the Web page.</p>")
     >>> response.write("<p>Here's another paragraph.</p>")
 
-Passing iterators
+传递迭代器
 ~~~~~~~~~~~~~~~~~
 
-Finally, you can pass ``HttpResponse`` an iterator rather than strings.
-``HttpResponse`` will consume the iterator immediately, store its content as a
-string, and discard it. Objects with a ``close()`` method such as files and
-generators are immediately closed.
+你也可以传递一个迭代器给 ``HttpResponse``. ``HttpResponse`` 会立即消费这个迭代器, 然后将其内容储存为字符串.
+如果对象带有 ``close()`` 方法, 例如文件或迭代器, 会立即关闭.
 
-If you need the response to be streamed from the iterator to the client, you
-must use the :class:`StreamingHttpResponse` class instead.
+如果想以流的形式返回给客户端, 请使用 :class:`StreamingHttpResponse` 类.
 
 .. versionchanged:: 1.10
 
-    Objects with a ``close()`` method used to be closed when the WSGI server
-    called ``close()`` on the response.
+    WSGI服务器响应时调用 ``close()`` 方法, 具有 ``close()`` 方法的对象将会被close.
 
-Setting header fields
+设置首部字段
 ~~~~~~~~~~~~~~~~~~~~~
 
-To set or remove a header field in your response, treat it like a dictionary::
+可以将它当做一个字典来设置或删除response首部字段::
 
     >>> response = HttpResponse()
     >>> response['Age'] = 120
     >>> del response['Age']
 
-Note that unlike a dictionary, ``del`` doesn't raise ``KeyError`` if the header
-field doesn't exist.
+注意与字典不同的是, ``del`` 删除不存在的字段时不会引发 ``KeyError`` 异常.
 
-For setting the ``Cache-Control`` and ``Vary`` header fields, it is recommended
-to use the :func:`~django.utils.cache.patch_cache_control` and
-:func:`~django.utils.cache.patch_vary_headers` methods from
-:mod:`django.utils.cache`, since these fields can have multiple, comma-separated
-values. The "patch" methods ensure that other values, e.g. added by a
-middleware, are not removed.
+如果要设置 ``Cache-Control`` 和 ``Vary`` 首部字段, 建议使用 :mod:`django.utils.cache` 中的
+:func:`~django.utils.cache.patch_cache_control` 和 :func:`~django.utils.cache.patch_vary_headers`
+方法, 因为这两个字段是以逗号分隔的多个值. 而这些"patch"方法确保不会丢失其他值, 例如中间件添加的值.
 
-HTTP header fields cannot contain newlines. An attempt to set a header field
-containing a newline character (CR or LF) will raise ``BadHeaderError``
+HTTP首部字段不能包含换行. 如果尝试为首部字段设置包含换行符(CR或LF)的字符串会引发 ``BadHeaderError``.
 
-Telling the browser to treat the response as a file attachment
+告诉浏览器将响应作为文件处理
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To tell the browser to treat the response as a file attachment, use the
-``content_type`` argument and set the ``Content-Disposition`` header. For example,
-this is how you might return a Microsoft Excel spreadsheet::
+要告诉浏览器将响应作为文件处理, 需要使用 ``content_type`` 参数并设置 ``Content-Disposition`` 首部.
+例如, 以Microsoft Excel电子表格的形式响应::
 
     >>> response = HttpResponse(my_data, content_type='application/vnd.ms-excel')
     >>> response['Content-Disposition'] = 'attachment; filename="foo.xls"'
 
-There's nothing Django-specific about the ``Content-Disposition`` header, but
-it's easy to forget the syntax, so we've included it here.
+关于 ``Content-Disposition`` 首部没有Django相关的内容, 很容易忘记语法, 所以我们将其放在这里.
 
-Attributes
+属性
 ----------
 
 .. attribute:: HttpResponse.content
 
-    A bytestring representing the content, encoded from a Unicode
-    object if necessary.
+    表单内容的字节字符串, 必要时由Unicode编码.
 
 .. attribute:: HttpResponse.charset
 
-    A string denoting the charset in which the response will be encoded. If not
-    given at ``HttpResponse`` instantiation time, it will be extracted from
-    ``content_type`` and if that is unsuccessful, the
-    :setting:`DEFAULT_CHARSET` setting will be used.
+    表示响应的编码的字符串. 如果 ``HttpResponse`` 在实例化时没有指定, 将从
+    ``content_type`` 中提取, 如果不成功将使用 :setting:`DEFAULT_CHARSET` 设置.
 
 .. attribute:: HttpResponse.status_code
 
-    The :rfc:`HTTP status code <7231#section-6>` for the response.
+    响应的 :rfc:`HTTP状态码 <7231#section-6>`.
 
     .. versionchanged:: 1.9
 
-        Unless :attr:`reason_phrase` is explicitly set, modifying the value of
-        ``status_code`` outside the constructor will also modify the value of
-        ``reason_phrase``.
+        除非明确设置了 :attr:`reason_phrase` , 否则在构造函数之外修改
+        ``status_code`` 的值也会修改 ``reason_phrase``.
 
 .. attribute:: HttpResponse.reason_phrase
 
-    The HTTP reason phrase for the response.
+    响应的HTTP原因短语.
 
     .. versionchanged:: 1.9
 
-        ``reason_phrase`` no longer defaults to all capital letters. It now
-        uses the :rfc:`HTTP standard's <7231#section-6.1>` default reason
-        phrases.
+        ``reason_phrase`` 不再默认为所有大写字母. 它现在使用 :rfc:`HTTP标准 <7231#section-6.1>` 默认原因短语.
 
-        Unless explicitly set, ``reason_phrase`` is determined by the current
-        value of :attr:`status_code`.
+        除非显式设置, ``reason_phrase`` 由 :attr:`status_code` 值决定.
 
 .. attribute:: HttpResponse.streaming
 
-    This is always ``False``.
+    此选项总为 ``False``.
 
-    This attribute exists so middleware can treat streaming responses
-    differently from regular responses.
+    此属性的存在是为了让中间件能够将流式响应与常规响应区别对待.
 
 .. attribute:: HttpResponse.closed
 
-    ``True`` if the response has been closed.
+    如果响应已关闭则为 ``True``.
 
-Methods
+方法
 -------
 
 .. method:: HttpResponse.__init__(content='', content_type=None, status=200, reason=None, charset=None)
 
-    Instantiates an ``HttpResponse`` object with the given page content and
-    content type.
+    使用页面内容和内容类型来实例化一个 ``HttpResponse`` 对象.
 
-    ``content`` should be an iterator or a string. If it's an
-    iterator, it should return strings, and those strings will be
-    joined together to form the content of the response. If it is not
-    an iterator or a string, it will be converted to a string when
-    accessed.
+    ``content`` 应该是一个迭代器或字符串. 如果是迭代器, 它应该返回字符串, 然后这些字符串连接在一起形成响应的内容.
+    如果它不是迭代器或字符串, 将在访问时转换为字符串.
 
-    ``content_type`` is the MIME type optionally completed by a character set
-    encoding and is used to fill the HTTP ``Content-Type`` header. If not
-    specified, it is formed by the :setting:`DEFAULT_CONTENT_TYPE` and
-    :setting:`DEFAULT_CHARSET` settings, by default: "`text/html; charset=utf-8`".
+    ``content_type`` 是可选地由字符集编码的MIME类型, 用于填充HTTP的 ``Content-Type`` 首部.
+    如果没有指定, 则由 :setting:`DEFAULT_CONTENT_TYPE` 和
+    :setting:`DEFAULT_CHARSET` 设置组成, 默认为: "`text/html; charset=utf-8`".
 
-    ``status`` is the :rfc:`HTTP status code <7231#section-6>` for the response.
+    ``status`` 是响应的 :rfc:`HTTP状态码<7231#section-6>`.
 
-    ``reason`` is the HTTP response phrase. If not provided, a default phrase
-    will be used.
+    ``reason`` 是HTTP响应短语. 如果没有指定则使用默认值.
 
-    ``charset`` is the charset in which the response will be encoded. If not
-    given it will be extracted from ``content_type``, and if that
-    is unsuccessful, the :setting:`DEFAULT_CHARSET` setting will be used.
+    ``charset`` 是响应的编码字符集. 如果没有设置, 将从 ``content_type`` 中提取, 如果不成功, 将使用 :setting:`DEFAULT_CHARSET` 配置.
 
 .. method:: HttpResponse.__setitem__(header, value)
 
-    Sets the given header name to the given value. Both ``header`` and
-    ``value`` should be strings.
+    设置给定首部的值. ``header`` 和 ``value`` 都必须是字符串.
 
 .. method:: HttpResponse.__delitem__(header)
 
-    Deletes the header with the given name. Fails silently if the header
-    doesn't exist. Case-insensitive.
+    删除给定名字的首部. 如果给定首部不存在不会引发异常. 大小写不敏感.
 
 .. method:: HttpResponse.__getitem__(header)
 
-    Returns the value for the given header name. Case-insensitive.
+    返回给定名字的首部值. 大小写不敏感.
 
 .. method:: HttpResponse.has_header(header)
 
-    Returns ``True`` or ``False`` based on a case-insensitive check for a
-    header with the given name.
+    检查首部是否包含给定的名字, 返回 ``True`` 或者 ``False``. 大小写不敏感.
 
 .. method:: HttpResponse.setdefault(header, value)
 
-    Sets a header unless it has already been set.
+    设置首部, 除非它已经存在.
 
 .. method:: HttpResponse.set_cookie(key, value='', max_age=None, expires=None, path='/', domain=None, secure=None, httponly=False)
 
-    Sets a cookie. The parameters are the same as in the
-    :class:`~http.cookies.Morsel` cookie object in the Python standard library.
+    设置Cookie. 参数与Python标准库 :class:`~http.cookies.Morsel` 中的cookie对象一样.
 
-    * ``max_age`` should be a number of seconds, or ``None`` (default) if
-      the cookie should last only as long as the client's browser session.
-      If ``expires`` is not specified, it will be calculated.
+    * ``max_age`` 应为秒数, 如果cookie的持续时间与客户端浏览器会话的持续时间相同,
+      则为 ``None`` (默认值). 如果未指定 ``expires``, 则会通过计算得到.
     * ``expires`` should either be a string in the format
       ``"Wdy, DD-Mon-YY HH:MM:SS GMT"`` or a ``datetime.datetime`` object
       in UTC. If ``expires`` is a ``datetime`` object, the ``max_age``
