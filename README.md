@@ -31,7 +31,7 @@
 
 ## 模型层
 
-　　Django提供一个抽象层（Models）以构建和操作你的web应用中的数据，通过以下内容了解更多：
+   Django提供一个抽象层（Models）以构建和操作你的web应用中的数据，通过以下内容了解更多：
 
 * **模型**：[模型简介](http://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/db/models.html) |  [字段类型](http://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/models/fields.html) | [元选项](http://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/models/options.html) | [模型类](http://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/models/class.html)
 
@@ -44,3 +44,11 @@
 * **高级**: [管理器](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/db/managers.html) | [原始SQL](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/db/sql.html) [事务 (0%)](https://docs.djangoproject.com/en/1.10/topics/db/transactions/) | [聚合](http://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/db/aggregation.html) | [搜索](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/db/search.html) | [自定义字段](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/howto/custom-model-fields.html) | [多数据库](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/db/multi-db.html) |[自定义查询 (0%)](https://docs.djangoproject.com/en/1.10/howto/custom-lookups/)| [查询表达式](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/models/expressions.html) | [条件表达式](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/models/conditional-expressions.html) |[数据库函数 (0%)](https://docs.djangoproject.com/en/1.10/ref/models/conditional-expressions/)
 
 * **其他**: [支持的数据库 (0%)](https://docs.djangoproject.com/en/1.10/ref/databases/)|[遗留的数据库 (0%)](https://docs.djangoproject.com/en/1.10/howto/legacy-databases/)|[提供初始数据 (0%)](https://docs.djangoproject.com/en/1.10/howto/initial-data/)|[优化数据库访问 (0%)](https://docs.djangoproject.com/en/1.10/topics/db/optimization/)|[PostgreSQL specific features (0%)](https://docs.djangoproject.com/en/1.10/ref/contrib/postgres/)
+
+## 视图层
+
+   Django使用"视图"这个概念, 负责处理用户请求并返回响应. 通过以下链接查找所有您需要知道的有关视图的信息：
+
+* **The basics**: [URLconfs](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/http/urls.html) | [View functions](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/http/views.html) | [Shortcuts](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/http/shortcuts.html) | [Decorators](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/http/decorators.html)
+
+* **参考**: [Built-in](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/views.html) | [请求/响应对象](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/request-response.html) | [TemplateResponse objects](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/template-response.html)
