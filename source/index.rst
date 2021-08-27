@@ -116,9 +116,7 @@ Django提供一个抽象层（Models）以构建和操作你的web应用中的�
 视图层
 =======
 
-Django has the concept of "views" to encapsulate the logic responsible for
-processing a user's request and for returning the response. Find all you need
-to know about views via the links below:
+Django使用"视图"这个概念, 负责处理用户请求并返回响应. 通过以下链接查找所有您需要知道的有关视图的信息:
 
 * **The basics:**
   :doc:`URLconfs <topics/http/urls>` |
@@ -126,9 +124,9 @@ to know about views via the links below:
   :doc:`Shortcuts <topics/http/shortcuts>` |
   :doc:`Decorators <topics/http/decorators>`
 
-* **Reference:**
+* **参考:**
   :doc:`Built-in Views <ref/views>` |
-  :doc:`Request/response objects <ref/request-response>` |
+  :doc:`请求/响应对象 <ref/request-response>` |
   :doc:`TemplateResponse objects <ref/template-response>`
 
 * **File uploads:**
