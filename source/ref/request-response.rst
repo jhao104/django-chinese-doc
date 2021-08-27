@@ -635,198 +635,157 @@ HTTP首部字段不能包含换行. 如果尝试为首部字段设置包含换�
 
     * ``max_age`` 应为秒数, 如果cookie的持续时间与客户端浏览器会话的持续时间相同,
       则为 ``None`` (默认值). 如果未指定 ``expires``, 则会通过计算得到.
-    * ``expires`` should either be a string in the format
-      ``"Wdy, DD-Mon-YY HH:MM:SS GMT"`` or a ``datetime.datetime`` object
-      in UTC. If ``expires`` is a ``datetime`` object, the ``max_age``
-      will be calculated.
-    * Use ``domain`` if you want to set a cross-domain cookie. For example,
-      ``domain=".lawrence.com"`` will set a cookie that is readable by
-      the domains www.lawrence.com, blogs.lawrence.com and
-      calendars.lawrence.com. Otherwise, a cookie will only be readable by
-      the domain that set it.
-    * Use ``httponly=True`` if you want to prevent client-side
-      JavaScript from having access to the cookie.
+    * ``expires`` 必须是 ``"Wdy, DD-Mon-YY HH:MM:SS GMT"`` 格式的字符串或UTC下的 ``datetime.datetime`` 对象.
+      如果 ``expires`` 是 ``datetime`` 对象, 则会根据其计算 ``max_age``.
+    * 如果要设置跨域cookie可以使用 ``domain`` 参数. 例如, ``domain=".lawrence.com"`` 将设置可被
+      www.lawrence.com, blogs.lawrence.com 和 calendars.lawrence.com等域读取的cookie.
+      否则只能被设置它的域读取.
+    * 设置 ``httponly=True`` 可以阻止客户端的JavaScript读取cookie.
 
-      HTTPOnly_ is a flag included in a Set-Cookie HTTP response
-      header. It is not part of the :rfc:`2109` standard for cookies,
-      and it isn't honored consistently by all browsers. However,
-      when it is honored, it can be a useful way to mitigate the
-      risk of a client-side script from accessing the protected cookie
-      data.
+      HTTPOnly_ 是包含在Set-Cookie HTTP响应头的一个标志. 它不是 :rfc:`2109` 中的cookie标准,
+      也没有被所有的浏览器支持. 但是, 在支持的情况下, 它是减轻客户端脚本访问受保护的cookie数据的风险的有用方式.
 
     .. _HTTPOnly: https://www.owasp.org/index.php/HTTPOnly
 
     .. warning::
 
-        Both :rfc:`2109` and :rfc:`6265` state that user agents should support
-        cookies of at least 4096 bytes. For many browsers this is also the
-        maximum size. Django will not raise an exception if there's an attempt
-        to store a cookie of more than 4096 bytes, but many browsers will not
-        set the cookie correctly.
+        :rfc:`2109` 和 :rfc:`6265` 都声明用户端应支持至少4096字节大小的cookie.
+        对于大多数浏览器这也是最大大小. 如果试图存储超过4096字节的cookie, Django不会引发异常,
+        但许多浏览器不会正确设置cookie.
 
 .. method:: HttpResponse.set_signed_cookie(key, value, salt='', max_age=None, expires=None, path='/', domain=None, secure=None, httponly=True)
 
-    Like :meth:`~HttpResponse.set_cookie()`, but
-    :doc:`cryptographic signing </topics/signing>` the cookie before setting
-    it. Use in conjunction with :meth:`HttpRequest.get_signed_cookie`.
-    You can use the optional ``salt`` argument for added key strength, but
-    you will need to remember to pass it to the corresponding
-    :meth:`HttpRequest.get_signed_cookie` call.
+    与 :meth:`~HttpResponse.set_cookie()` 类似, 但是会在设置前先将cookie
+    :doc:`签名加密 </topics/signing>`. 通常配合 :meth:`HttpRequest.get_signed_cookie`
+    一起使用. 使用 ``salt`` 参数可以增加加密强度, 调用 :meth:`HttpRequest.get_signed_cookie` 时也需要传入这个值.
 
 .. method:: HttpResponse.delete_cookie(key, path='/', domain=None)
 
-    Deletes the cookie with the given key. Fails silently if the key doesn't
-    exist.
+    删除给定键的cookie值. 键不存在时不会引发异常.
 
-    Due to the way cookies work, ``path`` and ``domain`` should be the same
-    values you used in ``set_cookie()`` -- otherwise the cookie may not be
-    deleted.
+    由于cookies的工作方式, 删除时 ``path`` 和 ``domain`` 值必须要和 ``set_cookie()`` 时的值相同 -- 不然不会正常删除.
 
 .. method:: HttpResponse.write(content)
 
-    This method makes an :class:`HttpResponse` instance a file-like object.
+    该方法使 :class:`HttpResponse` 实例可以像类似文件对象那样write操作(添加内容).
 
 .. method:: HttpResponse.flush()
 
-    This method makes an :class:`HttpResponse` instance a file-like object.
+    该方法使 :class:`HttpResponse` 实例可以像类似文件对象那样flush操作(清空内容).
 
 .. method:: HttpResponse.tell()
 
-    This method makes an :class:`HttpResponse` instance a file-like object.
+    该方法使 :class:`HttpResponse` 实例可以像类似文件对象那样tell操作(移动位置指针).
 
 .. method:: HttpResponse.getvalue()
 
-    Returns the value of :attr:`HttpResponse.content`. This method makes
-    an :class:`HttpResponse` instance a stream-like object.
+    返回 :attr:`HttpResponse.content` 的值. 此方法使 :class:`HttpResponse` 实例是成为一个类似流的对象.
 
 .. method:: HttpResponse.readable()
 
    .. versionadded:: 1.10
 
-    Always ``False``. This method makes an :class:`HttpResponse` instance a
-    stream-like object.
+    值始终为 ``False``.  此方法使 :class:`HttpResponse` 实例成为一个类似流的对象.
 
 .. method:: HttpResponse.seekable()
 
    .. versionadded:: 1.10
 
-    Always ``False``. This method makes an :class:`HttpResponse` instance a
-    stream-like object.
+     值始终为 ``False``.  此方法使 :class:`HttpResponse` 实例成为一个类似流的对象.
 
 .. method:: HttpResponse.writable()
 
-    Always ``True``. This method makes an :class:`HttpResponse` instance a
-    stream-like object.
+     值始终为 ``True``.  此方法使 :class:`HttpResponse` 实例成为一个类似流的对象.
 
 .. method:: HttpResponse.writelines(lines)
 
-    Writes a list of lines to the response. Line separators are not added. This
-    method makes an :class:`HttpResponse` instance a stream-like object.
+    将一个包含行的列表写入响应. 不添加行的分隔.
+    此方法使 :class:`HttpResponse` 实例成为一个类似流的对象.
 
 .. _ref-httpresponse-subclasses:
 
-``HttpResponse`` subclasses
+``HttpResponse`` 子类
 ---------------------------
 
-Django includes a number of ``HttpResponse`` subclasses that handle different
-types of HTTP responses. Like ``HttpResponse``, these subclasses live in
-:mod:`django.http`.
+Django包含了许多 ``HttpResponse`` 子类来处理不同的HTTP响应. 它们和 ``HttpResponse`` 一样位于 :mod:`django.http` 中.
 
 .. class:: HttpResponseRedirect
 
-    The first argument to the constructor is required -- the path to redirect
-    to. This can be a fully qualified URL
-    (e.g. ``'https://www.yahoo.com/search/'``), an absolute path with no domain
-    (e.g. ``'/search/'``), or even a relative path (e.g. ``'search/'``). In that
-    last case, the client browser will reconstruct the full URL itself
-    according to the current path. See :class:`HttpResponse` for other optional
-    constructor arguments. Note that this returns an HTTP status code 302.
+    构造函数的第一个参数 -- 重定向的地址, 这是个必传参数. 它可以是完整的URL地址(例如. ``'https://www.yahoo.com/search/'``),
+    或者是不带域名的绝对地址(例如. ``'/search/'``), 或者相对路径 (例如. ``'search/'``).
+    在相对路径的情况下, 客户端浏览器会根据当前路径构建完整的URL.
+    其他构造参数详见 :class:`HttpResponse`. 注意该响应的HTTP状态码为302.
 
     .. attribute:: HttpResponseRedirect.url
 
-        This read-only attribute represents the URL the response will redirect
-        to (equivalent to the ``Location`` response header).
+        只读属性, 表示将要重定向到的URL(相当于响应的 ``Location``  首部).
 
 .. class:: HttpResponsePermanentRedirect
 
-    Like :class:`HttpResponseRedirect`, but it returns a permanent redirect
-    (HTTP status code 301) instead of a "found" redirect (status code 302).
+    类似 :class:`HttpResponseRedirect`, 区别是它返回的是永久重定向(HTTP状态码301), 而不是"found"重定向(HTTP状态码302).
 
 .. class:: HttpResponseNotModified
 
-    The constructor doesn't take any arguments and no content should be added
-    to this response. Use this to designate that a page hasn't been modified
-    since the user's last request (status code 304).
+    不需要构造参数, 也不需要为这个响应设置内容. 该响应用来表示自上次请求页面没有发生变化(HTTP状态码304).
 
 .. class:: HttpResponseBadRequest
 
-    Acts just like :class:`HttpResponse` but uses a 400 status code.
+    状态码为400的 :class:`HttpResponse`.
 
 .. class:: HttpResponseNotFound
 
-    Acts just like :class:`HttpResponse` but uses a 404 status code.
+    状态码为404的 :class:`HttpResponse` .
 
 .. class:: HttpResponseForbidden
 
-    Acts just like :class:`HttpResponse` but uses a 403 status code.
+    状态码为403的 :class:`HttpResponse`.
 
 .. class:: HttpResponseNotAllowed
 
-    Like :class:`HttpResponse`, but uses a 405 status code. The first argument
-    to the constructor is required: a list of permitted methods (e.g.
-    ``['GET', 'POST']``).
+    状态码为405的 :class:`HttpResponse`. 该构造函数的第一个参数为必传参数: 一个允许使用的方法组成的列表 (例如. ``['GET', 'POST']``).
 
 .. class:: HttpResponseGone
 
-    Acts just like :class:`HttpResponse` but uses a 410 status code.
+    状态码为410的 :class:`HttpResponse`.
 
 .. class:: HttpResponseServerError
 
-    Acts just like :class:`HttpResponse` but uses a 500 status code.
+    状态码为500的 :class:`HttpResponse`.
 
 .. note::
 
-    If a custom subclass of :class:`HttpResponse` implements a ``render``
-    method, Django will treat it as emulating a
-    :class:`~django.template.response.SimpleTemplateResponse`, and the
-    ``render`` method must itself return a valid response object.
+    如果自定义的 :class:`HttpResponse` 子类实现了 ``render`` 方法,
+    Django会将其视为
+    :class:`~django.template.response.SimpleTemplateResponse`,
+    且 ``render`` 必须返回一个有效的response对象.
 
-``JsonResponse`` objects
+``JsonResponse`` 对象
 ========================
 
 .. class:: JsonResponse(data, encoder=DjangoJSONEncoder, safe=True, json_dumps_params=None, **kwargs)
 
-    An :class:`HttpResponse` subclass that helps to create a JSON-encoded
-    response. It inherits most behavior from its superclass with a couple
-    differences:
+    一个用于创建JSON响应的 :class:`HttpResponse` 子类. 它继承了父类的大部分行为, 但有以下不同点:
 
-    Its default ``Content-Type`` header is set to ``application/json``.
+    它默认的 ``Content-Type`` 首部为 ``application/json``.
 
-    The first parameter, ``data``, should be a ``dict`` instance. If the
-    ``safe`` parameter is set to ``False`` (see below) it can be any
-    JSON-serializable object.
+    第一个参数 ``data`` 必须是一个 ``dict`` 实例. 如果 ``safe`` 参数设置为 ``False`` (见下文), 那么它可以是任何可以JSON序列化的对象.
 
-    The ``encoder``, which defaults to
-    :class:`django.core.serializers.json.DjangoJSONEncoder`, will be used to
-    serialize the data. See :ref:`JSON serialization
-    <serialization-formats-json>` for more details about this serializer.
+    ``encoder`` 参数默认为
+    :class:`django.core.serializers.json.DjangoJSONEncoder`, 用于序列化data. 详见 :ref:`JSON序列化<serialization-formats-json>`.
 
-    The ``safe`` boolean parameter defaults to ``True``. If it's set to
-    ``False``, any object can be passed for serialization (otherwise only
-    ``dict`` instances are allowed). If ``safe`` is ``True`` and a non-``dict``
-    object is passed as the first argument, a :exc:`TypeError` will be raised.
+    布尔值参数 ``safe`` 默认为 ``True``. 如果设置为 ``False``, 则可以接收任何可序列化的对象 (否则仅支持
+    ``dict`` 实例). 如果 ``safe`` 设置为 ``True`` 且参入了一个非 ``dict`` 对象, 则会引发 :exc:`TypeError` 异常.
 
-    The ``json_dumps_params`` parameter is a dictionary of keyword arguments
-    to pass to the ``json.dumps()`` call used to generate the response.
+    ``json_dumps_params`` 参数是一个关键字参数的字典, 用于在生成响应时传递给 ``json.dumps()``.
 
     .. versionchanged:: 1.9
 
-        The ``json_dumps_params`` argument was added.
+        新增 ``json_dumps_params`` 参数.
 
-Usage
+用法
 -----
 
-Typical usage could look like::
+典型用法如下::
 
     >>> from django.http import JsonResponse
     >>> response = JsonResponse({'foo': 'bar'})
@@ -834,122 +793,103 @@ Typical usage could look like::
     b'{"foo": "bar"}'
 
 
-Serializing non-dictionary objects
+序列化非字典对象
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to serialize objects other than ``dict`` you must set the ``safe``
-parameter to ``False``::
+如果要序列化除 ``dict`` 之外的对象, 必须要将 ``safe`` 设置为 ``False``::
 
     >>> response = JsonResponse([1, 2, 3], safe=False)
 
-Without passing ``safe=False``, a :exc:`TypeError` will be raised.
+不设置 ``safe=False`` 会引发 :exc:`TypeError` 异常.
 
 .. warning::
 
-    Before the `5th edition of ECMAScript
-    <http://www.ecma-international.org/ecma-262/5.1/index.html#sec-11.1.4>`_
-    it was possible to poison the JavaScript ``Array`` constructor. For this
-    reason, Django does not allow passing non-dict objects to the
-    :class:`~django.http.JsonResponse` constructor by default.  However, most
-    modern browsers implement EcmaScript 5 which removes this attack vector.
-    Therefore it is possible to disable this security precaution.
+    在 `第五版ECMAScript
+    <http://www.ecma-international.org/ecma-262/5.1/index.html#sec-11.1.4>`_ 之前, 有可能使JavaScript ``Array`` 构造函数中毒.
+    因此默认情况下, Django不允许将非dict对象传递给 :class:`~django.http.JsonResponse` 构造函数.
+    然而, 大多数现代浏览器都实现了ECMAScript 5, 它去除了这个攻击因素. 因此可以禁用此安全预防措施.
 
-Changing the default JSON encoder
+修改默认的JSON encoder
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you need to use a different JSON encoder class you can pass the ``encoder``
-parameter to the constructor method::
+如果要使用其他的JSON encoder类, 可以使用 ``encoder`` 参数::
 
     >>> response = JsonResponse(data, encoder=MyJSONEncoder)
 
 .. _httpresponse-streaming:
 
-``StreamingHttpResponse`` objects
+``StreamingHttpResponse`` 对象
 =================================
 
 .. class:: StreamingHttpResponse
 
-The :class:`StreamingHttpResponse` class is used to stream a response from
-Django to the browser. You might want to do this if generating the response
-takes too long or uses too much memory. For instance, it's useful for
-:ref:`generating large CSV files <streaming-csv-files>`.
+:class:`StreamingHttpResponse` 类用来从Django流式化一个响应到浏览器. 如果要生成的响应太长或者占用内存过多可以使用该类.
+例如它对于 :ref:`生成超大CSV文件 <streaming-csv-files>` 非常有用.
 
-.. admonition:: Performance considerations
+.. admonition:: 性能考量
 
-    Django is designed for short-lived requests. Streaming responses will tie
-    a worker process for the entire duration of the response. This may result
-    in poor performance.
+    Django是为了那些短时请求设计的. 流式响应将在整个响应期间绑定工作进程. 这可能导致性能不佳.
 
-    Generally speaking, you should perform expensive tasks outside of the
-    request-response cycle, rather than resorting to a streamed response.
+    一般来说, 消耗较大的任务应该在请求-响应周期之外执行, 而不应依赖流式响应.
 
-The :class:`StreamingHttpResponse` is not a subclass of :class:`HttpResponse`,
-because it features a slightly different API. However, it is almost identical,
-with the following notable differences:
+:class:`StreamingHttpResponse` 不是 :class:`HttpResponse` 的子类,
+因为它的API略有不同. 除了以下几个显著差别其他几乎相同:
 
-* It should be given an iterator that yields strings as content.
+* 应该接收一个迭代器, 该迭代器返回响应内容的字符串.
 
-* You cannot access its content, except by iterating the response object
-  itself. This should only occur when the response is returned to the client.
+* 除非通过迭代响应对象本身, 否则无法访问其内容. 只有当响应返回到客户端时, 才会发生这种情况.
 
-* It has no ``content`` attribute. Instead, it has a
-  :attr:`~StreamingHttpResponse.streaming_content` attribute.
+* 它没有 ``content`` 属性. 取而代之的是
+  :attr:`~StreamingHttpResponse.streaming_content` 属性.
 
-* You cannot use the file-like object ``tell()`` or ``write()`` methods.
-  Doing so will raise an exception.
+* 不可以使用类文件对象的 ``tell()`` 或者 ``write()`` 方法. 这会引发异常.
 
-:class:`StreamingHttpResponse` should only be used in situations where it is
-absolutely required that the whole content isn't iterated before transferring
-the data to the client. Because the content can't be accessed, many
-middlewares can't function normally. For example the ``ETag`` and
-``Content-Length`` headers can't be generated for streaming responses.
+:class:`StreamingHttpResponse` 只应在绝对要求在将数据传输到客户端之前不迭代整个内容的情况下使用.
+由于内容无法访问, 许多中间件无法正常工作. 例如, 无法为流式响应生成 ``ETag`` 和 ``Content-Length`` 首部.
 
-Attributes
+属性
 ----------
 
 .. attribute:: StreamingHttpResponse.streaming_content
 
-    An iterator of strings representing the content.
+    内容字符串的迭代器.
 
 .. attribute:: StreamingHttpResponse.status_code
 
-    The :rfc:`HTTP status code <7231#section-6>` for the response.
+    响应的 :rfc:`HTTP状态码<7231#section-6>`.
 
     .. versionchanged:: 1.9
 
-        Unless :attr:`reason_phrase` is explicitly set, modifying the value of
-        ``status_code`` outside the constructor will also modify the value of
-        ``reason_phrase``.
+        除非明确设置了 :attr:`reason_phrase` , 否则在构造函数之外修改
+        ``status_code`` 的值也会修改 ``reason_phrase``.
 
 .. attribute:: StreamingHttpResponse.reason_phrase
 
-    The HTTP reason phrase for the response.
+    响应的HTTP原因短语.
 
     .. versionchanged:: 1.9
 
-        ``reason_phrase`` no longer defaults to all capital letters. It now
-        uses the :rfc:`HTTP standard's <7231#section-6.1>` default reason
-        phrases.
+        ``reason_phrase`` 不再默认为所有大写字母. 它现在使用 :rfc:`HTTP标准 <7231#section-6.1>` 默认原因短语.
 
-        Unless explicitly set, ``reason_phrase`` is determined by the current
-        value of :attr:`status_code`.
+        除非显式设置, ``reason_phrase`` 由 :attr:`status_code` 值决定.
+
 
 .. attribute:: StreamingHttpResponse.streaming
 
-    This is always ``True``.
+    始终为 ``True``.
 
-``FileResponse`` objects
+``FileResponse`` 对象
 ========================
 
 .. class:: FileResponse
 
-:class:`FileResponse` is a subclass of :class:`StreamingHttpResponse` optimized
-for binary files. It uses `wsgi.file_wrapper`_ if provided by the wsgi server,
-otherwise it streams the file out in small chunks.
+:class:`FileResponse` 是 :class:`StreamingHttpResponse` 的子类, 针对二进制文件做了优化.
+如果wsgi服务器提供的话它使用 `wsgi.file_wrapper`_,
+否则它将文件以块的形式流式传输出去.
 
 .. _wsgi.file_wrapper: https://www.python.org/dev/peps/pep-3333/#optional-platform-specific-file-handling
 
-``FileResponse`` expects a file open in binary mode like so::
+``FileResponse`` 需要以二进制模式打开文件, 例如::
 
     >>> from django.http import FileResponse
     >>> response = FileResponse(open('myfile.png', 'rb'))
