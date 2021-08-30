@@ -90,7 +90,7 @@ Django提供一个抽象层（Models）以构建和操作你的web应用中的�
 * **迁移:**
   :doc:`迁移简介<topics/migrations>` |
   :doc:`操作参考 <ref/migration-operations>` |
-  :doc:`模式编辑器 <ref/schema-editor>` |
+  :doc:`SchemaEditor <ref/schema-editor>` |
   :doc:`编写迁移 <howto/writing-migrations>`
 
 * **高级:**
