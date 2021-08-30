@@ -8,123 +8,102 @@ Settings
 
 .. warning::
 
-    Be careful when you override settings, especially when the default value
-    is a non-empty list or dictionary, such as :setting:`MIDDLEWARE_CLASSES`
-    and :setting:`STATICFILES_FINDERS`. Make sure you keep the components
-    required by the features of Django you wish to use.
+    当你修改设置时请注意, 特别是默认值为非空列表或字典的设置, 例如 :setting:`MIDDLEWARE_CLASSES`
+    和 :setting:`STATICFILES_FINDERS`. 确保你保留的是你希望使用的Django功能所需的组件.
 
-Core Settings
+核心设置
 =============
 
-Here's a list of settings available in Django core and their default values.
-Settings provided by contrib apps are listed below, followed by a topical index
-of the core settings. For introductory material, see the :doc:`settings topic
-guide </topics/settings>`.
+以下是一些Django的核心设置和其默认值. 下面列出了contrib应用提供的设置, 后面是核心设置的专题索引.
+关于介绍性资料, 详见 :doc:`settings指南 </topics/settings>`.
 
 .. setting:: ABSOLUTE_URL_OVERRIDES
 
 ``ABSOLUTE_URL_OVERRIDES``
 --------------------------
 
-Default: ``{}`` (Empty dictionary)
+默认值: ``{}`` (空字典)
 
-A dictionary mapping ``"app_label.model_name"`` strings to functions that take
-a model object and return its URL. This is a way of inserting or overriding
-``get_absolute_url()`` methods on a per-installation basis. Example::
+它是一个将 ``"app_label.model_name"`` 字符串映射到接受模型对象并返回其URL的函数的字典.
+这是一种预安装的插入或覆盖 ``get_absolute_url()`` 方法的方式. 例如::
 
     ABSOLUTE_URL_OVERRIDES = {
         'blogs.weblog': lambda o: "/blogs/%s/" % o.slug,
         'news.story': lambda o: "/stories/%s/%s/" % (o.pub_year, o.slug),
     }
 
-Note that the model name used in this setting should be all lower-case, regardless
-of the case of the actual model class name.
+注意这里设置中使用的模型对象名称一定要小写, 与模型类名的实际大小写情况无关.
 
 .. setting:: ADMINS
 
 ``ADMINS``
 ----------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-A list of all the people who get code error notifications. When
-``DEBUG=False`` and a view raises an exception, Django will email these people
-with the full exception information. Each item in the list should be a tuple
-of (Full name, email address). Example::
+接收代码错误异常通知的人的列表. 当 ``DEBUG=False`` 且某个视图发生异常, Django会通过邮件方式将完整的错误信息发送给这些人.
+列表中每个项是一个包含名字和邮箱的元组. 例如::
 
     [('John', 'john@example.com'), ('Mary', 'mary@example.com')]
 
-Note that Django will email *all* of these people whenever an error happens.
-See :doc:`/howto/error-reporting` for more information.
+注意, 无论何时发生错误, Django总会发邮件给配置中的 **所有** 人. 详见 :doc:`/howto/error-reporting`.
 
 .. setting:: ALLOWED_HOSTS
 
 ``ALLOWED_HOSTS``
 -----------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-A list of strings representing the host/domain names that this Django site can
-serve. This is a security measure to prevent :ref:`HTTP Host header attacks
-<host-headers-virtual-hosting>`, which are possible even under many
-seemingly-safe web server configurations.
+允许访问Django站点的host/domain列表. 这是一个防止 :ref:`HTTP Host header 攻击
+<host-headers-virtual-hosting>` 的安全措施.
 
-Values in this list can be fully qualified names (e.g. ``'www.example.com'``),
-in which case they will be matched against the request's ``Host`` header
-exactly (case-insensitive, not including port). A value beginning with a period
-can be used as a subdomain wildcard: ``'.example.com'`` will match
-``example.com``, ``www.example.com``, and any other subdomain of
-``example.com``. A value of ``'*'`` will match anything; in this case you are
-responsible to provide your own validation of the ``Host`` header (perhaps in a
-middleware; if so this middleware must be listed first in
-:setting:`MIDDLEWARE`).
+如果列表中的值是完整的标准名称(例如. ``'www.example.com'``),
+这种情况下它会和请求的 ``Host`` 首部完全匹配(不区分大小写, 不包括端口). 以英文句号开头的值可以用作子域通配符: ``'.example.com'`` 会
+匹配到 ``example.com`` 和 ``www.example.com``, 以及 ``example.com`` 的所有子域名.
+值 ``'*'`` 会匹配所有内容; 在这种情况下, 你有责任提供自己对 ``Host`` 首部的验证(可能在中间件中; 如果这样, 该中间件必须处在
+:setting:`MIDDLEWARE` 中的第一位置).
 
-Django also allows the `fully qualified domain name (FQDN)`_ of any entries.
-Some browsers include a trailing dot in the ``Host`` header which Django
-strips when performing host validation.
+Django还允许配置 `完全限定域名(FQDN)`_ .
+某些浏览器在 ``Host`` 首部中包含了一个尾部的点, Django在执行验证时会将其去掉.
 
-.. _`fully qualified domain name (FQDN)`: https://en.wikipedia.org/wiki/Fully_qualified_domain_name
+.. _`完全限定域名(FQDN)`: https://en.wikipedia.org/wiki/Fully_qualified_domain_name
 
-If the ``Host`` header (or ``X-Forwarded-Host`` if
-:setting:`USE_X_FORWARDED_HOST` is enabled) does not match any value in this
-list, the :meth:`django.http.HttpRequest.get_host()` method will raise
-:exc:`~django.core.exceptions.SuspiciousOperation`.
+如果 ``Host`` 首部(或者是 :setting:`USE_X_FORWARDED_HOST` 配置下的 ``X-Forwarded-Host``)没有匹配到该列表中的值,
+:meth:`django.http.HttpRequest.get_host()` 方法会引发
+:exc:`~django.core.exceptions.SuspiciousOperation` 异常.
 
-When :setting:`DEBUG` is ``True`` and ``ALLOWED_HOSTS`` is empty, the host
-is validated against ``['localhost', '127.0.0.1', '[::1]']``.
+如果 :setting:`DEBUG` 设置为 ``True`` 且 ``ALLOWED_HOSTS`` 为空, host将根据
+``['localhost', '127.0.0.1', '[::1]']`` 进行验证.
 
-This validation only applies via :meth:`~django.http.HttpRequest.get_host()`;
-if your code accesses the ``Host`` header directly from ``request.META`` you
-are bypassing this security protection.
+这些验证仅通过 :meth:`~django.http.HttpRequest.get_host()` 来实现;
+如果你的代码直接从 ``request.META`` 获取 ``Host`` 首部, 你将绕过此安全保护.
 
 .. versionchanged:: 1.10.3
 
-    In older versions, ``ALLOWED_HOSTS`` wasn't checked if ``DEBUG=True``.
-    This was also changed in Django 1.9.11 and 1.8.16 to prevent a
-    DNS rebinding attack.
+    在老版本中, 当 ``DEBUG=True`` 时 ``ALLOWED_HOSTS`` 不会验证.
+    这也在Django 1.9.11 和 1.8.16 中有更改, 以防止DNS重新绑定攻击.
 
 .. setting:: APPEND_SLASH
 
 ``APPEND_SLASH``
 ----------------
 
-Default: ``True``
+默认值: ``True``
 
-When set to ``True``, if the request URL does not match any of the patterns
-in the URLconf and it doesn't end in a slash, an HTTP redirect is issued to the
-same URL with a slash appended. Note that the redirect may cause any data
-submitted in a POST request to be lost.
+设置为 ``True`` 时, 如果请求URL没有匹配到URLconf中的内容且没有以斜杠结尾, 将重定向到以斜杠结尾的相同URL.
+需要注意的是重定向可能会导致POST请求中的数据丢失.
 
-The :setting:`APPEND_SLASH` setting is only used if
-:class:`~django.middleware.common.CommonMiddleware` is installed
-(see :doc:`/topics/http/middleware`). See also :setting:`PREPEND_WWW`.
+:setting:`APPEND_SLASH` 设置只有在使用了
+:class:`~django.middleware.common.CommonMiddleware` 才会生效
+(详见 :doc:`/topics/http/middleware`). 或 :setting:`PREPEND_WWW`.
 
 .. setting:: CACHES
 
 ``CACHES``
 ----------
 
-Default::
+默认值::
 
     {
         'default': {
@@ -132,24 +111,20 @@ Default::
         }
     }
 
-A dictionary containing the settings for all caches to be used with
-Django. It is a nested dictionary whose contents maps cache aliases
-to a dictionary containing the options for an individual cache.
+Django缓存配置的字典. 它是一个嵌套字典, 包含缓存别名和其对应的缓存项.
 
-The :setting:`CACHES` setting must configure a ``default`` cache;
-any number of additional caches may also be specified. If you
-are using a cache backend other than the local memory cache, or
-you need to define multiple caches, other options will be required.
-The following cache options are available.
+:setting:`CACHES` 设置必须包含一个 ``default`` 缓存;
+可以指定任何数量的其他缓存. 如果你使用了除本地内存缓存之外的缓存后端,
+或者是你需要使用多个缓存, 你可能会使用到下面的缓存选项.
 
 .. setting:: CACHES-BACKEND
 
 ``BACKEND``
 ~~~~~~~~~~~
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-The cache backend to use. The built-in cache backends are:
+Django内置的缓存后端:
 
 * ``'django.core.cache.backends.db.DatabaseCache'``
 * ``'django.core.cache.backends.dummy.DummyCache'``
@@ -158,50 +133,41 @@ The cache backend to use. The built-in cache backends are:
 * ``'django.core.cache.backends.memcached.MemcachedCache'``
 * ``'django.core.cache.backends.memcached.PyLibMCCache'``
 
-You can use a cache backend that doesn't ship with Django by setting
-:setting:`BACKEND <CACHES-BACKEND>` to a fully-qualified path of a cache
-backend class (i.e. ``mypackage.backends.whatever.WhateverCache``).
+要使用Django未提供的缓存后端, 可以将 :setting:`BACKEND <CACHES-BACKEND>` 设置为完全限定路径(如. ``mypackage.backends.whatever.WhateverCache``).
 
 .. setting:: CACHES-KEY_FUNCTION
 
 ``KEY_FUNCTION``
 ~~~~~~~~~~~~~~~~
 
-A string containing a dotted path to a function (or any callable) that defines how to
-compose a prefix, version and key into a final cache key. The default
-implementation is equivalent to the function::
+包含函数(或任何可调用)的点分隔路径的字符串, 该函数定义如何将前缀, 版本和键组合成最终缓存键. 默认实现相当于函数::
 
     def make_key(key, key_prefix, version):
         return ':'.join([key_prefix, str(version), key])
 
-You may use any key function you want, as long as it has the same
-argument signature.
+你可以使用任何具有相同参数的函数.
 
-See the :ref:`cache documentation <cache_key_transformation>` for more
-information.
+详见 :ref:`缓存文档 <cache_key_transformation>`.
 
 .. setting:: CACHES-KEY_PREFIX
 
 ``KEY_PREFIX``
 ~~~~~~~~~~~~~~
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-A string that will be automatically included (prepended by default) to
-all cache keys used by the Django server.
+一个自动包含在Django服务器使用的所有缓存键中的字符串(默认为前缀).
 
-See the :ref:`cache documentation <cache_key_prefixing>` for more information.
+详见 :ref:`缓存文档 <cache_key_prefixing>`.
 
 .. setting:: CACHES-LOCATION
 
 ``LOCATION``
 ~~~~~~~~~~~~
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-The location of the cache to use. This might be the directory for a
-file system cache, a host and port for a memcache server, or simply an
-identifying name for a local memory cache. e.g.::
+缓存位置. 它可以是缓存的文件系统目录, 内存缓存服务的host和port, 或者是本地内存缓存的标识名称. 例如::
 
     CACHES = {
         'default': {
@@ -215,70 +181,63 @@ identifying name for a local memory cache. e.g.::
 ``OPTIONS``
 ~~~~~~~~~~~
 
-Default: ``None``
+默认值: ``None``
 
-Extra parameters to pass to the cache backend. Available parameters
-vary depending on your cache backend.
+传递给缓存后端的额外参数. 可用的参数取决于你的缓存后端.
 
-Some information on available parameters can be found in the
-:ref:`cache arguments <cache_arguments>` documentation. For more information,
-consult your backend module's own documentation.
+可能的参数信息请参见 :ref:`缓存参数 <cache_arguments>` 文档. 更多信息请查阅后端模块所属文档.
 
 .. setting:: CACHES-TIMEOUT
 
 ``TIMEOUT``
 ~~~~~~~~~~~
 
-Default: ``300``
+默认值: ``300``
 
-The number of seconds before a cache entry is considered stale. If the value of
-this settings is ``None``, cache entries will not expire.
+缓存过期时间. 如果该值为 ``None``, 则缓存将不会过期.
 
 .. setting:: CACHES-VERSION
 
 ``VERSION``
 ~~~~~~~~~~~
 
-Default: ``1``
+默认值: ``1``
 
-The default version number for cache keys generated by the Django server.
+生成的缓存的默认版本号.
 
-See the :ref:`cache documentation <cache_versioning>` for more information.
+详见 :ref:`缓存文档 <cache_versioning>`.
 
 .. setting:: CACHE_MIDDLEWARE_ALIAS
 
 ``CACHE_MIDDLEWARE_ALIAS``
 --------------------------
 
-Default: ``default``
+默认值: ``default``
 
-The cache connection to use for the :ref:`cache middleware
-<the-per-site-cache>`.
+用于 :ref:`缓存中间件<the-per-site-cache>` 的缓存链接.
 
 .. setting:: CACHE_MIDDLEWARE_KEY_PREFIX
 
 ``CACHE_MIDDLEWARE_KEY_PREFIX``
 -------------------------------
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-A string which will be prefixed to the cache keys generated by the :ref:`cache
-middleware <the-per-site-cache>`. This prefix is combined with the
-:setting:`KEY_PREFIX <CACHES-KEY_PREFIX>` setting; it does not replace it.
+:ref:`缓存中间件 <the-per-site-cache>` 生成缓存密钥的前缀字符串. 该前缀将和
+:setting:`KEY_PREFIX <CACHES-KEY_PREFIX>` 设置组合在一起; 注意不是替换.
 
-See :doc:`/topics/cache`.
+详见 :doc:`/topics/cache`.
 
 .. setting:: CACHE_MIDDLEWARE_SECONDS
 
 ``CACHE_MIDDLEWARE_SECONDS``
 ----------------------------
 
-Default: ``600``
+默认值: ``600``
 
-The default number of seconds to cache a page for the :ref:`cache middleware
-<the-per-site-cache>`.
+:ref:`缓存中间件<the-per-site-cache>` 缓存页面的默认秒数.
 
-See :doc:`/topics/cache`.
+详见 :doc:`/topics/cache`.
 
 .. _settings-csrf:
 
@@ -287,117 +246,94 @@ See :doc:`/topics/cache`.
 ``CSRF_COOKIE_AGE``
 -------------------
 
-Default: ``31449600`` (approximately 1 year, in seconds)
+默认值: ``31449600`` (约1年, 以秒为单位)
 
-The age of CSRF cookies, in seconds.
+CSRF cookie有效期, 单位秒.
 
-The reason for setting a long-lived expiration time is to avoid problems in
-the case of a user closing a browser or bookmarking a page and then loading
-that page from a browser cache. Without persistent cookies, the form submission
-would fail in this case.
+设置长有效期的原因是为了避免用户关闭浏览器或将页面存入书签, 然后从浏览器缓存加载该页面的情况下出现问题.
+没有长有效期的cookie在这种情况下表单提交将失败.
 
-Some browsers (specifically Internet Explorer) can disallow the use of
-persistent cookies or can have the indexes to the cookie jar corrupted on disk,
-thereby causing CSRF protection checks to (sometimes intermittently) fail.
-Change this setting to ``None`` to use session-based CSRF cookies, which
-keep the cookies in-memory instead of on persistent storage.
+某些浏览器(特别是Internet Explorer)禁止使用持久性cookie, 或可能使cookie jar的索引在磁盘上损坏,
+从而导致CSRF保护检查(有时会间歇性地)失败. 将此设置更改为 ``None``,
+使用基于会话的CSRF Cookie, 它将Cookie保存在内存中而不是磁盘.
 
 .. setting:: CSRF_COOKIE_DOMAIN
 
 ``CSRF_COOKIE_DOMAIN``
 ----------------------
 
-Default: ``None``
+默认值: ``None``
 
-The domain to be used when setting the CSRF cookie.  This can be useful for
-easily allowing cross-subdomain requests to be excluded from the normal cross
-site request forgery protection.  It should be set to a string such as
-``".example.com"`` to allow a POST request from a form on one subdomain to be
-accepted by a view served from another subdomain.
+设置CSRF cookie的域. 这对于允许跨子域请求被排除在正常的跨站点伪造请求保护之外是很有用的.
+它必须是字符串, 例如 ``".example.com"`` 允许一个子域上的POST表单请求被另一个子域的视图接受.
 
-Please note that the presence of this setting does not imply that Django's CSRF
-protection is safe from cross-subdomain attacks by default - please see the
-:ref:`CSRF limitations <csrf-limitations>` section.
+请注意, 这个配置并不意味着Django的CSRF保护就是是安全的, 不会受到跨子域的攻击. 请参见 :ref:`CSRF限制 <csrf-limitations>` 部分.
 
 .. setting:: CSRF_COOKIE_HTTPONLY
 
 ``CSRF_COOKIE_HTTPONLY``
 ------------------------
 
-Default: ``False``
+默认值: ``False``
 
-Whether to use ``HttpOnly`` flag on the CSRF cookie. If this is set to
-``True``, client-side JavaScript will not to be able to access the CSRF cookie.
+无论是否设置 ``HttpOnly`` 标志. 只要该选项设置为 ``True``,
+客户端的JavaScript都将无法访问CSRF cookie.
 
-This can help prevent malicious JavaScript from bypassing CSRF protection. If
-you enable this and need to send the value of the CSRF token with Ajax requests,
-your JavaScript will need to pull the value from a hidden CSRF token form input
-on the page instead of from the cookie.
+这有助于防止恶意的JavaScript绕过CSRF保护. 如果启用此功能并需要通过Ajax请求发送CSRF token的值,
+则JavaScript将需要从页面上隐藏的CSRF token input表单中提取该值, 而不是从cookie中提取.
 
-See :setting:`SESSION_COOKIE_HTTPONLY` for details on ``HttpOnly``.
+有关 ``HttpOnly`` 的详细信息, 见 :setting:`SESSION_COOKIE_HTTPONLY`.
 
 .. setting:: CSRF_COOKIE_NAME
 
 ``CSRF_COOKIE_NAME``
 --------------------
 
-Default: ``'csrftoken'``
+默认值: ``'csrftoken'``
 
-The name of the cookie to use for the CSRF authentication token. This can be
-whatever you want (as long as it's different from the other cookie names in
-your application). See :doc:`/ref/csrf`.
+用于CSRF身份验证令牌的cookie的名称. 这可以是任何你想要的名字(前提是它与应用程序中的其他cookie名字不重复). 详见 :doc:`/ref/csrf`.
 
 .. setting:: CSRF_COOKIE_PATH
 
 ``CSRF_COOKIE_PATH``
 --------------------
 
-Default: ``'/'``
+默认值: ``'/'``
 
-The path set on the CSRF cookie. This should either match the URL path of your
-Django installation or be a parent of that path.
+设置在CSRF cookie上的路径. 这应该与你的Django安装的URL路径相匹配, 或者是该路径的父级.
 
-This is useful if you have multiple Django instances running under the same
-hostname. They can use different cookie paths, and each instance will only see
-its own CSRF cookie.
+如果你有多个Django实例在同一个主机名下运行, 这个功能将很有用. 它们可以使用不同的cookie路径, 而且每个实例只能看到自己的CSRFcookie.
 
 .. setting:: CSRF_COOKIE_SECURE
 
 ``CSRF_COOKIE_SECURE``
 ----------------------
 
-Default: ``False``
+默认值: ``False``
 
-Whether to use a secure cookie for the CSRF cookie. If this is set to ``True``,
-the cookie will be marked as "secure," which means browsers may ensure that the
-cookie is only sent with an HTTPS connection.
+是否为CSRF Cookie使用secure Cookie. 如果设置为 ``True``,
+cookie将会标记为"secure", 这意味着浏览器可能会确保Cookie仅使用HTTPS连接发送.
 
 .. setting:: CSRF_FAILURE_VIEW
 
 ``CSRF_FAILURE_VIEW``
 ---------------------
 
-Default: ``'django.views.csrf.csrf_failure'``
+默认值: ``'django.views.csrf.csrf_failure'``
 
-A dotted path to the view function to be used when an incoming request is
-rejected by the :doc:`CSRF protection </ref/csrf>`. The function should have
-this signature::
+当传入的请求被 :doc:`CSRF保护 </ref/csrf>` 拒绝时, 要使用的视图函数的点分隔路径. 该函数应具有以下签名::
 
     def csrf_failure(request, reason=""):
         ...
 
-where ``reason`` is a short message (intended for developers or logging, not
-for end users) indicating the reason the request was rejected. It should return
-an :class:`~django.http.HttpResponseForbidden`.
+其中 ``reason`` 是一个表示拒绝原因的短消息(针对开发者或日志, 而不是终端用户). 它需要返回一个 :class:`~django.http.HttpResponseForbidden`.
 
-``django.views.csrf.csrf_failure()`` accepts an additional ``template_name``
-parameter that defaults to ``'403_csrf.html'``. If a template with that name
-exists, it will be used to render the page.
+``django.views.csrf.csrf_failure()`` 还接收一个额外参数 ``template_name``,
+默认为 ``'403_csrf.html'``. 如果传入的模板存在, 那么将用来渲染页面.
 
 .. versionchanged:: 1.10
 
-   The ``template_name`` parameter and the behavior of searching for a template
-   called ``403_csrf.html`` were added to ``csrf_failure()``.
+   ``csrf_failure()`` 新增 ``template_name`` 参数和搜索名为 ``403_csrf.html`` 模板的行为.
 
 .. setting:: CSRF_HEADER_NAME
 
@@ -406,15 +342,12 @@ exists, it will be used to render the page.
 
 .. versionadded:: 1.9
 
-Default: ``'HTTP_X_CSRFTOKEN'``
+默认值: ``'HTTP_X_CSRFTOKEN'``
 
-The name of the request header used for CSRF authentication.
+CSRF认证的请求头名称.
 
-As with other HTTP headers in ``request.META``, the header name received from
-the server is normalized by converting all characters to uppercase, replacing
-any hyphens with underscores, and adding an ``'HTTP_'`` prefix to the name.
-For example, if your client sends a ``'X-XSRF-TOKEN'`` header, the setting
-should be ``'HTTP_X_XSRF_TOKEN'``.
+与 ``request.META`` 中的其他HTTP首部一样, 名称会将所有字符转换为大写字母, 用下划线代替连字符,
+并添加 ``'HTTP_'`` 前缀. 例如, 如果要让客户端发送了一个 ``'X-XSRF-TOKEN'`` 首部, 应配置为 ``'HTTP_X_XSRF_TOKEN'``.
 
 .. setting:: CSRF_TRUSTED_ORIGINS
 
@@ -423,34 +356,27 @@ should be ``'HTTP_X_XSRF_TOKEN'``.
 
 .. versionadded:: 1.9
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-A list of hosts which are trusted origins for unsafe requests (e.g. ``POST``).
-For a :meth:`secure <django.http.HttpRequest.is_secure>` unsafe
-request, Django's CSRF protection requires that the request have a ``Referer``
-header that matches the origin present in the ``Host`` header. This prevents,
-for example, a ``POST`` request from ``subdomain.example.com`` from succeeding
-against ``api.example.com``. If you need cross-origin unsafe requests over
-HTTPS, continuing the example, add ``"subdomain.example.com"`` to this list.
-The setting also supports subdomains, so you could add ``".example.com"``, for
-example, to allow access from all subdomains of ``example.com``.
+信任的非安全请求(例如. ``POST``)源列表.
+对于 :meth:`secure <django.http.HttpRequest.is_secure>` 非安全请求,
+Django的CSRF保护机制要求该请求的 ``Referer`` 首部必须与 ``Host`` 首部中的来源匹配.
+这样可以阻止例如从 ``subdomain.example.com`` 对 ``api.example.com`` 的 ``POST`` 请求.
+如果你需要通过HTTPS的跨源非安全请求, 可以将 ``"subdomain.example.com"`` 添加到这个列表.
+该设置还支持子域, 例如你可以添加 ``".example.com"``, 来允许从 ``example.com`` 的所有子域访问.
 
 .. setting:: DATABASES
 
 ``DATABASES``
 -------------
 
-Default: ``{}`` (Empty dictionary)
+默认值: ``{}`` (空字段)
 
-A dictionary containing the settings for all databases to be used with
-Django. It is a nested dictionary whose contents map a database alias
-to a dictionary containing the options for an individual database.
+一个包含所有数据库配置的字典. 它是一个嵌套字典, 包含数据库别名和其对应的数据库配置选项的字典.
 
-The :setting:`DATABASES` setting must configure a ``default`` database;
-any number of additional databases may also be specified.
+:setting:`DATABASES` 设置必须包含一个 ``default`` 数据库; 除此之外可以指定任何数量的数据库.
 
-The simplest possible settings file is for a single-database setup using
-SQLite. This can be configured using the following::
+最简单的配置是使用SQLite单个数据库配置. 可以通过如下设置::
 
     DATABASES = {
         'default': {
@@ -459,10 +385,9 @@ SQLite. This can be configured using the following::
         }
     }
 
-When connecting to other database backends, such as MySQL, Oracle, or
-PostgreSQL, additional connection parameters will be required. See
-the :setting:`ENGINE <DATABASE-ENGINE>` setting below on how to specify
-other database types. This example is for PostgreSQL::
+如果要使用其他数据库后端, 例如MySQL, Oracle和
+PostgreSQL, 将需要额外的连接参数. 如何指定其他类型数据库请查看下面的 :setting:`ENGINE <DATABASE-ENGINE>` 设置.
+下面是一个PostgreSQL例子::
 
     DATABASES = {
         'default': {
@@ -475,8 +400,7 @@ other database types. This example is for PostgreSQL::
         }
     }
 
-The following inner options that may be required for more complex
-configurations are available:
+更复杂的配置可能需要以下内部选项:
 
 .. setting:: DATABASE-ATOMIC_REQUESTS
 
