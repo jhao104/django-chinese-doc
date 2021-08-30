@@ -52,3 +52,38 @@
 * **The basics**: [URLconfs](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/http/urls.html) | [View functions](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/http/views.html) | [Shortcuts](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/http/shortcuts.html) | [Decorators](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/http/decorators.html)
 
 * **参考**: [Built-in](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/views.html) | [请求/响应对象](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/request-response.html) | [TemplateResponse objects](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/template-response.html)
+
+* **File uploads**: [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/http/file-uploads.html) | [File objects](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/files/file.html) | [Storage API](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/files/storage.html) | [Managing files](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/files.html) | [Custom storage](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/howto/custom-file-storage.html)
+
+* **Class-based views**: [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/class-based-views/index.html) | [Built-in display views](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/class-based-views/generic-display.html) | [Built-in editing views](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/class-based-views/generic-editing.html) | [Using mixins](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/class-based-views/mixins.html) | [API reference](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/class-based-views/index.html) | [Flattened index](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/class-based-views/flattened-index.html)
+
+* **Advanced**: [Generating CSV](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/howto/outputting-csv.html) | [Generating PDF](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/howto/outputting-pdf.html)
+
+* **Middleware**: [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/http/middleware.html) | [Built-in middleware classes](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/middleware.html)
+
+## The template layer
+
+   The template layer provides a designer-friendly syntax for rendering the information to be presented to the user. Learn how this syntax can be used by designers and how it can be extended by programmers:
+
+* **The basics**: [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/templates.html)
+
+* **For designers**: [Language overview](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/templates/language.html) | [Built-in tags and filters](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/templates/builtins.html) | [Humanization](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/contrib/humanize.html)
+
+* **For programmers**: [Template API](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/templates/api.html) | [Custom tags and filters](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/howto/custom-template-tags.html)
+
+
+## Forms
+
+   Django provides a rich framework to facilitate the creation of forms and the manipulation of form data.
+
+* **The basics**: [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/forms/index.html) | [Form API](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/forms/api.html) | [Built-in fields](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/forms/fields.html) | [Built-in widgets](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/forms/widgets.html)
+
+* **Advanced**: [Forms for models](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/forms/modelforms.html) | [Integrating media](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/forms/media.html) | [Formsets](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/forms/formsets.html) | [Customizing validation](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/forms/validation.html)
+
+## The development process
+
+   Learn about the various components and tools to help you in the development and testing of Django applications:
+
+* **设置**: [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/settings.html) | [设置列表](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/settings.html)
+
+* **应用**: [应用](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/applications.html)
