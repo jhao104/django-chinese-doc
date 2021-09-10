@@ -185,7 +185,7 @@ Django内置的缓存后端:
 
 传递给缓存后端的额外参数. 可用的参数取决于你的缓存后端.
 
-可能的参数信息请参见 :ref:`缓存参数 <cache_arguments>` 文档. 更多信息请查阅后端模块所属文档.
+可用的参数信息请参见 :ref:`缓存参数 <cache_arguments>` 文档. 更多信息请查阅后端模块所属文档.
 
 .. setting:: CACHES-TIMEOUT
 
@@ -407,9 +407,9 @@ PostgreSQL, 将需要额外的连接参数. 如何指定其他类型数据库请
 ``ATOMIC_REQUESTS``
 ~~~~~~~~~~~~~~~~~~~
 
-Default: ``False``
+默认值: ``False``
 
-Set this to ``True`` to wrap each view in a transaction on this database. See
+如果设置为 ``True``, 同一个请求对应的所有sql都在一个事务中执行. 详见
 :ref:`tying-transactions-to-http-requests`.
 
 .. setting:: DATABASE-AUTOCOMMIT
@@ -417,115 +417,101 @@ Set this to ``True`` to wrap each view in a transaction on this database. See
 ``AUTOCOMMIT``
 ~~~~~~~~~~~~~~
 
-Default: ``True``
+默认值: ``True``
 
-Set this to ``False`` if you want to :ref:`disable Django's transaction
-management <deactivate-transaction-management>` and implement your own.
+如果想 :ref:`禁用Django事务管理 <deactivate-transaction-management>` 并自己实现, 请将此设置为  ``False``.
 
 .. setting:: DATABASE-ENGINE
 
 ``ENGINE``
 ~~~~~~~~~~
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-The database backend to use. The built-in database backends are:
+使用的数据库后端. 内置的数据库后端有:
 
 * ``'django.db.backends.postgresql'``
 * ``'django.db.backends.mysql'``
 * ``'django.db.backends.sqlite3'``
 * ``'django.db.backends.oracle'``
 
-You can use a database backend that doesn't ship with Django by setting
-``ENGINE`` to a fully-qualified path (i.e. ``mypackage.backends.whatever``).
+如果你不想使用Django的数据库后端, 可以为 ``ENGINE`` 设置自己数据库后端的完整路径 (例如. ``mypackage.backends.whatever``).
 
 .. versionchanged:: 1.9
 
-    The ``django.db.backends.postgresql`` backend is named
-    ``django.db.backends.postgresql_psycopg2`` in older releases. For backwards
-    compatibility, the old name still works in newer versions.
+    在老的发行版中 ``django.db.backends.postgresql`` 也叫做
+    ``django.db.backends.postgresql_psycopg2``. 为了向后兼容, 旧名称在新版本中仍然有效.
 
 .. setting:: HOST
 
 ``HOST``
 ~~~~~~~~
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-Which host to use when connecting to the database. An empty string means
-localhost. Not used with SQLite.
+连接目标数据库的host. 空字符串表示localhost. SQLite不需要此选项.
 
-If this value starts with a forward slash (``'/'``) and you're using MySQL,
-MySQL will connect via a Unix socket to the specified socket. For example::
+如果该值以斜杠(``'/'``)开头并且使用的是MySQL, MySQL将通过Unix套接字连接. 例如::
 
     "HOST": '/var/run/mysql'
 
-If you're using MySQL and this value *doesn't* start with a forward slash, then
-this value is assumed to be the host.
+如果你使用的是MySQL且该值 **不** 以斜杠开头, 那么该值应该是host.
 
-If you're using PostgreSQL, by default (empty :setting:`HOST`), the connection
-to the database is done through UNIX domain sockets ('local' lines in
-``pg_hba.conf``). If your UNIX domain socket is not in the standard location,
-use the same value of ``unix_socket_directory`` from ``postgresql.conf``.
-If you want to connect through TCP sockets, set :setting:`HOST` to 'localhost'
-or '127.0.0.1' ('host' lines in ``pg_hba.conf``).
-On Windows, you should always define :setting:`HOST`, as UNIX domain sockets
-are not available.
+如果你使用的是PostgreSQL, 默认情况下(空的 :setting:`HOST`), 与数据库的连接是通过 UNIX domain套接字 (
+``pg_hba.conf`` 中的 'local' 行)完成的. 如果你的UNIX domain socket不在此位置, 则使用
+``postgresql.conf`` 中的 ``unix_socket_directory``.
+如果想使用TCP sockets连接, 设置 :setting:`HOST` 为 'localhost'
+或者 '127.0.0.1' (``pg_hba.conf`` 中的 'host' 行).
+在Windows上, 你必须设置 :setting:`HOST`, 因为UNIX domain sockets不可用.
 
 .. setting:: NAME
 
 ``NAME``
 ~~~~~~~~
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-The name of the database to use. For SQLite, it's the full path to the database
-file. When specifying the path, always use forward slashes, even on Windows
-(e.g. ``C:/homes/user/mysite/sqlite3.db``).
+将使用的数据库名称. 对于SQLite, 它是完整的数据库文件路径. 路径中应使用斜线, 即便是Windows上也是如此
+(例如. ``C:/homes/user/mysite/sqlite3.db``).
 
 .. setting:: CONN_MAX_AGE
 
 ``CONN_MAX_AGE``
 ~~~~~~~~~~~~~~~~
 
-Default: ``0``
+默认值: ``0``
 
-The lifetime of a database connection, in seconds. Use ``0`` to close database
-connections at the end of each request — Django's historical behavior — and
-``None`` for unlimited persistent connections.
+数据库连接寿命, 单位秒. ``0`` 表示在每次请求结束时关闭数据库连接 — Django的历史行为 —
+``None`` 表示无限保持连接.
 
 .. setting:: OPTIONS
 
 ``OPTIONS``
 ~~~~~~~~~~~
 
-Default: ``{}`` (Empty dictionary)
+默认值: ``{}`` (空字典)
 
-Extra parameters to use when connecting to the database. Available parameters
-vary depending on your database backend.
+连接数据库时的额外参数. 可用的参数取决于使用的数据库后端.
 
-Some information on available parameters can be found in the
-:doc:`Database Backends </ref/databases>` documentation. For more information,
-consult your backend module's own documentation.
+可用的额外参数信息见 :doc:`数据库后端 </ref/databases>` 文档. 更多信息请查阅后端模块所属文档.
 
 .. setting:: PASSWORD
 
 ``PASSWORD``
 ~~~~~~~~~~~~
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-The password to use when connecting to the database. Not used with SQLite.
+连接数据库使用的密码. SQLite不需要此选项.
 
 .. setting:: PORT
 
 ``PORT``
 ~~~~~~~~
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-The port to use when connecting to the database. An empty string means the
-default port. Not used with SQLite.
+连接数据库的端口. 空字符串表示默认端口. SQLite不需要此选项.
 
 .. setting:: DATABASE-TIME_ZONE
 
@@ -534,31 +520,25 @@ default port. Not used with SQLite.
 
 .. versionadded:: 1.9
 
-Default: ``None``
+默认值: ``None``
 
-A string representing the time zone for datetimes stored in this database
-(assuming that it doesn't support time zones) or ``None``. The same values are
-accepted as in the general :setting:`TIME_ZONE` setting.
+表示存储在此数据库中的日期时间的时区的字符串(假设数据库不支持时区)或 ``None``. 接受与常规 :setting:`TIME_ZONE` 设置中相同的值.
 
-This allows interacting with third-party databases that store datetimes in
-local time rather than UTC. To avoid issues around DST changes, you shouldn't
-set this option for databases managed by Django.
+这允许与以本地时间而不是UTC存储日期时间的数据库进行交互. 为了避免DST更改带来的问题, 你不应该为Django管理的数据库设置此选项.
 
-Setting this option requires installing pytz_.
+设置此选项需要安装 pytz_ 库.
 
-When :setting:`USE_TZ` is ``True`` and the database doesn't support time zones
-(e.g. SQLite, MySQL, Oracle), Django reads and writes datetimes in local time
-according to this option if it is set and in UTC if it isn't.
+当 :setting:`USE_TZ` 设置为 ``True`` 时, 数据库不支持时区(例如SQLite, MySQL, Oracle)时,
+Django根据此选项(如果设置)以本地时间读取和写入日期时间, 如果未设置, 则以UTC时间读取和写入日期时间.
 
-When :setting:`USE_TZ` is ``True`` and the database supports time zones (e.g.
-PostgreSQL), it is an error to set this option.
+当 :setting:`USE_TZ` 设置为 ``True`` 时,  数据库支持时区(例如.
+PostgreSQL)时, 设置此选项是错误的.
 
 .. versionchanged:: 1.9
 
-    Before Django 1.9, the PostgreSQL database backend accepted an
-    undocumented ``TIME_ZONE`` option, which caused data corruption.
+    在Django 1.9之前, PostgreSQL数据库后端接受未记录的 ``TIME_ZONE`` 选项, 这导致数据corruption.
 
-When :setting:`USE_TZ` is ``False``, it is an error to set this option.
+当 :setting:`USE_TZ` 设置为 ``False``, 不应该设置此选项.
 
 .. _pytz: http://pytz.sourceforge.net/
 
@@ -567,21 +547,20 @@ When :setting:`USE_TZ` is ``False``, it is an error to set this option.
 ``USER``
 ~~~~~~~~
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-The username to use when connecting to the database. Not used with SQLite.
+连接数据库的用户名. SQLite不需要此选项.
 
 .. setting:: DATABASE-TEST
 
 ``TEST``
 ~~~~~~~~
 
-Default: ``{}`` (Empty dictionary)
+默认值: ``{}`` (空字典)
 
-A dictionary of settings for test databases; for more details about the
-creation and use of test databases, see :ref:`the-test-database`.
+测试数据库的配置信息字典; 关于测试数据库的创建和使用的详细信息, 请参考 :ref:`the-test-database`.
 
-Here's an example with a test database configuration::
+下面是一个测试数据库的配置例子::
 
     DATABASES = {
         'default': {
@@ -594,20 +573,18 @@ Here's an example with a test database configuration::
         },
     }
 
-The following keys in the ``TEST`` dictionary are available:
+``TEST`` 字典可用的键如下:
 
 .. setting:: TEST_CHARSET
 
 ``CHARSET``
 ^^^^^^^^^^^
 
-Default: ``None``
+默认值: ``None``
 
-The character set encoding used to create the test database. The value of this
-string is passed directly through to the database, so its format is
-backend-specific.
+创建测试数据库使用的字符集编码. 该值是直接传递给数据库的, 所以它的格式取决于特定后端.
 
-Supported by the PostgreSQL_ (``postgresql``) and MySQL_ (``mysql``) backends.
+支持 PostgreSQL_ (``postgresql``) 和 MySQL_ (``mysql``) 后端.
 
 .. _PostgreSQL: https://www.postgresql.org/docs/current/static/multibyte.html
 .. _MySQL: https://dev.mysql.com/doc/refman/en/charset-database.html
@@ -617,12 +594,11 @@ Supported by the PostgreSQL_ (``postgresql``) and MySQL_ (``mysql``) backends.
 ``COLLATION``
 ^^^^^^^^^^^^^
 
-Default: ``None``
+默认值: ``None``
 
-The collation order to use when creating the test database. This value is
-passed directly to the backend, so its format is backend-specific.
+创建测试数据库要使用的字符顺序. 该值是直接传递给数据库的, 所以它的格式取决于特定后端.
 
-Only supported for the ``mysql`` backend (see the `MySQL manual`_ for details).
+仅支持 ``mysql`` 后端 (详见 `MySQL manual`_).
 
 .. _MySQL manual: MySQL_
 
@@ -631,177 +607,156 @@ Only supported for the ``mysql`` backend (see the `MySQL manual`_ for details).
 ``DEPENDENCIES``
 ^^^^^^^^^^^^^^^^
 
-Default: ``['default']``, for all databases other than ``default``,
-which has no dependencies.
+默认值: ``['default']``, 对于除了 ``default`` 外的所有数据库, 没有依赖关系.
 
-The creation-order dependencies of the database. See the documentation
-on :ref:`controlling the creation order of test databases
-<topics-testing-creation-dependencies>` for details.
+数据库的创建顺序依赖性. 详见 :ref:`控制测试数据库的创建顺序 <topics-testing-creation-dependencies>` 文档.
 
 .. setting:: TEST_MIRROR
 
 ``MIRROR``
 ^^^^^^^^^^
 
-Default: ``None``
+默认值: ``None``
 
-The alias of the database that this database should mirror during
-testing.
+数据库在测试期间映射的数据库别名.
 
-This setting exists to allow for testing of primary/replica
-(referred to as master/slave by some databases)
-configurations of multiple databases. See the documentation on
-:ref:`testing primary/replica configurations
-<topics-testing-primaryreplica>` for details.
+该设置允许测试多个数据库的主/副本(某些数据库称为主/从)配置. 有关详细信息,
+请参阅 :ref:`测试 主/副 配置 <topics-testing-primaryreplica>` 文档.
 
 .. setting:: TEST_NAME
 
 ``NAME``
 ^^^^^^^^
 
-Default: ``None``
+默认值: ``None``
 
-The name of database to use when running the test suite.
+测试时使用的数据库名称
 
-If the default value (``None``) is used with the SQLite database engine, the
-tests will use a memory resident database. For all other database engines the
-test database will use the name ``'test_' + DATABASE_NAME``.
+如果SQLite数据库引擎使用默认值(``None``), 测试将使用内存数据库. 对于其他数据库引擎, 测试数据库将使用名称 ``'test_' + DATABASE_NAME``.
 
-See :ref:`the-test-database`.
+详见 :ref:`the-test-database`.
 
 .. setting:: TEST_SERIALIZE
 
 ``SERIALIZE``
 ^^^^^^^^^^^^^
 
-Boolean value to control whether or not the default test runner serializes the
-database into an in-memory JSON string before running tests (used to restore
-the database state between tests if you don't have transactions). You can set
-this to ``False`` to speed up creation time if you don't have any test classes
-with :ref:`serialized_rollback=True <test-case-serialized-rollback>`.
+布尔值, 用于控制测试程序是否在运行之前将数据库序列化为内存中的JSON字符串(用于在没有事务的情况下在测试之间恢复数据库状态).
+如果没有任何测试类 :ref:`serialized_rollback=True <test-case-serialized-rollback>`, 可以将其设置为 ``False`` 以加快创建时间.
 
 .. setting:: TEST_CREATE
 
 ``CREATE_DB``
 ^^^^^^^^^^^^^
 
-Default: ``True``
+默认值: ``True``
 
-This is an Oracle-specific setting.
+这是一个Oracle特有设置.
 
-If it is set to ``False``, the test tablespaces won't be automatically created
-at the beginning of the tests or dropped at the end.
+如果设置为 ``False``, 测试表空间不会在测试开始时自动创建, 也不会在测试结束时删除.
 
 .. setting:: TEST_USER_CREATE
 
 ``CREATE_USER``
 ^^^^^^^^^^^^^^^
 
-Default: ``True``
+默认值: ``True``
 
-This is an Oracle-specific setting.
+这是一个Oracle特有设置.
 
-If it is set to ``False``, the test user won't be automatically created at the
-beginning of the tests and dropped at the end.
+如果设置为 ``False``, 测试用户不会在测试开始时自动创建, 也不会在测试结束时删除.
 
 .. setting:: TEST_USER
 
 ``USER``
 ^^^^^^^^
 
-Default: ``None``
+默认值: ``None``
 
-This is an Oracle-specific setting.
+这是一个Oracle特有设置.
 
-The username to use when connecting to the Oracle database that will be used
-when running tests. If not provided, Django will use ``'test_' + USER``.
+连接Oracle数据库时使用的用户名. 如果没有特别设置, 将使用 ``'test_' + USER``.
 
 .. setting:: TEST_PASSWD
 
 ``PASSWORD``
 ^^^^^^^^^^^^
 
-Default: ``None``
+默认值: ``None``
 
-This is an Oracle-specific setting.
+这是一个Oracle特有设置.
 
-The password to use when connecting to the Oracle database that will be used
-when running tests. If not provided, Django will generate a random password.
+连接Oracle数据库时使用的密码. 如果没有特别设置, Django将生成随机密码.
 
 .. versionchanged:: 1.10.3
 
-    Older versions used a hardcoded default password. This was also changed
-    in 1.9.11 and 1.8.16 to fix possible security implications.
+    旧版本使用硬编码的默认密码. 这在1.10.3, 1.9.11和1.8.16也有变化, 以解决可能的安全隐患.
 
 .. setting:: TEST_TBLSPACE
 
 ``TBLSPACE``
 ^^^^^^^^^^^^
 
-Default: ``None``
+默认值: ``None``
 
-This is an Oracle-specific setting.
+这是一个Oracle特有设置.
 
-The name of the tablespace that will be used when running tests. If not
-provided, Django will use ``'test_' + USER``.
+运行测试时使用的表空间的名称. 如果没有特别设置, Django将使用 ``'test_' + USER``.
 
 .. setting:: TEST_TBLSPACE_TMP
 
 ``TBLSPACE_TMP``
 ^^^^^^^^^^^^^^^^
 
-Default: ``None``
+默认值: ``None``
 
-This is an Oracle-specific setting.
+这是一个Oracle特有设置.
 
-The name of the temporary tablespace that will be used when running tests. If
-not provided, Django will use ``'test_' + USER + '_temp'``.
+运行测试时使用的临时表空间的名称. 如果没有特别设置, Django将使用 ``'test_' + USER + '_temp'``.
 
 .. setting:: DATAFILE
 
 ``DATAFILE``
 ^^^^^^^^^^^^
 
-Default: ``None``
+默认值: ``None``
 
-This is an Oracle-specific setting.
+这是一个Oracle特有设置.
 
-The name of the datafile to use for the TBLSPACE. If not provided, Django will
-use ``TBLSPACE + '.dbf'``.
+TBLSPACE使用的数据文件名. 如果没有特别设置, Django将使用 ``TBLSPACE + '.dbf'``.
 
 .. setting:: DATAFILE_TMP
 
 ``DATAFILE_TMP``
 ^^^^^^^^^^^^^^^^
 
-Default: ``None``
+默认值: ``None``
 
-This is an Oracle-specific setting.
+这是一个Oracle特有设置.
 
-The name of the datafile to use for the TBLSPACE_TMP. If not provided, Django
-will use ``TBLSPACE_TMP + '.dbf'``.
+TBLSPACE_TMP使用的数据文件名. 如果没有特别设置, Django将使用 ``TBLSPACE_TMP + '.dbf'``.
 
 .. setting:: DATAFILE_MAXSIZE
 
 ``DATAFILE_MAXSIZE``
 ^^^^^^^^^^^^^^^^^^^^
 
-Default: ``'500M'``
+默认值: ``'500M'``
 
-This is an Oracle-specific setting.
+这是一个Oracle特有设置.
 
-The maximum size that the DATAFILE is allowed to grow to.
+DATAFILE允许的最大大小.
 
 .. setting:: DATAFILE_TMP_MAXSIZE
 
 ``DATAFILE_TMP_MAXSIZE``
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Default: ``'500M'``
+默认值: ``'500M'``
 
-This is an Oracle-specific setting.
+这是一个Oracle特有设置.
 
-The maximum size that the DATAFILE_TMP is allowed to grow to.
+DATAFILE_TMP允许的最大大小.
 
 .. setting:: DATA_UPLOAD_MAX_MEMORY_SIZE
 
@@ -810,22 +765,16 @@ DATA_UPLOAD_MAX_MEMORY_SIZE
 
 .. versionadded:: 1.10
 
-Default: ``2621440`` (i.e. 2.5 MB).
+默认值: ``2621440`` (i.e. 2.5 MB).
 
-The maximum size in bytes that a request body may be before a
-:exc:`~django.core.exceptions.SuspiciousOperation` (``RequestDataTooBig``) is
-raised. The check is done when accessing ``request.body`` or ``request.POST``
-and is calculated against the total request size excluding any file upload
-data. You can set this to ``None`` to disable the check. Applications that are
-expected to receive unusually large form posts should tune this setting.
+请求正文最大字节大小, 超出将引发 :exc:`~django.core.exceptions.SuspiciousOperation` (``RequestDataTooBig``).
+该检查在访问 ``request.body`` 或 ``request.POST`` 时进行, 根据总请求大小(不包括文件上传数据)计算.
+可以将其设置为 ``None`` 以禁用此检查. 希望接收超大的表单请求的应用应该调整此设置.
 
-The amount of request data is correlated to the amount of memory needed to
-process the request and populate the GET and POST dictionaries. Large requests
-could be used as a denial-of-service attack vector if left unchecked. Since web
-servers don't typically perform deep request inspection, it's not possible to
-perform a similar check at that level.
+请求的数据量与处理请求和填充GET和POST字典所需的内存容量有关. 如果不检查, 超大请求可以用作拒绝服务攻击载体.
+由于web服务器通常不会执行深层的请求检查, 因此不可能在该级别执行类似的检查.
 
-See also :setting:`FILE_UPLOAD_MAX_MEMORY_SIZE`.
+详见 :setting:`FILE_UPLOAD_MAX_MEMORY_SIZE`.
 
 .. setting:: DATA_UPLOAD_MAX_NUMBER_FIELDS
 
@@ -834,53 +783,43 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS
 
 .. versionadded:: 1.10
 
-Default: ``1000``
+默认值: ``1000``
 
-The maximum number of parameters that may be received via GET or POST before a
-:exc:`~django.core.exceptions.SuspiciousOperation` (``TooManyFields``) is
-raised. You can set this to ``None`` to disable the check. Applications that
-are expected to receive an unusually large number of form fields should tune
-this setting.
+允许的最多参数数量, 超出将引发 :exc:`~django.core.exceptions.SuspiciousOperation` (``TooManyFields``) 异常.
+可以将其设置为 ``None`` 以禁用此检查. 预计会收到超多表单字段的应用程序应该调整这个配置.
 
-The number of request parameters is correlated to the amount of time needed to
-process the request and populate the GET and POST dictionaries. Large requests
-could be used as a denial-of-service attack vector if left unchecked. Since web
-servers don't typically perform deep request inspection, it's not possible to
-perform a similar check at that level.
+请求的数据量与处理请求和填充GET和POST字典所需的内存容量有关. 如果不检查, 超大请求可以用作拒绝服务攻击载体.
+由于web服务器通常不会执行深层的请求检查, 因此不可能在该级别执行类似的检查.
 
 .. setting:: DATABASE_ROUTERS
 
 ``DATABASE_ROUTERS``
 --------------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-The list of routers that will be used to determine which database
-to use when performing a database query.
+用于在执行数据库查询时确定要使用哪个数据库的路由列表.
 
-See the documentation on :ref:`automatic database routing in multi
-database configurations <topics-db-multi-db-routing>`.
+详见 :ref:`多数据库配置中的自动数据库路由 <topics-db-multi-db-routing>` 文档.
 
 .. setting:: DATE_FORMAT
 
 ``DATE_FORMAT``
 ---------------
 
-Default: ``'N j, Y'`` (e.g. ``Feb. 4, 2003``)
+默认值: ``'N j, Y'`` (e.g. ``Feb. 4, 2003``)
 
-The default formatting to use for displaying date fields in any part of the
-system. Note that if :setting:`USE_L10N` is set to ``True``, then the
-locale-dictated format has higher precedence and will be applied instead. See
-:tfilter:`allowed date format strings <date>`.
+在系统的任何显示日期字段部分中使用的默认格式. 注意, 如果 :setting:`USE_L10N` 设置为 ``True``, 那么本地设置的格式具有更高的优先权, 并将被应用.
+详见 :tfilter:`允许的日期格式字符串 <date>`.
 
-See also :setting:`DATETIME_FORMAT`, :setting:`TIME_FORMAT` and :setting:`SHORT_DATE_FORMAT`.
+另见 :setting:`DATETIME_FORMAT`, :setting:`TIME_FORMAT` 和 :setting:`SHORT_DATE_FORMAT`.
 
 .. setting:: DATE_INPUT_FORMATS
 
 ``DATE_INPUT_FORMATS``
 ----------------------
 
-Default::
+默认值::
 
     [
         '%Y-%m-%d', '%m/%d/%Y', '%m/%d/%y', # '2006-10-25', '10/25/2006', '10/25/06'
@@ -890,37 +829,32 @@ Default::
         '%d %B %Y', '%d %B, %Y',            # '25 October 2006', '25 October, 2006'
     ]
 
-A list of formats that will be accepted when inputting data on a date field.
-Formats will be tried in order, using the first valid one. Note that these
-format strings use Python's :ref:`datetime module syntax
-<strftime-strptime-behavior>`, not the format strings from the :tfilter:`date`
-template filter.
+日期字段输入数据时接受的格式列表. 将按顺序尝试格式, 使用第一个有效的格式.
+注意这些格式字符串使用Python的是 :ref:`datetime模块语法
+<strftime-strptime-behavior>`, 而不是 :tfilter:`date` 模板过滤器语法.
 
-When :setting:`USE_L10N` is ``True``, the locale-dictated format has higher
-precedence and will be applied instead.
+当 :setting:`USE_L10N` 设置为 ``True`` 时, 将采用本地s设置的格式, 具有更高的优先级.
 
-See also :setting:`DATETIME_INPUT_FORMATS` and :setting:`TIME_INPUT_FORMATS`.
+另见 :setting:`DATETIME_INPUT_FORMATS` 和 :setting:`TIME_INPUT_FORMATS`.
 
 .. setting:: DATETIME_FORMAT
 
 ``DATETIME_FORMAT``
 -------------------
 
-Default: ``'N j, Y, P'`` (e.g. ``Feb. 4, 2003, 4 p.m.``)
+默认值: ``'N j, Y, P'`` (e.g. ``Feb. 4, 2003, 4 p.m.``)
 
-The default formatting to use for displaying datetime fields in any part of the
-system. Note that if :setting:`USE_L10N` is set to ``True``, then the
-locale-dictated format has higher precedence and will be applied instead. See
-:tfilter:`allowed date format strings <date>`.
+在系统的显示datetime字段部分中使用的默认格式. 注意, 如果 :setting:`USE_L10N` 设置为 ``True``, 那么本地设置的格式具有更高的优先权, 并将被应用.
+详见 :tfilter:`允许的日期格式字符串 <date>`.
 
-See also :setting:`DATE_FORMAT`, :setting:`TIME_FORMAT` and :setting:`SHORT_DATETIME_FORMAT`.
+另见 :setting:`DATE_FORMAT`, :setting:`TIME_FORMAT` 和 :setting:`SHORT_DATETIME_FORMAT`.
 
 .. setting:: DATETIME_INPUT_FORMATS
 
 ``DATETIME_INPUT_FORMATS``
 --------------------------
 
-Default::
+默认值::
 
     [
         '%Y-%m-%d %H:%M:%S',     # '2006-10-25 14:30:59'
@@ -937,40 +871,33 @@ Default::
         '%m/%d/%y',              # '10/25/06'
     ]
 
-A list of formats that will be accepted when inputting data on a datetime
-field. Formats will be tried in order, using the first valid one. Note that
-these format strings use Python's :ref:`datetime module syntax
-<strftime-strptime-behavior>`, not the format strings from the :tfilter:`date`
-template filter.
+datetime字段输入数据时接受的格式列表. 将按顺序尝试格式, 使用第一个有效的格式.
+注意这些格式字符串使用Python的是 :ref:`datetime模块语法
+<strftime-strptime-behavior>`, 而不是 :tfilter:`date` 模板过滤器语法.
 
-When :setting:`USE_L10N` is ``True``, the locale-dictated format has higher
-precedence and will be applied instead.
+当 :setting:`USE_L10N` 设置为 ``True`` 时, 将采用本地s设置的格式, 具有更高的优先级.
 
-See also :setting:`DATE_INPUT_FORMATS` and :setting:`TIME_INPUT_FORMATS`.
+
+另见 :setting:`DATE_INPUT_FORMATS` 和 :setting:`TIME_INPUT_FORMATS`.
 
 .. setting:: DEBUG
 
 ``DEBUG``
 ---------
 
-Default: ``False``
+默认值: ``False``
 
-A boolean that turns on/off debug mode.
+打开/关闭调试模式的布尔值.
 
-Never deploy a site into production with :setting:`DEBUG` turned on.
+千万不在生产部署时开启 :setting:`DEBUG`.
 
-Did you catch that? NEVER deploy a site into production with :setting:`DEBUG`
-turned on.
+重要事情说三遍, 千万不在生产部署时开启 :setting:`DEBUG`.
 
-One of the main features of debug mode is the display of detailed error pages.
-If your app raises an exception when :setting:`DEBUG` is ``True``, Django will
-display a detailed traceback, including a lot of metadata about your
-environment, such as all the currently defined Django settings (from
-``settings.py``).
+调试模式的重要功能之一是显示详细的错误页面.
+当 :setting:`DEBUG` 为 ``True`` 且你的应用发生异常时,
+Django会显示追溯细节, 包括你环境的元数据, 比如所有Django当前设置(``settings.py`` 中).
 
-As a security measure, Django will *not* include settings that might be
-sensitive, such as :setting:`SECRET_KEY`. Specifically, it will exclude any
-setting whose name includes any of the following:
+为了安全, Django **不会** 显示一些敏感设置, 比如 :setting:`SECRET_KEY`. 特别是名字中包含下面单词的设置:
 
 * ``'API'``
 * ``'KEY'``
@@ -979,25 +906,20 @@ setting whose name includes any of the following:
 * ``'SIGNATURE'``
 * ``'TOKEN'``
 
-Note that these are *partial* matches. ``'PASS'`` will also match PASSWORD,
-just as ``'TOKEN'`` will also match TOKENIZED and so on.
+注意, 这里使用的是 **部分** 匹配. 比如 ``'PASS'`` 会匹配到PASSWORD,
+``'TOKEN'`` 会匹配到TOKENIZED等等.
 
-Still, note that there are always going to be sections of your debug output
-that are inappropriate for public consumption. File paths, configuration
-options and the like all give attackers extra information about your server.
+尽管如此, 调试输出中还是会有一部分内容是不适合公开的. 比如文件路径, 配置选项等, 这些都会给攻击者提供关于你服务器的额外信息.
 
-It is also important to remember that when running with :setting:`DEBUG`
-turned on, Django will remember every SQL query it executes. This is useful
-when you're debugging, but it'll rapidly consume memory on a production server.
+同样重要的是, 当 :setting:`DEBUG` 开启时, Django会记住它执行的每个SQL查询. 这在调试时非常有用, 但这会消耗运行服务器的大量内存资源.
 
-Finally, if :setting:`DEBUG` is ``False``, you also need to properly set
-the :setting:`ALLOWED_HOSTS` setting. Failing to do so will result in all
-requests being returned as "Bad Request (400)".
+最后, 当 :setting:`DEBUG` 设置为 ``False`` 时, 你必须要设置
+:setting:`ALLOWED_HOSTS` 选项. 否则所有的请求都会返回"Bad Request (400)".
 
 .. note::
 
-    The default :file:`settings.py` file created by :djadmin:`django-admin
-    startproject <startproject>` sets ``DEBUG = True`` for convenience.
+    为方便起见 :djadmin:`django-admin
+    startproject <startproject>` 创建的默认 :file:`settings.py` 文件中,  ``DEBUG = True``.
 
 .. _django/views/debug.py: https://github.com/django/django/blob/master/django/views/debug.py
 
@@ -1006,26 +928,22 @@ requests being returned as "Bad Request (400)".
 ``DEBUG_PROPAGATE_EXCEPTIONS``
 ------------------------------
 
-Default: ``False``
+默认值: ``False``
 
-If set to True, Django's normal exception handling of view functions
-will be suppressed, and exceptions will propagate upwards.  This can
-be useful for some test setups, and should never be used on a live
-site.
+如果设置为True, Django对视图函数的正常异常将被跳过, 异常将向上传播. 这对于某些测试设置非常有用, 不要在实时站点上使用.
 
 .. setting:: DECIMAL_SEPARATOR
 
 ``DECIMAL_SEPARATOR``
 ---------------------
 
-Default: ``'.'`` (Dot)
+默认值: ``'.'`` (点号)
 
-Default decimal separator used when formatting decimal numbers.
+格式化十进制数时使用的默认分隔符.
 
-Note that if :setting:`USE_L10N` is set to ``True``, then the locale-dictated
-format has higher precedence and will be applied instead.
+注意, 如果 :setting:`USE_L10N` 设置为 ``True``, 那么将采用本地设置的格式, 具有更高的优先级别.
 
-See also :setting:`NUMBER_GROUPING`, :setting:`THOUSAND_SEPARATOR` and
+另见 :setting:`NUMBER_GROUPING`, :setting:`THOUSAND_SEPARATOR` 和
 :setting:`USE_THOUSAND_SEPARATOR`.
 
 
@@ -1034,158 +952,144 @@ See also :setting:`NUMBER_GROUPING`, :setting:`THOUSAND_SEPARATOR` and
 ``DEFAULT_CHARSET``
 -------------------
 
-Default: ``'utf-8'``
+默认值: ``'utf-8'``
 
-Default charset to use for all ``HttpResponse`` objects, if a MIME type isn't
-manually specified. Used with :setting:`DEFAULT_CONTENT_TYPE` to construct the
-``Content-Type`` header.
+没有指定MIME类型时, ``HttpResponse`` 对象使用的编码字符集. 与 :setting:`DEFAULT_CONTENT_TYPE` 配合使用构造 ``Content-Type`` 首部.
 
 .. setting:: DEFAULT_CONTENT_TYPE
 
 ``DEFAULT_CONTENT_TYPE``
 ------------------------
 
-Default: ``'text/html'``
+默认值: ``'text/html'``
 
-Default content type to use for all ``HttpResponse`` objects, if a MIME type
-isn't manually specified. Used with :setting:`DEFAULT_CHARSET` to construct
-the ``Content-Type`` header.
+没有指定MIME类型时, ``HttpResponse`` 对象的默认内容类型. 与 :setting:`DEFAULT_CHARSET` 配合使用构造 ``Content-Type`` 首部.
 
 .. setting:: DEFAULT_EXCEPTION_REPORTER_FILTER
 
 ``DEFAULT_EXCEPTION_REPORTER_FILTER``
 -------------------------------------
 
-Default: ``'``:class:`django.views.debug.SafeExceptionReporterFilter`\ ``'``
+默认值: ``'``:class:`django.views.debug.SafeExceptionReporterFilter`\ ``'``
 
-Default exception reporter filter class to be used if none has been assigned to
-the :class:`~django.http.HttpRequest` instance yet.
-See :ref:`Filtering error reports<filtering-error-reports>`.
+没有为 :class:`~django.http.HttpRequest` 实例分配异常报告过滤类时, 默认的异常报告过滤类.
+见 :ref:`Filtering error reports<filtering-error-reports>`.
 
 .. setting:: DEFAULT_FILE_STORAGE
 
 ``DEFAULT_FILE_STORAGE``
 ------------------------
 
-Default: ``'``:class:`django.core.files.storage.FileSystemStorage`\ ``'``
+默认值: ``'``:class:`django.core.files.storage.FileSystemStorage`\ ``'``
 
-Default file storage class to be used for any file-related operations that don't
-specify a particular storage system. See :doc:`/topics/files`.
+默认文件存储类, 用于不指定特定存储系统的文件相关的操作. 见 :doc:`/topics/files`.
 
 .. setting:: DEFAULT_FROM_EMAIL
 
 ``DEFAULT_FROM_EMAIL``
 ----------------------
 
-Default: ``'webmaster@localhost'``
+默认值: ``'webmaster@localhost'``
 
-Default email address to use for various automated correspondence from the
-site manager(s). This doesn't include error messages sent to :setting:`ADMINS`
-and :setting:`MANAGERS`; for that, see :setting:`SERVER_EMAIL`.
+站点管理员的各种自动通信的默认电子邮件地址. 不包括发送到 :setting:`ADMINS`
+和 :setting:`MANAGERS` 的错误信息; 详见 :setting:`SERVER_EMAIL`.
 
 .. setting:: DEFAULT_INDEX_TABLESPACE
 
 ``DEFAULT_INDEX_TABLESPACE``
 ----------------------------
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-Default tablespace to use for indexes on fields that don't specify
-one, if the backend supports it (see :doc:`/topics/db/tablespaces`).
+没有指定索引的字段使用的默认表空间, 需要数据库引擎支持(见 :doc:`/topics/db/tablespaces`).
 
 .. setting:: DEFAULT_TABLESPACE
 
 ``DEFAULT_TABLESPACE``
 ----------------------
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-Default tablespace to use for models that don't specify one, if the
-backend supports it (see :doc:`/topics/db/tablespaces`).
+没有指定表空间的模型使用的默认表空间, 需要数据库引擎支持(见 :doc:`/topics/db/tablespaces`).
 
 .. setting:: DISALLOWED_USER_AGENTS
 
 ``DISALLOWED_USER_AGENTS``
 --------------------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-List of compiled regular expression objects representing User-Agent strings that
-are not allowed to visit any page, systemwide. Use this for bad robots/crawlers.
-This is only used if ``CommonMiddleware`` is installed (see
-:doc:`/topics/http/middleware`).
+编译后的正则表达式对象列表, 代表不允许访问任何页面的User-Agent字符串.
+用于robots/crawlers. 只有在安装了 ``CommonMiddleware`` 的情况下才会使用(
+见 :doc:`/topics/http/middleware`).
 
 .. setting:: EMAIL_BACKEND
 
 ``EMAIL_BACKEND``
 -----------------
 
-Default: ``'``:class:`django.core.mail.backends.smtp.EmailBackend`\ ``'``
+默认值: ``'``:class:`django.core.mail.backends.smtp.EmailBackend`\ ``'``
 
-The backend to use for sending emails. For the list of available backends see
-:doc:`/topics/email`.
+用于发送邮件的引擎. 关于可用的引擎列表 :doc:`/topics/email`.
 
 .. setting:: EMAIL_FILE_PATH
 
 ``EMAIL_FILE_PATH``
 -------------------
 
-Default: Not defined
+默认值: 无默认值
 
-The directory used by the ``file`` email backend to store output files.
+``file`` 类型的邮件引擎保存输出文件时使用的目录.
 
 .. setting:: EMAIL_HOST
 
 ``EMAIL_HOST``
 --------------
 
-Default: ``'localhost'``
+默认值: ``'localhost'``
 
-The host to use for sending email.
+发送邮件的host.
 
-See also :setting:`EMAIL_PORT`.
+另见 :setting:`EMAIL_PORT`.
 
 .. setting:: EMAIL_HOST_PASSWORD
 
 ``EMAIL_HOST_PASSWORD``
 -----------------------
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-Password to use for the SMTP server defined in :setting:`EMAIL_HOST`. This
-setting is used in conjunction with :setting:`EMAIL_HOST_USER` when
-authenticating to the SMTP server. If either of these settings is empty,
-Django won't attempt authentication.
+:setting:`EMAIL_HOST` 定义的SMTP服务器使用的密码.
+该配置和 :setting:`EMAIL_HOST_USER` 一起用于SMTP服务器的认证. 如果两个中有一个为空, Django则不会进行认证.
 
-See also :setting:`EMAIL_HOST_USER`.
+另见 :setting:`EMAIL_HOST_USER`.
 
 .. setting:: EMAIL_HOST_USER
 
 ``EMAIL_HOST_USER``
 -------------------
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-Username to use for the SMTP server defined in :setting:`EMAIL_HOST`.
-If empty, Django won't attempt authentication.
+:setting:`EMAIL_HOST` 定义的SMTP服务器使用的用户名. 如果为空Django不会进行认证.
 
-See also :setting:`EMAIL_HOST_PASSWORD`.
+另见 :setting:`EMAIL_HOST_PASSWORD`.
 
 .. setting:: EMAIL_PORT
 
 ``EMAIL_PORT``
 --------------
 
-Default: ``25``
+默认值: ``25``
 
-Port to use for the SMTP server defined in :setting:`EMAIL_HOST`.
+:setting:`EMAIL_HOST` 定义的SMTP服务器使用的端口.
 
 .. setting:: EMAIL_SUBJECT_PREFIX
 
 ``EMAIL_SUBJECT_PREFIX``
 ------------------------
 
-Default: ``'[Django] '``
+默认值: ``'[Django] '``
 
 Subject-line prefix for email messages sent with ``django.core.mail.mail_admins``
 or ``django.core.mail.mail_managers``. You'll probably want to include the
