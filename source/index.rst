@@ -195,11 +195,11 @@ The development process
 Learn about the various components and tools to help you in the development and
 testing of Django applications:
 
-* **Settings:**
+* **设置:**
   :doc:`Overview <topics/settings>` |
-  :doc:`Full list of settings <ref/settings>`
+  :doc:`设置列表 <ref/settings>`
 
-* **Applications:**
+* **应用:**
   :doc:`应用 <ref/applications>`
 
 * **Exceptions:**
