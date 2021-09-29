@@ -1602,72 +1602,57 @@ __ https://github.com/django/django/blob/master/django/utils/log.py
 ``MIGRATION_MODULES``
 ---------------------
 
-Default: ``{}`` (Empty dictionary)
+默认值: ``{}`` (空字典)
 
-A dictionary specifying the package where migration modules can be found on a
-per-app basis. The default value of this setting is an empty dictionary, but
-the default package name for migration modules is ``migrations``.
+指定每个应用迁移模块包位置的字典. 该配置的默认值是一个空字典, 迁移模块的默认包名为 ``migrations``.
 
-Example::
+例如::
 
     {'blog': 'blog.db_migrations'}
 
-In this case, migrations pertaining to the ``blog`` app will be contained in
-the ``blog.db_migrations`` package.
+在此配置下, ``blog`` 应用相关的迁移都会存在于 ``blog.db_migrations`` 包中.
 
-If you provide the ``app_label`` argument, :djadmin:`makemigrations` will
-automatically create the package if it doesn't already exist.
+如果提供了 ``app_label`` , 包不存在时 :djadmin:`makemigrations` 将自动创建它.
 
 .. versionadded:: 1.9
 
-When you supply ``None`` as a value for an app, Django will consider the app as
-an app without migrations regardless of an existing ``migrations`` submodule.
-This can be used, for example, in a test settings file to skip migrations while
-testing (tables will still be created for the apps' models). If this is used in
-your general project settings, remember to use the :option:`migrate
---run-syncdb` option if you want to create tables for the app.
+如果为某个应用设置``None``, Django将会视为此应用没有迁移, 而不考虑是否存在 ``migrations`` 子模块.
+例如, 在测试配置文件中, 这可以用来在测试时跳过迁移(仍然会为应用程序的模型创建表).
+如果这在常规项目配置中使用, 想为应用程序创建表, 请使用 :option:`migrate --run-syncdb` 选项.
 
 .. setting:: MONTH_DAY_FORMAT
 
 ``MONTH_DAY_FORMAT``
 --------------------
 
-Default: ``'F j'``
+默认值: ``'F j'``
 
-The default formatting to use for date fields on Django admin change-list
-pages -- and, possibly, by other parts of the system -- in cases when only the
-month and day are displayed.
+Django admin change-list页面上日期字段的默认格式 -- 可能还包括系统的其他部分 -- 在只显示月和日的情况下.
 
-For example, when a Django admin change-list page is being filtered by a date
-drilldown, the header for a given day displays the day and month. Different
-locales have different formats. For example, U.S. English would say
-"January 1," whereas Spanish might say "1 Enero."
+例如, 在Django admin change-list页面使用日期过滤时, 对目标日期的月和日在不同地区显示不同的格式.
+例如, U.S. English 地区显示"January 1," 西班牙语地区显示 "1 Enero."
 
-Note that if :setting:`USE_L10N` is set to ``True``, then the corresponding
-locale-dictated format has higher precedence and will be applied.
+注意, 如果 :setting:`USE_L10N` 设置为 ``True``, 则对应的地区设置格式将具有更高优先级.
 
-See :tfilter:`allowed date format strings <date>`. See also
+见 :tfilter:`允许的日期格式字符 <date>`. 也见
 :setting:`DATE_FORMAT`, :setting:`DATETIME_FORMAT`,
-:setting:`TIME_FORMAT` and :setting:`YEAR_MONTH_FORMAT`.
+:setting:`TIME_FORMAT` 和 :setting:`YEAR_MONTH_FORMAT`.
 
 .. setting:: NUMBER_GROUPING
 
 ``NUMBER_GROUPING``
 --------------------
 
-Default: ``0``
+默认值: ``0``
 
-Number of digits grouped together on the integer part of a number.
+整数分割位数.
 
-Common use is to display a thousand separator. If this setting is ``0``, then
-no grouping will be applied to the number. If this setting is greater than
-``0``, then :setting:`THOUSAND_SEPARATOR` will be used as the separator between
-those groups.
+常见的用途是显示千位分隔符. 如果设置为 ``0`` 则不会进行分隔. 如果设置的大于
+``0`` 则会使用 :setting:`THOUSAND_SEPARATOR` 分隔数字.
 
-Note that if :setting:`USE_L10N` is set to ``True``, then the locale-dictated
-format has higher precedence and will be applied instead.
+注意, 如果 :setting:`USE_L10N` 设置为 ``True``, 则对应的区域设置格式将具有更高优先级.
 
-See also :setting:`DECIMAL_SEPARATOR`, :setting:`THOUSAND_SEPARATOR` and
+见 :setting:`DECIMAL_SEPARATOR`, :setting:`THOUSAND_SEPARATOR` 和
 :setting:`USE_THOUSAND_SEPARATOR`.
 
 .. setting:: PREPEND_WWW
@@ -1675,222 +1660,179 @@ See also :setting:`DECIMAL_SEPARATOR`, :setting:`THOUSAND_SEPARATOR` and
 ``PREPEND_WWW``
 ---------------
 
-Default: ``False``
+默认值: ``False``
 
-Whether to prepend the "www." subdomain to URLs that don't have it. This is only
-used if :class:`~django.middleware.common.CommonMiddleware` is installed
-(see :doc:`/topics/http/middleware`). See also :setting:`APPEND_SLASH`.
+是否自动给没有 "www." 子域加上该前缀. 只有在使用了 :class:`~django.middleware.common.CommonMiddleware` 才会生效
+(见 :doc:`/topics/http/middleware`). 也见 :setting:`APPEND_SLASH`.
 
 .. setting:: ROOT_URLCONF
 
 ``ROOT_URLCONF``
 ----------------
 
-Default: Not defined
+默认值: 未定义
 
-A string representing the full Python import path to your root URLconf. For example:
-``"mydjangoapps.urls"``. Can be overridden on a per-request basis by
-setting the attribute ``urlconf`` on the incoming ``HttpRequest``
-object. See :ref:`how-django-processes-a-request` for details.
+表示根URLconf的完整Python import路径. 例如: ``"mydjangoapps.urls"``.
+可以通过设置请求的 ``HttpRequest`` 的 ``urlconf`` 属性来覆盖它. 详见 :ref:`how-django-processes-a-request`.
 
 .. setting:: SECRET_KEY
 
 ``SECRET_KEY``
 --------------
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-A secret key for a particular Django installation. This is used to provide
-:doc:`cryptographic signing </topics/signing>`, and should be set to a unique,
-unpredictable value.
+设置Django安装密钥. 用于提供 :doc:`加密签名 </topics/signing>`, 应设置为一个唯一的, 复杂的值.
 
-:djadmin:`django-admin startproject <startproject>` automatically adds a
-randomly-generated ``SECRET_KEY`` to each new project.
+:djadmin:`django-admin startproject <startproject>` 会自动向每个新项目添加一个随机生成的 ``SECRET_KEY``.
 
-Uses of the key shouldn't assume that it's text or bytes. Every use should go
-through :func:`~django.utils.encoding.force_text` or
-:func:`~django.utils.encoding.force_bytes` to convert it to the desired type.
+使用密钥时不应该直接认定它就是文本或字节. 每次使用都应该用
+:func:`~django.utils.encoding.force_text` 或
+:func:`~django.utils.encoding.force_bytes` 将其强转为对应类型.
 
-Django will refuse to start if :setting:`SECRET_KEY` is not set.
+如果没有设置 :setting:`SECRET_KEY` Django将无法启动.
 
 .. warning::
 
-    **Keep this value secret.**
+    **保密该值.**
 
-    Running Django with a known :setting:`SECRET_KEY` defeats many of Django's
-    security protections, and can lead to privilege escalation and remote code
-    execution vulnerabilities.
+    使用泄露的 :setting:`SECRET_KEY` 运行Django会致使许多Django的安全保护措施失效,
+    并可能导致越权操作和远程代码执行漏洞.
 
-The secret key is used for:
+安全密钥用于:
 
-* All :doc:`sessions </topics/http/sessions>` if you are using
-  any other session backend than ``django.contrib.sessions.backends.cache``,
-  or are using the default
+* 所有 :doc:`sessions </topics/http/sessions>`, 如果使用了 ``django.contrib.sessions.backends.cache`` 以外的后端,
+  或者使用默认的
   :meth:`~django.contrib.auth.models.AbstractBaseUser.get_session_auth_hash()`.
-* All :doc:`messages </ref/contrib/messages>` if you are using
-  :class:`~django.contrib.messages.storage.cookie.CookieStorage` or
+* 所有 :doc:`messages </ref/contrib/messages>`, 如果你使用了
+  :class:`~django.contrib.messages.storage.cookie.CookieStorage` 或
   :class:`~django.contrib.messages.storage.fallback.FallbackStorage`.
-* All :func:`~django.contrib.auth.views.password_reset` tokens.
-* Any usage of :doc:`cryptographic signing </topics/signing>`, unless a
-  different key is provided.
+* 所有 :func:`~django.contrib.auth.views.password_reset` token.
+* 除了使用其他密钥的所有 :doc:`加密签名 </topics/signing>`.
 
-If you rotate your secret key, all of the above will be invalidated.
-Secret keys are not used for passwords of users and key rotation will not
-affect them.
+如果你更换了密钥, 那么上述所有内容都将失效. 但是密钥不用于用户密码, 更好密钥不会影响用户密码.
 
 .. note::
 
-    The default :file:`settings.py` file created by :djadmin:`django-admin
-    startproject <startproject>` creates a unique ``SECRET_KEY`` for
-    convenience.
+    为方便起见, 由 :djadmin:`django-admin startproject <startproject>` 创建的默认 :file:`settings.py` 自带一个唯一的 ``SECRET_KEY``.
 
 .. setting:: SECURE_BROWSER_XSS_FILTER
 
 ``SECURE_BROWSER_XSS_FILTER``
 -----------------------------
 
-Default: ``False``
+默认值: ``False``
 
-If ``True``, the :class:`~django.middleware.security.SecurityMiddleware` sets
-the :ref:`x-xss-protection` header on all responses that do not already have it.
+如果设置为 ``True``, 则 :class:`~django.middleware.security.SecurityMiddleware` 会给所有响应加上 :ref:`x-xss-protection` 首部.
 
 .. setting:: SECURE_CONTENT_TYPE_NOSNIFF
 
 ``SECURE_CONTENT_TYPE_NOSNIFF``
 -------------------------------
 
-Default: ``False``
+默认值: ``False``
 
-If ``True``, the :class:`~django.middleware.security.SecurityMiddleware`
-sets the :ref:`x-content-type-options` header on all responses that do not
-already have it.
+如果设置为 ``True``, 则 :class:`~django.middleware.security.SecurityMiddleware` 会给所有响应加上 :ref:`x-content-type-options` 首部.
 
 .. setting:: SECURE_HSTS_INCLUDE_SUBDOMAINS
 
 ``SECURE_HSTS_INCLUDE_SUBDOMAINS``
 ----------------------------------
 
-Default: ``False``
+默认值: ``False``
 
-If ``True``, the :class:`~django.middleware.security.SecurityMiddleware` adds
-the ``includeSubDomains`` directive to the :ref:`http-strict-transport-security`
-header. It has no effect unless :setting:`SECURE_HSTS_SECONDS` is set to a
-non-zero value.
+如果设置为 ``True``, 则 :class:`~django.middleware.security.SecurityMiddleware` 会添加
+``includeSubDomains`` 指令到 :ref:`http-strict-transport-security` 首部.
+只有 :setting:`SECURE_HSTS_SECONDS` 设置为非0值值才会生效.
 
 .. warning::
-    Setting this incorrectly can irreversibly (for the value of
-    :setting:`SECURE_HSTS_SECONDS`) break your site. Read the
-    :ref:`http-strict-transport-security` documentation first.
+    如果 :setting:`SECURE_HSTS_SECONDS` 设置不正确可能会不可逆地破坏你的网站. 请先阅读
+    :ref:`http-strict-transport-security` 文档.
 
 .. setting:: SECURE_HSTS_SECONDS
 
 ``SECURE_HSTS_SECONDS``
 -----------------------
 
-Default: ``0``
+默认值: ``0``
 
-If set to a non-zero integer value, the
-:class:`~django.middleware.security.SecurityMiddleware` sets the
-:ref:`http-strict-transport-security` header on all responses that do not
-already have it.
+如果设置为一个非零的整数值, 则
+:class:`~django.middleware.security.SecurityMiddleware` 会给所有响应加上
+:ref:`http-strict-transport-security` 首部.
 
 .. warning::
-    Setting this incorrectly can irreversibly (for some time) break your site.
-    Read the :ref:`http-strict-transport-security` documentation first.
+    如果设置不正确的值可能会不可逆地破坏你的网站.
+    请先阅读 :ref:`http-strict-transport-security` 文档.
 
 .. setting:: SECURE_PROXY_SSL_HEADER
 
 ``SECURE_PROXY_SSL_HEADER``
 ---------------------------
 
-Default: ``None``
+默认值: ``None``
 
-A tuple representing a HTTP header/value combination that signifies a request
-is secure. This controls the behavior of the request object's ``is_secure()``
-method.
+用于表示请求是安全的HTTP首部/值组合的元组. 这直接影响请求对象 ``is_secure()`` 方法的结果.
 
-This takes some explanation. By default, ``is_secure()`` is able to determine
-whether a request is secure by looking at whether the requested URL uses
-"https://". This is important for Django's CSRF protection, and may be used
-by your own code or third-party apps.
+这里需要解释下. 默认情况下, ``is_secure()`` 是通过查看请求地址中是否使用 "https://" 来确定请求是否安全.
+这对于Django的CSRF保护很重要, 而且或许你自己的代码或第三方应用也会使用到.
 
-If your Django app is behind a proxy, though, the proxy may be "swallowing" the
-fact that a request is HTTPS, using a non-HTTPS connection between the proxy
-and Django. In this case, ``is_secure()`` would always return ``False`` -- even
-for requests that were made via HTTPS by the end user.
+如果在你Django应用服务之前还有个代理服务器, 那么这个代理服务器可能会"吞掉"请求使用HTTPS的情况,
+比如代理服务器和Django之间通过非HTTPS连接, 那么 ``is_secure()`` 会始终返回 ``False`` -- 即使客户端是通过HTTPS请求.
 
-In this situation, you'll want to configure your proxy to set a custom HTTP
-header that tells Django whether the request came in via HTTPS, and you'll want
-to set ``SECURE_PROXY_SSL_HEADER`` so that Django knows what header to look
-for.
+这种情况下, 你需要配置代理服务器自定义HTTP首部, 来告诉Django请求是否是通过HTTPS发起, 同时还需要设置
+``SECURE_PROXY_SSL_HEADER`` 首部以告诉Django应该从哪个首部找到它.
 
-You'll need to set a tuple with two elements -- the name of the header to look
-for and the required value. For example::
+设置一个包含两个元素的元组 -- 要查找的首部名称和所需的值. 例如::
 
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-Here, we're telling Django that we trust the ``X-Forwarded-Proto`` header
-that comes from our proxy, and any time its value is ``'https'``, then the
-request is guaranteed to be secure (i.e., it originally came in via HTTPS).
-Obviously, you should *only* set this setting if you control your proxy or
-have some other guarantee that it sets/strips this header appropriately.
+这样, 就等于告诉Django通过 ``X-Forwarded-Proto`` 首部来判断, 只要该值为 ``'https'`` 就认为请求是安全的(即. 该请求是通过HTTPS发起).
+显然, 如果你可以控制你的代理服务或者有其保证, 你可以 **只** 设置这个配置, 它可以适当地设置/移除这个首部.
 
-Note that the header needs to be in the format as used by ``request.META`` --
-all caps and likely starting with ``HTTP_``. (Remember, Django automatically
-adds ``'HTTP_'`` to the start of x-header names before making the header
-available in ``request.META``.)
+请求注意, 首部的格式需要和 ``request.META`` 使用的格式一样 --
+全大写, 而且以 ``HTTP_`` 开头. (记住, Django会自动在x-header名称上加上 ``'HTTP_'`` 前缀, 然后才在 ``request.META`` 中使用.)
 
 .. warning::
 
-    **You will probably open security holes in your site if you set this
-    without knowing what you're doing. And if you fail to set it when you
-    should. Seriously.**
+    **修改此设置可能会危及你网站的安全。在修改之前, 请确保你完全了解你的配置.**
 
-    Make sure ALL of the following are true before setting this (assuming the
-    values from the example above):
+    在设置之前, 请确保以下所有条件都成立(假设上面例子中的值):
 
-    * Your Django app is behind a proxy.
-    * Your proxy strips the ``X-Forwarded-Proto`` header from all incoming
-      requests. In other words, if end users include that header in their
-      requests, the proxy will discard it.
-    * Your proxy sets the ``X-Forwarded-Proto`` header and sends it to Django,
-      but only for requests that originally come in via HTTPS.
+    * Django应用在代理服务器之后.
+    * 代理服务器需要移除所有请求中的 ``X-Forwarded-Proto`` 首部, 换句话说, 如果终端用户在其请求中包括该首部, 代理服务器将移除它.
+    * 代理服务器只会对HTTPS请求加上 ``X-Forwarded-Proto`` 首部, 然后再转发给Django.
 
-    If any of those are not true, you should keep this setting set to ``None``
-    and find another way of determining HTTPS, perhaps via custom middleware.
+    如果上述条件有任何一个不成立, 那么你应该将此配置保持为 ``None``. 使用其他的方法来确认是否是通过HTTPS, 比如通过定义中间件.
 
 .. setting:: SECURE_REDIRECT_EXEMPT
 
 ``SECURE_REDIRECT_EXEMPT``
 --------------------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-If a URL path matches a regular expression in this list, the request will not be
-redirected to HTTPS. If :setting:`SECURE_SSL_REDIRECT` is ``False``, this
-setting has no effect.
+如果请求的URL路径匹配到该列表中的正则表达式, 那么该请求就不会被重定向成HTTPS.
+如果 :setting:`SECURE_SSL_REDIRECT` 设置为 ``False``, 该配置失效.
 
 .. setting:: SECURE_SSL_HOST
 
 ``SECURE_SSL_HOST``
 -------------------
 
-Default: ``None``
+默认值: ``None``
 
-If a string (e.g. ``secure.example.com``), all SSL redirects will be directed
-to this host rather than the originally-requested host
-(e.g. ``www.example.com``). If :setting:`SECURE_SSL_REDIRECT` is ``False``, this
-setting has no effect.
+如果是一个字符串(例如. ``secure.example.com``), 所有SSL重定向将重定向到这个域, 而不是请求的原始域
+(例如. ``www.example.com``). 如果 :setting:`SECURE_SSL_REDIRECT` 设置为 ``False``, 改配置失效.
 
 .. setting:: SECURE_SSL_REDIRECT
 
 ``SECURE_SSL_REDIRECT``
 -----------------------
 
-Default: ``False``
+默认值: ``False``
 
-If ``True``, the :class:`~django.middleware.security.SecurityMiddleware`
-:ref:`redirects <ssl-redirect>` all non-HTTPS requests to HTTPS (except for
+如果设置为 ``True``, :class:`~django.middleware.security.SecurityMiddleware` 会将所有非HTTPS请求
+:ref:`重定向 <ssl-redirect>` 到HTTPS (except for
 those URLs matching a regular expression listed in
 :setting:`SECURE_REDIRECT_EXEMPT`).
 
