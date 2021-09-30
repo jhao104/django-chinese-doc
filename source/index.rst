@@ -197,7 +197,7 @@ testing of Django applications:
 
 * **设置:**
   :doc:`Overview <topics/settings>` |
-  :doc:`设置列表 <ref/settings>`
+  :doc:`配置列表 <ref/settings>`
 
 * **应用:**
   :doc:`应用 <ref/applications>`

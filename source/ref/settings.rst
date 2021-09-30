@@ -8,13 +8,13 @@ Settings
 
 .. warning::
 
-    当你修改设置时请注意, 特别是默认值为非空列表或字典的设置, 例如 :setting:`MIDDLEWARE_CLASSES`
+    当你修改配置时请注意, 特别是默认值为非空列表或字典的配置, 例如 :setting:`MIDDLEWARE_CLASSES`
     和 :setting:`STATICFILES_FINDERS`. 确保你保留的是你希望使用的Django功能所需的组件.
 
-核心设置
+核心配置
 =============
 
-以下是一些Django的核心设置和其默认值. 下面列出了contrib应用提供的设置, 后面是核心设置的专题索引.
+以下是一些Django的核心配置和其默认值. 下面列出了contrib应用提供的配置, 后面是核心配置的专题索引.
 关于介绍性资料, 详见 :doc:`settings指南 </topics/settings>`.
 
 .. setting:: ABSOLUTE_URL_OVERRIDES
@@ -32,7 +32,7 @@ Settings
         'news.story': lambda o: "/stories/%s/%s/" % (o.pub_year, o.slug),
     }
 
-注意这里设置中使用的模型对象名称一定要小写, 与模型类名的实际大小写情况无关.
+注意上面配置中使用的模型对象名称一定要小写, 与模型类名的实际大小写情况无关.
 
 .. setting:: ADMINS
 
@@ -94,7 +94,7 @@ Django还允许配置 `完全限定域名(FQDN)`_ .
 设置为 ``True`` 时, 如果请求URL没有匹配到URLconf中的内容且没有以斜杠结尾, 将重定向到以斜杠结尾的相同URL.
 需要注意的是重定向可能会导致POST请求中的数据丢失.
 
-:setting:`APPEND_SLASH` 设置只有在使用了
+:setting:`APPEND_SLASH` 配置只有在使用了
 :class:`~django.middleware.common.CommonMiddleware` 才会生效
 (详见 :doc:`/topics/http/middleware`). 或 :setting:`PREPEND_WWW`.
 
@@ -113,7 +113,7 @@ Django还允许配置 `完全限定域名(FQDN)`_ .
 
 Django缓存配置的字典. 它是一个嵌套字典, 包含缓存别名和其对应的缓存项.
 
-:setting:`CACHES` 设置必须包含一个 ``default`` 缓存;
+:setting:`CACHES` 配置必须包含一个 ``default`` 缓存;
 可以指定任何数量的其他缓存. 如果你使用了除本地内存缓存之外的缓存后端,
 或者是你需要使用多个缓存, 你可能会使用到下面的缓存选项.
 
@@ -224,7 +224,7 @@ Django内置的缓存后端:
 默认值: ``''`` (空字符串)
 
 :ref:`缓存中间件 <the-per-site-cache>` 生成缓存密钥的前缀字符串. 该前缀将和
-:setting:`KEY_PREFIX <CACHES-KEY_PREFIX>` 设置组合在一起; 注意不是替换.
+:setting:`KEY_PREFIX <CACHES-KEY_PREFIX>` 配置组合在一起; 注意不是替换.
 
 详见 :doc:`/topics/cache`.
 
@@ -254,7 +254,7 @@ CSRF cookie有效期, 单位秒.
 没有长有效期的cookie在这种情况下表单提交将失败.
 
 某些浏览器(特别是Internet Explorer)禁止使用持久性cookie, 或可能使cookie jar的索引在磁盘上损坏,
-从而导致CSRF保护检查(有时会间歇性地)失败. 将此设置更改为 ``None``,
+从而导致CSRF保护检查(有时会间歇性地)失败. 将此配置更改为 ``None``,
 使用基于会话的CSRF Cookie, 它将Cookie保存在内存中而不是磁盘.
 
 .. setting:: CSRF_COOKIE_DOMAIN
@@ -363,7 +363,7 @@ CSRF认证的请求头名称.
 Django的CSRF保护机制要求该请求的 ``Referer`` 首部必须与 ``Host`` 首部中的来源匹配.
 这样可以阻止例如从 ``subdomain.example.com`` 对 ``api.example.com`` 的 ``POST`` 请求.
 如果你需要通过HTTPS的跨源非安全请求, 可以将 ``"subdomain.example.com"`` 添加到这个列表.
-该设置还支持子域, 例如你可以添加 ``".example.com"``, 来允许从 ``example.com`` 的所有子域访问.
+该配置还支持子域, 例如你可以添加 ``".example.com"``, 来允许从 ``example.com`` 的所有子域访问.
 
 .. setting:: DATABASES
 
@@ -374,7 +374,7 @@ Django的CSRF保护机制要求该请求的 ``Referer`` 首部必须与 ``Host``
 
 一个包含所有数据库配置的字典. 它是一个嵌套字典, 包含数据库别名和其对应的数据库配置选项的字典.
 
-:setting:`DATABASES` 设置必须包含一个 ``default`` 数据库; 除此之外可以指定任何数量的数据库.
+:setting:`DATABASES` 配置必须包含一个 ``default`` 数据库; 除此之外可以指定任何数量的数据库.
 
 最简单的配置是使用SQLite单个数据库配置. 可以通过如下设置::
 
@@ -435,7 +435,7 @@ PostgreSQL, 将需要额外的连接参数. 如何指定其他类型数据库请
 * ``'django.db.backends.sqlite3'``
 * ``'django.db.backends.oracle'``
 
-如果你不想使用Django的数据库后端, 可以为 ``ENGINE`` 设置自己数据库后端的完整路径 (例如. ``mypackage.backends.whatever``).
+如果你不想使用Django的数据库后端, 可以为 ``ENGINE`` 配置自己数据库后端的完整路径 (例如. ``mypackage.backends.whatever``).
 
 .. versionchanged:: 1.9
 
@@ -620,7 +620,7 @@ PostgreSQL)时, 设置此选项是错误的.
 
 数据库在测试期间映射的数据库别名.
 
-该设置允许测试多个数据库的主/副本(某些数据库称为主/从)配置. 有关详细信息,
+该配置允许测试多个数据库的主/副本(某些数据库称为主/从)配置. 有关详细信息,
 请参阅 :ref:`测试 主/副 配置 <topics-testing-primaryreplica>` 文档.
 
 .. setting:: TEST_NAME
@@ -651,7 +651,7 @@ PostgreSQL)时, 设置此选项是错误的.
 
 默认值: ``True``
 
-这是一个Oracle特有设置.
+这是一个Oracle特有配置.
 
 如果设置为 ``False``, 测试表空间不会在测试开始时自动创建, 也不会在测试结束时删除.
 
@@ -662,7 +662,7 @@ PostgreSQL)时, 设置此选项是错误的.
 
 默认值: ``True``
 
-这是一个Oracle特有设置.
+这是一个Oracle特有配置.
 
 如果设置为 ``False``, 测试用户不会在测试开始时自动创建, 也不会在测试结束时删除.
 
@@ -673,7 +673,7 @@ PostgreSQL)时, 设置此选项是错误的.
 
 默认值: ``None``
 
-这是一个Oracle特有设置.
+这是一个Oracle特有配置.
 
 连接Oracle数据库时使用的用户名. 如果没有特别设置, 将使用 ``'test_' + USER``.
 
@@ -684,7 +684,7 @@ PostgreSQL)时, 设置此选项是错误的.
 
 默认值: ``None``
 
-这是一个Oracle特有设置.
+这是一个Oracle特有配置.
 
 连接Oracle数据库时使用的密码. 如果没有特别设置, Django将生成随机密码.
 
@@ -699,7 +699,7 @@ PostgreSQL)时, 设置此选项是错误的.
 
 默认值: ``None``
 
-这是一个Oracle特有设置.
+这是一个Oracle特有配置.
 
 运行测试时使用的表空间的名称. 如果没有特别设置, Django将使用 ``'test_' + USER``.
 
@@ -710,7 +710,7 @@ PostgreSQL)时, 设置此选项是错误的.
 
 默认值: ``None``
 
-这是一个Oracle特有设置.
+这是一个Oracle特有配置.
 
 运行测试时使用的临时表空间的名称. 如果没有特别设置, Django将使用 ``'test_' + USER + '_temp'``.
 
@@ -721,7 +721,7 @@ PostgreSQL)时, 设置此选项是错误的.
 
 默认值: ``None``
 
-这是一个Oracle特有设置.
+这是一个Oracle特有配置.
 
 TBLSPACE使用的数据文件名. 如果没有特别设置, Django将使用 ``TBLSPACE + '.dbf'``.
 
@@ -732,7 +732,7 @@ TBLSPACE使用的数据文件名. 如果没有特别设置, Django将使用 ``TB
 
 默认值: ``None``
 
-这是一个Oracle特有设置.
+这是一个Oracle特有配置.
 
 TBLSPACE_TMP使用的数据文件名. 如果没有特别设置, Django将使用 ``TBLSPACE_TMP + '.dbf'``.
 
@@ -743,7 +743,7 @@ TBLSPACE_TMP使用的数据文件名. 如果没有特别设置, Django将使用 
 
 默认值: ``'500M'``
 
-这是一个Oracle特有设置.
+这是一个Oracle特有配置.
 
 DATAFILE允许的最大大小.
 
@@ -754,7 +754,7 @@ DATAFILE允许的最大大小.
 
 默认值: ``'500M'``
 
-这是一个Oracle特有设置.
+这是一个Oracle特有配置.
 
 DATAFILE_TMP允许的最大大小.
 
@@ -769,7 +769,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE
 
 请求正文最大字节大小, 超出将引发 :exc:`~django.core.exceptions.SuspiciousOperation` (``RequestDataTooBig``).
 该检查在访问 ``request.body`` 或 ``request.POST`` 时进行, 根据总请求大小(不包括文件上传数据)计算.
-可以将其设置为 ``None`` 以禁用此检查. 希望接收超大的表单请求的应用应该调整此设置.
+可以将其设置为 ``None`` 以禁用此检查. 希望接收超大的表单请求的应用应该调整此配置.
 
 请求的数据量与处理请求和填充GET和POST字典所需的内存容量有关. 如果不检查, 超大请求可以用作拒绝服务攻击载体.
 由于web服务器通常不会执行深层的请求检查, 因此不可能在该级别执行类似的检查.
@@ -833,7 +833,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS
 注意这些格式字符串使用Python的是 :ref:`datetime模块语法
 <strftime-strptime-behavior>`, 而不是 :tfilter:`date` 模板过滤器语法.
 
-当 :setting:`USE_L10N` 设置为 ``True`` 时, 将采用本地s设置的格式, 具有更高的优先级.
+当 :setting:`USE_L10N` 设置为 ``True`` 时, 将采用本地设置的格式, 具有更高的优先级.
 
 另见 :setting:`DATETIME_INPUT_FORMATS` 和 :setting:`TIME_INPUT_FORMATS`.
 
@@ -875,7 +875,7 @@ datetime字段输入数据时接受的格式列表. 将按顺序尝试格式, �
 注意这些格式字符串使用Python的是 :ref:`datetime模块语法
 <strftime-strptime-behavior>`, 而不是 :tfilter:`date` 模板过滤器语法.
 
-当 :setting:`USE_L10N` 设置为 ``True`` 时, 将采用本地s设置的格式, 具有更高的优先级.
+当 :setting:`USE_L10N` 设置为 ``True`` 时, 将采用本地设置的格式, 具有更高的优先级.
 
 
 另见 :setting:`DATE_INPUT_FORMATS` 和 :setting:`TIME_INPUT_FORMATS`.
@@ -1091,20 +1091,17 @@ Django会显示追溯细节, 包括你环境的元数据, 比如所有Django当�
 
 默认值: ``'[Django] '``
 
-Subject-line prefix for email messages sent with ``django.core.mail.mail_admins``
-or ``django.core.mail.mail_managers``. You'll probably want to include the
-trailing space.
+``django.core.mail.mail_admins`` 和 ``django.core.mail.mail_managers`` 发送邮件的主题前缀. 最好以空格结尾.
 
 .. setting:: EMAIL_USE_TLS
 
 ``EMAIL_USE_TLS``
 -----------------
 
-Default: ``False``
+默认值: ``False``
 
-Whether to use a TLS (secure) connection when talking to the SMTP server.
-This is used for explicit TLS connections, generally on port 587. If you are
-experiencing hanging connections, see the implicit TLS setting
+是否使用TLS(更安全)连接SMTP服务. 这用于显示的TLS连接, 通常端口为587.
+如果你遇到挂起的连接, 请查看隐式TLS配置
 :setting:`EMAIL_USE_SSL`.
 
 .. setting:: EMAIL_USE_SSL
@@ -1112,220 +1109,179 @@ experiencing hanging connections, see the implicit TLS setting
 ``EMAIL_USE_SSL``
 -----------------
 
-Default: ``False``
+默认值: ``False``
 
-Whether to use an implicit TLS (secure) connection when talking to the SMTP
-server. In most email documentation this type of TLS connection is referred
-to as SSL. It is generally used on port 465. If you are experiencing problems,
-see the explicit TLS setting :setting:`EMAIL_USE_TLS`.
+是否使用隐式TLS(更安全)连接SMTP服务. 在大多数电子邮件文档中, 该类型的TLS连接也被称为SSL.
+它通常使用465. 如果遇到问题可以尝试显式的TLS配置 :setting:`EMAIL_USE_TLS`.
 
-Note that :setting:`EMAIL_USE_TLS`/:setting:`EMAIL_USE_SSL` are mutually
-exclusive, so only set one of those settings to ``True``.
+注意 :setting:`EMAIL_USE_TLS`/:setting:`EMAIL_USE_SSL` 是互斥的, 因此它们只能有一个设置为 ``True``.
 
 .. setting:: EMAIL_SSL_CERTFILE
 
 ``EMAIL_SSL_CERTFILE``
 ----------------------
 
-Default: ``None``
+默认值: ``None``
 
-If :setting:`EMAIL_USE_SSL` or :setting:`EMAIL_USE_TLS` is ``True``, you can
-optionally specify the path to a PEM-formatted certificate chain file to use
-for the SSL connection.
+:setting:`EMAIL_USE_SSL` 或 :setting:`EMAIL_USE_TLS` 设置为 ``True`` 时, 用于指定PEM格式的证书链文件路径的可选配置, 用于SSL连接.
 
 .. setting:: EMAIL_SSL_KEYFILE
 
 ``EMAIL_SSL_KEYFILE``
 ---------------------
 
-Default: ``None``
+默认值: ``None``
 
-If :setting:`EMAIL_USE_SSL` or :setting:`EMAIL_USE_TLS` is ``True``, you can
-optionally specify the path to a PEM-formatted private key file to use for the
-SSL connection.
+:setting:`EMAIL_USE_SSL` 或 :setting:`EMAIL_USE_TLS` 设置为 ``True`` 时, 用于指定PEM格式的私钥文件路径的可选配置, 用于SSL连接.
 
-Note that setting :setting:`EMAIL_SSL_CERTFILE` and :setting:`EMAIL_SSL_KEYFILE`
-doesn't result in any certificate checking. They're passed to the underlying SSL
-connection. Please refer to the documentation of Python's
-:func:`python:ssl.wrap_socket` function for details on how the certificate chain
-file and private key file are handled.
+注意, 配置 :setting:`EMAIL_SSL_CERTFILE` 和 :setting:`EMAIL_SSL_KEYFILE` 后不会做相应的证书检查, 它们会直接被传递给底层的SSL连接.
+请参考Python的
+:func:`python:ssl.wrap_socket` 函数, 了解如何正确使用证书链文件和私钥文件.
 
 .. setting:: EMAIL_TIMEOUT
 
 ``EMAIL_TIMEOUT``
 -----------------
 
-Default: ``None``
+默认值: ``None``
 
-Specifies a timeout in seconds for blocking operations like the connection
-attempt.
+指定尝试连接操作的超时时间来中断连接, 单位秒.
 
 .. setting:: FILE_CHARSET
 
 ``FILE_CHARSET``
 ----------------
 
-Default: ``'utf-8'``
+默认值: ``'utf-8'``
 
-The character encoding used to decode any files read from disk. This includes
-template files and initial SQL data files.
+用于解码从磁盘读取的文件时使用的字符编码. 它包括模板文件和初始SQL数据文件.
 
 .. setting:: FILE_UPLOAD_HANDLERS
 
 ``FILE_UPLOAD_HANDLERS``
 ------------------------
 
-Default::
+默认值::
 
     [
         'django.core.files.uploadhandler.MemoryFileUploadHandler',
         'django.core.files.uploadhandler.TemporaryFileUploadHandler',
     ]
 
-A list of handlers to use for uploading. Changing this setting allows complete
-customization -- even replacement -- of Django's upload process.
+用户上传操作的处理程序列表. 更改此配置可以完全自定义 - 甚至替换Django的上传处理.
 
-See :doc:`/topics/files` for details.
+详见 :doc:`/topics/files`.
 
 .. setting:: FILE_UPLOAD_MAX_MEMORY_SIZE
 
 ``FILE_UPLOAD_MAX_MEMORY_SIZE``
 -------------------------------
 
-Default: ``2621440`` (i.e. 2.5 MB).
+默认值: ``2621440`` (即 2.5 MB).
 
-The maximum size (in bytes) that an upload will be before it gets streamed to
-the file system. See :doc:`/topics/files` for details.
+上传到文件系统之前文件的最大大小(单位字节). 详见 :doc:`/topics/files`.
 
-See also :setting:`DATA_UPLOAD_MAX_MEMORY_SIZE`.
+另见 :setting:`DATA_UPLOAD_MAX_MEMORY_SIZE`.
 
 .. setting:: FILE_UPLOAD_DIRECTORY_PERMISSIONS
 
 ``FILE_UPLOAD_DIRECTORY_PERMISSIONS``
 -------------------------------------
 
-Default: ``None``
+默认值: ``None``
 
-The numeric mode to apply to directories created in the process of uploading
-files.
+用于上传文件时创建的目录权限的数字模式.
 
-This setting also determines the default permissions for collected static
-directories when using the :djadmin:`collectstatic` management command. See
-:djadmin:`collectstatic` for details on overriding it.
+此配置还会使用在 :djadmin:`collectstatic` 管理命令收集的静态目录的默认权限. 如果要覆盖它见 :djadmin:`collectstatic`.
 
-This value mirrors the functionality and caveats of the
-:setting:`FILE_UPLOAD_PERMISSIONS` setting.
+该值反映了 :setting:`FILE_UPLOAD_PERMISSIONS` 配置的功能的注意事项.
 
 .. setting:: FILE_UPLOAD_PERMISSIONS
 
 ``FILE_UPLOAD_PERMISSIONS``
 ---------------------------
 
-Default: ``None``
+默认值: ``None``
 
-The numeric mode (i.e. ``0o644``) to set newly uploaded files to. For
-more information about what these modes mean, see the documentation for
-:func:`os.chmod`.
+新上传文件权限的数字模式 (例如 ``0o644``). 有关这些模式的含义请参见 :func:`os.chmod`.
 
-If this isn't given or is ``None``, you'll get operating-system
-dependent behavior. On most platforms, temporary files will have a mode
-of ``0o600``, and files saved from memory will be saved using the
-system's standard umask.
+如果没有设置或者设置为 ``None``, 这依赖于操作系统行为. 在大多数平台上, 临时文件模式为 ``0o600``,
+从内存中保存的文件使用系统标准的umask保存.
 
-For security reasons, these permissions aren't applied to the temporary files
-that are stored in :setting:`FILE_UPLOAD_TEMP_DIR`.
+出于安全考虑, 这些权限不会应用在储存在 :setting:`FILE_UPLOAD_TEMP_DIR` 的临时文件.
 
-This setting also determines the default permissions for collected static files
-when using the :djadmin:`collectstatic` management command. See
-:djadmin:`collectstatic` for details on overriding it.
+该配置也会影响使用 :djadmin:`collectstatic` 管理命令收集的静态文件的默认权限. 详见 :djadmin:`collectstatic`.
 
 .. warning::
 
-    **Always prefix the mode with a 0.**
+    **一定要在模式前加上 0.**
 
-    If you're not familiar with file modes, please note that the leading
-    ``0`` is very important: it indicates an octal number, which is the
-    way that modes must be specified. If you try to use ``644``, you'll
-    get totally incorrect behavior.
+    如果你不熟悉文件模式, 一定要注意前缀的 ``0`` 非常重要: 它表示一个八进制数,
+    这是模式必须指定的. 如果你尝试使用 ``644``, 这是完全错误的行为.
 
 .. setting:: FILE_UPLOAD_TEMP_DIR
 
 ``FILE_UPLOAD_TEMP_DIR``
 ------------------------
 
-Default: ``None``
+默认值: ``None``
 
-The directory to store data to (typically files larger than
-:setting:`FILE_UPLOAD_MAX_MEMORY_SIZE`) temporarily while uploading files.
-If ``None``, Django will use the standard temporary directory for the operating
-system. For example, this will default to ``/tmp`` on \*nix-style operating
-systems.
+上传文件时(通常大于 :setting:`FILE_UPLOAD_MAX_MEMORY_SIZE` 的文件)储存数据的临时目录.
+如果设置为 ``None``, Django将使用操作系统的默认临时目录. 例如, 类 \*nix 风格的操作系统上将使用 ``/tmp`` 目录.
 
-See :doc:`/topics/files` for details.
+详见 :doc:`/topics/files`.
 
 .. setting:: FIRST_DAY_OF_WEEK
 
 ``FIRST_DAY_OF_WEEK``
 ---------------------
 
-Default: ``0`` (Sunday)
+默认值: ``0`` (星期日)
 
-A number representing the first day of the week. This is especially useful
-when displaying a calendar. This value is only used when not using
-format internationalization, or when a format cannot be found for the
-current locale.
+代表一周第一天的数字. 这在显示日历时特别有用. 该值仅在不使用格式国际化或找不到当前语言环境的格式时使用.
 
-The value must be an integer from 0 to 6, where 0 means Sunday, 1 means
-Monday and so on.
+该配置的值必须为0到6的整数, 0代表星期日, 1代表星期一, 以此类推.
 
 .. setting:: FIXTURE_DIRS
 
 ``FIXTURE_DIRS``
 -----------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-List of directories searched for fixture files, in addition to the
-``fixtures`` directory of each application, in search order.
+除每个应用程序的 ``fixtures`` 目录外, 按搜索顺序搜索 ``fixtures`` 文件的目录列表.
 
-Note that these paths should use Unix-style forward slashes, even on Windows.
+注意, 该路径应该使用Unix风格的斜线, 即使在Windows上也是如此.
 
-See :ref:`initial-data-via-fixtures` and :ref:`topics-testing-fixtures`.
+详见 :ref:`initial-data-via-fixtures` 和 :ref:`topics-testing-fixtures`.
 
 .. setting:: FORCE_SCRIPT_NAME
 
 ``FORCE_SCRIPT_NAME``
 ---------------------
 
-Default: ``None``
+默认值: ``None``
 
-If not ``None``, this will be used as the value of the ``SCRIPT_NAME``
-environment variable in any HTTP request. This setting can be used to override
-the server-provided value of ``SCRIPT_NAME``, which may be a rewritten version
-of the preferred value or not supplied at all. It is also used by
-:func:`django.setup()` to set the URL resolver script prefix outside of the
-request/response cycle (e.g. in management commands and standalone scripts) to
-generate correct URLs when ``SCRIPT_NAME`` is not ``/``.
+如果不为 ``None``, 将作为所有HTTP请求中 ``SCRIPT_NAME`` 环境变量的值. 这个配置可以用来覆盖服务器的 ``SCRIPT_NAME`` 值,
+这个值可以是首选值的重写, 也可以直接不设置. 它还被用于 :func:`django.setup()` 在请求/响应周期外的URL前缀(例如. 管理命令和独立脚本)
+以便在 ``SCRIPT_NAME`` 不为 ``/`` 时生成正确的URL.
 
 .. versionchanged:: 1.10
 
-    The setting's use in :func:`django.setup()` was added.
+    新增该配置在 :func:`django.setup()` 中的应用.
 
 .. setting:: FORMAT_MODULE_PATH
 
 ``FORMAT_MODULE_PATH``
 ----------------------
 
-Default: ``None``
+默认值: ``None``
 
-A full Python path to a Python package that contains format definitions for
-project locales. If not ``None``, Django will check for a ``formats.py``
-file, under the directory named as the current locale, and will use the
-formats defined in this file.
+Python包的完整Python路径, 其中包含项目语言环境的格式定义. 如果不为 ``None``,
+Django将在名为当前语言环境的目录下检查 ``formats.py`` 文件, 并使用此文件中定义的格式.
 
-For example, if :setting:`FORMAT_MODULE_PATH` is set to ``mysite.formats``,
-and current language is ``en`` (English), Django will expect a directory tree
-like::
+例如, 如果 :setting:`FORMAT_MODULE_PATH` 设置为 ``mysite.formats``, 并且当前语言环境为 ``en`` (英语),
+Django需要这样一个目录树::
 
     mysite/
         formats/
@@ -1334,23 +1290,21 @@ like::
                 __init__.py
                 formats.py
 
-You can also set this setting to a list of Python paths, for example::
+也可以使用列表设置多个Python路径, 例如::
 
     FORMAT_MODULE_PATH = [
         'mysite.formats',
         'some_app.formats',
     ]
 
-When Django searches for a certain format, it will go through all given Python
-paths until it finds a module that actually defines the given format. This
-means that formats defined in packages farther up in the list will take
-precedence over the same formats in packages farther down.
+Django搜索某个格式时, 它会遍历所有给出的Python路径, 直接找到实际定义该格式的模块.
+这意味着在列表中靠前的包中定义的格式将优先于靠后的包中的相同格式.
 
-Available formats are :setting:`DATE_FORMAT`, :setting:`TIME_FORMAT`,
+可用格式有 :setting:`DATE_FORMAT`, :setting:`TIME_FORMAT`,
 :setting:`DATETIME_FORMAT`, :setting:`YEAR_MONTH_FORMAT`,
 :setting:`MONTH_DAY_FORMAT`, :setting:`SHORT_DATE_FORMAT`,
 :setting:`SHORT_DATETIME_FORMAT`, :setting:`FIRST_DAY_OF_WEEK`,
-:setting:`DECIMAL_SEPARATOR`, :setting:`THOUSAND_SEPARATOR` and
+:setting:`DECIMAL_SEPARATOR`, :setting:`THOUSAND_SEPARATOR` 和
 :setting:`NUMBER_GROUPING`.
 
 .. setting:: IGNORABLE_404_URLS
@@ -1358,18 +1312,15 @@ Available formats are :setting:`DATE_FORMAT`, :setting:`TIME_FORMAT`,
 ``IGNORABLE_404_URLS``
 ----------------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-List of compiled regular expression objects describing URLs that should be
-ignored when reporting HTTP 404 errors via email (see
-:doc:`/howto/error-reporting`). Regular expressions are matched against
-:meth:`request's full paths <django.http.HttpRequest.get_full_path>` (including
-query string, if any). Use this if your site does not provide a commonly
-requested file such as ``favicon.ico`` or ``robots.txt``, or if it gets
-hammered by script kiddies.
+编译的正则表达式对象列表, 表示电子邮件报告HTTP404错误时应该被忽略的URL(见
+:doc:`/howto/error-reporting`). 正则表达式与
+:meth:`请求的完整路径 <django.http.HttpRequest.get_full_path>` (包含查询字符串)匹配.
+如果你的网站没有提供常用的请求文件, 例如 ``favicon.ico`` 和 ``robots.txt``, 请使用此方法.
 
-This is only used if
-:class:`~django.middleware.common.BrokenLinkEmailsMiddleware` is enabled (see
+只有在启用
+:class:`~django.middleware.common.BrokenLinkEmailsMiddleware` 时才能使用此功能(见
 :doc:`/topics/http/middleware`).
 
 .. setting:: INSTALLED_APPS
@@ -1377,175 +1328,136 @@ This is only used if
 ``INSTALLED_APPS``
 ------------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-A list of strings designating all applications that are enabled in this
-Django installation. Each string should be a dotted Python path to:
+字符串列表, 表示项目中所有启用的应用. 每一个字符串都是Python的点分隔路径:
 
-* an application configuration class (preferred), or
-* a package containing an application.
+* 应用程序配置类(首选), 或
+* 包含应用程序的包.
 
-:doc:`Learn more about application configurations </ref/applications>`.
+:doc:`更多相关应用配置 </ref/applications>`.
 
-.. admonition:: Use the application registry for introspection
+.. admonition:: 使用应用程序注册进行自我检查
 
-    Your code should never access :setting:`INSTALLED_APPS` directly. Use
-    :attr:`django.apps.apps` instead.
+    你的代码不应该直接访问 :setting:`INSTALLED_APPS`. 请改用 :attr:`django.apps.apps`.
 
-.. admonition:: Application names and labels must be unique in
-                :setting:`INSTALLED_APPS`
+.. admonition:: :setting:`INSTALLED_APPS` 中的应用名称和label必须是唯一的
 
-    Application :attr:`names <django.apps.AppConfig.name>` — the dotted Python
-    path to the application package — must be unique. There is no way to
-    include the same application twice, short of duplicating its code under
-    another name.
+    应用的 :attr:`names <django.apps.AppConfig.name>` — 应用程序包的点分隔Python路径必须是唯一的.
+    没有办法包含两个相同的应用程序, 除非用另一个名称并复制它的代码.
 
-    Application :attr:`labels <django.apps.AppConfig.label>` — by default the
-    final part of the name — must be unique too. For example, you can't
-    include both ``django.contrib.auth`` and ``myproject.auth``. However, you
-    can relabel an application with a custom configuration that defines a
-    different :attr:`~django.apps.AppConfig.label`.
+    应用的 :attr:`labels <django.apps.AppConfig.label>` — 默认情况下名称的后面部分 — 也必须是唯一的.
+    例如, 你不可以同时包含 ``django.contrib.auth`` 和 ``myproject.auth``. 但是,
+    你可以使用定义不同 :attr:`~django.apps.AppConfig.label` 的自定义配置重新标记应用程序.
 
-    These rules apply regardless of whether :setting:`INSTALLED_APPS`
-    references application configuration classes or application packages.
+    无论 :setting:`INSTALLED_APPS` 引用的是应用配置类还是应用程序包, 这些规则都适用.
 
-When several applications provide different versions of the same resource
-(template, static file, management command, translation), the application
-listed first in :setting:`INSTALLED_APPS` has precedence.
+当多个应用程序提供相同资源(模板, 静态文件, 管理命令, 翻译)的不同版本时,
+:setting:`INSTALLED_APPS` 中排在第一位的应用程序具有优先权.
 
 .. setting:: INTERNAL_IPS
 
 ``INTERNAL_IPS``
 ----------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-A list of IP addresses, as strings, that:
+IP字符串的列表, 它:
 
-* Allow the :func:`~django.template.context_processors.debug` context processor
-  to add some variables to the template context.
-* Can use the :ref:`admindocs bookmarklets <admindocs-bookmarklets>` even if
-  not logged in as a staff user.
-* Are marked as "internal" (as opposed to "EXTERNAL") in
-  :class:`~django.utils.log.AdminEmailHandler` emails.
+* 允许 :func:`~django.template.context_processors.debug` 上下文处理器向模板上下文添加一些变量.
+* 即使不以员工用户身份登录, 也可以使用 :ref:`管理文档书签 <admindocs-bookmarklets>`.
+* 在 :class:`~django.utils.log.AdminEmailHandler` 邮件中被标记为 "internal" (相对"EXTERNAL").
 
 .. setting:: LANGUAGE_CODE
 
 ``LANGUAGE_CODE``
 -----------------
 
-Default: ``'en-us'``
+默认值: ``'en-us'``
 
-A string representing the language code for this installation. This should be in
-standard :term:`language ID format <language code>`. For example, U.S. English
-is ``"en-us"``. See also the `list of language identifiers`_ and
+表示安装的语言代码的字符串. 它必须是标准的 :term:`语言ID格式 <language code>`. 例如, U.S. English
+是 ``"en-us"``. 详见 `语言标识符列表`_ 和
 :doc:`/topics/i18n/index`.
 
-:setting:`USE_I18N` must be active for this setting to have any effect.
+:setting:`USE_I18N` 配置必须是启用状态该设置才会生效.
 
-It serves two purposes:
+它有两个作用:
 
-* If the locale middleware isn't in use, it decides which translation is served
-  to all users.
-* If the locale middleware is active, it provides a fallback language in case the
-  user's preferred language can't be determined or is not supported by the
-  website. It also provides the fallback translation when a translation for a
-  given literal doesn't exist for the user's preferred language.
+* 如果没有使用locale中间件, 它决定向用户提供哪种翻译.
+* 如果locale中间件是启用的, 它提供了一个后备语言, 以防用户的首选语言无法确定或网站不支持. 当用户的首选语言不存在给定字词的翻译时, 它也会提供后备翻译.
 
-See :ref:`how-django-discovers-language-preference` for more details.
+详见 :ref:`how-django-discovers-language-preference`.
 
-.. _list of language identifiers: http://www.i18nguy.com/unicode/language-identifiers.html
+.. _语言标识符列表: http://www.i18nguy.com/unicode/language-identifiers.html
 
 .. setting:: LANGUAGE_COOKIE_AGE
 
 ``LANGUAGE_COOKIE_AGE``
 -----------------------
 
-Default: ``None`` (expires at browser close)
+默认值: ``None`` (浏览器关闭时失效)
 
-The age of the language cookie, in seconds.
+语言cookie的有效期, 单位秒.
 
 .. setting:: LANGUAGE_COOKIE_DOMAIN
 
 ``LANGUAGE_COOKIE_DOMAIN``
 --------------------------
 
-Default: ``None``
+默认值: ``None``
 
-The domain to use for the language cookie. Set this to a string such as
-``".example.com"`` (note the leading dot!) for cross-domain cookies, or use
-``None`` for a standard domain cookie.
+语言cookie的域. 对于跨域cookie, 将其设置为
+``".example.com"`` 之类的字符串(注意开头的点号!), 或者对于标准域cookie使用 ``None``.
 
-Be cautious when updating this setting on a production site. If you update
-this setting to enable cross-domain cookies on a site that previously used
-standard domain cookies, existing user cookies that have the old domain
-will not be updated. This will result in site users being unable to switch
-the language as long as these cookies persist. The only safe and reliable
-option to perform the switch is to change the language cookie name
-permanently (via the :setting:`LANGUAGE_COOKIE_NAME` setting) and to add
-a middleware that copies the value from the old cookie to a new one and then
-deletes the old one.
+在生产环境的网站上更新此配置时要谨慎. 如果你更新此配置, 在以前使用标准域cookie的网站上启用跨域cookie,
+则现有的具有旧域的用户cookie将不会被更新. 这将导致网站用户无法切换语言,
+只要这些cookie持续存在. 执行切换的唯一安全可靠的方案是永久更改语言cookie名称(通过 :setting:`LANGUAGE_COOKIE_NAME` 设置),
+并添加一个中间件, 将旧cookie的值复制到新cookie中, 然后删除旧cookie.
 
 .. setting:: LANGUAGE_COOKIE_NAME
 
 ``LANGUAGE_COOKIE_NAME``
 ------------------------
 
-Default: ``'django_language'``
+默认值: ``'django_language'``
 
-The name of the cookie to use for the language cookie. This can be whatever
-you want (as long as it's different from the other cookie names in your
-application). See :doc:`/topics/i18n/index`.
+用于语言cookie的名称. 这可以是任何你想要的(只要它与你的应用程序中的其他cookie名称不同). 见 :doc:`/topics/i18n/index`.
 
 .. setting:: LANGUAGE_COOKIE_PATH
 
 ``LANGUAGE_COOKIE_PATH``
 ------------------------
 
-Default: ``'/'``
+默认值: ``'/'``
 
-The path set on the language cookie. This should either match the URL path of your
-Django installation or be a parent of that path.
+语言cookie的路径. 这个路径应该与Django安装的URL路径相匹配, 或者是该路径的父路径.
 
-This is useful if you have multiple Django instances running under the same
-hostname. They can use different cookie paths and each instance will only see
-its own language cookie.
+当你有多个Django实例在同一个主机下运行时, 这个功能很适用.
+只要它们使用不同的cookie路径, 每个实例就只能看到自己的语言.
 
-Be cautious when updating this setting on a production site. If you update this
-setting to use a deeper path than it previously used, existing user cookies that
-have the old path will not be updated. This will result in site users being
-unable to switch the language as long as these cookies persist. The only safe
-and reliable option to perform the switch is to change the language cookie name
-permanently (via the :setting:`LANGUAGE_COOKIE_NAME` setting), and to add
-a middleware that copies the value from the old cookie to a new one and then
-deletes the one.
+在生产环境的网站上更新此配置时要谨慎. 如果你更新此配置, 使用比以前下级的路径,
+则现有的用户cookie的旧路径将不会被更新. 这将导致网站用户无法切换语言, 只要这些cookie持续存在.
+执行切换的唯一安全可靠的方案是永久更改语言cookie的名称(通过 :setting:`LANGUAGE_COOKIE_NAME` 配置),
+并添加一个中间件, 将旧cookie的值复制到新的cookie中, 然后删除这个cookie.
 
 .. setting:: LANGUAGES
 
 ``LANGUAGES``
 -------------
 
-Default: A list of all available languages. This list is continually growing
-and including a copy here would inevitably become rapidly out of date. You can
-see the current list of translated languages by looking in
-``django/conf/global_settings.py`` (or view the `online source`_).
+默认值: 所有可用语言的列表. 这个列表在不断的增加, 如果在这里有具体配置, 那么不可避免的会很快过时. 你可以在
+``django/conf/global_settings.py`` (或查看 `在线源`_) 中查看当前翻译语言列表.
 
-.. _online source: https://github.com/django/django/blob/master/django/conf/global_settings.py
+.. _在线源: https://github.com/django/django/blob/master/django/conf/global_settings.py
 
-The list is a list of two-tuples in the format
-(:term:`language code<language code>`, ``language name``) -- for example,
-``('ja', 'Japanese')``.
-This specifies which languages are available for language selection. See
-:doc:`/topics/i18n/index`.
+该列表是(:term:`language code<language code>`, ``language name``)这样的二元元组组成 -- 例如, ``('ja', 'Japanese')``.
+这里列出了哪些可以选择的语言. 见 :doc:`/topics/i18n/index`.
 
-Generally, the default value should suffice. Only set this setting if you want
-to restrict language selection to a subset of the Django-provided languages.
+一般来说, 使用默认值就可以了. 只有当你想将语言限制在指定的语言子集时才需要设置此配置.
 
-If you define a custom :setting:`LANGUAGES` setting, you can mark the
-language names as translation strings using the
-:func:`~django.utils.translation.ugettext_lazy` function.
+如果定义了自定义的 :setting:`LANGUAGES` 设置, 可以使用 :func:`~django.utils.translation.ugettext_lazy` 函数将语言名称标记为翻译字符串.
 
-Here's a sample settings file::
+下面是一个示例配置文件::
 
     from django.utils.translation import ugettext_lazy as _
 
@@ -1559,38 +1471,33 @@ Here's a sample settings file::
 ``LOCALE_PATHS``
 ----------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-A list of directories where Django looks for translation files.
-See :ref:`how-django-discovers-translations`.
+Django搜索翻译文件的目录列表.
+见 :ref:`how-django-discovers-translations`.
 
-Example::
+例如::
 
     LOCALE_PATHS = [
         '/home/www/project/common_files/locale',
         '/var/local/translations/locale',
     ]
 
-Django will look within each of these paths for the ``<locale_code>/LC_MESSAGES``
-directories containing the actual translation files.
+Django将在这些路径中搜索包含翻译文件的 ``<locale_code>/LC_MESSAGES`` 目录.
 
 .. setting:: LOGGING
 
 ``LOGGING``
 -----------
 
-Default: A logging configuration dictionary.
+默认值: 日志配置字典.
 
-A data structure containing configuration information. The contents of
-this data structure will be passed as the argument to the
-configuration method described in :setting:`LOGGING_CONFIG`.
+一个包含配置信息的数据结构. 该数据结构的内容将作为参数传递给 :setting:`LOGGING_CONFIG` 中提到的配置方法.
 
-Among other things, the default logging configuration passes HTTP 500 server
-errors to an email log handler when :setting:`DEBUG` is ``False``. See also
-:ref:`configuring-logging`.
+其中, 当 :setting:`DEBUG` 为 ``False`` 时, 默认的日志配置会将HTTP500错误传递给电子邮件日志处理程序. 见 :ref:`configuring-logging`.
 
-You can see the default logging configuration by looking in
-``django/utils/log.py`` (or view the `online source`__).
+默认日志配置见
+``django/utils/log.py`` (或在线 `查看`__).
 
 __ https://github.com/django/django/blob/master/django/utils/log.py
 
@@ -1599,77 +1506,65 @@ __ https://github.com/django/django/blob/master/django/utils/log.py
 ``LOGGING_CONFIG``
 ------------------
 
-Default: ``'logging.config.dictConfig'``
+默认值: ``'logging.config.dictConfig'``
 
-A path to a callable that will be used to configure logging in the
-Django project. Points at a instance of Python's :ref:`dictConfig
-<logging-config-dictschema>` configuration method by default.
+用于配置日志的可调用路径. 默认指向Python的 :ref:`dictConfig
+<logging-config-dictschema>` 配置方法的实例.
 
-If you set :setting:`LOGGING_CONFIG` to ``None``, the logging
-configuration process will be skipped.
+如果将 :setting:`LOGGING_CONFIG` 设置为 ``None``, 将跳过日志配置过程.
 
 .. setting:: MANAGERS
 
 ``MANAGERS``
 ------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-A list in the same format as :setting:`ADMINS` that specifies who should get
-broken link notifications when
-:class:`~django.middleware.common.BrokenLinkEmailsMiddleware` is enabled.
+一个与 :setting:`ADMINS` 格式相同的列表, 用于指定当启用
+:class:`~django.middleware.common.BrokenLinkEmailsMiddleware` 时, 谁应该收到断链通知.
 
 .. setting:: MEDIA_ROOT
 
 ``MEDIA_ROOT``
 --------------
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-Absolute filesystem path to the directory that will hold :doc:`user-uploaded
-files </topics/files>`.
+保存 :doc:`用户上传文件 </topics/files>` 的绝对文件系统路径.
 
-Example: ``"/var/www/example.com/media/"``
+例如: ``"/var/www/example.com/media/"``
 
-See also :setting:`MEDIA_URL`.
+另见 :setting:`MEDIA_URL`.
 
 .. warning::
 
-    :setting:`MEDIA_ROOT` and :setting:`STATIC_ROOT` must have different
-    values. Before :setting:`STATIC_ROOT` was introduced, it was common to
-    rely or fallback on :setting:`MEDIA_ROOT` to also serve static files;
-    however, since this can have serious security implications, there is a
-    validation check to prevent it.
+    :setting:`MEDIA_ROOT` 和 :setting:`STATIC_ROOT` 必须设置不同的值.
+    在引入 :setting:`STATIC_ROOT` 之前, 通常依靠或回溯 :setting:`MEDIA_ROOT` 来提供静态文件,
+    但是, 由于这可能会导致严重的安全隐患, 因此有这个检查来防止这种情况.
 
 .. setting:: MEDIA_URL
 
 ``MEDIA_URL``
 -------------
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-URL that handles the media served from :setting:`MEDIA_ROOT`, used
-for :doc:`managing stored files </topics/files>`. It must end in a slash if set
-to a non-empty value. You will need to :ref:`configure these files to be served
-<serving-uploaded-files-in-development>` in both development and production
-environments.
+处理 :setting:`MEDIA_ROOT` 提供的多媒体URL, 用于 :doc:`管理存储的文件 </topics/files>`.
+如果设置为非空值, 则必须以斜杠结尾. 在开发和生产环境中, 你都需要 :ref:`配置这些文件服务
+<serving-uploaded-files-in-development>`.
 
-If you want to use ``{{ MEDIA_URL }}`` in your templates, add
-``'django.template.context_processors.media'`` in the ``'context_processors'``
-option of :setting:`TEMPLATES`.
+如果要在模板中使用 ``{{ MEDIA_URL }}``, 需要在 :setting:`TEMPLATES` 的 ``'context_processors'`` 设置中添加
+``'django.template.context_processors.media'``.
 
-Example: ``"http://media.example.com/"``
+例如: ``"http://media.example.com/"``
 
 .. warning::
 
-    There are security risks if you are accepting uploaded content from
-    untrusted users! See the security guide's topic on
-    :ref:`user-uploaded-content-security` for mitigation details.
+    接收非授信用户的上传内容会有安全隐患! 详见 :ref:`user-uploaded-content-security`.
 
 .. warning::
 
-    :setting:`MEDIA_URL` and :setting:`STATIC_URL` must have different
-    values. See :setting:`MEDIA_ROOT` for more details.
+    :setting:`MEDIA_URL` 和 :setting:`STATIC_URL` 必须设置不同的值. 详见 :setting:`MEDIA_ROOT`.
 
 .. setting:: MIDDLEWARE
 
@@ -1678,9 +1573,9 @@ Example: ``"http://media.example.com/"``
 
 .. versionadded:: 1.10
 
-Default:: ``None``
+默认值:: ``None``
 
-A list of middleware to use. See :doc:`/topics/http/middleware`.
+使用的中间件列表. 见 :doc:`/topics/http/middleware`.
 
 .. setting:: MIDDLEWARE_CLASSES
 
@@ -1689,94 +1584,75 @@ A list of middleware to use. See :doc:`/topics/http/middleware`.
 
 .. deprecated:: 1.10
 
-    Old-style middleware that uses  ``settings.MIDDLEWARE_CLASSES`` are
-    deprecated. :ref:`Adapt old, custom middleware <upgrading-middleware>` and
-    use the :setting:`MIDDLEWARE` setting.
+    已经不建议再使用 ``settings.MIDDLEWARE_CLASSES`` 这种旧式中间件方式. :ref:`调整旧的, 自定义中间件 <upgrading-middleware>` 并
+    使用 :setting:`MIDDLEWARE` 配置.
 
-Default::
+默认值::
 
     [
         'django.middleware.common.CommonMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
     ]
 
-A list of middleware classes to use. This was the default setting used in
-Django 1.9 and earlier. Django 1.10 introduced a new style of middleware. If
-you have an older project using this setting you should :ref:`update any
-middleware you've written yourself <upgrading-middleware>` to the new style
-and then use the :setting:`MIDDLEWARE` setting.
+使用的中间件列表. 这是Django 1.9及更早版本中使用的默认配置. Django 1.10引入了一种新风格的中间件.
+如果较早项目中使用了此配置, 您应该 :ref:`将自己编写的所有中间件更新为新样式 <upgrading-middleware>` 然后使用 :setting:`MIDDLEWARE` 配置.
 
 .. setting:: MIGRATION_MODULES
 
 ``MIGRATION_MODULES``
 ---------------------
 
-Default: ``{}`` (Empty dictionary)
+默认值: ``{}`` (空字典)
 
-A dictionary specifying the package where migration modules can be found on a
-per-app basis. The default value of this setting is an empty dictionary, but
-the default package name for migration modules is ``migrations``.
+指定每个应用迁移模块包位置的字典. 该配置的默认值是一个空字典, 迁移模块的默认包名为 ``migrations``.
 
-Example::
+例如::
 
     {'blog': 'blog.db_migrations'}
 
-In this case, migrations pertaining to the ``blog`` app will be contained in
-the ``blog.db_migrations`` package.
+在此配置下, ``blog`` 应用相关的迁移都会存在于 ``blog.db_migrations`` 包中.
 
-If you provide the ``app_label`` argument, :djadmin:`makemigrations` will
-automatically create the package if it doesn't already exist.
+如果提供了 ``app_label`` , 包不存在时 :djadmin:`makemigrations` 将自动创建它.
 
 .. versionadded:: 1.9
 
-When you supply ``None`` as a value for an app, Django will consider the app as
-an app without migrations regardless of an existing ``migrations`` submodule.
-This can be used, for example, in a test settings file to skip migrations while
-testing (tables will still be created for the apps' models). If this is used in
-your general project settings, remember to use the :option:`migrate
---run-syncdb` option if you want to create tables for the app.
+如果为某个应用设置``None``, Django将会视为此应用没有迁移, 而不考虑是否存在 ``migrations`` 子模块.
+例如, 在测试配置文件中, 这可以用来在测试时跳过迁移(仍然会为应用程序的模型创建表).
+如果这在常规项目配置中使用, 想为应用程序创建表, 请使用 :option:`migrate --run-syncdb` 选项.
 
 .. setting:: MONTH_DAY_FORMAT
 
 ``MONTH_DAY_FORMAT``
 --------------------
 
-Default: ``'F j'``
+默认值: ``'F j'``
 
-The default formatting to use for date fields on Django admin change-list
-pages -- and, possibly, by other parts of the system -- in cases when only the
-month and day are displayed.
+Django admin change-list页面上日期字段的默认格式 -- 可能还包括系统的其他部分 -- 在只显示月和日的情况下.
 
-For example, when a Django admin change-list page is being filtered by a date
-drilldown, the header for a given day displays the day and month. Different
-locales have different formats. For example, U.S. English would say
-"January 1," whereas Spanish might say "1 Enero."
+例如, 在Django admin change-list页面使用日期过滤时, 对目标日期的月和日在不同地区显示不同的格式.
+例如, U.S. English 地区显示"January 1," 西班牙语地区显示 "1 Enero."
 
-Note that if :setting:`USE_L10N` is set to ``True``, then the corresponding
-locale-dictated format has higher precedence and will be applied.
+注意, 如果 :setting:`USE_L10N` 设置为 ``True``, 则对应的地区设置格式将具有更高优先级.
 
-See :tfilter:`allowed date format strings <date>`. See also
+见 :tfilter:`允许的日期格式字符 <date>`. 也见
 :setting:`DATE_FORMAT`, :setting:`DATETIME_FORMAT`,
-:setting:`TIME_FORMAT` and :setting:`YEAR_MONTH_FORMAT`.
+:setting:`TIME_FORMAT` 和 :setting:`YEAR_MONTH_FORMAT`.
 
 .. setting:: NUMBER_GROUPING
 
 ``NUMBER_GROUPING``
 --------------------
 
-Default: ``0``
+默认值: ``0``
 
-Number of digits grouped together on the integer part of a number.
+整数分割位数.
 
-Common use is to display a thousand separator. If this setting is ``0``, then
-no grouping will be applied to the number. If this setting is greater than
-``0``, then :setting:`THOUSAND_SEPARATOR` will be used as the separator between
-those groups.
+常见的用途是显示千位分隔符. 如果设置为 ``0`` 则不会进行分隔. 如果设置的大于
+``0`` 则会使用 :setting:`THOUSAND_SEPARATOR` 分隔数字.
 
-Note that if :setting:`USE_L10N` is set to ``True``, then the locale-dictated
-format has higher precedence and will be applied instead.
+注意, 如果 :setting:`USE_L10N` 设置为 ``True``, 则对应的区域设置格式将具有更高优先级.
 
-See also :setting:`DECIMAL_SEPARATOR`, :setting:`THOUSAND_SEPARATOR` and
+见 :setting:`DECIMAL_SEPARATOR`, :setting:`THOUSAND_SEPARATOR` 和
 :setting:`USE_THOUSAND_SEPARATOR`.
 
 .. setting:: PREPEND_WWW
@@ -1784,243 +1660,194 @@ See also :setting:`DECIMAL_SEPARATOR`, :setting:`THOUSAND_SEPARATOR` and
 ``PREPEND_WWW``
 ---------------
 
-Default: ``False``
+默认值: ``False``
 
-Whether to prepend the "www." subdomain to URLs that don't have it. This is only
-used if :class:`~django.middleware.common.CommonMiddleware` is installed
-(see :doc:`/topics/http/middleware`). See also :setting:`APPEND_SLASH`.
+是否自动给没有 "www." 子域加上该前缀. 只有在使用了 :class:`~django.middleware.common.CommonMiddleware` 才会生效
+(见 :doc:`/topics/http/middleware`). 也见 :setting:`APPEND_SLASH`.
 
 .. setting:: ROOT_URLCONF
 
 ``ROOT_URLCONF``
 ----------------
 
-Default: Not defined
+默认值: 未定义
 
-A string representing the full Python import path to your root URLconf. For example:
-``"mydjangoapps.urls"``. Can be overridden on a per-request basis by
-setting the attribute ``urlconf`` on the incoming ``HttpRequest``
-object. See :ref:`how-django-processes-a-request` for details.
+表示根URLconf的完整Python import路径. 例如: ``"mydjangoapps.urls"``.
+可以通过设置请求的 ``HttpRequest`` 的 ``urlconf`` 属性来覆盖它. 详见 :ref:`how-django-processes-a-request`.
 
 .. setting:: SECRET_KEY
 
 ``SECRET_KEY``
 --------------
 
-Default: ``''`` (Empty string)
+默认值: ``''`` (空字符串)
 
-A secret key for a particular Django installation. This is used to provide
-:doc:`cryptographic signing </topics/signing>`, and should be set to a unique,
-unpredictable value.
+设置Django安装密钥. 用于提供 :doc:`加密签名 </topics/signing>`, 应设置为一个唯一的, 复杂的值.
 
-:djadmin:`django-admin startproject <startproject>` automatically adds a
-randomly-generated ``SECRET_KEY`` to each new project.
+:djadmin:`django-admin startproject <startproject>` 会自动向每个新项目添加一个随机生成的 ``SECRET_KEY``.
 
-Uses of the key shouldn't assume that it's text or bytes. Every use should go
-through :func:`~django.utils.encoding.force_text` or
-:func:`~django.utils.encoding.force_bytes` to convert it to the desired type.
+使用密钥时不应该直接认定它就是文本或字节. 每次使用都应该用
+:func:`~django.utils.encoding.force_text` 或
+:func:`~django.utils.encoding.force_bytes` 将其强转为对应类型.
 
-Django will refuse to start if :setting:`SECRET_KEY` is not set.
+如果没有设置 :setting:`SECRET_KEY` Django将无法启动.
 
 .. warning::
 
-    **Keep this value secret.**
+    **保密该值.**
 
-    Running Django with a known :setting:`SECRET_KEY` defeats many of Django's
-    security protections, and can lead to privilege escalation and remote code
-    execution vulnerabilities.
+    使用泄露的 :setting:`SECRET_KEY` 运行Django会致使许多Django的安全保护措施失效,
+    并可能导致越权操作和远程代码执行漏洞.
 
-The secret key is used for:
+安全密钥用于:
 
-* All :doc:`sessions </topics/http/sessions>` if you are using
-  any other session backend than ``django.contrib.sessions.backends.cache``,
-  or are using the default
+* 所有 :doc:`sessions </topics/http/sessions>`, 如果使用了 ``django.contrib.sessions.backends.cache`` 以外的后端,
+  或者使用默认的
   :meth:`~django.contrib.auth.models.AbstractBaseUser.get_session_auth_hash()`.
-* All :doc:`messages </ref/contrib/messages>` if you are using
-  :class:`~django.contrib.messages.storage.cookie.CookieStorage` or
+* 所有 :doc:`messages </ref/contrib/messages>`, 如果你使用了
+  :class:`~django.contrib.messages.storage.cookie.CookieStorage` 或
   :class:`~django.contrib.messages.storage.fallback.FallbackStorage`.
-* All :func:`~django.contrib.auth.views.password_reset` tokens.
-* Any usage of :doc:`cryptographic signing </topics/signing>`, unless a
-  different key is provided.
+* 所有 :func:`~django.contrib.auth.views.password_reset` token.
+* 除了使用其他密钥的所有 :doc:`加密签名 </topics/signing>`.
 
-If you rotate your secret key, all of the above will be invalidated.
-Secret keys are not used for passwords of users and key rotation will not
-affect them.
+如果你更换了密钥, 那么上述所有内容都将失效. 但是密钥不用于用户密码, 更好密钥不会影响用户密码.
 
 .. note::
 
-    The default :file:`settings.py` file created by :djadmin:`django-admin
-    startproject <startproject>` creates a unique ``SECRET_KEY`` for
-    convenience.
+    为方便起见, 由 :djadmin:`django-admin startproject <startproject>` 创建的默认 :file:`settings.py` 自带一个唯一的 ``SECRET_KEY``.
 
 .. setting:: SECURE_BROWSER_XSS_FILTER
 
 ``SECURE_BROWSER_XSS_FILTER``
 -----------------------------
 
-Default: ``False``
+默认值: ``False``
 
-If ``True``, the :class:`~django.middleware.security.SecurityMiddleware` sets
-the :ref:`x-xss-protection` header on all responses that do not already have it.
+如果设置为 ``True``, 则 :class:`~django.middleware.security.SecurityMiddleware` 会给所有响应加上 :ref:`x-xss-protection` 首部.
 
 .. setting:: SECURE_CONTENT_TYPE_NOSNIFF
 
 ``SECURE_CONTENT_TYPE_NOSNIFF``
 -------------------------------
 
-Default: ``False``
+默认值: ``False``
 
-If ``True``, the :class:`~django.middleware.security.SecurityMiddleware`
-sets the :ref:`x-content-type-options` header on all responses that do not
-already have it.
+如果设置为 ``True``, 则 :class:`~django.middleware.security.SecurityMiddleware` 会给所有响应加上 :ref:`x-content-type-options` 首部.
 
 .. setting:: SECURE_HSTS_INCLUDE_SUBDOMAINS
 
 ``SECURE_HSTS_INCLUDE_SUBDOMAINS``
 ----------------------------------
 
-Default: ``False``
+默认值: ``False``
 
-If ``True``, the :class:`~django.middleware.security.SecurityMiddleware` adds
-the ``includeSubDomains`` directive to the :ref:`http-strict-transport-security`
-header. It has no effect unless :setting:`SECURE_HSTS_SECONDS` is set to a
-non-zero value.
+如果设置为 ``True``, 则 :class:`~django.middleware.security.SecurityMiddleware` 会添加
+``includeSubDomains`` 指令到 :ref:`http-strict-transport-security` 首部.
+只有 :setting:`SECURE_HSTS_SECONDS` 设置为非0值值才会生效.
 
 .. warning::
-    Setting this incorrectly can irreversibly (for the value of
-    :setting:`SECURE_HSTS_SECONDS`) break your site. Read the
-    :ref:`http-strict-transport-security` documentation first.
+    如果 :setting:`SECURE_HSTS_SECONDS` 设置不正确可能会不可逆地破坏你的网站. 请先阅读
+    :ref:`http-strict-transport-security` 文档.
 
 .. setting:: SECURE_HSTS_SECONDS
 
 ``SECURE_HSTS_SECONDS``
 -----------------------
 
-Default: ``0``
+默认值: ``0``
 
-If set to a non-zero integer value, the
-:class:`~django.middleware.security.SecurityMiddleware` sets the
-:ref:`http-strict-transport-security` header on all responses that do not
-already have it.
+如果设置为一个非零的整数值, 则
+:class:`~django.middleware.security.SecurityMiddleware` 会给所有响应加上
+:ref:`http-strict-transport-security` 首部.
 
 .. warning::
-    Setting this incorrectly can irreversibly (for some time) break your site.
-    Read the :ref:`http-strict-transport-security` documentation first.
+    如果设置不正确的值可能会不可逆地破坏你的网站.
+    请先阅读 :ref:`http-strict-transport-security` 文档.
 
 .. setting:: SECURE_PROXY_SSL_HEADER
 
 ``SECURE_PROXY_SSL_HEADER``
 ---------------------------
 
-Default: ``None``
+默认值: ``None``
 
-A tuple representing a HTTP header/value combination that signifies a request
-is secure. This controls the behavior of the request object's ``is_secure()``
-method.
+用于表示请求是安全的HTTP首部/值组合的元组. 这直接影响请求对象 ``is_secure()`` 方法的结果.
 
-This takes some explanation. By default, ``is_secure()`` is able to determine
-whether a request is secure by looking at whether the requested URL uses
-"https://". This is important for Django's CSRF protection, and may be used
-by your own code or third-party apps.
+这里需要解释下. 默认情况下, ``is_secure()`` 是通过查看请求地址中是否使用 "https://" 来确定请求是否安全.
+这对于Django的CSRF保护很重要, 而且或许你自己的代码或第三方应用也会使用到.
 
-If your Django app is behind a proxy, though, the proxy may be "swallowing" the
-fact that a request is HTTPS, using a non-HTTPS connection between the proxy
-and Django. In this case, ``is_secure()`` would always return ``False`` -- even
-for requests that were made via HTTPS by the end user.
+如果在你Django应用服务之前还有个代理服务器, 那么这个代理服务器可能会"吞掉"请求使用HTTPS的情况,
+比如代理服务器和Django之间通过非HTTPS连接, 那么 ``is_secure()`` 会始终返回 ``False`` -- 即使客户端是通过HTTPS请求.
 
-In this situation, you'll want to configure your proxy to set a custom HTTP
-header that tells Django whether the request came in via HTTPS, and you'll want
-to set ``SECURE_PROXY_SSL_HEADER`` so that Django knows what header to look
-for.
+这种情况下, 你需要配置代理服务器自定义HTTP首部, 来告诉Django请求是否是通过HTTPS发起, 同时还需要设置
+``SECURE_PROXY_SSL_HEADER`` 首部以告诉Django应该从哪个首部找到它.
 
-You'll need to set a tuple with two elements -- the name of the header to look
-for and the required value. For example::
+设置一个包含两个元素的元组 -- 要查找的首部名称和所需的值. 例如::
 
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-Here, we're telling Django that we trust the ``X-Forwarded-Proto`` header
-that comes from our proxy, and any time its value is ``'https'``, then the
-request is guaranteed to be secure (i.e., it originally came in via HTTPS).
-Obviously, you should *only* set this setting if you control your proxy or
-have some other guarantee that it sets/strips this header appropriately.
+这样, 就等于告诉Django通过 ``X-Forwarded-Proto`` 首部来判断, 只要该值为 ``'https'`` 就认为请求是安全的(即. 该请求是通过HTTPS发起).
+显然, 如果你可以控制你的代理服务或者有其保证, 你可以 **只** 设置这个配置, 它可以适当地设置/移除这个首部.
 
-Note that the header needs to be in the format as used by ``request.META`` --
-all caps and likely starting with ``HTTP_``. (Remember, Django automatically
-adds ``'HTTP_'`` to the start of x-header names before making the header
-available in ``request.META``.)
+请求注意, 首部的格式需要和 ``request.META`` 使用的格式一样 --
+全大写, 而且以 ``HTTP_`` 开头. (记住, Django会自动在x-header名称上加上 ``'HTTP_'`` 前缀, 然后才在 ``request.META`` 中使用.)
 
 .. warning::
 
-    **You will probably open security holes in your site if you set this
-    without knowing what you're doing. And if you fail to set it when you
-    should. Seriously.**
+    **修改此设置可能会危及你网站的安全。在修改之前, 请确保你完全了解你的配置.**
 
-    Make sure ALL of the following are true before setting this (assuming the
-    values from the example above):
+    在设置之前, 请确保以下所有条件都成立(假设上面例子中的值):
 
-    * Your Django app is behind a proxy.
-    * Your proxy strips the ``X-Forwarded-Proto`` header from all incoming
-      requests. In other words, if end users include that header in their
-      requests, the proxy will discard it.
-    * Your proxy sets the ``X-Forwarded-Proto`` header and sends it to Django,
-      but only for requests that originally come in via HTTPS.
+    * Django应用在代理服务器之后.
+    * 代理服务器需要移除所有请求中的 ``X-Forwarded-Proto`` 首部, 换句话说, 如果终端用户在其请求中包括该首部, 代理服务器将移除它.
+    * 代理服务器只会对HTTPS请求加上 ``X-Forwarded-Proto`` 首部, 然后再转发给Django.
 
-    If any of those are not true, you should keep this setting set to ``None``
-    and find another way of determining HTTPS, perhaps via custom middleware.
+    如果上述条件有任何一个不成立, 那么你应该将此配置保持为 ``None``. 使用其他的方法来确认是否是通过HTTPS, 比如通过定义中间件.
 
 .. setting:: SECURE_REDIRECT_EXEMPT
 
 ``SECURE_REDIRECT_EXEMPT``
 --------------------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-If a URL path matches a regular expression in this list, the request will not be
-redirected to HTTPS. If :setting:`SECURE_SSL_REDIRECT` is ``False``, this
-setting has no effect.
+如果请求的URL路径匹配到该列表中的正则表达式, 那么该请求就不会被重定向成HTTPS.
+如果 :setting:`SECURE_SSL_REDIRECT` 设置为 ``False``, 该配置失效.
 
 .. setting:: SECURE_SSL_HOST
 
 ``SECURE_SSL_HOST``
 -------------------
 
-Default: ``None``
+默认值: ``None``
 
-If a string (e.g. ``secure.example.com``), all SSL redirects will be directed
-to this host rather than the originally-requested host
-(e.g. ``www.example.com``). If :setting:`SECURE_SSL_REDIRECT` is ``False``, this
-setting has no effect.
+如果是一个字符串(例如. ``secure.example.com``), 所有SSL重定向将重定向到这个域, 而不是请求的原始域
+(例如. ``www.example.com``). 如果 :setting:`SECURE_SSL_REDIRECT` 设置为 ``False``, 改配置失效.
 
 .. setting:: SECURE_SSL_REDIRECT
 
 ``SECURE_SSL_REDIRECT``
 -----------------------
 
-Default: ``False``
+默认值: ``False``
 
-If ``True``, the :class:`~django.middleware.security.SecurityMiddleware`
-:ref:`redirects <ssl-redirect>` all non-HTTPS requests to HTTPS (except for
-those URLs matching a regular expression listed in
-:setting:`SECURE_REDIRECT_EXEMPT`).
+如果设置为 ``True``, :class:`~django.middleware.security.SecurityMiddleware` 会将所有非HTTPS请求
+:ref:`重定向 <ssl-redirect>` 到HTTPS (除了被
+:setting:`SECURE_REDIRECT_EXEMPT` 中的正则表达式匹配到的URL).
 
 .. note::
 
-   If turning this to ``True`` causes infinite redirects, it probably means
-   your site is running behind a proxy and can't tell which requests are secure
-   and which are not. Your proxy likely sets a header to indicate secure
-   requests; you can correct the problem by finding out what that header is and
-   configuring the :setting:`SECURE_PROXY_SSL_HEADER` setting accordingly.
+   如果你的网站部署在代理服务器之后, 且它无法判断那些请求是安全的那些是非安全的, 那么如果这个设置为 ``True``,
+   则可能会导致无限重定向. 代理服务器需要设置一个首部来标记安全的请求, 你可以通过设置 :setting:`SECURE_PROXY_SSL_HEADER` 来解决这个问题.
 
 .. setting:: SERIALIZATION_MODULES
 
 ``SERIALIZATION_MODULES``
 -------------------------
 
-Default: Not defined
+默认值: 未定义
 
-A dictionary of modules containing serializer definitions (provided as
-strings), keyed by a string identifier for that serialization type. For
-example, to define a YAML serializer, use::
+一个定义序列化器(字符串形式)的字典, 以序列化类型为键. 比如, 定义个YAML序列化器::
 
     SERIALIZATION_MODULES = {'yaml': 'path.to.yaml_serializer'}
 
@@ -2029,87 +1856,74 @@ example, to define a YAML serializer, use::
 ``SERVER_EMAIL``
 ----------------
 
-Default: ``'root@localhost'``
+默认值: ``'root@localhost'``
 
-The email address that error messages come from, such as those sent to
-:setting:`ADMINS` and :setting:`MANAGERS`.
+错误信息的发件地址, 例如发给 :setting:`ADMINS` 和 :setting:`MANAGERS` 的邮件.
 
-.. admonition:: Why are my emails sent from a different address?
+.. admonition:: 为什么我的邮件是从其他地址发送的?
 
-    This address is used only for error messages. It is *not* the address that
-    regular email messages sent with :meth:`~django.core.mail.send_mail()`
-    come from; for that, see :setting:`DEFAULT_FROM_EMAIL`.
+    该地址仅用于错误信息. 它 **不是** :meth:`~django.core.mail.send_mail()` 发送常规邮件的地址; 这个地址是 :setting:`DEFAULT_FROM_EMAIL`.
 
 .. setting:: SHORT_DATE_FORMAT
 
 ``SHORT_DATE_FORMAT``
 ---------------------
 
-Default: ``'m/d/Y'`` (e.g. ``12/31/2003``)
+默认值: ``'m/d/Y'`` (即 ``12/31/2003``)
 
-An available formatting that can be used for displaying date fields on
-templates. Note that if :setting:`USE_L10N` is set to ``True``, then the
-corresponding locale-dictated format has higher precedence and will be applied.
-See :tfilter:`allowed date format strings <date>`.
+在模板中显示日期字段的格式. 注意, 如果 :setting:`USE_L10N` 设置为 ``True``, 相应本地决定的格式具有更高的应用优先权.
+见 :tfilter:`日期格式字符 <date>`.
 
-See also :setting:`DATE_FORMAT` and :setting:`SHORT_DATETIME_FORMAT`.
+另见 :setting:`DATE_FORMAT` 和 :setting:`SHORT_DATETIME_FORMAT`.
 
 .. setting:: SHORT_DATETIME_FORMAT
 
 ``SHORT_DATETIME_FORMAT``
 -------------------------
 
-Default: ``'m/d/Y P'`` (e.g. ``12/31/2003 4 p.m.``)
+默认值: ``'m/d/Y P'`` (即 ``12/31/2003 4 p.m.``)
 
-An available formatting that can be used for displaying datetime fields on
-templates. Note that if :setting:`USE_L10N` is set to ``True``, then the
-corresponding locale-dictated format has higher precedence and will be applied.
-See :tfilter:`allowed date format strings <date>`.
+在模板中显示日期时间字段的格式. 注意, 如果 :setting:`USE_L10N` 设置为 ``True``, 相应本地决定的格式具有更高的应用优先权.
+见 :tfilter:`日期格式字符 <date>`.
 
-See also :setting:`DATE_FORMAT` and :setting:`SHORT_DATE_FORMAT`.
+另见 :setting:`DATE_FORMAT` 和 :setting:`SHORT_DATE_FORMAT`.
 
 .. setting:: SIGNING_BACKEND
 
 ``SIGNING_BACKEND``
 -------------------
 
-Default: ``'django.core.signing.TimestampSigner'``
+默认值: ``'django.core.signing.TimestampSigner'``
 
-The backend used for signing cookies and other data.
+用来签名cookie和其他数据的backend.
 
-See also the :doc:`/topics/signing` documentation.
+见 :doc:`/topics/signing` 文档.
 
 .. setting:: SILENCED_SYSTEM_CHECKS
 
 ``SILENCED_SYSTEM_CHECKS``
 --------------------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-A list of identifiers of messages generated by the system check framework
-(i.e. ``["models.W001"]``) that you wish to permanently acknowledge and ignore.
-Silenced checks will not be output to the console.
+希望永久忽略的系统检查框架生成的消息标识符列表(如 ``["models.W001"]``). 静默检查不会被输出到控制台.
 
 .. versionchanged:: 1.9
 
-    In older versions, silenced messages of ``ERROR`` level or higher were
-    printed to the console.
+    在老版本中, ``ERROR`` 和更高级别的静默消息会被输出到控制台.
 
-See also the :doc:`/ref/checks` documentation.
+另见 :doc:`/ref/checks` 文档.
 
 .. setting:: TEMPLATES
 
 ``TEMPLATES``
 -------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-A list containing the settings for all template engines to be used with
-Django. Each item of the list is a dictionary containing the options for an
-individual engine.
+Django模板引擎的配置列表. 列表中的每项都是一个包含引擎配置的字典.
 
-Here's a simple setup that tells the Django template engine to load templates
-from the ``templates`` subdirectory inside each installed application::
+下面配置告诉Django模板引擎从每个安装的应用程序中的 ``templates`` 子目录中加载模板::
 
     TEMPLATES = [
         {
@@ -2118,120 +1932,102 @@ from the ``templates`` subdirectory inside each installed application::
         },
     ]
 
-The following options are available for all backends.
+以下选项适用于所有模板引擎.
 
 .. setting:: TEMPLATES-BACKEND
 
 ``BACKEND``
 ~~~~~~~~~~~
 
-Default: Not defined
+默认值: 未定义
 
-The template backend to use. The built-in template backends are:
+使用的模板引擎. 内建的模板引擎有:
 
 * ``'django.template.backends.django.DjangoTemplates'``
 * ``'django.template.backends.jinja2.Jinja2'``
 
-You can use a template backend that doesn't ship with Django by setting
-``BACKEND`` to a fully-qualified path (i.e. ``'mypackage.whatever.Backend'``).
+如果要使用非Django内置的模板引擎, 可以将 ``BACKEND`` 设置为其完整路径 (例如 ``'mypackage.whatever.Backend'``).
 
 .. setting:: TEMPLATES-NAME
 
 ``NAME``
 ~~~~~~~~
 
-Default: see below
+默认值: 见下文
 
-The alias for this particular template engine. It's an identifier that allows
-selecting an engine for rendering. Aliases must be unique across all
-configured template engines.
+设置模板引擎的别名. 它是一个标识符, 用来进行渲染时选择引擎. 别名在所有已配置的模板引擎中必须是唯一的.
 
-It defaults to the name of the module defining the engine class, i.e. the
-next to last piece of :setting:`BACKEND <TEMPLATES-BACKEND>`, when it isn't
-provided. For example if the backend is ``'mypackage.whatever.Backend'`` then
-its default name is ``'whatever'``.
+没有设置时, 它默认是引擎类的模块名称, 即 :setting:`BACKEND <TEMPLATES-BACKEND>` 的后一段.
+例如模板引擎为 ``'mypackage.whatever.Backend'`` 那么默认名称就是它中间的 ``'whatever'``.
 
 .. setting:: TEMPLATES-DIRS
 
 ``DIRS``
 ~~~~~~~~
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-Directories where the engine should look for template source files, in search
-order.
+搜索路径的列表, 模板引擎会按照这个顺序查找模板文件文件.
 
 .. setting:: TEMPLATES-APP_DIRS
 
 ``APP_DIRS``
 ~~~~~~~~~~~~
 
-Default: ``False``
+默认值: ``False``
 
-Whether the engine should look for template source files inside installed
-applications.
+模板引擎是否要在已安装的应用中查找模板源文件.
 
 .. note::
 
-    The default :file:`settings.py` file created by :djadmin:`django-admin
-    startproject <startproject>` sets ``'APP_DIRS': True``.
+    :djadmin:`django-admin startproject <startproject>` 创建的 :file:`settings.py` 文件中 ``'APP_DIRS': True``.
 
 .. setting:: TEMPLATES-OPTIONS
 
 ``OPTIONS``
 ~~~~~~~~~~~
 
-Default: ``{}`` (Empty dict)
+默认值: ``{}`` (空字典)
 
-Extra parameters to pass to the template backend. Available parameters vary
-depending on the template backend. See
-:class:`~django.template.backends.django.DjangoTemplates` and
-:class:`~django.template.backends.jinja2.Jinja2` for the options of the
-built-in backends.
+传给模板引擎的额外参数. 可用的参数取决于使用的模板引擎. 内置模板引擎参数见
+:class:`~django.template.backends.django.DjangoTemplates` 和
+:class:`~django.template.backends.jinja2.Jinja2`.
 
 .. setting:: TEST_RUNNER
 
 ``TEST_RUNNER``
 ---------------
 
-Default: ``'django.test.runner.DiscoverRunner'``
+默认值: ``'django.test.runner.DiscoverRunner'``
 
-The name of the class to use for starting the test suite. See
-:ref:`other-testing-frameworks`.
+用于启动测试用例类的名称. 见  :ref:`other-testing-frameworks`.
 
 .. setting:: TEST_NON_SERIALIZED_APPS
 
 ``TEST_NON_SERIALIZED_APPS``
 ----------------------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-In order to restore the database state between tests for
-``TransactionTestCase``\s and database backends without transactions, Django
-will :ref:`serialize the contents of all apps <test-case-serialized-rollback>`
-when it starts the test run so it can then reload from that copy before running
-tests that need it.
+为了在 ``TransactionTestCase`` 和没有事务的数据库后端测试中恢复数据库状态,
+Django在启动测试时会 :ref:`序列化所有应用的内容 <test-case-serialized-rollback>`, 这样就可以在运行需要的测试时, 从该副本重新加载.
 
-This slows down the startup time of the test runner; if you have apps that
-you know don't need this feature, you can add their full names in here (e.g.
-``'django.contrib.contenttypes'``) to exclude them from this serialization
-process.
+这将拖慢运行测试的启动时间; 如果某些应用程序不需要这个功能, 可以设置成它们的全名(例如 ``'django.contrib.contenttypes'``),
+将它们从这个序列化过程中排除.
 
 .. setting:: THOUSAND_SEPARATOR
 
 ``THOUSAND_SEPARATOR``
 ----------------------
 
-Default: ``','`` (Comma)
+默认值: ``','`` (逗号)
 
-Default thousand separator used when formatting numbers. This setting is
-used only when :setting:`USE_THOUSAND_SEPARATOR` is ``True`` and
-:setting:`NUMBER_GROUPING` is greater than ``0``.
+格式化数字时默认的千位分隔符. 该配置只有在 :setting:`USE_THOUSAND_SEPARATOR` 设置为 ``True`` 且
+:setting:`NUMBER_GROUPING` 大于 ``0`` 时生效.
 
-Note that if :setting:`USE_L10N` is set to ``True``, then the locale-dictated
-format has higher precedence and will be applied instead.
+注意, 如果 :setting:`USE_L10N` 设置为 ``True``, 相应本地决定的格式将更优先被使用.
 
-See also :setting:`NUMBER_GROUPING`, :setting:`DECIMAL_SEPARATOR` and
+另见 :setting:`NUMBER_GROUPING`, :setting:`DECIMAL_SEPARATOR` 和
 :setting:`USE_THOUSAND_SEPARATOR`.
 
 .. setting:: TIME_FORMAT
@@ -2239,21 +2035,19 @@ See also :setting:`NUMBER_GROUPING`, :setting:`DECIMAL_SEPARATOR` and
 ``TIME_FORMAT``
 ---------------
 
-Default: ``'P'`` (e.g. ``4 p.m.``)
+默认值: ``'P'`` (即 ``4 p.m.``)
 
-The default formatting to use for displaying time fields in any part of the
-system. Note that if :setting:`USE_L10N` is set to ``True``, then the
-locale-dictated format has higher precedence and will be applied instead. See
+在系统任何部分中显示时间字段的默认格式. 如果 :setting:`USE_L10N` 设置为 ``True``, 相应本地决定的格式将更优先被使用. 见
 :tfilter:`allowed date format strings <date>`.
 
-See also :setting:`DATE_FORMAT` and :setting:`DATETIME_FORMAT`.
+另见 :setting:`DATE_FORMAT` 和 :setting:`DATETIME_FORMAT`.
 
 .. setting:: TIME_INPUT_FORMATS
 
 ``TIME_INPUT_FORMATS``
 ----------------------
 
-Default::
+默认值::
 
     [
         '%H:%M:%S',     # '14:30:59'
@@ -2261,130 +2055,109 @@ Default::
         '%H:%M',        # '14:30'
     ]
 
-A list of formats that will be accepted when inputting data on a time field.
-Formats will be tried in order, using the first valid one. Note that these
-format strings use Python's :ref:`datetime module syntax
-<strftime-strptime-behavior>`, not the format strings from the :tfilter:`date`
-template filter.
+时间字段输入数据时可接受的格式列表. 格式将按顺序依次被尝试, 使用第一个有效的格式.
+注意这些格式字符使用 Python的 :ref:`datetime 模块语法
+<strftime-strptime-behavior>`, 而不是 :tfilter:`date` 模板过滤器的格式字符.
 
-When :setting:`USE_L10N` is ``True``, the locale-dictated format has higher
-precedence and will be applied instead.
+当 :setting:`USE_L10N` 设置 ``True``, 相应本地决定的格式将更优先被使用.
 
-See also :setting:`DATE_INPUT_FORMATS` and :setting:`DATETIME_INPUT_FORMATS`.
+另见 :setting:`DATE_INPUT_FORMATS` 和 :setting:`DATETIME_INPUT_FORMATS`.
 
 .. setting:: TIME_ZONE
 
 ``TIME_ZONE``
 -------------
 
-Default: ``'America/Chicago'``
+默认值: ``'America/Chicago'``
 
-A string representing the time zone for this installation, or ``None``. See
-the `list of time zones`_.
-
-.. note::
-    Since Django was first released with the :setting:`TIME_ZONE` set to
-    ``'America/Chicago'``, the global setting (used if nothing is defined in
-    your project's ``settings.py``) remains ``'America/Chicago'`` for backwards
-    compatibility. New project templates default to ``'UTC'``.
-
-Note that this isn't necessarily the time zone of the server. For example, one
-server may serve multiple Django-powered sites, each with a separate time zone
-setting.
-
-When :setting:`USE_TZ` is ``False``, this is the time zone in which Django
-will store all datetimes. When :setting:`USE_TZ` is ``True``, this is the
-default time zone that Django will use to display datetimes in templates and
-to interpret datetimes entered in forms.
-
-Django sets the ``os.environ['TZ']`` variable to the time zone you specify in
-the :setting:`TIME_ZONE` setting. Thus, all your views and models will
-automatically operate in this time zone. However, Django won't set the ``TZ``
-environment variable under the following conditions:
-
-* If you're using the manual configuration option as described in
-  :ref:`manually configuring settings
-  <settings-without-django-settings-module>`, or
-
-* If you specify ``TIME_ZONE = None``. This will cause Django to fall back to
-  using the system timezone. However, this is discouraged when :setting:`USE_TZ
-  = True <USE_TZ>`, because it makes conversions between local time and UTC
-  less reliable.
-
-If Django doesn't set the ``TZ`` environment variable, it's up to you
-to ensure your processes are running in the correct environment.
+当前时区字符串, 或者 ``None``. 见 `时区列表`_.
 
 .. note::
-    Django cannot reliably use alternate time zones in a Windows environment.
-    If you're running Django on Windows, :setting:`TIME_ZONE` must be set to
-    match the system time zone.
+    Django首次发布时 :setting:`TIME_ZONE` 设置为
+    ``'America/Chicago'``, 为了向后兼容, 这个全局配置仍然保持为 ``'America/Chicago'`` (项目中的 ``settings.py`` 没有配置时).
+    新项目模板默认为 ``'UTC'``.
 
-.. _list of time zones: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+注意, 它不一定要和服务器的时区一致. 例如, 一个服务器可上可能有多个Django站点, 每个站点都可以有一个单独的时区设置.
+
+当 :setting:`USE_TZ` 设置为 ``False`` 时, 它将成为Django存储所有日期和时间时使用的时区.
+当 :setting:`USE_TZ` 设置为 ``True`` 时, 它是Django模板以及表单中显示日期和时间使用的默认时区.
+
+Django将 ``os.environ['TZ']`` 变量设置为你在 :setting:`TIME_ZONE`  配置中指定的时区.
+因此, 所有视图和模型都将自动再此时区下运行. 但是, Django不会在以下条件下设置 ``TZ`` 环境变量:
+
+* 如果你使用手动设置配置中所述的
+  :ref:`手动设置配置
+  <settings-without-django-settings-module>`.
+
+* 如果设置 ``TIME_ZONE = None``. 这会让Django使用系统时区, 但是如果 :setting:`USE_TZ
+  = True <USE_TZ>` 则不鼓励这样做, 因为这样会降低本地时间和UTC之间的转换可靠性.
+
+如果Django没有设置 ``TZ`` 环境变量, 则你应该来确保所有流程在正确的环境中运行.
+
+.. note::
+    Django无法在Windows环境中使用交替时区. 如果在Windows上运行Django, 则必须将 :setting:`TIME_ZONE` 设置为正确的系统时区.
+
+.. _时区列表: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 .. setting:: USE_ETAGS
 
 ``USE_ETAGS``
 -------------
 
-Default: ``False``
+默认值: ``False``
 
-A boolean that specifies whether to output the ``ETag`` header. This saves
-bandwidth but slows down performance. This is used by the
-:class:`~django.middleware.common.CommonMiddleware` and in the :doc:`cache
-framework </topics/cache>`.
+是否输出 ``ETag`` 首部的布尔值. 这种方式会节省带宽但是会降低性能. 它在
+:class:`~django.middleware.common.CommonMiddleware` 和 :doc:`cache
+framework </topics/cache>` 中使用.
 
 .. setting:: USE_I18N
 
 ``USE_I18N``
 ------------
 
-Default: ``True``
+默认值: ``True``
 
-A boolean that specifies whether Django's translation system should be enabled.
-This provides an easy way to turn it off, for performance. If this is set to
-``False``, Django will make some optimizations so as not to load the
-translation machinery.
+一个布尔值, 它指定Django的翻译系统是否被启用. 它提供了一种简单的方式去关闭翻译系统.
+如果设置为 ``False``, Django会做一些优化不去加载翻译机制.
 
-See also :setting:`LANGUAGE_CODE`, :setting:`USE_L10N` and :setting:`USE_TZ`.
+另见 :setting:`LANGUAGE_CODE`, :setting:`USE_L10N` 和 :setting:`USE_TZ`.
 
 .. note::
 
-    The default :file:`settings.py` file created by :djadmin:`django-admin
-    startproject <startproject>` includes ``USE_I18N = True`` for convenience.
+    为方便起见, :djadmin:`django-admin
+    startproject <startproject>` 创建的 :file:`settings.py` 默认包含 ``USE_I18N = True`` 设置.
 
 .. setting:: USE_L10N
 
 ``USE_L10N``
 ------------
 
-Default: ``False``
+默认值: ``False``
 
-A boolean that specifies if localized formatting of data will be enabled by
-default or not. If this is set to ``True``, e.g. Django will display numbers and
-dates using the format of the current locale.
+一个布尔值, 用于决定是否默认进行日期格式本地化. 例如, 如果此设置为 ``True``,
+Django将使用当前语言环境的格式显示数字和日期.
 
-See also :setting:`LANGUAGE_CODE`, :setting:`USE_I18N` and :setting:`USE_TZ`.
+另见 :setting:`LANGUAGE_CODE`, :setting:`USE_I18N` 和 :setting:`USE_TZ`.
 
 .. note::
 
-    The default :file:`settings.py` file created by :djadmin:`django-admin
-    startproject <startproject>` includes ``USE_L10N = True`` for convenience.
+    为方便起见, :djadmin:`django-admin
+    startproject <startproject>` 创建的 :file:`settings.py` 默认包含 ``USE_L10N = True`` 设置.
 
 .. setting:: USE_THOUSAND_SEPARATOR
 
 ``USE_THOUSAND_SEPARATOR``
 --------------------------
 
-Default: ``False``
+默认值: ``False``
 
-A boolean that specifies whether to display numbers using a thousand separator.
-When :setting:`USE_L10N` is set to ``True`` and if this is also set to
-``True``, Django will use the values of :setting:`THOUSAND_SEPARATOR` and
-:setting:`NUMBER_GROUPING` to format numbers unless the locale already has an
-existing thousands separator. If there is a thousands separator in the locale
-format, it will have higher precedence and will be applied instead.
+一个布尔值, 用于决定是否显示数字的千分位分隔符.
+当 :setting:`USE_L10N` 设置为 ``True`` 且该配置也为
+``True``, Django 将使用 :setting:`THOUSAND_SEPARATOR` 和
+:setting:`NUMBER_GROUPING` 的配置来格式化数字, 除非语言环境已经有一个现有的千位分隔符.
+如果在本地设置格式中有千分位分隔符,它将具有更高的优先级.
 
-See also :setting:`DECIMAL_SEPARATOR`, :setting:`NUMBER_GROUPING` and
+另见 :setting:`DECIMAL_SEPARATOR`, :setting:`NUMBER_GROUPING` 和
 :setting:`THOUSAND_SEPARATOR`.
 
 .. setting:: USE_TZ
@@ -2392,34 +2165,28 @@ See also :setting:`DECIMAL_SEPARATOR`, :setting:`NUMBER_GROUPING` and
 ``USE_TZ``
 ----------
 
-Default: ``False``
+默认值: ``False``
 
-A boolean that specifies if datetimes will be timezone-aware by default or not.
-If this is set to ``True``, Django will use timezone-aware datetimes internally.
-Otherwise, Django will use naive datetimes in local time.
+一个布尔值, 指定在默认情况下是否使用时区感知. 如果设置为 ``True``, Django将在内部使用时区感知日期时间. 否则, Django将在本地时间中使用时区感知的日期.
 
-See also :setting:`TIME_ZONE`, :setting:`USE_I18N` and :setting:`USE_L10N`.
+另见 :setting:`TIME_ZONE`, :setting:`USE_I18N` 和 :setting:`USE_L10N`.
 
 .. note::
 
-    The default :file:`settings.py` file created by
-    :djadmin:`django-admin startproject <startproject>` includes
-    ``USE_TZ = True`` for convenience.
+    为方便起见, :djadmin:`django-admin
+    startproject <startproject>` 创建的 :file:`settings.py` 默认包含 ``USE_TZ = True`` 设置.
 
 .. setting:: USE_X_FORWARDED_HOST
 
 ``USE_X_FORWARDED_HOST``
 ------------------------
 
-Default: ``False``
+默认值: ``False``
 
-A boolean that specifies whether to use the ``X-Forwarded-Host`` header in
-preference to the ``Host`` header. This should only be enabled if a proxy
-which sets this header is in use.
+一个布尔值, 指定是否优先使用 ``X-Forwarded-Host`` 首部而不是 ``Host`` 首部. 仅当代理有设置此首部时才应启用此配置.
 
-This setting takes priority over :setting:`USE_X_FORWARDED_PORT`. Per
-:rfc:`7239#page-7`, the ``X-Forwarded-Host`` header can include the port
-number, in which case you shouldn't use :setting:`USE_X_FORWARDED_PORT`.
+此配置优先于 :setting:`USE_X_FORWARDED_PORT`. 依据
+:rfc:`7239#page-7`, ``X-Forwarded-Host`` 首部可以包括端口号, 在这种情况下不需要使用 :setting:`USE_X_FORWARDED_PORT`.
 
 .. setting:: USE_X_FORWARDED_PORT
 
@@ -2428,129 +2195,110 @@ number, in which case you shouldn't use :setting:`USE_X_FORWARDED_PORT`.
 
 .. versionadded:: 1.9
 
-Default: ``False``
+默认值: ``False``
 
-A boolean that specifies whether to use the ``X-Forwarded-Port`` header in
-preference to the ``SERVER_PORT`` ``META`` variable. This should only be
-enabled if a proxy which sets this header is in use.
+一个布尔值, 指定是否优先使用 ``X-Forwarded-Port`` 首部而不是 ``SERVER_PORT`` ``META`` 变量.
+仅当代理有设置此首部时才应启用此配置.
 
-:setting:`USE_X_FORWARDED_HOST` takes priority over this setting.
+:setting:`USE_X_FORWARDED_HOST` 优先于此配置.
 
 .. setting:: WSGI_APPLICATION
 
 ``WSGI_APPLICATION``
 --------------------
 
-Default: ``None``
+默认值: ``None``
 
-The full Python path of the WSGI application object that Django's built-in
-servers (e.g. :djadmin:`runserver`) will use. The :djadmin:`django-admin
-startproject <startproject>` management command will create a simple
-``wsgi.py`` file with an ``application`` callable in it, and point this setting
-to that ``application``.
+Django内置服务器(例如 :djadmin:`runserver`)将使用的WSGI应用对象的完整Python路径.
+管理命令 :djadmin:`django-admin startproject <startproject>` 会创建一个简单的 ``wsgi.py`` 文件,
+它包含一个可调用的 ``application``, 并将此配置指向该 ``application``.
 
-If not set, the return value of ``django.core.wsgi.get_wsgi_application()``
-will be used. In this case, the behavior of :djadmin:`runserver` will be
-identical to previous Django versions.
+如果没有设置, 将使用 ``django.core.wsgi.get_wsgi_application()`` 的返回值.
+在这种情况下, :djadmin:`runserver` 的行为将与之前的Django版本相同.
 
 .. setting:: YEAR_MONTH_FORMAT
 
 ``YEAR_MONTH_FORMAT``
 ---------------------
 
-Default: ``'F Y'``
+默认值: ``'F Y'``
 
-The default formatting to use for date fields on Django admin change-list
-pages -- and, possibly, by other parts of the system -- in cases when only the
-year and month are displayed.
+在Django admin change-list 页面中, 当只显示年和月的时候, 默认的日期字段的格式, 也可以被系统的其他部分使用.
 
-For example, when a Django admin change-list page is being filtered by a date
-drilldown, the header for a given month displays the month and the year.
-Different locales have different formats. For example, U.S. English would say
-"January 2006," whereas another locale might say "2006/January."
+例如, 在Django管理站点的change-list页面使用日期过滤时, 指定月份的标题显示月份和年份. 不同的区域设置具有不同的格式.
+例如, U.S. English 地区显示"January 2006," 西班牙语地区显示 "2006/January."
 
-Note that if :setting:`USE_L10N` is set to ``True``, then the corresponding
-locale-dictated format has higher precedence and will be applied.
+如果 :setting:`USE_L10N` 设置为 ``True``, 相应本地决定的格式将更优先被使用.
 
-See :tfilter:`allowed date format strings <date>`. See also
+见 :tfilter:`allowed date format strings <date>`. 另见
 :setting:`DATE_FORMAT`, :setting:`DATETIME_FORMAT`, :setting:`TIME_FORMAT`
-and :setting:`MONTH_DAY_FORMAT`.
+和 :setting:`MONTH_DAY_FORMAT`.
 
 .. setting:: X_FRAME_OPTIONS
 
 ``X_FRAME_OPTIONS``
 -------------------
 
-Default: ``'SAMEORIGIN'``
+默认值: ``'SAMEORIGIN'``
 
-The default value for the X-Frame-Options header used by
-:class:`~django.middleware.clickjacking.XFrameOptionsMiddleware`. See the
-:doc:`clickjacking protection </ref/clickjacking/>` documentation.
+:class:`~django.middleware.clickjacking.XFrameOptionsMiddleware` 使用的X-Frame-Options首部的默认值. 见
+:doc:`clickjacking protection </ref/clickjacking/>` 文档.
 
 
 Auth
 ====
 
-Settings for :mod:`django.contrib.auth`.
+:mod:`django.contrib.auth` 的配置.
 
 .. setting:: AUTHENTICATION_BACKENDS
 
 ``AUTHENTICATION_BACKENDS``
 ---------------------------
 
-Default: ``['django.contrib.auth.backends.ModelBackend']``
+默认值: ``['django.contrib.auth.backends.ModelBackend']``
 
-A list of authentication backend classes (as strings) to use when attempting to
-authenticate a user. See the :ref:`authentication backends documentation
-<authentication-backends>` for details.
+认证用户的认证引擎类(字符串形式)的列表. 详见 :ref:`认证引擎文档
+<authentication-backends>`.
 
 .. setting:: AUTH_USER_MODEL
 
 ``AUTH_USER_MODEL``
 -------------------
 
-Default: ``'auth.User'``
+默认值: ``'auth.User'``
 
-The model to use to represent a User. See :ref:`auth-custom-user`.
+用户模型. 见 :ref:`auth-custom-user`.
 
 .. warning::
-    You cannot change the AUTH_USER_MODEL setting during the lifetime of
-    a project (i.e. once you have made and migrated models that depend on it)
-    without serious effort. It is intended to be set at the project start,
-    and the model it refers to must be available in the first migration of
-    the app that it lives in.
-    See :ref:`auth-custom-user` for more details.
+    在项目的生命周期内(即生成并迁移依赖于它的模型之后), 你无法不费吹灰之力的更改AUTH_USER_MODEL配置,
+    它应在项目开始时设置, 并且它所引用的模型必须在它所在的应用程序的第一次迁移中可用.
+    详见 :ref:`auth-custom-user`.
 
 .. setting:: LOGIN_REDIRECT_URL
 
 ``LOGIN_REDIRECT_URL``
 ----------------------
 
-Default: ``'/accounts/profile/'``
+默认值: ``'/accounts/profile/'``
 
-The URL where requests are redirected after login when the
-``contrib.auth.login`` view gets no ``next`` parameter.
+登录后 ``contrib.auth.login`` 视图找不到 ``next`` 参数时. 请求将被重定向到的URL.
 
-This is used by the :func:`~django.contrib.auth.decorators.login_required`
-decorator, for example.
+例如, :func:`~django.contrib.auth.decorators.login_required` 装饰器就使用了这一点.
 
-This setting also accepts :ref:`named URL patterns <naming-url-patterns>` which
-can be used to reduce configuration duplication since you don't have to define
-the URL in two places (``settings`` and URLconf).
+此设置还接受可以用于减少配置重复的 :ref:`URL命名模式 <naming-url-patterns>` .
+因为你不必在两个位置(``settings`` 和 URLconf)中定义URL.
 
 .. setting:: LOGIN_URL
 
 ``LOGIN_URL``
 -------------
 
-Default: ``'/accounts/login/'``
+默认值: ``'/accounts/login/'``
 
-The URL where requests are redirected for login, especially when using the
-:func:`~django.contrib.auth.decorators.login_required` decorator.
+重定向请求以进行登录的URL, 尤其是在使用 :func:`~django.contrib.auth.decorators.login_required` 的视图.
 
-This setting also accepts :ref:`named URL patterns <naming-url-patterns>` which
-can be used to reduce configuration duplication since you don't have to define
-the URL in two places (``settings`` and URLconf).
+此设置还接受可以用于减少配置重复的 :ref:`URL命名模式 <naming-url-patterns>` .
+因为你不必在两个位置(``settings`` 和 URLconf)中定义URL.
 
 .. setting:: LOGOUT_REDIRECT_URL
 
@@ -2559,37 +2307,32 @@ the URL in two places (``settings`` and URLconf).
 
 .. versionadded:: 1.10
 
-Default: ``None``
+默认值: ``None``
 
-The URL where requests are redirected after a user logs out using the
-:func:`~django.contrib.auth.views.logout` view (if the view doesn't get a
-``next_page`` argument).
+使用 :func:`~django.contrib.auth.views.logout` 退出登录后, 请求被重定向的URL(如果视图没有找到 ``next_page`` 参数).
 
-If ``None``, no redirect will be performed and the logout view will be
-rendered.
+如果设置为 ``None``, 则在登出后不进行重定向.
 
-This setting also accepts :ref:`named URL patterns <naming-url-patterns>` which
-can be used to reduce configuration duplication since you don't have to define
-the URL in two places (``settings`` and URLconf).
+此设置还接受可以用于减少配置重复的 :ref:`URL命名模式 <naming-url-patterns>` .
+因为你不必在两个位置(``settings`` 和 URLconf)中定义URL.
 
 .. setting:: PASSWORD_RESET_TIMEOUT_DAYS
 
 ``PASSWORD_RESET_TIMEOUT_DAYS``
 -------------------------------
 
-Default: ``3``
+默认值: ``3``
 
-The number of days a password reset link is valid for. Used by the
-:mod:`django.contrib.auth` password reset mechanism.
+重置密码链接的有效天数. 用于 :mod:`django.contrib.auth` 的密码重置功能.
 
 .. setting:: PASSWORD_HASHERS
 
 ``PASSWORD_HASHERS``
 --------------------
 
-See :ref:`auth_password_storage`.
+见 :ref:`auth_password_storage`.
 
-Default::
+默认值::
 
     [
         'django.contrib.auth.hashers.PBKDF2PasswordHasher',
@@ -2601,7 +2344,7 @@ Default::
 
 .. versionchanged:: 1.10
 
-    The following hashers were removed from the defaults::
+    以下hashers从默认值中移除::
 
         'django.contrib.auth.hashers.SHA1PasswordHasher'
         'django.contrib.auth.hashers.MD5PasswordHasher'
@@ -2609,11 +2352,10 @@ Default::
         'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher'
         'django.contrib.auth.hashers.CryptPasswordHasher'
 
-    Consider using a :ref:`wrapped password hasher <wrapping-password-hashers>`
-    to strengthen the hashes in your database. If that's not feasible, add this
-    setting to your project and add back any hashers that you need.
+    请考虑使用 :ref:`wrapped password hasher <wrapping-password-hashers>` 来加强数据库中的哈希值.
+    如果这不可行, 请将此过程添加到代码中.
 
-    Also, the ``Argon2PasswordHasher`` was added.
+    此外, 新增了 ``Argon2PasswordHasher``.
 
 .. setting:: AUTH_PASSWORD_VALIDATORS
 
@@ -2622,69 +2364,64 @@ Default::
 
 .. versionadded:: 1.9
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-The list of validators that are used to check the strength of user's passwords.
-See :ref:`password-validation` for more details. By default, no validation is
-performed and all passwords are accepted.
+用于检查用户密码强度的验证器列表. 有关详细信息, 见 :ref:`password-validation`. 默认情况下, 不执行任何验证接受所有密码.
 
 .. _settings-messages:
 
 Messages
 ========
 
-Settings for :mod:`django.contrib.messages`.
+:mod:`django.contrib.messages` 中的配置.
 
 .. setting:: MESSAGE_LEVEL
 
 ``MESSAGE_LEVEL``
 -----------------
 
-Default: ``messages.INFO``
+默认值: ``messages.INFO``
 
-Sets the minimum message level that will be recorded by the messages
-framework. See :ref:`message levels <message-level>` for more details.
+设置消息框架记录消息的最小级别. 详见 :ref:`message levels <message-level>`.
 
 .. admonition:: Important
 
-   If you override ``MESSAGE_LEVEL`` in your settings file and rely on any of
-   the built-in constants, you must import the constants module directly to
-   avoid the potential for circular imports, e.g.::
+   如果你在配置文件中覆盖了 ``MESSAGE_LEVEL``, 并依赖内置的常量,
+   你必须直接导入常量模块以避免循环引用的可能性, 例如::
 
        from django.contrib.messages import constants as message_constants
        MESSAGE_LEVEL = message_constants.DEBUG
 
-   If desired, you may specify the numeric values for the constants directly
-   according to the values in the above :ref:`constants table
-   <message-level-constants>`.
+   如果需要, 可以直接根据上面 :ref:`常量表
+   <message-level-constants>` 中的数值来指定常量.
 
 .. setting:: MESSAGE_STORAGE
 
 ``MESSAGE_STORAGE``
 -------------------
 
-Default: ``'django.contrib.messages.storage.fallback.FallbackStorage'``
+默认值: ``'django.contrib.messages.storage.fallback.FallbackStorage'``
 
-Controls where Django stores message data. Valid values are:
+控制Django存储消息数据的地方.有效值有:
 
 * ``'django.contrib.messages.storage.fallback.FallbackStorage'``
 * ``'django.contrib.messages.storage.session.SessionStorage'``
 * ``'django.contrib.messages.storage.cookie.CookieStorage'``
 
-See :ref:`message storage backends <message-storage-backends>` for more details.
+详见 :ref:`消息储存后端 <message-storage-backends>`.
 
-The backends that use cookies --
-:class:`~django.contrib.messages.storage.cookie.CookieStorage` and
+使用cookie后端 --
+:class:`~django.contrib.messages.storage.cookie.CookieStorage` 和
 :class:`~django.contrib.messages.storage.fallback.FallbackStorage` --
-use the value of :setting:`SESSION_COOKIE_DOMAIN`, :setting:`SESSION_COOKIE_SECURE`
-and :setting:`SESSION_COOKIE_HTTPONLY` when setting their cookies.
+在设置它们的cookie时, 使用 :setting:`SESSION_COOKIE_DOMAIN`, :setting:`SESSION_COOKIE_SECURE`
+和 :setting:`SESSION_COOKIE_HTTPONLY`.
 
 .. setting:: MESSAGE_TAGS
 
 ``MESSAGE_TAGS``
 ----------------
 
-Default::
+默认值::
 
     {
         messages.DEBUG: 'debug',
@@ -2694,90 +2431,74 @@ Default::
         messages.ERROR: 'error',
     }
 
-This sets the mapping of message level to message tag, which is typically
-rendered as a CSS class in HTML. If you specify a value, it will extend
-the default. This means you only have to specify those values which you need
-to override. See :ref:`message-displaying` above for more details.
+设置消息级别和消息标签的映射, 通常在HTML中以CSS类的形式呈现.
+如果你指定了一个值, 它将扩展默认值. 这意味着你只需要指定需要覆盖的那些值. 详见 :ref:`message-displaying`.
 
 .. admonition:: Important
 
-   If you override ``MESSAGE_TAGS`` in your settings file and rely on any of
-   the built-in constants, you must import the ``constants`` module directly to
-   avoid the potential for circular imports, e.g.::
+   如果你在配置文件中覆盖了 ``MESSAGE_TAGS``, 并依赖内置的常量, 你必须导入 ``constants`` 模块, 以避免循环导入的可能性, 例如::
 
        from django.contrib.messages import constants as message_constants
        MESSAGE_TAGS = {message_constants.INFO: ''}
 
-   If desired, you may specify the numeric values for the constants directly
-   according to the values in the above :ref:`constants table
-   <message-level-constants>`.
+   如果需要, 可以直接根据上面 :ref:`常量表
+   <message-level-constants>` 中的数值来指定常量.
 
 .. _settings-sessions:
 
 Sessions
 ========
 
-Settings for :mod:`django.contrib.sessions`.
+:mod:`django.contrib.sessions` 的配置.
 
 .. setting:: SESSION_CACHE_ALIAS
 
 ``SESSION_CACHE_ALIAS``
 -----------------------
 
-Default: ``'default'``
+默认值: ``'default'``
 
-If you're using :ref:`cache-based session storage <cached-sessions-backend>`,
-this selects the cache to use.
+使用 :ref:`基于缓存的会话储存 <cached-sessions-backend>` 时, 要使用的缓存.
 
 .. setting:: SESSION_COOKIE_AGE
 
 ``SESSION_COOKIE_AGE``
 ----------------------
 
-Default: ``1209600`` (2 weeks, in seconds)
+默认值: ``1209600`` (单位秒, 即2周)
 
-The age of session cookies, in seconds.
+会话cookie的有效期, 单位秒.
 
 .. setting:: SESSION_COOKIE_DOMAIN
 
 ``SESSION_COOKIE_DOMAIN``
 -------------------------
 
-Default: ``None``
+默认值: ``None``
 
-The domain to use for session cookies. Set this to a string such as
-``".example.com"`` (note the leading dot!) for cross-domain cookies, or use
-``None`` for a standard domain cookie.
+会话cookie的域. 如果设置类似
+``".example.com"`` (注意前面的点号!)的字符串可用于跨域cookie,
+``None`` 用于标准域.
 
-Be cautious when updating this setting on a production site. If you update
-this setting to enable cross-domain cookies on a site that previously used
-standard domain cookies, existing user cookies will be set to the old
-domain. This may result in them being unable to log in as long as these cookies
-persist.
+在生产环境网站上更新此配置时要谨慎. 如果你更新此配置, 在以前使用标准域cookie的网站上启用跨域cookie,
+现有用户cookie将被设置为旧域. 只要这些cookie持续存在, 这会导致他们无法登录.
 
-This setting also affects cookies set by :mod:`django.contrib.messages`.
+此配置也会影响 :mod:`django.contrib.messages` 设置的cookie.
 
 .. setting:: SESSION_COOKIE_HTTPONLY
 
 ``SESSION_COOKIE_HTTPONLY``
 ---------------------------
 
-Default: ``True``
+默认值: ``True``
 
-Whether to use ``HTTPOnly`` flag on the session cookie. If this is set to
-``True``, client-side JavaScript will not to be able to access the
-session cookie.
+会话cookie是否使用 ``HTTPOnly`` 标志. 如果设置
+``True``, 客户端的JavaScript将无法访问会话cookie.
 
-HTTPOnly_ is a flag included in a Set-Cookie HTTP response header. It
-is not part of the :rfc:`2109` standard for cookies, and it isn't honored
-consistently by all browsers. However, when it is honored, it can be a
-useful way to mitigate the risk of a client side script accessing the
-protected cookie data.
+HTTPOnly_ 是HTTP响应的Set-Cookie首部中包含的标志. 它是 :rfc:`2109` 规范中cookie的一部分,
+可以作为一种用来降低客户端脚本访问受保护Cookie数据风险的方式.
 
-Turning it on makes it less trivial for an attacker to escalate a cross-site
-scripting vulnerability into full hijacking of a user's session. There's not
-much excuse for leaving this off, either: if your code depends on reading
-session cookies from JavaScript, you're probably doing it wrong.
+这使得攻击者将跨站脚本漏洞升级为完全劫持用户的会话变得不那么简单. 没有什么缘由关闭它, 除非: 你的代码依赖于从JavaScript中读取会话cookie, 你可能是做错了.
 
 .. _HTTPOnly: https://www.owasp.org/index.php/HTTPOnly
 
@@ -2786,40 +2507,32 @@ session cookies from JavaScript, you're probably doing it wrong.
 ``SESSION_COOKIE_NAME``
 -----------------------
 
-Default: ``'sessionid'``
+默认值: ``'sessionid'``
 
-The name of the cookie to use for sessions. This can be whatever you want
-(as long as it's different from the other cookie names in your application).
+会话cookie的名称. 这可以是任何值(只要它与应用中其他的cookie名称不同).
 
 .. setting:: SESSION_COOKIE_PATH
 
 ``SESSION_COOKIE_PATH``
 -----------------------
 
-Default: ``'/'``
+默认值: ``'/'``
 
-The path set on the session cookie. This should either match the URL path of your
-Django installation or be parent of that path.
+会话cookie设置的路径. 这个路径应该与你Django的URL路径相匹配, 或者是该路径的父路径.
 
-This is useful if you have multiple Django instances running under the same
-hostname. They can use different cookie paths, and each instance will only see
-its own session cookie.
+如果你有多个Django实例在同一个主机名下运行, 这个功能很有用. 他们可以使用不同的cookie路径, 而且每个实例只能看到自己的会话cookie.
 
 .. setting:: SESSION_COOKIE_SECURE
 
 ``SESSION_COOKIE_SECURE``
 -------------------------
 
-Default: ``False``
+默认值: ``False``
 
-Whether to use a secure cookie for the session cookie. If this is set to
-``True``, the cookie will be marked as "secure," which means browsers may
-ensure that the cookie is only sent under an HTTPS connection.
+是否使用安全会话cookie. 如果设置为 ``True``, cookie将被标记为"安全", 这意味着浏览器可以确保cookie只在HTTPS连接下发送.
 
-Since it's trivial for a packet sniffer (e.g. `Firesheep`_) to hijack a user's
-session if the session cookie is sent unencrypted, there's really no good
-excuse to leave this off. It will prevent you from using sessions on insecure
-requests and that's a good thing.
+由于如果会话cookie未加密发送, 数据包嗅探器(例如 `Firesheep`_ )就能劫持用户的会话, 这是很常见的,
+真的没有什么好的缘由关闭它. 它会阻止你使用不安全的会话请求, 这是一件好事.
 
 .. _Firesheep: http://codebutler.com/firesheep
 
@@ -2828,9 +2541,9 @@ requests and that's a good thing.
 ``SESSION_ENGINE``
 ------------------
 
-Default: ``'django.contrib.sessions.backends.db'``
+默认值: ``'django.contrib.sessions.backends.db'``
 
-Controls where Django stores session data. Included engines are:
+控制Django存储会话数据的地方. 包括的引擎有:
 
 * ``'django.contrib.sessions.backends.db'``
 * ``'django.contrib.sessions.backends.file'``
@@ -2838,16 +2551,16 @@ Controls where Django stores session data. Included engines are:
 * ``'django.contrib.sessions.backends.cached_db'``
 * ``'django.contrib.sessions.backends.signed_cookies'``
 
-See :ref:`configuring-sessions` for more details.
+详见 :ref:`configuring-sessions`.
 
 .. setting:: SESSION_EXPIRE_AT_BROWSER_CLOSE
 
 ``SESSION_EXPIRE_AT_BROWSER_CLOSE``
 -----------------------------------
 
-Default: ``False``
+默认值: ``False``
 
-Whether to expire the session when the user closes their browser. See
+用户关闭浏览器时是否结束会话. 见
 :ref:`browser-length-vs-persistent-sessions`.
 
 .. setting:: SESSION_FILE_PATH
@@ -2855,11 +2568,9 @@ Whether to expire the session when the user closes their browser. See
 ``SESSION_FILE_PATH``
 ---------------------
 
-Default: ``None``
+默认值: ``None``
 
-If you're using file-based session storage, this sets the directory in
-which Django will store session data. When the default value (``None``) is
-used, Django will use the standard temporary directory for the system.
+使用基于文件的会话存储情况下, 设置Django存储会话数据的目录. 使用默认值(``None``)时, Django将使用系统的临时目录.
 
 
 .. setting:: SESSION_SAVE_EVERY_REQUEST
@@ -2867,45 +2578,39 @@ used, Django will use the standard temporary directory for the system.
 ``SESSION_SAVE_EVERY_REQUEST``
 ------------------------------
 
-Default: ``False``
+默认值: ``False``
 
-Whether to save the session data on every request. If this is ``False``
-(default), then the session data will only be saved if it has been modified --
-that is, if any of its dictionary values have been assigned or deleted. Empty
-sessions won't be created, even if this setting is active.
+是否每个请求都保存一次会话数据. 如果设置为 ``False`` (默认值), 那么会话数据只有在被修改时才被保存 --
+即它的字典值被赋值或删除. 即使此设置处于活动状态, 也不会创建空会话.
 
 .. setting:: SESSION_SERIALIZER
 
 ``SESSION_SERIALIZER``
 ----------------------
 
-Default: ``'django.contrib.sessions.serializers.JSONSerializer'``
+默认值: ``'django.contrib.sessions.serializers.JSONSerializer'``
 
-Full import path of a serializer class to use for serializing session data.
-Included serializers are:
+序列化会话数据的序列化类的完整路径. 包括:
 
 * ``'django.contrib.sessions.serializers.PickleSerializer'``
 * ``'django.contrib.sessions.serializers.JSONSerializer'``
 
-See :ref:`session_serialization` for details, including a warning regarding
-possible remote code execution when using
-:class:`~django.contrib.sessions.serializers.PickleSerializer`.
+详见 :ref:`session_serialization`, 包括当使用
+:class:`~django.contrib.sessions.serializers.PickleSerializer`  时可能会出现远程代码执行的警告.
 
 Sites
 =====
 
-Settings for :mod:`django.contrib.sites`.
+:mod:`django.contrib.sites` 的配置.
 
 .. setting:: SITE_ID
 
 ``SITE_ID``
 -----------
 
-Default: Not defined
+默认值: 未定义
 
-The ID, as an integer, of the current site in the ``django_site`` database
-table. This is used so that application data can hook into specific sites
-and a single database can manage content for multiple sites.
+当前网站在 ``django_site`` 数据库表中的ID, 整数. 这样, 应用数据就可以挂到特定的站点上, 一个数据库可以管理多个站点的内容.
 
 
 .. _settings-staticfiles:
@@ -2920,65 +2625,55 @@ Settings for :mod:`django.contrib.staticfiles`.
 ``STATIC_ROOT``
 ---------------
 
-Default: ``None``
+默认值: ``None``
 
-The absolute path to the directory where :djadmin:`collectstatic` will collect
-static files for deployment.
+:djadmin:`collectstatic` 收集静态文件部署的目录的绝对路径.
 
-Example: ``"/var/www/example.com/static/"``
+例如: ``"/var/www/example.com/static/"``
 
-If the :doc:`staticfiles</ref/contrib/staticfiles>` contrib app is enabled
-(as in the default project template), the :djadmin:`collectstatic` management
-command will collect static files into this directory. See the how-to on
-:doc:`managing static files</howto/static-files/index>` for more details about
-usage.
+在配置了 :doc:`staticfiles</ref/contrib/staticfiles>` 的应用(如默认的项目模板), :djadmin:`collectstatic`
+管理命令会将静态文件收集到该目录. 详细应用见
+:doc:`管理静态文件 </howto/static-files/index>`.
 
 .. warning::
 
-    This should be an initially empty destination directory for collecting
-    your static files from their permanent locations into one directory for
-    ease of deployment; it is **not** a place to store your static files
-    permanently. You should do that in directories that will be found by
-    :doc:`staticfiles</ref/contrib/staticfiles>`’s
-    :setting:`finders<STATICFILES_FINDERS>`, which by default, are
-    ``'static/'`` app sub-directories and any directories you include in
-    :setting:`STATICFILES_DIRS`).
+    这应该是一个初始为空的目标目录, 用于将你的静态文件从各个位置收集到一个目录中, 以方便部署.
+    它 **不是** 永久存储静态文件的地方. 你应该在那些会被
+    :doc:`staticfiles</ref/contrib/staticfiles>` 的
+    :setting:`finders<STATICFILES_FINDERS>` 找到的目录中进行, 默认情况下, 这些目录是你应用的
+    ``'static/'`` 子目录和
+    :setting:`STATICFILES_DIRS` 包含的目录.
 
 .. setting:: STATIC_URL
 
 ``STATIC_URL``
 --------------
 
-Default: ``None``
+默认值: ``None``
 
-URL to use when referring to static files located in :setting:`STATIC_ROOT`.
+引用位于 :setting:`STATIC_ROOT` 中的静态文件时的URL.
 
-Example: ``"/static/"`` or ``"http://static.example.com/"``
+例如: ``"/static/"`` 或 ``"http://static.example.com/"``
 
-If not ``None``, this will be used as the base path for
-:ref:`asset definitions<form-asset-paths>` (the ``Media`` class) and the
+如果不为 ``None``, 它将被用作
+:ref:`资源定义<form-asset-paths>` (``Media`` 类) 和
 :doc:`staticfiles app</ref/contrib/staticfiles>`.
 
-It must end in a slash if set to a non-empty value.
+如果设置为非空值必须以斜线结束.
 
-You may need to :ref:`configure these files to be served in development
-<serving-static-files-in-development>` and will definitely need to do so
-:doc:`in production </howto/static-files/deployment>`.
+您可能需要 :ref:`在开发中配置这些文件
+<serving-static-files-in-development>`, 并且在生产中必须要这样做.
 
 .. setting:: STATICFILES_DIRS
 
 ``STATICFILES_DIRS``
 --------------------
 
-Default: ``[]`` (Empty list)
+默认值: ``[]`` (空列表)
 
-This setting defines the additional locations the staticfiles app will traverse
-if the ``FileSystemFinder`` finder is enabled, e.g. if you use the
-:djadmin:`collectstatic` or :djadmin:`findstatic` management command or use the
-static file serving view.
+定义在启用了 ``FileSystemFinder`` 时静态文件应用将遍历的额外目录, 例如, 使用 :djadmin:`collectstatic` 或 :djadmin:`findstatic` 管理命令或使用静态文件服务视图时.
 
-This should be set to a list of strings that contain full paths to
-your additional files directory(ies) e.g.::
+应将此设置为包含其他文件目录的完整路径的字符串列表, 例如::
 
     STATICFILES_DIRS = [
         "/home/special.polls.com/polls/static",
@@ -2986,28 +2681,26 @@ your additional files directory(ies) e.g.::
         "/opt/webfiles/common",
     ]
 
-Note that these paths should use Unix-style forward slashes, even on Windows
-(e.g. ``"C:/Users/user/mysite/extra_static_content"``).
+请注意, 这些路径应该使用Unix风格的斜线, 即使在Windows上也是如此
+(例如 ``"C:/Users/user/mysite/extra_static_content"``).
 
-Prefixes (optional)
+前缀 (可选)
 ~~~~~~~~~~~~~~~~~~~
 
-In case you want to refer to files in one of the locations with an additional
-namespace, you can **optionally** provide a prefix as ``(prefix, path)``
-tuples, e.g.::
+如果想用一个额外的命名空间来引用其中一个位置的文件, 可以 **可选地** 设置一个前缀类似 ``(prefix, path)``
+的元组, 例如.::
 
     STATICFILES_DIRS = [
         # ...
         ("downloads", "/opt/webfiles/stats"),
     ]
 
-For example, assuming you have :setting:`STATIC_URL` set to ``'/static/'``, the
-:djadmin:`collectstatic` management command would collect the "stats" files
-in a ``'downloads'`` subdirectory of :setting:`STATIC_ROOT`.
+例如, 假如你 :setting:`STATIC_URL` 设置为 ``'/static/'``,
+:djadmin:`collectstatic` 管理命令将收集 :setting:`STATIC_ROOT` 的 ``'downloads'`` 子目录的"stats"文件.
 
-This would allow you to refer to the local file
-``'/opt/webfiles/stats/polls_20101022.tar.gz'`` with
-``'/static/downloads/polls_20101022.tar.gz'`` in your templates, e.g.:
+这可以使你在模板中用
+``'/opt/webfiles/stats/polls_20101022.tar.gz'`` 引用本地文件
+``'/static/downloads/polls_20101022.tar.gz'`` 例如:
 
 .. code-block:: html+django
 
@@ -3018,76 +2711,68 @@ This would allow you to refer to the local file
 ``STATICFILES_STORAGE``
 -----------------------
 
-Default: ``'django.contrib.staticfiles.storage.StaticFilesStorage'``
+默认值: ``'django.contrib.staticfiles.storage.StaticFilesStorage'``
 
-The file storage engine to use when collecting static files with the
-:djadmin:`collectstatic` management command.
+:djadmin:`collectstatic` 命令收集静态文件时使用的文件存储引擎.
 
-A ready-to-use instance of the storage backend defined in this setting
-can be found at ``django.contrib.staticfiles.storage.staticfiles_storage``.
+在此配置中定义的存储后端的即用例可以在 ``django.contrib.staticfiles.storage.staticfiles_storage`` 中找到.
 
-For an example, see :ref:`staticfiles-from-cdn`.
+例见 :ref:`staticfiles-from-cdn`.
 
 .. setting:: STATICFILES_FINDERS
 
 ``STATICFILES_FINDERS``
 -----------------------
 
-Default::
+默认值::
 
     [
         'django.contrib.staticfiles.finders.FileSystemFinder',
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     ]
 
-The list of finder backends that know how to find static files in
-various locations.
+如何找到不同位置的静态文件的查找器引擎列表.
 
-The default will find files stored in the :setting:`STATICFILES_DIRS` setting
-(using ``django.contrib.staticfiles.finders.FileSystemFinder``) and in a
-``static`` subdirectory of each app (using
-``django.contrib.staticfiles.finders.AppDirectoriesFinder``). If multiple
-files with the same name are present, the first file that is found will be
-used.
+默认情况下, 将查找存储在 :setting:`STATICFILES_DIRS` 配置中的文件
+(使用 ``django.contrib.staticfiles.finders.FileSystemFinder``) 和每个应用的 ``static`` 子目录中的文件
+(使用
+``django.contrib.staticfiles.finders.AppDirectoriesFinder``). 如果存在多个同名文件, 将使用第一个找到的文件.
 
-One finder is disabled by default:
-``django.contrib.staticfiles.finders.DefaultStorageFinder``. If added to
-your :setting:`STATICFILES_FINDERS` setting, it will look for static files in
-the default file storage as defined by the :setting:`DEFAULT_FILE_STORAGE`
-setting.
+有一个查找器是默认禁用的:
+``django.contrib.staticfiles.finders.DefaultStorageFinder``. 如果添加到你的
+:setting:`STATICFILES_FINDERS` 配置中, 它将在 :setting:`DEFAULT_FILE_STORAGE`
+配置所定义的默认文件存储中查找静态文件.
 
 .. note::
 
-    When using the ``AppDirectoriesFinder`` finder, make sure your apps
-    can be found by staticfiles. Simply add the app to the
-    :setting:`INSTALLED_APPS` setting of your site.
+    在使用 ``AppDirectoriesFinder`` 查找器时, 需要将应用添加到
+    :setting:`INSTALLED_APPS` 配置中, 以确保你的应用程序可以通过staticfiles找到.
 
-Static file finders are currently considered a private interface, and this
-interface is thus undocumented.
+静态文件查找器目前被认为是一个私有接口, 因此这个接口是没有文档的.
 
-Core Settings Topical Index
+核心配置索引
 ===========================
 
-Cache
+缓存
 -----
 * :setting:`CACHES`
 * :setting:`CACHE_MIDDLEWARE_ALIAS`
 * :setting:`CACHE_MIDDLEWARE_KEY_PREFIX`
 * :setting:`CACHE_MIDDLEWARE_SECONDS`
 
-Database
+数据库
 --------
 * :setting:`DATABASES`
 * :setting:`DATABASE_ROUTERS`
 * :setting:`DEFAULT_INDEX_TABLESPACE`
 * :setting:`DEFAULT_TABLESPACE`
 
-Debugging
+调式
 ---------
 * :setting:`DEBUG`
 * :setting:`DEBUG_PROPAGATE_EXCEPTIONS`
 
-Email
+邮件
 -----
 * :setting:`ADMINS`
 * :setting:`DEFAULT_CHARSET`
@@ -3106,7 +2791,7 @@ Email
 * :setting:`MANAGERS`
 * :setting:`SERVER_EMAIL`
 
-Error reporting
+错误报告
 ---------------
 * :setting:`DEFAULT_EXCEPTION_REPORTER_FILTER`
 * :setting:`IGNORABLE_404_URLS`
@@ -3115,7 +2800,7 @@ Error reporting
 
 .. _file-upload-settings:
 
-File uploads
+文件上传
 ------------
 * :setting:`DEFAULT_FILE_STORAGE`
 * :setting:`FILE_CHARSET`
@@ -3126,7 +2811,7 @@ File uploads
 * :setting:`MEDIA_ROOT`
 * :setting:`MEDIA_URL`
 
-Globalization (``i18n``/``l10n``)
+国际化 (``i18n``/``l10n``)
 ---------------------------------
 * :setting:`DATE_FORMAT`
 * :setting:`DATE_INPUT_FORMATS`
@@ -3183,20 +2868,20 @@ HTTP
 * :setting:`USE_X_FORWARDED_PORT`
 * :setting:`WSGI_APPLICATION`
 
-Logging
+日志
 -------
 * :setting:`LOGGING`
 * :setting:`LOGGING_CONFIG`
 
-Models
+模型
 ------
 * :setting:`ABSOLUTE_URL_OVERRIDES`
 * :setting:`FIXTURE_DIRS`
 * :setting:`INSTALLED_APPS`
 
-Security
+安全
 --------
-* Cross Site Request Forgery Protection
+* 跨站请求保护
 
   * :setting:`CSRF_COOKIE_DOMAIN`
   * :setting:`CSRF_COOKIE_NAME`
@@ -3209,16 +2894,16 @@ Security
 * :setting:`SECRET_KEY`
 * :setting:`X_FRAME_OPTIONS`
 
-Serialization
+序列化
 -------------
 * :setting:`DEFAULT_CHARSET`
 * :setting:`SERIALIZATION_MODULES`
 
-Templates
+模板
 ---------
 * :setting:`TEMPLATES`
 
-Testing
+测试
 -------
 * Database: :setting:`TEST <DATABASE-TEST>`
 * :setting:`TEST_NON_SERIALIZED_APPS`

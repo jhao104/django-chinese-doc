@@ -84,6 +84,6 @@
 
    Learn about the various components and tools to help you in the development and testing of Django applications:
 
-* **设置**: [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/settings.html) | [设置列表](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/settings.html)
+* **设置**: [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/settings.html) | [配置列表](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/settings.html)
 
 * **应用**: [应用](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/applications.html)
