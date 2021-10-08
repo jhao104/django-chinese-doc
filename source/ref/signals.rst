@@ -1,5 +1,5 @@
 =======
-Signals
+信号
 =======
 
 A list of all the signals that Django sends. All built-in signals are sent

@@ -314,7 +314,7 @@ Learn about some other core functionalities of the Django framework:
 * :doc:`Content types and generic relations <ref/contrib/contenttypes>`
 * :doc:`Flatpages <ref/contrib/flatpages>`
 * :doc:`Redirects <ref/contrib/redirects>`
-* :doc:`Signals <topics/signals>`
+* :doc:`信号 <topics/signals>`
 * :doc:`System check framework <topics/checks>`
 * :doc:`The sites framework <ref/contrib/sites>`
 * :doc:`Unicode in Django <ref/unicode>`
