@@ -87,3 +87,90 @@
 * **设置**: [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/settings.html) | [配置列表](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/settings.html)
 
 * **应用**: [应用](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/applications.html)
+
+* **Exceptions**: [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/exceptions.html)
+
+* **django-admin和manage.py**: [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/django-admin.html) | [Adding custom commands](https://django-chinese-doc.readthedocs.io/zh_CN/latest/howto/custom-management-commands.html)
+
+* **Testing**: 
+  [Introduction ](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/testing/index.html) | [Writing and running tests ](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/testing/overview.html) | [Included testing tools](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/testing/tools.html) | [Advanced topics](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/testing/advanced.html)
+
+* **Deployment**:
+  [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/latest/howto/deployment/index.html) | [WSGI servers](https://django-chinese-doc.readthedocs.io/zh_CN/latest/howto/deployment/wsgi/index.html) | [Deploying static files ](https://django-chinese-doc.readthedocs.io/zh_CN/latest/howto/static-files/deployment.html) | [Tracking code errors by email](https://django-chinese-doc.readthedocs.io/zh_CN/latest/howto/error-reporting.html)
+
+## The admin
+
+   Find all you need to know about the automated admin interface, one of Django's most popular features:
+
+* [Admin site](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/admin/index.html)
+* [Admin actions](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/admin/actions.html)
+* [Admin documentation generator](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/admin/admindocs.html)
+
+## Security
+
+   Security is a topic of paramount importance in the development of Web applications and Django provides multiple protection tools and mechanisms:
+
+* [Security overview](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/security.html)
+* [Disclosed security issues in Django](https://django-chinese-doc.readthedocs.io/zh_CN/latest/releases/security.html)
+* [Clickjacking protection](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/clickjacking.html)
+* [Cross Site Request Forgery protection](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/csrf.html)
+* [Cryptographic signing](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/signing.html)
+* [Security Middleware](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/middleware.html#security-middleware)
+
+## Internationalization and localization
+
+   Django offers a robust internationalization and localization framework to assist you in the development of applications for multiple languages and world regions:
+
+* [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/i18n/index.html) |
+  [Internationalization ](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/i18n/translation.html) |
+  [Localization](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/i18n/translation.html#how-to-create-language-files) |
+  [Localized Web UI formatting and form input](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/i18n/formatting.html)
+* [Time zones](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/i18n/timezones.html)
+
+## Performance and optimization
+
+   There are a variety of techniques and tools that can help get your code running more efficiently - faster, and using fewer system resources.
+
+* [Performance and optimization overview](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/performance.html)
+
+## Python compatibility
+
+   Django aims to be compatible with multiple different flavors and versions of Python:
+
+* [Jython support](https://django-chinese-doc.readthedocs.io/zh_CN/latest/howto/jython.html)
+* [Python 3 compatibility](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/python3.html)
+
+## Geographic framework
+
+   [GeoDjango](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/gis/index.html) intends to be a world-class geographic Web framework. Its goal is to make it as easy as possible to build GIS Web applications and harness the power of spatially enabled data.
+
+## Common Web application tools
+
+   Django offers multiple tools commonly needed in the development of Web applications:
+
+* **Authentication**:
+  [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/auth/index.html) | [Using the authentication system](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/auth/default.html) | [Password management](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/auth/passwords.html) | [Customizing authentication](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/auth/customizing.html) | [API Reference](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/auth.html)
+* [Caching](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/cache.html)
+* [Logging](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/logging.html)
+* [Sending emails](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/email.html)
+* [Syndication feeds (RSS/Atom)](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/syndication.html)
+* [Pagination](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/pagination.html)
+* [Messages framework](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/messages.html)
+* [Serialization](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/serialization.html)
+* [Sessions](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/http/sessions.html)
+* [Sitemaps](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/sitemaps.html)
+* [Static files management](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/staticfiles.html)
+* [Data validation](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/validators.html)
+
+## Other core functionalities
+
+   Learn about some other core functionalities of the Django framework:
+
+* [Conditional content processing](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/conditional-view-processing.html)
+* [Content types and generic relations](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/contenttypes.html)
+* [Flatpages](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/flatpages.html)
+* [Redirects](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/redirects.html)
+* [Signals](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/signals.html)
+* [System check framework](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/checks.html)
+* [The sites framework](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/sites.html)
+* [Unicode in Django](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/unicode.html)
