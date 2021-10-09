@@ -170,7 +170,7 @@
 * [Content types and generic relations](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/contenttypes.html)
 * [Flatpages](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/flatpages.html)
 * [Redirects](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/redirects.html)
-* [信号](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/signals.html)
+* [Signals](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/signals.html)
 * [System check framework](https://django-chinese-doc.readthedocs.io/zh_CN/latest/topics/checks.html)
 * [The sites framework](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/contrib/sites.html)
 * [Unicode in Django](https://django-chinese-doc.readthedocs.io/zh_CN/latest/ref/unicode.html)
