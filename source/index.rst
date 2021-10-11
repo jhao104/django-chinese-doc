@@ -162,8 +162,8 @@ designers and how it can be extended by programmers:
 * **The basics:**
   :doc:`Overview <topics/templates>`
 
-* **For designers:**
-  :doc:`Language overview <ref/templates/language>` |
+* **对于设计者:**
+  :doc:`语法概述 <ref/templates/language>` |
   :doc:`Built-in tags and filters <ref/templates/builtins>` |
   :doc:`Humanization <ref/contrib/humanize>`
 

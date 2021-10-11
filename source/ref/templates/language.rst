@@ -1,49 +1,36 @@
 ============================
-The Django template language
+Django模板语言
 ============================
 
-This document explains the language syntax of the Django template system. If
-you're looking for a more technical perspective on how it works and how to
-extend it, see :doc:`/ref/templates/api`.
+本文介绍Django模板系统的语法. 如果你想从技术角度了解它的工作原理以及如何扩展它, 请参见 :doc:`/ref/templates/api`.
 
-Django's template language is designed to strike a balance between power and
-ease. It's designed to feel comfortable to those used to working with HTML. If
-you have any exposure to other text-based template languages, such as Smarty_
-or Jinja2_, you should feel right at home with Django's templates.
+Django的模板语言旨在在功能和易用性之间取得平衡. 它的设计目的是让那些习惯于使用HTML的人能够自如应对.
+如果您接触过其他基于文本的模板语言, 例如 Smarty_ 或 Jinja2_, 那么您将对Django的模板语言感到一见如故.
 
 .. admonition:: Philosophy
 
-    If you have a background in programming, or if you're used to languages
-    which mix programming code directly into HTML, you'll want to bear in
-    mind that the Django template system is not simply Python embedded into
-    HTML. This is by design: the template system is meant to express
-    presentation, not program logic.
+    如果您有编程方面的背景知识, 或者您习惯于将程序代码直接混入HTML中的语言, 那么您需要记住,
+    Django模板系统不仅仅是嵌入到HTML中的Python. 它是通过设计实现的: 模板系统旨在表示表现形式, 而不是程序逻辑.
 
-    The Django template system provides tags which function similarly to some
-    programming constructs -- an :ttag:`if` tag for boolean tests, a :ttag:`for`
-    tag for looping, etc. -- but these are not simply executed as the
-    corresponding Python code, and the template system will not execute
-    arbitrary Python expressions. Only the tags, filters and syntax listed below
-    are supported by default (although you can add :doc:`your own extensions
-    </howto/custom-template-tags>` to the template language as needed).
+    Django模板系统提供了类似于编程结构的标签 -- 用于布尔判断的 :ttag:`if` 标签, 用于循环的 :ttag:`for` 标签等. --
+    这些标签并不是简单地作为相应的Python代码执行的, 模板系统也不会执行任何Python表达式.
+    默认情况下, 仅支持下面列出的标签, 过滤器和语法(尽管您可以根据需要向模板系统中添加 :doc:`自定义扩展
+    </howto/custom-template-tags>`).
 
 .. _`The Django template language: For Python programmers`: ../templates_python/
 .. _Smarty: http://www.smarty.net/
 .. _Jinja2: http://jinja.pocoo.org/
 
-Templates
+模板
 =========
 
 .. highlightlang:: html+django
 
-A template is simply a text file. It can generate any text-based format (HTML,
-XML, CSV, etc.).
+模板是一个文本文件. 它可以生成任何基于文本的格式(HTML, XML, CSV 等).
 
-A template contains **variables**, which get replaced with values when the
-template is evaluated, and **tags**, which control the logic of the template.
+一个模板包含使用时会被值替换的 **变量** 和控制模版逻辑的 **标签**.
 
-Below is a minimal template that illustrates a few basics. Each element will be
-explained later in this document.
+下面是一个基础的模板, 展示了一些基础的内容. 在后面的文档中会解释其中每个元素.
 
 .. code-block:: html+django
 
@@ -66,144 +53,113 @@ explained later in this document.
 
 .. admonition:: Philosophy
 
-    Why use a text-based template instead of an XML-based one (like Zope's
-    TAL)? We wanted Django's template language to be usable for more than
-    just XML/HTML templates. At World Online, we use it for emails,
-    JavaScript and CSV. You can use the template language for any text-based
-    format.
+    为什么使用基于文本的模板而不是基于XML的模板(比如Zope的TAL)?
+    我们希望Django的模板语言可以用在更多的地方, 而不仅仅是XML/HTML模版.
+    你可以将模板语言用于任何基于文本的格式中, 如电子邮件,JavaScript和CSV.
 
-    Oh, and one more thing: making humans edit XML is sadistic!
+    还有, 让人去编辑XML简直是一种虐待!
 
 .. _template-variables:
 
-Variables
+变量
 =========
 
-Variables look like this: ``{{ variable }}``. When the template engine
-encounters a variable, it evaluates that variable and replaces it with the
-result. Variable names consist of any combination of alphanumeric characters
-and the underscore (``"_"``). The dot (``"."``) also appears in variable
-sections, although that has a special meaning, as indicated below.
-Importantly, *you cannot have spaces or punctuation characters in variable
-names.*
+变量看起来就像这样: ``{{ variable }}``. 当模板引擎遇到一个变量时, 它会计算这个变量并用结果替换它.
+变量名可以由任意字母数字字符和下划线(``"_"``)组成. 点(``"."``)也会在变量部分出现,
+它具有特殊含义, 我们将在后面说明. 重要的是, **变量名中不能有空格或标点符号**.
 
-Use a dot (``.``) to access attributes of a variable.
+使用点号 (``.``)来访问变量的属性.
 
 .. admonition:: Behind the scenes
 
-    Technically, when the template system encounters a dot, it tries the
-    following lookups, in this order:
+    从技术上讲, 当模板系统遇到一个点时, 它会按照以下顺序进行查找:
 
-    * Dictionary lookup
-    * Attribute or method lookup
-    * Numeric index lookup
+    * 字典查找 (Dictionary lookup)
+    * 属性或方法查找 (Attribute or method lookup)
+    * 数字索引查找 (Numeric index lookup)
 
-    If the resulting value is callable, it is called with no arguments. The
-    result of the call becomes the template value.
+    如果结果值是可调用的, 则会无参调用. 调用的结果值成为模板值.
 
-    This lookup order can cause some unexpected behavior with objects that
-    override dictionary lookup. For example, consider the following code snippet
-    that attempts to loop over a ``collections.defaultdict``::
+    这个查询顺序, 会对优先于字典查找的对象上造成意想不到的行为.
+    例如, 思考下面的代码片段, 它原意是想遍历 ``collections.defaultdict``::
 
         {% for k, v in defaultdict.iteritems %}
             Do something with k and v here...
         {% endfor %}
 
-    Because dictionary lookup happens first, that behavior kicks in and provides
-    a default value instead of using the intended ``.iteritems()``
-    method. In this case, consider converting to a dictionary first.
+    因为字典查找是先执行的, 这时返回了一个默认值, 而不是使用预期的 ``.iteritems()`` 方法.
+    在这种情况下, 可以考虑先转换为字典.
 
-In the above example, ``{{ section.title }}`` will be replaced with the
-``title`` attribute of the ``section`` object.
+在上面例子中, ``{{ section.title }}`` 将被 ``section`` 对象的 ``title`` 属性替代.
 
-If you use a variable that doesn't exist, the template system will insert the
-value of the ``string_if_invalid`` option, which is set to ``''`` (the empty
-string) by default.
+如果你使用一个不存在的变量, 模板系统会插入 ``string_if_invalid`` 选项的值, 它被默认设置为 ``''`` (空字符串).
 
-Note that "bar" in a template expression like ``{{ foo.bar }}`` will be
-interpreted as a literal string and not using the value of the variable "bar",
-if one exists in the template context.
+请注意, 像 ``{{ foo.bar }}`` 这样的模板表达式中的"bar", 如果在模板上下文中存在的话, 将被解释为一个字面意义字符串, 而不是使用变量"bar"的值.
 
-Filters
+过滤器
 =======
 
-You can modify variables for display by using **filters**.
+**过滤器** 用来修改展示的变量.
 
-Filters look like this: ``{{ name|lower }}``. This displays the value of the
-``{{ name }}`` variable after being filtered through the :tfilter:`lower`
-filter, which converts text to lowercase. Use a pipe (``|``) to apply a filter.
+过滤器看起来像这样: ``{{ name|lower }}``. 这将显示变量 ``{{ name }}`` 被过滤器 :tfilter:`lower` 修改后的值,
+它将文本转换成小写形式. 使用管道符 (``|``) 来应用过滤器.
 
-Filters can be "chained." The output of one filter is applied to the next.
-``{{ text|escape|linebreaks }}`` is a common idiom for escaping text contents,
-then converting line breaks to ``<p>`` tags.
+过滤器可以 "链式." 一个过滤器的输出将应用到下一个.
+``{{ text|escape|linebreaks }}`` 就是一个常用的过滤器链, 它用于转义文本内容, 然后将换行符转换为 ``<p>`` 标签.
 
-Some filters take arguments. A filter argument looks like this: ``{{
-bio|truncatewords:30 }}``. This will display the first 30 words of the ``bio``
-variable.
+过滤器可以接收参数. 例如: ``{{ bio|truncatewords:30 }}``. 它显示变量 ``bio`` 的前30个字符.
 
-Filter arguments that contain spaces must be quoted; for example, to join a
-list with commas and spaces you'd use ``{{ list|join:", " }}``.
+包含空格的过滤器参数必须加引号; 例如, 连接一个包含逗号和空格的列表: ``{{ list|join:", " }}``.
 
-Django provides about sixty built-in template filters. You can read all about
-them in the :ref:`built-in filter reference <ref-templates-builtins-filters>`.
-To give you a taste of what's available, here are some of the more commonly
-used template filters:
+Django提供了大约60个内置的模板过滤器. 你可以在
+:ref:`内置过滤器参考 <ref-templates-builtins-filters>` 中查看.
+为了让你了解模板过滤器, 这里列出了一些比较常用的模板过滤器:
 
 :tfilter:`default`
-    If a variable is false or empty, use given default. Otherwise, use the
-    value of the variable. For example::
+    如果变量为false或者空, 则使用给定的默认值. 否则, 使用变量的值. 例如::
 
         {{ value|default:"nothing" }}
 
-    If ``value`` isn't provided or is empty, the above will display
-    "``nothing``".
+    如果 ``value`` 不存在或者为空, 那么将显示"``nothing``".
 
 :tfilter:`length`
-    Returns the length of the value. This works for both strings and lists.
-    For example::
+    返回值的长度. 这对字符串和列表都有效. 例如::
 
         {{ value|length }}
 
-    If ``value`` is ``['a', 'b', 'c', 'd']``, the output will be ``4``.
+    如果 ``value`` 为 ``['a', 'b', 'c', 'd']`` 时, 则将显示 ``4``.
 
 :tfilter:`filesizeformat`
-    Formats the value like a "human-readable" file size (i.e. ``'13 KB'``,
-    ``'4.1 MB'``, ``'102 bytes'``, etc.). For example::
+    转换为"易读"的文件大小 (例如. ``'13 KB'``,
+    ``'4.1 MB'``, ``'102 bytes'``, 等.). 例如::
 
         {{ value|filesizeformat }}
 
-    If ``value`` is 123456789, the output would be ``117.7 MB``.
+    如果 ``value`` 为 123456789, 则将显示为 ``117.7 MB``.
 
-Again, these are just a few examples; see the :ref:`built-in filter reference
-<ref-templates-builtins-filters>` for the complete list.
+这些只是几个例子; 查看 :ref:`内置过滤器参考
+<ref-templates-builtins-filters>` 了解所有的内置过滤器.
 
-You can also create your own custom template filters; see
+你也可以自定义过滤器; 详见
 :doc:`/howto/custom-template-tags`.
 
 .. seealso::
 
-    Django's admin interface can include a complete reference of all template
-    tags and filters available for a given site. See
+    Django的admin接口提供了一个模板标签和可用的过滤器的完整参考. 详见
     :doc:`/ref/contrib/admin/admindocs`.
 
-Tags
+标签
 ====
 
-Tags look like this: ``{% tag %}``. Tags are more complex than variables: Some
-create text in the output, some control flow by performing loops or logic, and
-some load external information into the template to be used by later variables.
+标签看起来像这样: ``{% tag %}``. 标签比变量更复杂: 有些用于在输出中创建文本, 有些用于控制循环或逻辑, 有些用于加载外部信息到模板中供以后的变量使用.
 
-Some tags require beginning and ending tags (i.e. ``{% tag %} ... tag contents
+有些标签要求要有开始和结束标签 (例如. ``{% tag %} ... 标签正文
 ... {% endtag %}``).
 
-Django ships with about two dozen built-in template tags. You can read all about
-them in the :ref:`built-in tag reference <ref-templates-builtins-tags>`. To give
-you a taste of what's available, here are some of the more commonly used
-tags:
+Django附带了大约24个内置模板标签, 你可以在 :ref:`内置标签参考 <ref-templates-builtins-tags>` 中了解他们. 为了让你了解这些标签, 下面是一些常用的标签:
 
 :ttag:`for`
-    Loop over each item in an array.  For example, to display a list of athletes
-    provided in ``athlete_list``::
+    循环遍历数组中的每个元素. 例如, 显示 ``athlete_list`` 的athletes列表::
 
         <ul>
         {% for athlete in athlete_list %}
@@ -211,9 +167,8 @@ tags:
         {% endfor %}
         </ul>
 
-:ttag:`if`, ``elif``, and ``else``
-    Evaluates a variable, and if that variable is "true" the contents of the
-    block are displayed::
+:ttag:`if`, ``elif``, 和 ``else``
+    判断变量的布尔值, 如果为 "true" 则显示其中内容::
 
         {% if athlete_list %}
             Number of athletes: {{ athlete_list|length }}
@@ -223,13 +178,12 @@ tags:
             No athletes.
         {% endif %}
 
-    In the above, if ``athlete_list`` is not empty, the number of athletes
-    will be displayed by the ``{{ athlete_list|length }}`` variable. Otherwise,
-    if ``athlete_in_locker_room_list`` is not empty, the message "Athletes
-    should be out..." will be displayed. If both lists are empty,
-    "No athletes." will be displayed.
+    在上面例子中, 如果 ``athlete_list`` 不为空, 则会根据 ``{{ athlete_list|length }}`` 显示athlete的数量.
+    否则, 如果 ``athlete_in_locker_room_list`` 不为空, 将会显示 "Athletes
+    should be out...". 如果两个列表都为空,
+    将会显示"No athletes.".
 
-    You can also use filters and various operators in the :ttag:`if` tag::
+    :ttag:`if` 标签中也可以使用过滤器或其他操作符::
 
         {% if athlete_list|length > 1 %}
            Team: {% for athlete in athlete_list %} ... {% endfor %}
@@ -237,56 +191,48 @@ tags:
            Athlete: {{ athlete_list.0.name }}
         {% endif %}
 
-    While the above example works, be aware that most template filters return
-    strings, so mathematical comparisons using filters will generally not work
-    as you expect. :tfilter:`length` is an exception.
+    虽然上面的例子是可行的, 需要注意, 大多数模版过滤器返回字符串, 所以使用过滤器做数学的比较通常都不会像您期望的那样工作. :tfilter:`length` 是个例外.
 
-:ttag:`block` and :ttag:`extends`
-    Set up `template inheritance`_ (see below), a powerful way
-    of cutting down on "boilerplate" in templates.
+:ttag:`block` 和 :ttag:`extends`
+    参见 `模板继承`_ (见下文), 一种减少模板中重复代码的有效方法.
 
-Again, the above is only a selection of the whole list; see the :ref:`built-in
-tag reference <ref-templates-builtins-tags>` for the complete list.
+这些只是几个例子; 查看 :ref:`内置标签参考
+<ref-templates-builtins-tags>` 了解所有的内置标签.
 
-You can also create your own custom template tags; see
+你也可以自定义过滤标签; 详见
 :doc:`/howto/custom-template-tags`.
 
 .. seealso::
 
-    Django's admin interface can include a complete reference of all template
-    tags and filters available for a given site. See
+    Django的admin接口提供了一个模板标签和可用的过滤器的完整参考. 详见
     :doc:`/ref/contrib/admin/admindocs`.
 
-.. _template-comments:
+.. _模板继承:
 
-Comments
+注释
 ========
 
-To comment-out part of a line in a template, use the comment syntax: ``{# #}``.
+要注释模板中的内容, 请使用注释语法: ``{# #}``.
 
-For example, this template would render as ``'hello'``::
+例如, 下面内容会显示为 ``'hello'``::
 
     {# greeting #}hello
 
-A comment can contain any template code, invalid or not. For example::
+注释可以包含任何有效或无效的代码. 例如::
 
     {# {% if foo %}bar{% else %} #}
 
-This syntax can only be used for single-line comments (no newlines are permitted
-between the ``{#`` and ``#}`` delimiters). If you need to comment out a
-multiline portion of the template, see the :ttag:`comment` tag.
+这种语法只能用于单行注释 (在 ``{#`` 和 ``#}`` 中不允许有换行). 如果你需要注释掉模版中的多行内容, 请参见 :ttag:`comment` 标签.
 
 .. _template-inheritance:
 
-Template inheritance
+模板继承
 ====================
 
-The most powerful -- and thus the most complex -- part of Django's template
-engine is template inheritance. Template inheritance allows you to build a base
-"skeleton" template that contains all the common elements of your site and
-defines **blocks** that child templates can override.
+Django的模板引擎中 -- 最强大 -- 也是最复杂的部分是模板继承. 模板继承允许你创建一个基础的“骨架”模板,
+它包含了网页的所有常用元素, 并定义子模板可以覆盖的 **blocks**.
 
-It's easiest to understand template inheritance by starting with an example::
+通过下面这个例子, 可以很容易的理解模版继承::
 
     <!DOCTYPE html>
     <html lang="en">
@@ -311,15 +257,11 @@ It's easiest to understand template inheritance by starting with an example::
     </body>
     </html>
 
-This template, which we'll call ``base.html``, defines a simple HTML skeleton
-document that you might use for a simple two-column page. It's the job of
-"child" templates to fill the empty blocks with content.
+我们将上面模板称为 ``base.html``, 它定义了一个基础的HTML骨架模板, 用来制作一个简单的两栏式页面. "子" 模板的任务是用内容填充空块.
 
-In this example, the :ttag:`block` tag defines three blocks that child
-templates can fill in. All the :ttag:`block` tag does is to tell the template
-engine that a child template may override those portions of the template.
+在上面例子中, 使用 :ttag:`block` 标签定义三个可以被子模板填充的块. :ttag:`block` 的作用就是告诉模版引擎: 子模版可能会覆盖掉模版中的这些位置.
 
-A child template might look like this::
+子模板可能是这样的::
 
     {% extends "base.html" %}
 
@@ -332,14 +274,9 @@ A child template might look like this::
     {% endfor %}
     {% endblock %}
 
-The :ttag:`extends` tag is the key here. It tells the template engine that
-this template "extends" another template. When the template system evaluates
-this template, first it locates the parent -- in this case, "base.html".
+:ttag:`extends` 标签是其中的关键. 它告诉模版引擎, 这个模版"继承"了另一个模版. 当模版引擎处理这个模版时, 首先它将定位父模版 -- 在此例中, 就是"base.html".
 
-At that point, the template engine will notice the three :ttag:`block` tags
-in ``base.html`` and replace those blocks with the contents of the child
-template. Depending on the value of ``blog_entries``, the output might look
-like::
+此时, 模板引擎将注意到 ``base.html`` 中的三个 :ttag:`block` 标签, 并用子模板的内容替换这些块. 依据 ``blog_entries`` 的值可能显示如下::
 
     <!DOCTYPE html>
     <html lang="en">
@@ -366,173 +303,132 @@ like::
     </body>
     </html>
 
-Note that since the child template didn't define the ``sidebar`` block, the
-value from the parent template is used instead. Content within a ``{% block %}``
-tag in a parent template is always used as a fallback.
+注意, 由于子模板中没有定义 ``sidebar`` 块, 所以直接使用父模板的值. 父模板  ``{% block %}`` 标签中的内容总是作为备选.
 
-You can use as many levels of inheritance as needed. One common way of using
-inheritance is the following three-level approach:
+你可以根据需要使用任意层次的继承. 一种常见的使用继承的方式是下面的三层继承结构:
 
-* Create a ``base.html`` template that holds the main look-and-feel of your
-  site.
-* Create a ``base_SECTIONNAME.html`` template for each "section" of your
-  site. For example, ``base_news.html``, ``base_sports.html``. These
-  templates all extend ``base.html`` and include section-specific
-  styles/design.
-* Create individual templates for each type of page, such as a news
-  article or blog entry. These templates extend the appropriate section
-  template.
+* 创建一个 ``base.html`` 模板来控制网站的主要外观及风格.
+* 为站点的每个"部分"创建一个 ``base_SECTIONNAME.html`` 模板. 比如, ``base_news.html``, ``base_sports.html``.
+  这些模板都继承于 ``base.html``, 用来控制这些特定部分的样式和内容.
+* 为每一种页面类型创建独立的模版, 例如新闻内容或者博客文章. 这些模版继承于对应部分的模版.
 
-This approach maximizes code reuse and makes it easy to add items to shared
-content areas, such as section-wide navigation.
+这种方式使代码得到最大程度的复用, 并且使得添加内容到共享的内容区域更加简单, 例如部分的导航.
 
-Here are some tips for working with inheritance:
+下面是一些使用继承技巧:
 
-* If you use :ttag:`{% extends %}<extends>` in a template, it must be the first template
-  tag in that template. Template inheritance won't work, otherwise.
+* 使用模板继承时, :ttag:`{% extends %}<extends>` 必须是模板文件中的第一个标签, 否则模板继承不会生效.
 
-* More :ttag:`{% block %}<block>` tags in your base templates are better. Remember,
-  child templates don't have to define all parent blocks, so you can fill
-  in reasonable defaults in a number of blocks, then only define the ones
-  you need later. It's better to have more hooks than fewer hooks.
+* 在基础模板中使用的 :ttag:`{% block %}<block>` 标签越多越好. 记住, 在子模板中不必实现父模板中所有的blocks,
+  所以你可以在某些的blocks中填入合理的默认值, 然后之后只需要定义需要的block, 钩子多总比钩子少好.
 
-* If you find yourself duplicating content in a number of templates, it
-  probably means you should move that content to a ``{% block %}`` in a
-  parent template.
+* 如果你发现自己的内容在多个模板中重复, 那么可能你需要考虑将这些内容移到父模板的 ``{% block %}`` 中.
 
-* If you need to get the content of the block from the parent template,
-  the ``{{ block.super }}`` variable will do the trick. This is useful
-  if you want to add to the contents of a parent block instead of
-  completely overriding it. Data inserted using ``{{ block.super }}`` will
-  not be automatically escaped (see the `next section`_), since it was
-  already escaped, if necessary, in the parent template.
+* 如果你需要获取父模板block中的内容, 可以使用 ``{{ block.super }}`` 变量.
+  如果你想在父模板中添加的内容而不是覆盖它, 这很有用.
+  使用 ``{{ block.super }}`` 插入的数据不会被自动转义(参见 `下一节`_), 因为如果需要的话, 它已经在父模板中被转义了.
 
-* For extra readability, you can optionally give a *name* to your
-  ``{% endblock %}`` tag. For example::
+* 为增加可读性, 你可以给
+  ``{% endblock %}`` 标签起一个 *名字*. 例如::
 
       {% block content %}
       ...
       {% endblock content %}
 
-  In larger templates, this technique helps you see which ``{% block %}``
-  tags are being closed.
+  在大型模版中, 这个方法可以帮你清楚的看到哪一个 ``{% block %}`` 标签被关闭了.
 
-Finally, note that you can't define multiple :ttag:`block` tags with the same
-name in the same template. This limitation exists because a block tag works in
-"both" directions. That is, a block tag doesn't just provide a hole to fill --
-it also defines the content that fills the hole in the *parent*. If there were
-two similarly-named :ttag:`block` tags in a template, that template's parent
-wouldn't know which one of the blocks' content to use.
+最后, 请注意不要在同一模板中定义多个具有相同名称标签. 此限制的存在是因为 :ttag:`block` 标签是"双向"工作的.
+这个意思是, :ttag:`block` 标签不仅是提供了一个填充的位置, 它定义了向父模版的位置中所填的内容.
+如果在一个模版中有两个名字一样的 :ttag:`block` 标签, 模版的父模版将不知道使用哪个block的内容.
 
-.. _next section: #automatic-html-escaping
+.. _下一节: #automatic-html-escaping
 .. _automatic-html-escaping:
 
-Automatic HTML escaping
+自动转义HTML
 =======================
 
-When generating HTML from templates, there's always a risk that a variable will
-include characters that affect the resulting HTML. For example, consider this
-template fragment::
+从模板生成HTML总是存在这样一个风险: 即变量值可能会包含影响HTML最终呈现的字符. 例如, 考虑这个模板片段::
 
     Hello, {{ name }}
 
-At first, this seems like a harmless way to display a user's name, but consider
-what would happen if the user entered their name as this::
+乍一看, 这似乎是一种无伤大雅的显示用户姓名的方式, 但考虑一下, 如果用户将自己的姓名设置为::
 
     <script>alert('hello')</script>
 
-With this name value, the template would be rendered as::
+使用这个值, 该模板会被渲染为::
 
     Hello, <script>alert('hello')</script>
 
-...which means the browser would pop-up a JavaScript alert box!
+...这意味着浏览器会弹出一个JavaScript警报框!
 
-Similarly, what if the name contained a ``'<'`` symbol, like this?
+同样, 如果名称中包含一个 ``'<'`` 符号，像这样呢?
 
 .. code-block:: html
 
     <b>username
 
-That would result in a rendered template like this::
+这样一来, 呈现出来的模板就会是这样的::
 
     Hello, <b>username
 
-...which, in turn, would result in the remainder of the Web page being bolded!
+...这又会导致网页的其余部分被加粗!
 
-Clearly, user-submitted data shouldn't be trusted blindly and inserted directly
-into your Web pages, because a malicious user could use this kind of hole to
-do potentially bad things. This type of security exploit is called a
-`Cross Site Scripting`_ (XSS) attack.
+显然, 不应该盲目信任用户提交的数据, 并且直接插入到你的网页中, 因为恶意用户可能会利用这种漏洞做潜在的坏事.
+这种类型的安全漏洞被称为 `跨站点脚本`_ (XSS) 攻击.
 
-To avoid this problem, you have two options:
+为避免这个问题, 你有两个选择:
 
-* One, you can make sure to run each untrusted variable through the
-  :tfilter:`escape` filter (documented below), which converts potentially
-  harmful HTML characters to unharmful ones. This was the default solution
-  in Django for its first few years, but the problem is that it puts the
-  onus on *you*, the developer / template author, to ensure you're escaping
-  everything. It's easy to forget to escape data.
+* 第一, 对每个不被信任的变量使用 :tfilter:`escape` 过滤器(见下文), 它可以将潜在的有害HTML字符转换为无害的字符.
+  在Django的开始几年里这是默认的解决方案, 但是这样就把责任给了 *你*, 也就是开发者/模板作者, 需要你来确保都被转义了,
+  但是很容易忘记对数据进行转义.
 
-* Two, you can take advantage of Django's automatic HTML escaping. The
-  remainder of this section describes how auto-escaping works.
+* 第二, 你可以利用Django的HTML自动转义功能. 本节剩余部分将介绍自动转义的工作原理.
 
-By default in Django, every template automatically escapes the output
-of every variable tag. Specifically, these five characters are
-escaped:
+默认情况下, 在Django中模板都会为每个变量输出自动转义. 明确地说, 这五个字符会被转义:
 
-* ``<`` is converted to ``&lt;``
-* ``>`` is converted to ``&gt;``
-* ``'`` (single quote) is converted to ``&#39;``
-* ``"`` (double quote) is converted to ``&quot;``
-* ``&`` is converted to ``&amp;``
+* ``<`` 会被转成 ``&lt;``
+* ``>`` 会被转成 ``&gt;``
+* ``'`` (单引号) 会被转成 ``&#39;``
+* ``"`` (双引号) 会被转成 ``&quot;``
+* ``&`` 会被转成 ``&amp;``
 
-Again, we stress that this behavior is on by default. If you're using Django's
-template system, you're protected.
+再次强调这个行为是默认启用的. 如果你使用Django的模板系统, 你就会受到此保护.
 
-.. _Cross Site Scripting: https://en.wikipedia.org/wiki/Cross-site_scripting
+.. _跨站点脚本: https://en.wikipedia.org/wiki/Cross-site_scripting
 
-How to turn it off
+如何关闭它
 ------------------
 
-If you don't want data to be auto-escaped, on a per-site, per-template level or
-per-variable level, you can turn it off in several ways.
+如果你不希望数据自动转义, 无论是在站点, 模板还是变量级别, 可以使用下面几种方法来关闭它.
 
-Why would you want to turn it off? Because sometimes, template variables
-contain data that you *intend* to be rendered as raw HTML, in which case you
-don't want their contents to be escaped. For example, you might store a blob of
-HTML in your database and want to embed that directly into your template. Or,
-you might be using Django's template system to produce text that is *not* HTML
--- like an email message, for instance.
+为什么想要关闭它呢? 因为有时, 模板变量中包含一些希望以原始HTML形式呈现的数据,
+并不想转义这些内容. 例如, 在数据库中储存一些HTML代码, 并希望将其直接嵌入到模板中.
+或者, 使用Django的模板系统来生成非HTML的文本 -- 比如邮件内容.
 
-For individual variables
+对于单个变量
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-To disable auto-escaping for an individual variable, use the :tfilter:`safe`
-filter::
+关闭单个变量的自动转义可以使用 :tfilter:`safe` 过滤器::
 
     This will be escaped: {{ data }}
     This will not be escaped: {{ data|safe }}
 
-Think of *safe* as shorthand for *safe from further escaping* or *can be
-safely interpreted as HTML*. In this example, if ``data`` contains ``'<b>'``,
-the output will be::
+可以把 *safe* 看作是 *safe from further escaping* 或者 *can be
+safely interpreted as HTML* 的意思. 在这个例子中, 如果 ``data`` 带有 ``'<b>'``,
+输出将是::
 
     This will be escaped: &lt;b&gt;
     This will not be escaped: <b>
 
-For template blocks
+对于模板块
 ~~~~~~~~~~~~~~~~~~~
 
-To control auto-escaping for a template, wrap the template (or just a
-particular section of the template) in the :ttag:`autoescape` tag, like so::
+要控制模板的自动转义, 可以将模板(或模板的某一部分)放在 :ttag:`autoescape` 标签中, 像这样::
 
     {% autoescape off %}
         Hello {{ name }}
     {% endautoescape %}
 
-The :ttag:`autoescape` tag takes either ``on`` or ``off`` as its argument. At
-times, you might want to force auto-escaping when it would otherwise be
-disabled. Here is an example template::
+:ttag:`autoescape` 标签接收 ``on`` 或者 ``off`` 参数. 有时, 可能会想在没有启用自动转义的情况下强制转义. 以下是一个模板示例::
 
     Auto-escaping is on by default. Hello {{ name }}
 
@@ -545,9 +441,7 @@ disabled. Here is an example template::
         {% endautoescape %}
     {% endautoescape %}
 
-The auto-escaping tag passes its effect onto templates that extend the
-current one as well as templates included via the :ttag:`include` tag,
-just like all block tags. For example:
+自动转义标签会作用于扩展当前模板的模板以及通过 :ttag:`include` 标签包含的模板, 就像所有block标签那样. 例如:
 
 .. snippet::
     :filename: base.html
@@ -565,79 +459,61 @@ just like all block tags. For example:
     {% block title %}This &amp; that{% endblock %}
     {% block content %}{{ greeting }}{% endblock %}
 
-Because auto-escaping is turned off in the base template, it will also be
-turned off in the child template, resulting in the following rendered
-HTML when the ``greeting`` variable contains the string ``<b>Hello!</b>``::
+由于在基础模板中关闭了自动转义, 所以在子模板中也会关闭,
+当 ``greeting`` 变量带有 ``<b>Hello!</b>`` 字符时, 会呈现以下的HTML渲染结果::
 
     <h1>This &amp; that</h1>
     <b>Hello!</b>
 
-Notes
+注意
 -----
 
-Generally, template authors don't need to worry about auto-escaping very much.
-Developers on the Python side (people writing views and custom filters) need to
-think about the cases in which data shouldn't be escaped, and mark data
-appropriately, so things Just Work in the template.
+一般来说, 模板作者不需要太担心自动转义的问题. Python端的开发人员(编写视图和自定义过滤器的人)会考虑在哪些情况下数据不应该被转义, 并进行适当地标记数据让其在模板中正常工作.
 
-If you're creating a template that might be used in situations where you're
-not sure whether auto-escaping is enabled, then add an :tfilter:`escape` filter
-to any variable that needs escaping. When auto-escaping is on, there's no
-danger of the :tfilter:`escape` filter *double-escaping* data -- the
-:tfilter:`escape` filter does not affect auto-escaped variables.
+如果你在不确定是否启用自动转义的情况下创建的模板, 那么可以在所有需要转义的变量中添加一个 :tfilter:`escape` 过滤器.
+在自动转义开启时, 也不会有 :tfilter:`escape` 过滤器 *双重转义* 数据的问题  --  :tfilter:`escape` 过滤器不会影响已自动转义的变量.
 
 .. _string-literals-and-automatic-escaping:
 
-String literals and automatic escaping
+字符串和自动转义
 --------------------------------------
 
-As we mentioned earlier, filter arguments can be strings::
+正如前面提到的, 过滤器的参数可以是字符串::
 
     {{ data|default:"This is a string literal." }}
 
-All string literals are inserted **without** any automatic escaping into the
-template -- they act as if they were all passed through the :tfilter:`safe`
-filter. The reasoning behind this is that the template author is in control of
-what goes into the string literal, so they can make sure the text is correctly
-escaped when the template is written.
+所有的字符串文本都是在 **没有** 自动转义的情况下插入到模板中的 --  它们的行为类似于通过 :tfilter:`safe` 过滤器传入一样.
+这背后的原因是, 模板作者可以控制字符串文本的内容, 因此他们可以确保在编写模板时正确地转义文本.
 
-This means you would write ::
+这意味着你应当这么写::
 
     {{ data|default:"3 &lt; 2" }}
 
-...rather than::
+...而不是::
 
     {{ data|default:"3 < 2" }}  {# Bad! Don't do this. #}
 
-This doesn't affect what happens to data coming from the variable itself.
-The variable's contents are still automatically escaped, if necessary, because
-they're beyond the control of the template author.
+这并不影响来源于变量自身的数据. 变量的内容在必要时仍然会自动转义, 因为它们不受模板作者的控制.
 
 .. _template-accessing-methods:
 
-Accessing method calls
+方法调用
 ======================
 
-Most method calls attached to objects are also available from within templates.
-This means that templates have access to much more than just class attributes
-(like field names) and variables passed in from views. For example, the Django
-ORM provides the :ref:`"entry_set"<topics-db-queries-related>` syntax for
-finding a collection of objects related on a foreign key. Therefore, given
-a model called "comment" with a foreign key relationship to a model called
-"task" you can loop through all comments attached to a given task like this::
+对象的大多数方法同样可以在模板中调用. 这意味着模板能够访问到的不仅仅是类属性(比如字段名称)和视图中传入的变量.
+例如, Django ORM提供了 :ref:`"entry_set"<topics-db-queries-related>` 语法用于查找关联到外键的对象集合.
+因此, 如果模型"comment"有一个外键关联到模型"task", 你可以通过 "task" 遍历其所有的comments, 像这样::
 
     {% for comment in task.comment_set.all %}
         {{ comment }}
     {% endfor %}
 
-Similarly, :doc:`QuerySets</ref/models/querysets>` provide a ``count()`` method
-to count the number of objects they contain. Therefore, you can obtain a count
-of all comments related to the current task with::
+同样, :doc:`QuerySets</ref/models/querysets>` 提供了一个 ``count()`` 方法来计算它们所包含的对象数量.
+因此, 可以通过以下方法获得与当前task相关的所有comment的数量::
 
     {{ task.comment_set.all.count }}
 
-And of course you can easily access methods you've explicitly defined on your
-own models:
+你也可以访问在模型上定义的方法:
 
 .. snippet::
     :filename: models.py
@@ -651,54 +527,41 @@ own models:
 
     {{ task.foo }}
 
-Because Django intentionally limits the amount of logic processing available
-in the template language, it is not possible to pass arguments to method calls
-accessed from within templates. Data should be calculated in views, then passed
-to templates for display.
+由于Django有意限制了模板语言中的逻辑处理, 不能够在模板中传递参数来调用方法. 所以数据应该在视图中处理然后传递给模板展示.
 
 .. _loading-custom-template-libraries:
 
-Custom tag and filter libraries
+自定义标签和自定义库
 ===============================
 
-Certain applications provide custom tag and filter libraries. To access them in
-a template, ensure the application is in :setting:`INSTALLED_APPS` (we'd add
-``'django.contrib.humanize'`` for this example), and then use the :ttag:`load`
-tag in a template::
+某些应用提供了自定义标签和过滤器库. 如果要在模板中访问它们, 请确保应用在 :setting:`INSTALLED_APPS` 中(本例中我们会添加 'django.contrib.humanize'),
+然后在模板中使用 :ttag:`load` 标签::
 
     {% load humanize %}
 
     {{ 45000|intcomma }}
 
-In the above, the :ttag:`load` tag loads the ``humanize`` tag library, which then
-makes the ``intcomma`` filter available for use. If you've enabled
-:mod:`django.contrib.admindocs`, you can consult the documentation area in your
-admin to find the list of custom libraries in your installation.
+在上面例子中, :ttag:`load` 标签加载了 ``humanize`` 标签库, 然后使 ``intcomma`` 过滤器可以使.
+如果你启用了 :mod:`django.contrib.admindocs`, 你可以在admin站点的文档区查找安装的自定义库列表.
 
-The :ttag:`load` tag can take multiple library names, separated by spaces.
-Example::
+:ttag:`load` 标签可以接收多个库名, 使用空格分开.
+例如::
 
     {% load humanize i18n %}
 
-See :doc:`/howto/custom-template-tags` for information on writing your own custom
-template libraries.
+如何自定义模板库请参见 :doc:`/howto/custom-template-tags`.
 
-Custom libraries and template inheritance
+自定义库和模板继承
 -----------------------------------------
 
-When you load a custom tag or filter library, the tags/filters are only made
-available to the current template -- not any parent or child templates along
-the template-inheritance path.
+当你加载自定义标签或过滤器库时, 标签/过滤器仅对当前模板可用, 而不是沿模板继承路径的所有父模板或子模板都可用.
 
-For example, if a template ``foo.html`` has ``{% load humanize %}``, a child
-template (e.g., one that has ``{% extends "foo.html" %}``) will *not* have
-access to the humanize template tags and filters. The child template is
-responsible for its own ``{% load humanize %}``.
+例如, 假设模板 ``foo.html`` 带有  ``{% load humanize %}``, 子模版(例如, 带有 ``{% extends "foo.html" %}`` 的模板)中
+*不能* 访问humanize模板标签和过滤器. 子模版需要自己添加 ``{% load humanize %}``.
 
-This is a feature for the sake of maintainability and sanity.
+这是因为这能使模板更健全且更好维护.
 
 .. seealso::
 
-    :doc:`The Templates Reference </ref/templates/index>`
-        Covers built-in tags, built-in filters, using an alternative template,
-        language, and more.
+    :doc:`模板参考 </ref/templates/index>`
+        涵盖内置标签, 内置过滤器, 使用替代模板, 语言等.

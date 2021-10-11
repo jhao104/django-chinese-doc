@@ -67,7 +67,7 @@
 
 * **The basics**: [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/templates.html)
 
-* **For designers**: [Language overview](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/templates/language.html) | [Built-in tags and filters](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/templates/builtins.html) | [Humanization](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/contrib/humanize.html)
+* **对于设计者**: [语法概述](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/templates/language.html) | [Built-in tags and filters](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/templates/builtins.html) | [Humanization](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/contrib/humanize.html)
 
 * **For programmers**: [Template API](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/templates/api.html) | [Custom tags and filters](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/howto/custom-template-tags.html)
 
