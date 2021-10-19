@@ -152,19 +152,17 @@ Django使用"视图"这个概念, 负责处理用户请求并返回响应. 通�
   :doc:`Overview <topics/http/middleware>` |
   :doc:`Built-in middleware classes <ref/middleware>`
 
-The template layer
+模板层
 ==================
 
-The template layer provides a designer-friendly syntax for rendering the
-information to be presented to the user. Learn how this syntax can be used by
-designers and how it can be extended by programmers:
+模板层提供了一种设计器友好的语法, 用于渲染向用户呈现的信息. 学习如何使用语法(面向设计者)以及如何扩展(面向开发者):
 
 * **The basics:**
   :doc:`Overview <topics/templates>`
 
 * **对于设计者:**
   :doc:`语法概述 <ref/templates/language>` |
-  :doc:`Built-in tags and filters <ref/templates/builtins>` |
+  :doc:`内置标签和过滤器 <ref/templates/builtins>` |
   :doc:`Humanization <ref/contrib/humanize>`
 
 * **For programmers:**

@@ -63,11 +63,11 @@
 
 ## The template layer
 
-   The template layer provides a designer-friendly syntax for rendering the information to be presented to the user. Learn how this syntax can be used by designers and how it can be extended by programmers:
+   模板层提供了一种设计器友好的语法, 用于渲染向用户呈现的信息. 学习如何使用语法(面向设计者)以及如何扩展(面向开发者):
 
 * **The basics**: [Overview](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/topics/templates.html)
 
-* **对于设计者**: [语法概述](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/templates/language.html) | [Built-in tags and filters](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/templates/builtins.html) | [Humanization](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/contrib/humanize.html)
+* **对于设计者**: [语法概述](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/templates/language.html) | [内置标签和过滤器](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/templates/builtins.html) | [Humanization](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/contrib/humanize.html)
 
 * **For programmers**: [Template API](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/ref/templates/api.html) | [Custom tags and filters](https://django-chinese-doc.readthedocs.io/zh_CN/1.10.x/howto/custom-template-tags.html)
 

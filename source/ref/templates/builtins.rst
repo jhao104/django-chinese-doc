@@ -1,15 +1,13 @@
 ==================================
-Built-in template tags and filters
+内置标签和过滤器
 ==================================
 
-This document describes Django's built-in template tags and filters. It is
-recommended that you use the :doc:`automatic documentation
-</ref/contrib/admin/admindocs>`, if available, as this will also include
-documentation for any custom tags or filters installed.
+本文档介绍Django的内置模板标签和过滤器. 建议您 :doc:`自动文档
+</ref/contrib/admin/admindocs>` (如果可用), 因为这包括安装的所有自定义标签或过滤器的文档.
 
 .. _ref-templates-builtins-tags:
 
-Built-in tag reference
+内置标签参考
 ======================
 
 .. highlight:: html+django
@@ -19,20 +17,13 @@ Built-in tag reference
 ``autoescape``
 --------------
 
-Controls the current auto-escaping behavior. This tag takes either ``on`` or
-``off`` as an argument and that determines whether auto-escaping is in effect
-inside the block. The block is closed with an ``endautoescape`` ending tag.
+控制自动转义行为. 此标记接受 ``on`` 或 ``off`` 作为参数, 决定是否在block内自动转义. block需以 ``endautoescape`` 结束标签关闭.
 
-When auto-escaping is in effect, all variable content has HTML escaping applied
-to it before placing the result into the output (but after any filters have
-been applied). This is equivalent to manually applying the :tfilter:`escape`
-filter to each variable.
+当启用自动转义时, 在将结果输出之前(在所有任何过滤器之后), 所有变量内容都将进行HTML转义. 这相当于对每个变量手动应用 :tfilter:`escape` 过滤器.
 
-The only exceptions are variables that are already marked as "safe" from
-escaping, either by the code that populated the variable, or because it has had
-the :tfilter:`safe` or :tfilter:`escape` filters applied.
+唯一的例外是被标记为"safe"的变量, 也就是被应用了 :tfilter:`safe` 或 :tfilter:`escape` 过滤器的变量或者填充的代码.
 
-Sample usage::
+用例::
 
     {% autoescape on %}
         {{ body }}
@@ -43,46 +34,40 @@ Sample usage::
 ``block``
 ---------
 
-Defines a block that can be overridden by child templates. See
-:ref:`Template inheritance <template-inheritance>` for more information.
+定义一个可以被子模板覆盖的块. 更多信息请参见 :ref:`模板继承 <template-inheritance>`.
 
 .. templatetag:: comment
 
 ``comment``
 -----------
 
-Ignores everything between ``{% comment %}`` and ``{% endcomment %}``.
-An optional note may be inserted in the first tag. For example, this is
-useful when commenting out code for documenting why the code was disabled.
+注释 ``{% comment %}`` 和 ``{% endcomment %}`` 之间的内容. 可在第一个标记中插入可选的注释. 这在注释代码时记录代码被禁用的原因非常有用.
 
-Sample usage::
+用例::
 
     <p>Rendered text with {{ pub_date|date:"c" }}</p>
-    {% comment "Optional note" %}
+    {% comment "可添加备注" %}
         <p>Commented out text with {{ create_date|date:"c" }}</p>
     {% endcomment %}
 
-``comment`` tags cannot be nested.
+``comment`` 标签不能嵌套使用.
 
 .. templatetag:: csrf_token
 
 ``csrf_token``
 --------------
 
-This tag is used for CSRF protection, as described in the documentation for
-:doc:`Cross Site Request Forgeries </ref/csrf>`.
+该标签用于CSRF保护, 具体可以参考
+:doc:`跨站点请求伪造保护 </ref/csrf>`.
 
 .. templatetag:: cycle
 
 ``cycle``
 ---------
 
-Produces one of its arguments each time this tag is encountered. The first
-argument is produced on the first encounter, the second argument on the second
-encounter, and so forth. Once all arguments are exhausted, the tag cycles to
-the first argument and produces it again.
+每次访问这个标记时生成一个参数. 第一次访问时生成第一个参数, 第二次访问时生成第二个参数, 依此类推. 所有参数用完后, 将从第一个参数开始循环使用.
 
-This tag is particularly useful in a loop::
+这个标签在循环中特别有用::
 
     {% for o in some_list %}
         <tr class="{% cycle 'row1' 'row2' %}">
@@ -90,13 +75,9 @@ This tag is particularly useful in a loop::
         </tr>
     {% endfor %}
 
-The first iteration produces HTML that refers to class ``row1``, the second to
-``row2``, the third to ``row1`` again, and so on for each iteration of the
-loop.
+第一次迭代将生成class为 ``row1`` 的HTML, 第二次为 ``row2``, 第三次又变成 ``row1``, 每次迭代以此类推.
 
-You can use variables, too. For example, if you have two template variables,
-``rowvalue1`` and ``rowvalue2``, you can alternate between their values like
-this::
+也可以使用变量. 例如, 假如有两个模板变量 ``rowvalue1`` 和 ``rowvalue2``, 可以像这样交替使用它们的值::
 
     {% for o in some_list %}
         <tr class="{% cycle rowvalue1 rowvalue2 %}">
@@ -104,8 +85,7 @@ this::
         </tr>
     {% endfor %}
 
-Variables included in the cycle will be escaped.  You can disable auto-escaping
-with::
+在循环中的变量将被转义. 可以通过以下方式禁用自动转义::
 
     {% for o in some_list %}
         <tr class="{% autoescape off %}{% cycle rowvalue1 rowvalue2 %}{% endautoescape %}">
@@ -113,7 +93,7 @@ with::
         </tr>
     {% endfor %}
 
-You can mix variables and strings::
+字符串和变量可以组合使用::
 
     {% for o in some_list %}
         <tr class="{% cycle 'row1' rowvalue2 'row3' %}">
@@ -121,17 +101,11 @@ You can mix variables and strings::
         </tr>
     {% endfor %}
 
-In some cases you might want to refer to the current value of a cycle
-without advancing to the next value. To do this,
-just give the ``{% cycle %}`` tag a name, using "as", like this::
+在某些情况下, 您可能希望引用循环的当前值, 而不是下一个循环值. 为此, 只需使用"as"给 ``{% cycle %}`` 标签一个别名, 如下所示::
 
     {% cycle 'row1' 'row2' as rowcolors %}
 
-From then on, you can insert the current value of the cycle wherever you'd like
-in your template by referencing the cycle name as a context variable. If you
-want to move the cycle to the next value independently of the original
-``cycle`` tag, you can use another ``cycle`` tag and specify the name of the
-variable. So, the following template::
+这样, 就可以通过引用循环名称作为上下文变量, 在模板中任意位置插入循环的当前值. 如果要独立于原始 ``cycle`` 标签将循环移动到下一个值, 可以使用另一个 ``cycle`` 标签并指定变量的名称. 因此::
 
     <tr>
         <td class="{% cycle 'row1' 'row2' as rowcolors %}">...</td>
@@ -142,7 +116,7 @@ variable. So, the following template::
         <td class="{{ rowcolors }}">...</td>
     </tr>
 
-would output::
+将会输出::
 
     <tr>
         <td class="row1">...</td>
@@ -153,10 +127,7 @@ would output::
         <td class="row2">...</td>
     </tr>
 
-You can use any number of values in a ``cycle`` tag, separated by spaces.
-Values enclosed in single quotes (``'``) or double quotes (``"``) are treated
-as string literals, while values without quotes are treated as template
-variables.
+可以在 ``cycle`` 标签中使用任意数量的值, 用空格分隔. 用单引号(``'``)或双引号(``"``)括起来的值被视为字符串, 不带引号的值被视为模板变量.
 
 By default, when you use the ``as`` keyword with the cycle tag, the
 usage of ``{% cycle %}`` that initiates the cycle will itself produce
