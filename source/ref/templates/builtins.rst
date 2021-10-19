@@ -129,29 +129,20 @@
 
 可以在 ``cycle`` 标签中使用任意数量的值, 用空格分隔. 用单引号(``'``)或双引号(``"``)括起来的值被视为字符串, 不带引号的值被视为模板变量.
 
-By default, when you use the ``as`` keyword with the cycle tag, the
-usage of ``{% cycle %}`` that initiates the cycle will itself produce
-the first value in the cycle. This could be a problem if you want to
-use the value in a nested loop or an included template. If you only want
-to declare the cycle but not produce the first value, you can add a
-``silent`` keyword as the last keyword in the tag. For example::
+默认情况下, 当 ``as`` 关键字与cycle标签一起使用时, 启动循环的 ``{% cycle %}`` 本身将生成循环中的第一个值.
+如果要在嵌套循环或包含的模板中使用该值, 则可能会出现问题. 如果只想声明循环, 但不想生成第一个值, 那么可以添加一个 ``silent`` 关键字作为标签中的最后一个关键字. 例如::
 
     {% for obj in some_list %}
         {% cycle 'row1' 'row2' as rowcolors silent %}
         <tr class="{{ rowcolors }}">{% include "subtemplate.html" %}</tr>
     {% endfor %}
 
-This will output a list of ``<tr>`` elements with ``class``
-alternating between ``row1`` and ``row2``. The subtemplate will have
-access to ``rowcolors`` in its context and the value will match the class
-of the ``<tr>`` that encloses it. If the ``silent`` keyword were to be
-omitted, ``row1`` and ``row2`` would be emitted as normal text, outside the
-``<tr>`` element.
+这将输出一个交替使用 ``row1`` 和 ``row2`` 作为class的 ``<tr>`` 列表.
+子模板可以在上下文中访问 ``rowcolors``, 并且该值将匹配包含它的 ``<tr>`` 类.
+如果省略 ``silent`` 关键字, ``row1`` 和 ``row2`` 将作为普通文本在 ``<tr>`` 元素外出现.
 
-When the silent keyword is used on a cycle definition, the silence
-automatically applies to all subsequent uses of that specific cycle tag.
-The following template would output *nothing*, even though the second
-call to ``{% cycle %}`` doesn't specify ``silent``::
+当在cycle中定义上silent关键字时, silent将自动适用于该循环标签的所有后续使用.
+以下模板将 *不* 输出任何东西, 即使第二次调用 ``{% cycle %}`` 时并没有指定 ``silent``::
 
     {% cycle 'row1' 'row2' as rowcolors silent %}
     {% cycle rowcolors %}
@@ -161,30 +152,26 @@ call to ``{% cycle %}`` doesn't specify ``silent``::
 ``debug``
 ---------
 
-Outputs a whole load of debugging information, including the current context
-and imported modules.
+输出全部调试信息, 包括当前上下文和导入的模块
 
 .. templatetag:: extends
 
 ``extends``
 -----------
 
-Signals that this template extends a parent template.
+表示当前模板继承自一个父模板.
 
-This tag can be used in two ways:
+该标签有两种用法:
 
-* ``{% extends "base.html" %}`` (with quotes) uses the literal value
-  ``"base.html"`` as the name of the parent template to extend.
+* ``{% extends "base.html" %}`` (带引号) 使用字符串
+  ``"base.html"`` 作为继承的父模板名称.
 
-* ``{% extends variable %}`` uses the value of ``variable``. If the variable
-  evaluates to a string, Django will use that string as the name of the
-  parent template. If the variable evaluates to a ``Template`` object,
-  Django will use that object as the parent template.
+* ``{% extends variable %}`` 使用 ``variable`` 的值. 如果该变量值是一个字符串, Django将使用这个字符串作为父模板的名称.
+  如果该变量值是一个 ``Template`` 对象, Django将使用该对象作为父模板.
 
-See :ref:`template-inheritance` for more information.
+更多信息见 :ref:`template-inheritance`.
 
-A string argument may be a relative path starting with ``./`` or ``../``. For
-example, assume the following directory structure::
+字符串参数可以是以 ``./`` 和 ``../`` 开头的相对路径. 例如, 假设目录结构如下::
 
     dir1/
         template.html
@@ -193,7 +180,7 @@ example, assume the following directory structure::
             base3.html
     base1.html
 
-In ``template.html``, the following paths would be valid::
+在 ``template.html``, 可以像这样使用::
 
     {% extends "./base2.html" %}
     {% extends "../base1.html" %}
@@ -201,45 +188,39 @@ In ``template.html``, the following paths would be valid::
 
 .. versionadded:: 1.10
 
-   The ability to use relative paths was added.
+   新增使用相对路径的功能.
 
 .. templatetag:: filter
 
 ``filter``
 ----------
 
-Filters the contents of the block through one or more filters. Multiple
-filters can be specified with pipes and filters can have arguments, just as
-in variable syntax.
+通过一个或多个过滤器过滤block中的内容. 可以使用管道符连接多个过滤器, 过滤器可以使用参数, 就像变量语法一样.
 
-Note that the block includes *all* the text between the ``filter`` and
-``endfilter`` tags.
+请注意, 该block包括 ``filter`` 和 ``endfilter`` 标签之间的 *所有* 文本.
 
-Sample usage::
+示例用法::
 
     {% filter force_escape|lower %}
-        This text will be HTML-escaped, and will appear in all lowercase.
+        该文本会被 HTML-escaped, 然后转换成小写形式.
     {% endfilter %}
 
 .. note::
 
-    The :tfilter:`escape` and :tfilter:`safe` filters are not acceptable
-    arguments. Instead, use the :ttag:`autoescape` tag to manage autoescaping
-    for blocks of template code.
+    :tfilter:`escape` 和 :tfilter:`safe` 过滤器是不可接受参数的. 取而代之的是, 使用 :ttag:`autoescape` 标签来管理模板代码块的自动转义.
 
 .. templatetag:: firstof
 
 ``firstof``
 -----------
 
-Outputs the first argument variable that is not ``False``. Outputs nothing if
-all the passed variables are ``False``.
+输出第一个不为 ``False`` 的参数. 如果传入的所有参数都为 ``False``, 就什么也不输出.
 
-Sample usage::
+示例::
 
     {% firstof var1 var2 var3 %}
 
-This is equivalent to::
+它等价于::
 
     {% if var1 %}
         {{ var1 }}
@@ -249,36 +230,32 @@ This is equivalent to::
         {{ var3 }}
     {% endif %}
 
-You can also use a literal string as a fallback value in case all
-passed variables are False::
+可以用一个字符串作为默认输出以防传入的所有变量都是False::
 
     {% firstof var1 var2 var3 "fallback value" %}
 
-This tag auto-escapes variable values. You can disable auto-escaping with::
+该标签会自动转义变量值. 可以通过以下方式禁用自动转义::
 
     {% autoescape off %}
         {% firstof var1 var2 var3 "<strong>fallback value</strong>" %}
     {% endautoescape %}
 
-Or if only some variables should be escaped, you can use::
+如果只是对某些变量避免转义, 可以这样::
 
     {% firstof var1 var2|safe var3 "<strong>fallback value</strong>"|safe %}
 
-You can use the syntax ``{% firstof var1 var2 var3 as value %}`` to store the
-output inside a variable.
+还可以使用这样 ``{% firstof var1 var2 var3 as value %}`` 的语法将输出结果储存至变量中.
 
 .. versionadded:: 1.9
 
-    The "as" syntax was added.
+    新增 "as" 语法.
 
 .. templatetag:: for
 
 ``for``
 -------
 
-Loops over each item in an array, making the item available in a context
-variable. For example, to display a list of athletes provided in
-``athlete_list``::
+循环迭代数组中的每一项, 使这些项在上下文中可用. 例如, 展示 ``athlete_list`` 中的每一个athlete::
 
     <ul>
     {% for athlete in athlete_list %}
@@ -286,56 +263,46 @@ variable. For example, to display a list of athletes provided in
     {% endfor %}
     </ul>
 
-You can loop over a list in reverse by using
-``{% for obj in list reversed %}``.
+可以使用
+``{% for obj in list reversed %}`` 来反向遍历列表.
 
-If you need to loop over a list of lists, you can unpack the values
-in each sublist into individual variables. For example, if your context
-contains a list of (x,y) coordinates called ``points``, you could use the
-following to output the list of points::
+如果要循环一个包含列表的列表, 可以将每个子列表中的值解包为单个变量.
+例如, 假设上下文中包含一个名为 ``points`` 的(x,y)坐标列表, 可以使用下面的方法来输出每点::
 
     {% for x, y in points %}
         There is a point at {{ x }},{{ y }}
     {% endfor %}
 
-This can also be useful if you need to access the items in a dictionary.
-For example, if your context contained a dictionary ``data``, the following
-would display the keys and values of the dictionary::
+它也可以用来访问字典中的项. 例如, 假设上下文中有个名为 ``data`` 的字典, 可以使用下面的方法展示字典的建和值::
 
     {% for key, value in data.items %}
         {{ key }}: {{ value }}
     {% endfor %}
 
-Keep in mind that for the dot operator, dictionary key lookup takes precedence
-over method lookup. Therefore if the ``data`` dictionary contains a key named
-``'items'``, ``data.items`` will return ``data['items']`` instead of
-``data.items()``. Avoid adding keys that are named like dictionary methods if
-you want to use those methods in a template (``items``, ``values``, ``keys``,
-etc.). Read more about the lookup order of the dot operator in the
-:ref:`documentation of template variables <template-variables>`.
+需要注意的是点运算符, 字典键值查找会优先于方法查找. 因此如果 ``data`` 字典中含有一个名为
+``'items'`` 的键, ``data.items`` 将会返回 ``data['items']`` 而不是
+``data.items()``. 因此如果要在模板中使用这些方法, 请避免添加和字典方法同名的键(``items``, ``values``, ``keys``,
+等.). 更多关于点运算符的查找顺序请参见
+:ref:`模板变量 <template-variables>`.
 
-The for loop sets a number of variables available within the loop:
+for循环体内可以直接使用的变量:
 
 ==========================  ===============================================
-Variable                    Description
+变量                         描述
 ==========================  ===============================================
-``forloop.counter``         The current iteration of the loop (1-indexed)
-``forloop.counter0``        The current iteration of the loop (0-indexed)
-``forloop.revcounter``      The number of iterations from the end of the
-                            loop (1-indexed)
-``forloop.revcounter0``     The number of iterations from the end of the
-                            loop (0-indexed)
-``forloop.first``           True if this is the first time through the loop
-``forloop.last``            True if this is the last time through the loop
-``forloop.parentloop``      For nested loops, this is the loop surrounding
-                            the current one
+``forloop.counter``         表示当前循环的索引 (从1开始)
+``forloop.counter0``        表示当前循环的索引 (从0开始)
+``forloop.revcounter``      到循环结束的迭代次数(最后一次为1)
+``forloop.revcounter0``     到循环结束的迭代次数(最后一次为0)
+``forloop.first``           当前循环为首个迭代时该变量为True
+``forloop.last``            当前循环为最后个迭代时该变量为True
+``forloop.parentloop``      在嵌套循环中, 指向当前循环的上级循环
 ==========================  ===============================================
 
 ``for`` ... ``empty``
 ---------------------
 
-The ``for`` tag can take an optional ``{% empty %}`` clause whose text is
-displayed if the given array is empty or could not be found::
+``for`` 标签还可以配合可选 ``{% empty %}`` 标签使用, 用于当列表为空或不存在时输出特定内容::
 
     <ul>
     {% for athlete in athlete_list %}
@@ -345,8 +312,7 @@ displayed if the given array is empty or could not be found::
     {% endfor %}
     </ul>
 
-The above is equivalent to -- but shorter, cleaner, and possibly faster
-than -- the following::
+上面的代码与下面的代码是等同的, 但上面的代码更简短, 更清晰, 也可能更快::
 
     <ul>
       {% if athlete_list %}
@@ -363,9 +329,7 @@ than -- the following::
 ``if``
 ------
 
-The ``{% if %}`` tag evaluates a variable, and if that variable is "true" (i.e.
-exists, is not empty, and is not a false boolean value) the contents of the
-block are output::
+``{% if %}`` 标签会判断给定的变量, 当变量为 "true" (例如. 存在, 非空, 非布尔值False) 时就输出块内的内容::
 
     {% if athlete_list %}
         Number of athletes: {{ athlete_list|length }}
@@ -375,18 +339,16 @@ block are output::
         No athletes.
     {% endif %}
 
-In the above, if ``athlete_list`` is not empty, the number of athletes will be
-displayed by the ``{{ athlete_list|length }}`` variable.
+在上例中, 如果 ``athlete_list`` 不为空, 则会通过
+``{{ athlete_list|length }}`` 展示athlete的数量.
 
-As you can see, the ``if`` tag may take one or several ``{% elif %}``
-clauses, as well as an ``{% else %}`` clause that will be displayed if all
-previous conditions fail. These clauses are optional.
+``if`` 标签可以配合一个或多个 ``{% elif %}`` 分支,
+以及一个 ``{% else %}`` 分支, 当之前的所有分支条件都不满足时, 该分支会被显示.
 
-Boolean operators
+布尔运算
 ~~~~~~~~~~~~~~~~~
 
-:ttag:`if` tags may use ``and``, ``or`` or ``not`` to test a number of
-variables or to negate a given variable::
+:ttag:`if` 标签可以接受 ``and``, ``or`` 和 ``not`` 来判断多个变量或取反某个变量::
 
     {% if athlete_list and coach_list %}
         Both athletes and coaches are available.
@@ -408,85 +370,81 @@ variables or to negate a given variable::
         There are some athletes and absolutely no coaches.
     {% endif %}
 
-Use of both ``and`` and ``or`` clauses within the same tag is allowed, with
-``and`` having higher precedence than ``or`` e.g.::
+可以在同一个标签中同时使用 ``and`` 和 ``or``,
+``and`` 优先级高于 ``or`` 例如.::
 
     {% if athlete_list and coach_list or cheerleader_list %}
 
-will be interpreted like:
+将被解释为:
 
 .. code-block:: python
 
     if (athlete_list and coach_list) or cheerleader_list
 
-Use of actual parentheses in the :ttag:`if` tag is invalid syntax. If you need
-them to indicate precedence, you should use nested :ttag:`if` tags.
+:ttag:`if` 标签中使用实际的括号是无效的语法, 如果需要括号来表示优先级, 应使用嵌套的 :ttag:`if` 标签.
 
-:ttag:`if` tags may also use the operators ``==``, ``!=``, ``<``, ``>``,
-``<=``, ``>=``, ``in``, ``not in``, ``is``, and ``is not`` which work as
-follows:
+:ttag:`if` 标签可以使用运算符 ``==``, ``!=``, ``<``, ``>``,
+``<=``, ``>=``, ``in``, ``not in``, ``is``, 和 ``is not``, 其作用如下:
 
-``==`` operator
+``==`` 运算
 ^^^^^^^^^^^^^^^
 
-Equality. Example::
+等于判断. 例如::
 
     {% if somevar == "x" %}
       This appears if variable somevar equals the string "x"
     {% endif %}
 
-``!=`` operator
+``!=`` 运算
 ^^^^^^^^^^^^^^^
 
-Inequality. Example::
+不等于判断. 例如::
 
     {% if somevar != "x" %}
       This appears if variable somevar does not equal the string "x",
       or if somevar is not found in the context
     {% endif %}
 
-``<`` operator
+``<`` 运算
 ^^^^^^^^^^^^^^
 
-Less than. Example::
+小于判断. 例如::
 
     {% if somevar < 100 %}
       This appears if variable somevar is less than 100.
     {% endif %}
 
-``>`` operator
+``>`` 运算
 ^^^^^^^^^^^^^^
 
-Greater than. Example::
+大于判断. 例如::
 
     {% if somevar > 0 %}
       This appears if variable somevar is greater than 0.
     {% endif %}
 
-``<=`` operator
+``<=`` 运算
 ^^^^^^^^^^^^^^^
 
-Less than or equal to. Example::
+小于等于判断. 例如::
 
     {% if somevar <= 100 %}
       This appears if variable somevar is less than 100 or equal to 100.
     {% endif %}
 
-``>=`` operator
+``>=`` 运算
 ^^^^^^^^^^^^^^^
 
-Greater than or equal to. Example::
+大于等于判断. 例如::
 
     {% if somevar >= 1 %}
       This appears if variable somevar is greater than 1 or equal to 1.
     {% endif %}
 
-``in`` operator
+``in`` 运算
 ^^^^^^^^^^^^^^^
 
-Contained within. This operator is supported by many Python containers to test
-whether the given value is in the container. The following are some examples
-of how ``x in y`` will be interpreted::
+包含判断. 该运算是许多Python容器都支持的运算符来判断给定值是否在容器中. 下面是一些解释 ``x in y`` 的示例::
 
     {% if "bc" in "abcdef" %}
       This appears since "bc" is a substring of "abcdef"
@@ -502,17 +460,17 @@ of how ``x in y`` will be interpreted::
       instance that belongs to the QuerySet.
     {% endif %}
 
-``not in`` operator
+``not in`` 运算
 ^^^^^^^^^^^^^^^^^^^
 
-Not contained within. This is the negation of the ``in`` operator.
+不包含判断. 这是 ``in`` 运算取反.
 
-``is`` operator
+``is`` 运算
 ^^^^^^^^^^^^^^^
 
 .. versionadded:: 1.10
 
-Object identity. Tests if two values are the same object. Example::
+对象判断. 判断两个变量是否是同一对象. 例如::
 
     {% if somevar is True %}
       This appears if and only if somevar is True.
@@ -522,13 +480,12 @@ Object identity. Tests if two values are the same object. Example::
       This appears if somevar is None, or if somevar is not found in the context.
     {% endif %}
 
-``is not`` operator
+``is not`` 运算
 ^^^^^^^^^^^^^^^^^^^
 
 .. versionadded:: 1.10
 
-Negated object identity. Tests if two values are not the same object. This is
-the negation of the ``is`` operator. Example::
+对象判断取反. 判断两个变量是否不是同一对象. 它是 ``is`` 运算取反. 例如::
 
     {% if somevar is not True %}
       This appears if somevar is not True, or if somevar is not found in the
@@ -539,22 +496,19 @@ the negation of the ``is`` operator. Example::
       This appears if and only if somevar is not None.
     {% endif %}
 
-Filters
+过滤器
 ~~~~~~~
 
-You can also use filters in the :ttag:`if` expression. For example::
+可以在 :ttag:`if` 表达式中使用过滤器. 例如::
 
     {% if messages|length >= 100 %}
        You have lots of messages today!
     {% endif %}
 
-Complex expressions
+复合表达式
 ~~~~~~~~~~~~~~~~~~~
 
-All of the above can be combined to form complex expressions. For such
-expressions, it can be important to know how the operators are grouped when the
-expression is evaluated - that is, the precedence rules. The precedence of the
-operators, from lowest to highest, is as follows:
+所有这些都可以组合起来变成复合表达式. 对于此类表达式, 了解表达式计算时运算符的分组方式 —— 也就是优先规则很重要. 运算符的优先级从低到高, 如下所示:
 
 * ``or``
 * ``and``
@@ -562,51 +516,44 @@ operators, from lowest to highest, is as follows:
 * ``in``
 * ``==``, ``!=``, ``<``, ``>``, ``<=``, ``>=``
 
-(This follows Python exactly). So, for example, the following complex
-:ttag:`if` tag::
+(这完全是按照Python来的). 所以, 下面这个 :ttag:`if` 标签::
 
     {% if a == b or c == d and e %}
 
-...will be interpreted as:
+...将被解释为:
 
 .. code-block:: python
 
     (a == b) or ((c == d) and e)
 
-If you need different precedence, you will need to use nested :ttag:`if` tags.
-Sometimes that is better for clarity anyway, for the sake of those who do not
-know the precedence rules.
+如果需要不同的优先级, 则需使用嵌套的 :ttag:`if` 标签. 有时为了清楚起见, 为了那些不知道优先规则的人, 这样做更好.
 
-The comparison operators cannot be 'chained' like in Python or in mathematical
-notation. For example, instead of using::
+比较运算符不能像在Python或数学符号中那样'串联'. 例如, 不能使用::
 
     {% if a > b > c %}  (WRONG)
 
-you should use::
+正确方式::
 
     {% if a > b and b > c %}
 
-``ifequal`` and ``ifnotequal``
+``ifequal`` 和 ``ifnotequal``
 ------------------------------
 
-``{% ifequal a b %} ... {% endifequal %}`` is an obsolete way to write
-``{% if a == b %} ... {% endif %}``. Likewise, ``{% ifnotequal a b %} ...
-{% endifnotequal %}`` is superseded by ``{% if a != b %} ... {% endif %}``.
-The ``ifequal`` and ``ifnotequal`` tags will be deprecated in a future release.
+``{% ifequal a b %} ... {% endifequal %}`` 是
+``{% if a == b %} ... {% endif %}`` 的一种过时的方式. 同样, ``{% ifnotequal a b %} ...
+{% endifnotequal %}`` 也被 ``{% if a != b %} ... {% endif %}`` 替代.
+``ifequal`` 和 ``ifnotequal`` 标签将会在未来版本中弃用.
 
 .. templatetag:: ifchanged
 
 ``ifchanged``
 -------------
 
-Check if a value has changed from the last iteration of a loop.
+检查值是否在循环的上次迭代中发生变化.
 
-The ``{% ifchanged %}`` block tag is used within a loop. It has two possible
-uses.
+``{% ifchanged %}`` 块标签被用在循环中. 它通常有两种用途.
 
-1. Checks its own rendered contents against its previous state and only
-   displays the content if it has changed. For example, this displays a list of
-   days, only displaying the month if it changes::
+1. 根据之前的状态检查自己渲染的内容, 只有在内容发生变化时才显示. 例如, 这将显示天数列表, 仅在月份发生变化时显示月份::
 
         <h1>Archive for {{ year }}</h1>
 
@@ -615,9 +562,7 @@ uses.
             <a href="{{ date|date:"M/d"|lower }}/">{{ date|date:"j" }}</a>
         {% endfor %}
 
-2. If given one or more variables, check whether any variable has changed.
-   For example, the following shows the date every time it changes, while
-   showing the hour if either the hour or the date has changed::
+2. 如果给定一个或多个变量, 检查是否有任何变量发生更改. 例如, 以下内容显示每次更改的日期, 同时显示小时(如果小时或日期已更改)::
 
         {% for date in days %}
             {% ifchanged date.date %} {{ date.date }} {% endifchanged %}
@@ -626,8 +571,7 @@ uses.
             {% endifchanged %}
         {% endfor %}
 
-The ``ifchanged`` tag can also take an optional ``{% else %}`` clause that
-will be displayed if the value has not changed::
+``ifchanged`` 标签也可以使用一个可选的 ``{% else %}`` 子句, 如果值没有改变就会显示::
 
         {% for match in matches %}
             <div style="background-color:
@@ -644,80 +588,60 @@ will be displayed if the value has not changed::
 ``include``
 -----------
 
-Loads a template and renders it with the current context. This is a way of
-"including" other templates within a template.
+加载一个模板并在当前上下文中进行渲染. 这是一种在模板中"引入"其他模板的方式.
 
-The template name can either be a variable or a hard-coded (quoted) string,
-in either single or double quotes.
+模板名称可以是一个变量, 也可以是一个硬编码(引号)的字符串, 可以是单引号或双引号.
 
-This example includes the contents of the template ``"foo/bar.html"``::
+下面例子引入了模板 ``"foo/bar.html"`` 的内容::
 
     {% include "foo/bar.html" %}
 
-A string argument may be a relative path starting with ``./`` or ``../`` as
-described in the :ttag:`extends` tag.
+字符串参数可以是相对路径, 如 :ttag:`extends` 标签中所述, 以 ``./`` 或 ``../`` 开头.
 
 .. versionadded:: 1.10
 
-   The ability to use a relative path was added.
+   新增使用相对路径的功能.
 
-This example includes the contents of the template whose name is contained in
-the variable ``template_name``::
+这个例子引入模板内容, 其名称包含在变量 ``template_name`` 中::
 
     {% include template_name %}
 
-The variable may also be any object with a ``render()`` method that accepts a
-context. This allows you to reference a compiled ``Template`` in your context.
+变量也可以是任何实现了 ``render()`` 方法接口的对象, 这个对象要可以接收上下文context. 这允许你在你的上下文中引用一个编译的 ``Template``.
 
-An included template is rendered within the context of the template that
-includes it. This example produces the output ``"Hello, John!"``:
+被引入的模板在引入它的模板的上下文中渲染. 下面这个示例生成输出 ``"Hello, John!"``:
 
-* Context: variable ``person`` is set to ``"John"`` and variable ``greeting``
-  is set to ``"Hello"``.
+* Context: 变量 ``person`` 设置为 ``"John"``, 变量 ``greeting`` 设置为 ``"Hello"``.
 
 * Template::
 
     {% include "name_snippet.html" %}
 
-* The ``name_snippet.html`` template::
+* ``name_snippet.html``::
 
     {{ greeting }}, {{ person|default:"friend" }}!
 
-You can pass additional context to the template using keyword arguments::
+使用关键字参数向模板传递额外的上下文::
 
     {% include "name_snippet.html" with person="Jane" greeting="Hello" %}
 
-If you want to render the context only with the variables provided (or even
-no variables at all), use the ``only`` option. No other variables are
-available to the included template::
+如果想只用提供的变量(甚至不使用变量)来渲染上下文, 请使用 ``only`` 选项. 没有其他变量可用于引入的模板::
 
     {% include "name_snippet.html" with greeting="Hi" only %}
 
-If the included template causes an exception while it's rendered (including
-if it's missing or has syntax errors), the behavior varies depending on the
-:class:`template engine's <django.template.Engine>` ``debug`` option (if not
-set, this option defaults to the value of :setting:`DEBUG`). When debug mode is
-turned on, an exception like :exc:`~django.template.TemplateDoesNotExist` or
-:exc:`~django.template.TemplateSyntaxError` will be raised. When debug mode
-is turned off, ``{% include %}`` logs a warning to the ``django.template``
-logger with the exception that happens while rendering the included template
-and returns an empty string.
+如果引入的模板在渲染时发送异常(包括它不存在和有语法错误), 则会根据
+:class:`模版引擎 <django.template.Engine>` 的 ``debug`` 选项会有不同的行为(如果未设置, 则此选项默认为 :setting:`DEBUG` 的值).
+启用调试模式时, 将引发 :exc:`~django.template.TemplateDoesNotExist` 或 :exc:`~django.template.TemplateSyntaxError` 之类的异常.
+关闭调试模式时, ``{% include %}`` 标签 会向 ``django.template`` 记录器记录一条警告, 除了在渲染所引入的模板并返回一个空字符串时发生的异常.
 
 .. versionchanged:: 1.9
 
-    Template logging now includes the warning logging mentioned above.
+    模板日志新增上面提到的警告日志.
 
 .. note::
-    The :ttag:`include` tag should be considered as an implementation of
-    "render this subtemplate and include the HTML", not as "parse this
-    subtemplate and include its contents as if it were part of the parent".
-    This means that there is no shared state between included templates --
-    each include is a completely independent rendering process.
+    :ttag:`include` 标签被视为 "将子模版渲染并嵌入HTML中"的方法, 而不是"解析这个子模板并引入其内容, 就像它是父模板的一部分一样".
+    这意味着, 引入的模板之间没有共享状态 -- 每个引入都是一个完全独立的渲染过程.
 
-    Blocks are evaluated *before* they are included. This means that a template
-    that includes blocks from another will contain blocks that have *already
-    been evaluated and rendered* - not blocks that can be overridden by, for
-    example, an extending template.
+    块在被引入 *之前* 就已经被执行. 这意味着模版在被引入之前就已经从另一个block扩展并 *已经* 被执行完成渲染 - 而不是block被覆盖, 例如, 扩展模板.
 
 .. templatetag:: load
 
